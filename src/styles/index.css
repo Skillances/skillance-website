@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+@theme {
+  /* Custom colors - these will generate utilities like text-primary, bg-surface-variant, etc. */
+  --color-primary: #000000;
+  --color-primary-dark: #545454;
+  --color-secondary-teal: #14B8A6;
+  --color-secondary-emerald: #10B981;
+  --color-secondary-orange: #F97316;
+
+  --color-background: #FFFFFF;
+  --color-surface: #FFFFFF;
+  --color-surface-variant: #F3F3F3;
+
+  --color-text-primary: #000000;
+  --color-text-secondary: #5E5E5E;
+  --color-text-tertiary: #9E9E9E;
+
+  --color-border: #E5E5E5;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+}
+
+:root {
+  /* Colors from Flutter app */
+  --color-primary: #000000;
+  --color-primary-dark: #545454;
+  --color-secondary-teal: #14B8A6;
+  --color-secondary-emerald: #10B981;
+  --color-secondary-orange: #F97316;
+
+  --color-background: #FFFFFF;
+  --color-surface: #FFFFFF;
+  --color-surface-variant: #F3F3F3;
+
+  --color-text-primary: #000000;
+  --color-text-secondary: #5E5E5E;
+  --color-text-tertiary: #9E9E9E;
+
+  --color-border: #E5E5E5;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+
+  /* Typography */
+  --font-family-poppins: 'Poppins', sans-serif;
+  --font-family-inter: 'Inter', sans-serif;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: var(--font-family-inter);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss01", "ss03";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-poppins);
+    font-weight: 600;
+  }
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-surface-variant);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-text-tertiary);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Custom utility classes for colors */
+@layer utilities {
+  .text-text-secondary {
+    color: var(--color-text-secondary);
+  }
+
+  .text-text-primary {
+    color: var(--color-text-primary);
+  }
+
+  .text-text-tertiary {
+    color: var(--color-text-tertiary);
+  }
+
+  .bg-surface-variant {
+    background-color: var(--color-surface-variant);
+  }
+
+  .bg-surface {
+    background-color: var(--color-surface);
+  }
+
+  .text-primary {
+    color: var(--color-primary);
+  }
+
+  .border-border {
+    border-color: var(--color-border);
+  }
+}
+
+/* Utility classes */
+.section-padding {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-padding {
+    padding-top: 8rem;
+    padding-bottom: 8rem;
+  }
+}
+
+.container-padding {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-padding {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-padding {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
