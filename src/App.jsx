@@ -4,6 +4,7 @@ import { SectionProvider, useSectionContext } from './context/SectionContext'
 import SectionToggle from './components/layout/SectionToggle'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
+import ScrollProgress from './components/app/ScrollProgress'
 
 // App Pages
 import AppHomePage from './pages/app/AppHomePage'
@@ -43,9 +44,10 @@ function AppContent() {
   return (
     <>
       <SectionToggle />
-      <div className="min-h-screen flex flex-col" style={{ paddingTop: '56px' }}>
+      <ScrollProgress />
+      <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
         <Header />
-        <main className="flex-grow">
+        <main className="flex-grow overflow-x-hidden">
           {isApp ? (
             <Routes>
               <Route path="/" element={<AppHomePage />} />

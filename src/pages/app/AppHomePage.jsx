@@ -14,14 +14,10 @@ import Testimonials from '@/components/app/Testimonials'
 import TrustSection from '@/components/app/TrustSection'
 import DownloadCTA from '@/components/app/DownloadCTA'
 import FloatingCTA from '@/components/app/FloatingCTA'
-import ScrollProgress from '@/components/app/ScrollProgress'
 
 const AppHomePage = () => {
   return (
     <>
-      {/* Scroll Progress Indicator */}
-      <ScrollProgress />
-
       {/* Floating Download Button */}
       <FloatingCTA />
 

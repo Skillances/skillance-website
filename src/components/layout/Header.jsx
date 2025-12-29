@@ -8,6 +8,7 @@ import { CONTRACTING_NAVIGATION } from '@/utils/contractingConstants'
 import { APP_INFO } from '@/utils/appConstants'
 import MobileMenu from './MobileMenu'
 import ComingSoonModal from '@/components/app/ComingSoonModal'
+import { motion } from 'framer-motion'
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -112,14 +113,59 @@ const Header = () => {
               )}
             </div>
 
-            {/* Mobile Menu Toggle */}
-            <button
-              className="md:hidden p-2 touch-target-lg"
+            {/* Mobile Menu Toggle - Enhanced Hamburger */}
+            <motion.button
+              className="md:hidden p-2.5 touch-target-lg relative rounded-lg hover:bg-gray-100 transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
+              whileTap={{ scale: 0.9 }}
             >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+              <div className="w-6 h-6 flex flex-col justify-center items-center">
+                {isMobileMenuOpen ? (
+                  <motion.div
+                    initial={{ rotate: 0, opacity: 0 }}
+                    animate={{ rotate: 90, opacity: 1 }}
+                    exit={{ rotate: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <X size={24} style={{ color: 'var(--color-section-primary)' }} strokeWidth={2.5} />
+                  </motion.div>
+                ) : (
+                  <div className="space-y-1.5 w-full">
+                    <motion.span
+                      className="block w-full h-0.5 rounded-full"
+                      style={{
+                        background: 'linear-gradient(90deg, var(--color-section-primary), var(--color-section-secondary))',
+                      }}
+                      initial={false}
+                      animate={{ scaleX: 1 }}
+                      whileHover={{ scaleX: 1.1 }}
+                      transition={{ duration: 0.2 }}
+                    />
+                    <motion.span
+                      className="block w-full h-0.5 rounded-full"
+                      style={{
+                        background: 'linear-gradient(90deg, var(--color-section-primary), var(--color-section-secondary))',
+                      }}
+                      initial={false}
+                      animate={{ scaleX: 0.8 }}
+                      whileHover={{ scaleX: 1.1 }}
+                      transition={{ duration: 0.2 }}
+                    />
+                    <motion.span
+                      className="block w-full h-0.5 rounded-full"
+                      style={{
+                        background: 'linear-gradient(90deg, var(--color-section-primary), var(--color-section-secondary))',
+                      }}
+                      initial={false}
+                      animate={{ scaleX: 1 }}
+                      whileHover={{ scaleX: 1.1 }}
+                      transition={{ duration: 0.2 }}
+                    />
+                  </div>
+                )}
+              </div>
+            </motion.button>
           </div>
         </div>
       </header>
@@ -128,6 +174,7 @@ const Header = () => {
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
+        onShowComingSoon={() => setIsComingSoonModalOpen(true)}
       />
 
       {/* Coming Soon Modal */}

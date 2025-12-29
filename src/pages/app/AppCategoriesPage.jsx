@@ -3,7 +3,6 @@ import Section from '@/components/common/Section'
 import AnimatedSection from '@/components/common/AnimatedSection'
 import CategoryGrid from '@/components/app/CategoryGrid'
 import DownloadCTA from '@/components/app/DownloadCTA'
-import ScrollProgress from '@/components/app/ScrollProgress'
 import FloatingCTA from '@/components/app/FloatingCTA'
 import AnimatedStats from '@/components/app/AnimatedStats'
 import TrustSection from '@/components/app/TrustSection'
@@ -12,9 +11,6 @@ import { SERVICE_CATEGORIES } from '@/utils/appConstants'
 const AppCategoriesPage = () => {
   return (
     <>
-      {/* Scroll Progress Indicator */}
-      <ScrollProgress />
-
       {/* Floating Download Button */}
       <FloatingCTA />
 

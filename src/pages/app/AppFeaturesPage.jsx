@@ -5,16 +5,12 @@ import FeatureComparison from '@/components/app/FeatureComparison'
 import HowItWorksSideBySide from '@/components/app/HowItWorksSideBySide'
 import DownloadCTA from '@/components/app/DownloadCTA'
 import TrustSection from '@/components/app/TrustSection'
-import ScrollProgress from '@/components/app/ScrollProgress'
 import FloatingCTA from '@/components/app/FloatingCTA'
 import AnimatedStats from '@/components/app/AnimatedStats'
 
 const AppFeaturesPage = () => {
   return (
     <>
-      {/* Scroll Progress Indicator */}
-      <ScrollProgress />
-
       {/* Floating Download Button */}
       <FloatingCTA />
 

@@ -7,32 +7,32 @@ import { floatAnimation, parallaxVariants } from '@/utils/animations'
 
 const ParallaxHero = () => {
   return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden w-full">
       {/* Animated background shapes */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 overflow-hidden">
         {/* Large orbs */}
         <motion.div
-          className="absolute w-96 h-96 rounded-full blur-3xl opacity-20"
+          className="absolute w-64 sm:w-96 h-64 sm:h-96 rounded-full blur-3xl opacity-20"
           style={{
             background: 'linear-gradient(135deg, var(--color-section-primary), var(--color-section-secondary))',
             top: '10%',
-            left: '-10%',
+            left: '-20%',
             willChange: 'transform',
           }}
           animate={parallaxVariants.slow}
         />
         <motion.div
-          className="absolute w-80 h-80 rounded-full blur-3xl opacity-15"
+          className="absolute w-56 sm:w-80 h-56 sm:h-80 rounded-full blur-3xl opacity-15"
           style={{
             background: 'linear-gradient(135deg, var(--color-section-secondary), var(--color-section-primary))',
             bottom: '20%',
-            right: '-5%',
+            right: '-15%',
             willChange: 'transform',
           }}
           animate={parallaxVariants.medium}
         />
         <motion.div
-          className="absolute w-64 h-64 rounded-full blur-3xl opacity-10"
+          className="absolute w-48 sm:w-64 h-48 sm:h-64 rounded-full blur-3xl opacity-10"
           style={{
             background: 'linear-gradient(135deg, var(--color-section-primary), var(--color-section-secondary))',
             top: '50%',
@@ -148,11 +148,11 @@ const ParallaxHero = () => {
               opacity: { duration: 0.8, ease: 'easeOut', delay: 0.2 },
               x: { duration: 0.8, ease: 'easeOut', delay: 0.2 },
             }}
-            className="relative flex items-center justify-center mt-8 lg:mt-0"
+            className="relative flex items-center justify-center mt-8 lg:mt-0 overflow-visible"
           >
             <motion.div
               animate={floatAnimation.animate}
-              className="relative mx-auto"
+              className="relative mx-auto max-w-full"
               style={{ 
                 perspective: '2000px',
                 transformStyle: 'preserve-3d'
@@ -275,9 +275,9 @@ const ParallaxHero = () => {
                   </div>
                 </div>
 
-                {/* Enhanced multi-layer glow effect */}
+                {/* Enhanced multi-layer glow effect - constrained for mobile */}
                 <div 
-                  className="absolute inset-0 -z-20 blur-3xl opacity-40"
+                  className="absolute inset-0 -z-20 blur-3xl opacity-40 hidden sm:block"
                   style={{
                     background: `linear-gradient(135deg, var(--color-section-primary), var(--color-section-secondary))`,
                     transform: 'translateZ(-40px) scale(1.3)',
@@ -287,13 +287,13 @@ const ParallaxHero = () => {
                   className="absolute inset-0 -z-10 blur-2xl opacity-30"
                   style={{
                     background: `radial-gradient(circle at 50% 50%, var(--color-section-primary), transparent)`,
-                    transform: 'translateZ(-20px) scale(1.2)',
+                    transform: 'translateZ(-20px) scale(1.1)',
                   }}
                 />
                 
-                {/* Reflection effect */}
+                {/* Reflection effect - hidden on mobile */}
                 <div 
-                  className="absolute -bottom-4 left-0 right-0 h-32 opacity-20"
+                  className="absolute -bottom-4 left-0 right-0 h-32 opacity-20 hidden sm:block"
                   style={{
                     background: `linear-gradient(to bottom, var(--color-section-primary), transparent)`,
                     transform: 'translateZ(-10px) scaleY(-0.5) translateY(100%)',
