@@ -37,51 +37,51 @@ const Footer = () => {
       {/* Decorative elements */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl z-0" />
       <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl z-0" />
-      <div className="container mx-auto container-padding max-w-7xl py-12 lg:py-16 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+      <div className="container mx-auto container-padding max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px] py-8 sm:py-12 lg:py-16 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12">
           {/* Company Info */}
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center space-x-2">
               <img 
                 src="/app_icon.png" 
                 alt="Skillance" 
-                className="w-8 h-8 object-contain"
+                className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
               />
-              <span style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-xl font-bold block">
+              <span style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-lg sm:text-xl font-bold block">
                 Skillance
               </span>
             </div>
-            <p className="text-sm text-white/90 leading-relaxed" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+            <p className="text-xs sm:text-sm leading-relaxed" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
               {info.description}
             </p>
             {!isApp && CONTRACTING_COMPANY_INFO.social && (
-              <div className="flex space-x-4">
+              <div className="flex space-x-3 sm:space-x-4">
                 <a
                   href={CONTRACTING_COMPANY_INFO.social.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:opacity-80 transition-opacity"
+                  className="hover:opacity-80 transition-opacity touch-target"
                   aria-label="LinkedIn"
                 >
-                  <Linkedin size={20} />
+                  <Linkedin size={20} className="sm:w-5 sm:h-5" />
                 </a>
                 <a
                   href={CONTRACTING_COMPANY_INFO.social.twitter}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:opacity-80 transition-opacity"
+                  className="hover:opacity-80 transition-opacity touch-target"
                   aria-label="X (Twitter)"
                 >
-                  <XIcon size={20} />
+                  <XIcon size={20} className="sm:w-5 sm:h-5" />
                 </a>
                 <a
                   href={CONTRACTING_COMPANY_INFO.social.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:opacity-80 transition-opacity"
+                  className="hover:opacity-80 transition-opacity touch-target"
                   aria-label="Facebook"
                 >
-                  <Facebook size={20} />
+                  <Facebook size={20} className="sm:w-5 sm:h-5" />
                 </a>
               </div>
             )}
@@ -89,15 +89,15 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 style={{ fontFamily: 'var(--font-family-poppins)', color: '#FFFFFF' }} className="font-semibold mb-4">
+            <h3 style={{ fontFamily: 'var(--font-family-poppins)', color: '#FFFFFF' }} className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">
               Quick Links
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-1.5 sm:space-y-2">
               {navigation.map((item) => (
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className="text-sm hover:text-white transition-colors"
+                    className="text-xs sm:text-sm hover:text-white transition-colors py-1 inline-block touch-target"
                     style={{ color: 'rgba(255, 255, 255, 0.8)' }}
                   >
                     {item.name}
@@ -109,10 +109,10 @@ const Footer = () => {
 
           {/* Services or Categories */}
           <div>
-            <h3 style={{ fontFamily: 'var(--font-family-poppins)', color: '#FFFFFF' }} className="font-semibold mb-4">
+            <h3 style={{ fontFamily: 'var(--font-family-poppins)', color: '#FFFFFF' }} className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">
               {isApp ? 'Popular Categories' : 'Services'}
             </h3>
-            <ul className="space-y-2 text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               {isApp ? (
                 <>
                   <li>Tutors</li>
@@ -132,13 +132,13 @@ const Footer = () => {
           </div>
 
           {/* Contact Info or Download */}
-          <div>
-            <h3 style={{ fontFamily: 'var(--font-family-poppins)', color: '#FFFFFF' }} className="font-semibold mb-4">
+          <div className="sm:col-span-2 lg:col-span-1">
+            <h3 style={{ fontFamily: 'var(--font-family-poppins)', color: '#FFFFFF' }} className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">
               {isApp ? 'Download' : 'Contact'}
             </h3>
             {isApp ? (
-              <div className="space-y-3">
-                <p className="text-sm mb-3" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+              <div className="space-y-2 sm:space-y-3">
+                <p className="text-xs sm:text-sm mb-2 sm:mb-3" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                   {APP_INFO.status === 'Coming Soon' ? 'Coming Soon' : 'Get Skillance'}
                 </p>
                 <div>
@@ -146,36 +146,36 @@ const Footer = () => {
                     <img 
                       src="/get_it_on.png" 
                       alt="Download on the App Store and Get it on Google Play"
-                      className="w-[230px] h-[160px] opacity-70"
+                      className="w-[180px] sm:w-[230px] h-auto opacity-70"
                     />
                   ) : (
                     <a 
                       href={APP_INFO.playStoreUrl} 
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block transition-opacity hover:opacity-80"
+                      className="block transition-opacity hover:opacity-80 touch-target"
                     >
                       <img 
                         src="/get_it_on.png" 
                         alt="Download on the App Store and Get it on Google Play"
-                        className="w-[230px] h-[160px]"
+                        className="w-[180px] sm:w-[230px] h-auto"
                       />
                     </a>
                   )}
                 </div>
               </div>
             ) : (
-              <ul className="space-y-3 text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+              <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                 <li className="flex items-start space-x-2">
-                  <Mail size={16} className="mt-1 shrink-0" style={{ color: 'rgba(255, 255, 255, 0.8)' }} />
-                  <span>{CONTRACTING_COMPANY_INFO.email}</span>
+                  <Mail size={14} className="sm:w-4 sm:h-4 mt-1 shrink-0" style={{ color: 'rgba(255, 255, 255, 0.8)' }} />
+                  <span className="break-all">{CONTRACTING_COMPANY_INFO.email}</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <Phone size={16} className="mt-1 shrink-0" style={{ color: 'rgba(255, 255, 255, 0.8)' }} />
+                  <Phone size={14} className="sm:w-4 sm:h-4 mt-1 shrink-0" style={{ color: 'rgba(255, 255, 255, 0.8)' }} />
                   <span>{CONTRACTING_COMPANY_INFO.phone}</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <MapPin size={16} className="mt-1 shrink-0" style={{ color: 'rgba(255, 255, 255, 0.8)' }} />
+                  <MapPin size={14} className="sm:w-4 sm:h-4 mt-1 shrink-0" style={{ color: 'rgba(255, 255, 255, 0.8)' }} />
                   <span>{CONTRACTING_COMPANY_INFO.address}</span>
                 </li>
               </ul>
@@ -184,16 +184,16 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-white/20">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+        <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-white/20">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+            <p className="text-xs sm:text-sm" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
               © {currentYear} {info.name}. All rights reserved.
             </p>
-            <div className="flex space-x-6 text-sm" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-              <Link to="/privacy" className="hover:text-white transition-colors" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+              <Link to="/privacy" className="hover:text-white transition-colors touch-target" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="hover:text-white transition-colors" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+              <Link to="/terms" className="hover:text-white transition-colors touch-target" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                 Terms of Service
               </Link>
             </div>

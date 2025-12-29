@@ -44,7 +44,7 @@ const AnimatedStats = () => {
   })
 
   return (
-    <div className="relative overflow-hidden py-20" style={{ background: 'linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%)' }}>
+    <div className="relative overflow-hidden py-12 sm:py-16 md:py-20" style={{ background: 'linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%)' }}>
       {/* Background particles/shapes */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(6)].map((_, i) => (

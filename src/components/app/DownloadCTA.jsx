@@ -24,7 +24,7 @@ const StoreBadge = ({ href, disabled = false, store = 'google' }) => {
       <img 
         src={imageSrc}
         alt={altText}
-        className="w-[230px] h-[160px] opacity-70 cursor-not-allowed"
+        className="w-[180px] sm:w-[230px] h-auto opacity-70 cursor-not-allowed"
       />
     )
   }
@@ -37,12 +37,12 @@ const StoreBadge = ({ href, disabled = false, store = 'google' }) => {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-      className="inline-block cursor-pointer"
+      className="inline-block cursor-pointer touch-target"
     >
       <img 
         src={imageSrc}
         alt={altText}
-        className="w-[230px] h-[160px]"
+        className="w-[180px] sm:w-[230px] h-auto"
       />
     </motion.a>
   )
@@ -53,7 +53,7 @@ const DownloadCTA = ({ variant = 'default' }) => {
 
   if (variant === 'hero') {
     return (
-      <div className="flex flex-col sm:flex-row gap-4 pt-4 items-center sm:items-start">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 items-center sm:items-start">
         {isComingSoon ? (
           <StoreBadge href="#" disabled store="google" />
         ) : (
@@ -67,7 +67,7 @@ const DownloadCTA = ({ variant = 'default' }) => {
   return (
     <AnimatedSection animation="fadeInUp">
       <div 
-        className="rounded-2xl p-12 text-center text-white"
+        className="rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-12 text-center text-white"
         style={{ 
           background: `linear-gradient(135deg, var(--color-section-primary) 0%, var(--color-section-secondary) 100%)`
         }}
@@ -80,11 +80,11 @@ const DownloadCTA = ({ variant = 'default' }) => {
         >
           <h2 
             style={{ fontFamily: 'var(--font-family-poppins)' }} 
-            className="text-3xl md:text-4xl font-bold mb-4"
+            className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4"
           >
             {isComingSoon ? 'Get Ready to Download Skillance' : 'Download Skillance Today'}
           </h2>
-          <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg mb-6 sm:mb-8 opacity-90 max-w-2xl mx-auto px-4">
             {isComingSoon 
               ? 'Be the first to know when Skillance launches. Join thousands of customers and freelancers ready to connect.'
               : 'Join thousands of customers finding trusted freelancers and freelancers growing their business'
@@ -102,7 +102,7 @@ const DownloadCTA = ({ variant = 'default' }) => {
           )}
 
           {isComingSoon && (
-            <p className="mt-6 text-sm opacity-75">
+            <p className="mt-4 sm:mt-6 text-xs sm:text-sm opacity-75">
               Available for iOS and Android devices
             </p>
           )}

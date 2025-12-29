@@ -4,23 +4,32 @@ import { motion, useScroll, useSpring } from 'framer-motion'
 const ScrollProgress = () => {
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
+    stiffness: 200,
+    damping: 40,
+    restDelta: 0.002,
   })
 
   const [topPosition, setTopPosition] = useState(136) // Default: 56px (SectionToggle) + 80px (Header)
 
   useEffect(() => {
+    let ticking = false
+    
     const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      // SectionToggle is visible when scrollY < 5
-      // Header is at 56px when SectionToggle visible, 0px when hidden
-      // Header height is approximately 80px
-      const isSectionToggleVisible = currentScrollY < 5
-      const headerTop = isSectionToggleVisible ? 56 : 0
-      const headerHeight = 80 // Approximate header height
-      setTopPosition(headerTop + headerHeight)
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY
+          // SectionToggle is visible when scrollY < 5
+          // Header is at 56px when SectionToggle visible, 0px when hidden
+          // Header height is approximately 80px
+          const isSectionToggleVisible = currentScrollY < 5
+          const headerTop = isSectionToggleVisible ? 56 : 0
+          const headerHeight = 80 // Approximate header height
+          setTopPosition(headerTop + headerHeight)
+          
+          ticking = false
+        })
+        ticking = true
+      }
     }
 
     // Check initial position

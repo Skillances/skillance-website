@@ -14,21 +14,21 @@ const TrustSection = () => {
   return (
     <div>
       <AnimatedSection animation="fadeInUp">
-        <div className="text-center max-w-3xl mx-auto mb-12">
+        <div className="text-center max-w-3xl mx-auto mb-8 md:mb-12">
           <h2 
             style={{ fontFamily: 'var(--font-family-poppins)' }} 
-            className="text-3xl md:text-4xl font-bold mb-4"
+            className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4"
           >
             Your Trust, Our Priority
           </h2>
-          <p className="text-lg text-text-secondary">
+          <p className="text-base sm:text-lg text-text-secondary px-4">
             We take security and trust seriously, implementing multiple layers of protection
             to ensure safe transactions and quality service
           </p>
         </div>
       </AnimatedSection>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {TRUST_SECURITY.map((item, index) => {
           const Icon = iconMap[item.icon]
           
@@ -45,22 +45,22 @@ const TrustSection = () => {
           return (
             <AnimatedSection key={item.id} animation="fadeInUp">
               <Card className="h-full text-center hover:shadow-lg transition-shadow duration-300">
-                <CardHeader>
+                <CardHeader className="p-4 sm:p-6">
                   <div 
-                    className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4"
+                    className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-full flex items-center justify-center mb-3 sm:mb-4"
                     style={{ 
                       backgroundColor: colors.bg
                     }}
                   >
-                    <Icon size={32} style={{ color: colors.icon }} />
+                    <Icon size={28} className="sm:w-8 sm:h-8" style={{ color: colors.icon }} />
                   </div>
                   <CardTitle 
                     style={{ fontFamily: 'var(--font-family-poppins)' }} 
-                    className="text-xl mb-3"
+                    className="text-lg sm:text-xl mb-2 sm:mb-3"
                   >
                     {item.title}
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-sm sm:text-base">
                     {item.description}
                   </CardDescription>
                 </CardHeader>

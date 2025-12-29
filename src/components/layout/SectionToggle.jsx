@@ -74,20 +74,18 @@ const SectionToggle = () => {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -100, opacity: 0 }}
           transition={{ 
-            type: "spring",
-            stiffness: 300,
-            damping: 30,
-            mass: 0.8,
-            opacity: { duration: 0.25 }
+            duration: 0.3,
+            ease: 'easeOut',
+            opacity: { duration: 0.2 }
           }}
           className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border shadow-sm"
         >
-          <div className="container mx-auto container-padding max-w-7xl">
+          <div className="container mx-auto container-padding max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px]">
             <div className="flex items-center justify-center py-2">
               <div className="inline-flex rounded-lg bg-surface-variant p-1">
                 <button
                   onClick={() => handleSectionChange('app')}
-                  className={`relative px-6 py-2 rounded-md text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+                  className={`relative px-3 sm:px-4 md:px-6 py-2 rounded-md text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 sm:gap-2 touch-target ${
                     activeSection === 'app'
                       ? 'text-white'
                       : 'text-text-secondary hover:text-text-primary'
@@ -102,13 +100,13 @@ const SectionToggle = () => {
                       transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                     />
                   )}
-                  <Smartphone size={18} className="relative z-10" />
+                  <Smartphone size={16} className="relative z-10 sm:w-[18px] sm:h-[18px]" />
                   <span className="relative z-10">The App</span>
                 </button>
                 
                 <button
                   onClick={() => handleSectionChange('contracting')}
-                  className={`relative px-6 py-2 rounded-md text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+                  className={`relative px-3 sm:px-4 md:px-6 py-2 rounded-md text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 sm:gap-2 touch-target ${
                     activeSection === 'contracting'
                       ? 'text-white'
                       : 'text-text-secondary hover:text-text-primary'
@@ -123,8 +121,9 @@ const SectionToggle = () => {
                       transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                     />
                   )}
-                  <Code2 size={18} className="relative z-10" />
-                  <span className="relative z-10">Contracting Services</span>
+                  <Code2 size={16} className="relative z-10 sm:w-[18px] sm:h-[18px]" />
+                  <span className="relative z-10 hidden xs:inline">Contracting Services</span>
+                  <span className="relative z-10 xs:hidden">Services</span>
                 </button>
               </div>
             </div>

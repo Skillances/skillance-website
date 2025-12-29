@@ -15,25 +15,25 @@ const VideoShowcase = () => {
 
   return (
     <>
-      <div ref={ref} className="container mx-auto container-padding max-w-7xl py-20">
+      <div ref={ref} className="container mx-auto container-padding max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px] py-12 sm:py-16 md:py-20">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-12 md:mb-16"
         >
           <h2 
             style={{ fontFamily: 'var(--font-family-poppins)' }} 
-            className="text-4xl md:text-5xl font-bold mb-4"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4"
           >
             See Skillance in Action
           </h2>
-          <p className="text-lg text-text-secondary max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-text-secondary max-w-2xl mx-auto px-4">
             Watch how easy it is to find freelancers, book services, and grow your business
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
           {videoPlaceholders.map((video, index) => {
             const isEven = index % 2 === 0
             

@@ -5,12 +5,15 @@ import { Button } from '@/components/ui/button'
 import { useSectionContext } from '@/context/SectionContext'
 import { APP_NAVIGATION } from '@/utils/appConstants'
 import { CONTRACTING_NAVIGATION } from '@/utils/contractingConstants'
+import { APP_INFO } from '@/utils/appConstants'
 import MobileMenu from './MobileMenu'
+import ComingSoonModal from '@/components/app/ComingSoonModal'
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSectionToggleVisible, setIsSectionToggleVisible] = useState(true)
+  const [isComingSoonModalOpen, setIsComingSoonModalOpen] = useState(false)
   const [lastScrollY, setLastScrollY] = useState(0)
   const location = useLocation()
   const { isApp } = useSectionContext()
@@ -45,41 +48,41 @@ const Header = () => {
     <>
       <header
         className={`fixed left-0 right-0 z-40 transition-all duration-300 ${
-          isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-md py-4' : 'bg-transparent py-6'
+          isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-md py-3 md:py-4' : 'bg-transparent py-4 md:py-6'
         }`}
         style={{ 
           top: isSectionToggleVisible ? '56px' : '0px',
           transition: 'top 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, padding 0.3s ease'
         }}
       >
-        <div className="container mx-auto container-padding max-w-7xl">
+        <div className="container mx-auto container-padding max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px]">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2 touch-target">
               <img 
                 src="/app_icon.png" 
                 alt="Skillance" 
-                className="w-8 h-8 object-contain"
+                className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
               />
               <span 
                 style={{ 
                   fontFamily: 'var(--font-family-poppins)',
                   color: 'var(--color-section-primary)'
                 }} 
-                className="text-xl font-bold"
+                className="text-lg sm:text-xl font-bold"
               >
                 Skillance
               </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
+            <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
               {navigation.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   style={{ fontFamily: 'var(--font-family-inter)' }}
-                  className={`text-sm font-medium transition-colors ${
+                  className={`text-sm font-medium transition-colors py-2 ${
                     location.pathname === item.path
                       ? 'text-text-primary'
                       : 'text-text-secondary hover:text-text-primary'
@@ -92,17 +95,26 @@ const Header = () => {
 
             {/* CTA Button */}
             <div className="hidden md:block">
-              <Button 
-                asChild
-                style={{ backgroundColor: 'var(--color-section-primary)' }}
-              >
-                <Link to="/contact">{isApp ? 'Get the App' : 'Get Started'}</Link>
-              </Button>
+              {isApp && APP_INFO.status === 'Coming Soon' ? (
+                <Button 
+                  onClick={() => setIsComingSoonModalOpen(true)}
+                  style={{ backgroundColor: 'var(--color-section-primary)' }}
+                >
+                  Get the App
+                </Button>
+              ) : (
+                <Button 
+                  asChild
+                  style={{ backgroundColor: 'var(--color-section-primary)' }}
+                >
+                  <Link to="/contact">{isApp ? 'Get the App' : 'Get Started'}</Link>
+                </Button>
+              )}
             </div>
 
             {/* Mobile Menu Toggle */}
             <button
-              className="md:hidden p-2"
+              className="md:hidden p-2 touch-target-lg"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
             >
@@ -116,6 +128,12 @@ const Header = () => {
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
+      />
+
+      {/* Coming Soon Modal */}
+      <ComingSoonModal
+        isOpen={isComingSoonModalOpen}
+        onClose={() => setIsComingSoonModalOpen(false)}
       />
     </>
   )

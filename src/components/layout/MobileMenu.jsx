@@ -30,21 +30,21 @@ const MobileMenu = ({ isOpen, onClose }) => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'tween', duration: 0.3 }}
-            className="fixed top-0 right-0 bottom-0 w-64 bg-white shadow-lg z-50 md:hidden"
+            className="fixed top-0 right-0 bottom-0 w-72 sm:w-80 bg-white shadow-lg z-50 md:hidden"
             style={{ top: '56px' }}
           >
-            <div className="flex flex-col h-full p-6">
-              <nav className="flex flex-col space-y-4">
+            <div className="flex flex-col h-full p-4 sm:p-6">
+              <nav className="flex flex-col space-y-2">
                 {navigation.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
                     onClick={onClose}
                     style={{ fontFamily: 'var(--font-family-inter)' }}
-                    className={`text-base font-medium transition-colors py-2 ${
+                    className={`text-base font-medium transition-colors py-3 px-2 rounded-md touch-target ${
                       location.pathname === item.path
-                        ? 'text-text-primary'
-                        : 'text-text-secondary hover:text-text-primary'
+                        ? 'text-text-primary bg-surface-variant'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-surface-variant'
                     }`}
                   >
                     {item.name}
@@ -52,10 +52,10 @@ const MobileMenu = ({ isOpen, onClose }) => {
                 ))}
               </nav>
 
-              <div className="mt-8">
+              <div className="mt-auto pt-6">
                 <Button 
                   asChild 
-                  className="w-full"
+                  className="w-full touch-target-lg"
                   style={{ backgroundColor: 'var(--color-section-primary)' }}
                 >
                   <Link to="/contact" onClick={onClose}>

@@ -105,30 +105,30 @@ export const slideInFromRight = {
 
 export const parallaxVariants = {
   slow: {
-    y: [0, -30],
-    transition: {
-      duration: 2,
-      repeat: Infinity,
-      repeatType: 'reverse',
-      ease: 'easeInOut',
-    },
-  },
-  medium: {
-    y: [0, -50],
-    transition: {
-      duration: 3,
-      repeat: Infinity,
-      repeatType: 'reverse',
-      ease: 'easeInOut',
-    },
-  },
-  fast: {
-    y: [0, -70],
+    y: [0, -20],
     transition: {
       duration: 4,
       repeat: Infinity,
       repeatType: 'reverse',
-      ease: 'easeInOut',
+      ease: 'linear',
+    },
+  },
+  medium: {
+    y: [0, -30],
+    transition: {
+      duration: 5,
+      repeat: Infinity,
+      repeatType: 'reverse',
+      ease: 'linear',
+    },
+  },
+  fast: {
+    y: [0, -40],
+    transition: {
+      duration: 6,
+      repeat: Infinity,
+      repeatType: 'reverse',
+      ease: 'linear',
     },
   },
 }
@@ -159,12 +159,12 @@ export const rotateIn = {
 
 export const floatAnimation = {
   animate: {
-    y: [-10, 10],
+    y: [-8, 8],
     transition: {
-      duration: 3,
+      duration: 4,
       repeat: Infinity,
       repeatType: 'reverse',
-      ease: 'easeInOut',
+      ease: 'linear',
     },
   },
 }

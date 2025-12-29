@@ -4,7 +4,7 @@ import { useRef } from 'react'
 
 const AnimatedSection = ({ children, animation = 'fadeInUp', className = '' }) => {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const isInView = useInView(ref, { once: true, margin: "-50px", amount: 0.2 })
 
   const variants = {
     fadeInUp: {
@@ -35,7 +35,7 @@ const AnimatedSection = ({ children, animation = 'fadeInUp', className = '' }) =
       initial="hidden"
       animate={isInView ? 'visible' : 'hidden'}
       variants={variants[animation]}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
       className={className}
     >
       {children}

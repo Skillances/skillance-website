@@ -15,17 +15,10 @@ export const routeMapping = {
   // App routes -> Contracting routes
   '/features': '/services',
   '/categories': '/portfolio',
-  '/about': '/about',
-  '/contact': '/contact',
-  '/privacy': '/privacy',
-  '/terms': '/terms',
   // Contracting routes -> App routes
   '/services': '/features',
   '/portfolio': '/categories',
-  '/about': '/about',
-  '/contact': '/contact',
-  '/privacy': '/privacy',
-  '/terms': '/terms',
+  // Note: /about, /contact, /privacy, /terms exist in both sections, no mapping needed
 }
 
 // Valid routes for each section

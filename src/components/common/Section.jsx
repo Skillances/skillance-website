@@ -21,7 +21,7 @@ const Section = ({
         className
       )}
     >
-      <div className="container mx-auto container-padding max-w-7xl">
+      <div className="container mx-auto container-padding max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px]">
         {children}
       </div>
     </section>

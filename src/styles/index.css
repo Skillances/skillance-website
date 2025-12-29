@@ -344,3 +344,139 @@
     padding-right: 2rem;
   }
 }
+
+/* Responsive container max-widths for large screens */
+.responsive-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 640px) {
+  .responsive-container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .responsive-container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .responsive-container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .responsive-container {
+    max-width: 1400px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .responsive-container {
+    max-width: 1600px;
+  }
+}
+
+/* Touch target utilities for mobile */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.touch-target-lg {
+  min-width: 48px;
+  min-height: 48px;
+}
+
+/* Fluid typography utilities */
+.text-fluid-sm {
+  font-size: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+}
+
+.text-fluid-base {
+  font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+}
+
+.text-fluid-lg {
+  font-size: clamp(1.125rem, 1rem + 0.625vw, 1.25rem);
+}
+
+.text-fluid-xl {
+  font-size: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+}
+
+.text-fluid-2xl {
+  font-size: clamp(1.5rem, 1.3rem + 1vw, 1.875rem);
+}
+
+.text-fluid-3xl {
+  font-size: clamp(1.875rem, 1.5rem + 1.875vw, 2.25rem);
+}
+
+.text-fluid-4xl {
+  font-size: clamp(2.25rem, 1.875rem + 1.875vw, 3rem);
+}
+
+.text-fluid-5xl {
+  font-size: clamp(3rem, 2.5rem + 2.5vw, 3.75rem);
+}
+
+/* Responsive spacing utilities */
+.spacing-sm {
+  padding: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .spacing-sm {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .spacing-sm {
+    padding: 1.5rem;
+  }
+}
+
+.spacing-md {
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .spacing-md {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .spacing-md {
+    padding: 2rem;
+  }
+}
+
+.spacing-lg {
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .spacing-lg {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .spacing-lg {
+    padding: 3rem;
+  }
+}

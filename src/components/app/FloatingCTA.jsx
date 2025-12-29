@@ -1,25 +1,35 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { APP_INFO } from '@/utils/appConstants'
+import ComingSoonModal from './ComingSoonModal'
 
 const FloatingCTA = () => {
   const [isVisible, setIsVisible] = useState(false)
   const [isNearFooter, setIsNearFooter] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
+    let ticking = false
+    
     const handleScroll = () => {
-      // Show after scrolling past hero (e.g., 600px)
-      const scrollPosition = window.scrollY
-      const heroHeight = 600
-      setIsVisible(scrollPosition > heroHeight)
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollPosition = window.scrollY
+          const heroHeight = 600
+          setIsVisible(scrollPosition > heroHeight)
 
-      // Hide when near footer
-      const footerOffset = document.body.scrollHeight - window.innerHeight - 300
-      setIsNearFooter(scrollPosition > footerOffset)
+          // Hide when near footer
+          const footerOffset = document.body.scrollHeight - window.innerHeight - 300
+          setIsNearFooter(scrollPosition > footerOffset)
+          
+          ticking = false
+        })
+        ticking = true
+      }
     }
 
-    window.addEventListener('scroll', handleScroll)
     handleScroll() // Check initial position
+    window.addEventListener('scroll', handleScroll, { passive: true })
 
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
@@ -33,10 +43,11 @@ const FloatingCTA = () => {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
           className="fixed bottom-8 right-8 z-40"
         >
           <motion.button
+            onClick={() => isComingSoon && setIsModalOpen(true)}
             className="flex items-center gap-3 px-6 py-4 rounded-full text-white font-semibold shadow-2xl"
             style={{ backgroundColor: 'var(--color-section-primary)' }}
             whileHover={{ scale: 1.05 }}
@@ -75,6 +86,12 @@ const FloatingCTA = () => {
           />
         </motion.div>
       )}
+      
+      {/* Coming Soon Modal */}
+      <ComingSoonModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </AnimatePresence>
   )
 }
