@@ -1,12 +1,28 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
+import { SectionProvider, useSectionContext } from './context/SectionContext'
+import SectionToggle from './components/layout/SectionToggle'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
-import HomePage from './pages/HomePage'
-import AboutPage from './pages/AboutPage'
-import ServicesPage from './pages/ServicesPage'
-import PortfolioPage from './pages/PortfolioPage'
-import ContactPage from './pages/ContactPage'
+
+// App Pages
+import AppHomePage from './pages/app/AppHomePage'
+import AppAboutPage from './pages/app/AppAboutPage'
+import AppFeaturesPage from './pages/app/AppFeaturesPage'
+import AppCategoriesPage from './pages/app/AppCategoriesPage'
+import AppContactPage from './pages/app/AppContactPage'
+import AppPrivacyPage from './pages/app/AppPrivacyPage'
+import AppTermsPage from './pages/app/AppTermsPage'
+
+// Contracting Pages
+import ContractingHomePage from './pages/contracting/ContractingHomePage'
+import ContractingAboutPage from './pages/contracting/ContractingAboutPage'
+import ContractingServicesPage from './pages/contracting/ContractingServicesPage'
+import ContractingPortfolioPage from './pages/contracting/ContractingPortfolioPage'
+import ContractingContactPage from './pages/contracting/ContractingContactPage'
+import ContractingPrivacyPage from './pages/contracting/ContractingPrivacyPage'
+import ContractingTermsPage from './pages/contracting/ContractingTermsPage'
+
 import NotFoundPage from './pages/NotFoundPage'
 
 // Scroll to top on route change
@@ -20,24 +36,53 @@ function ScrollToTop() {
   return null
 }
 
-function App() {
+// Main content component with conditional routing
+function AppContent() {
+  const { isApp } = useSectionContext()
+
   return (
-    <Router>
-      <ScrollToTop />
-      <div className="min-h-screen flex flex-col">
+    <>
+      <SectionToggle />
+      <div className="min-h-screen flex flex-col" style={{ paddingTop: '56px' }}>
         <Header />
         <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/portfolio" element={<PortfolioPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
+          {isApp ? (
+            <Routes>
+              <Route path="/" element={<AppHomePage />} />
+              <Route path="/features" element={<AppFeaturesPage />} />
+              <Route path="/categories" element={<AppCategoriesPage />} />
+              <Route path="/about" element={<AppAboutPage />} />
+              <Route path="/contact" element={<AppContactPage />} />
+              <Route path="/privacy" element={<AppPrivacyPage />} />
+              <Route path="/terms" element={<AppTermsPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          ) : (
+            <Routes>
+              <Route path="/" element={<ContractingHomePage />} />
+              <Route path="/about" element={<ContractingAboutPage />} />
+              <Route path="/services" element={<ContractingServicesPage />} />
+              <Route path="/portfolio" element={<ContractingPortfolioPage />} />
+              <Route path="/contact" element={<ContractingContactPage />} />
+              <Route path="/privacy" element={<ContractingPrivacyPage />} />
+              <Route path="/terms" element={<ContractingTermsPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          )}
         </main>
         <Footer />
       </div>
+    </>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <SectionProvider>
+        <ScrollToTop />
+        <AppContent />
+      </SectionProvider>
     </Router>
   )
 }

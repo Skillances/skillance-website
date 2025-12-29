@@ -2,13 +2,13 @@ export const COMPANY_INFO = {
   name: 'Skillance',
   tagline: 'Building Digital Solutions That Matter',
   description: 'We create innovative mobile and web applications that help businesses thrive in the digital age.',
-  email: 'info@skillance.com',
-  phone: '+27 XX XXX XXXX',
-  address: 'Johannesburg, South Africa',
+  email: 'services@skillance.co.za',
+  phone: '+27 66 220 3312',
+  address: 'Pretoria, South Africa',
   social: {
-    linkedin: 'https://linkedin.com/company/skillance',
-    twitter: 'https://twitter.com/skillance',
-    facebook: 'https://facebook.com/skillance',
+    linkedin: 'https://www.linkedin.com/company/skillance/',
+    twitter: 'https://x.com/skillance',
+    facebook: 'https://www.facebook.com/skillance',
   },
 }
 

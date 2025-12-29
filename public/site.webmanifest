@@ -1,0 +1,27 @@
+{
+  "name": "Skillance - Software Development & Freelancer Marketplace",
+  "short_name": "Skillance",
+  "description": "Professional mobile and web development services, plus a marketplace platform connecting customers with verified freelancers.",
+  "icons": [
+    {
+      "src": "/app_icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/app_icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563EB",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en"
+}
+
