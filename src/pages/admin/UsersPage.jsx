@@ -9,7 +9,7 @@ import FilterDropdown from '@/components/admin/shared/FilterDropdown'
 import Pagination from '@/components/admin/shared/Pagination'
 import LoadingSpinner from '@/components/admin/shared/LoadingSpinner'
 import EmptyState from '@/components/admin/shared/EmptyState'
-import { Users, UserCheck, Shield, Eye, Mail, Calendar } from 'lucide-react'
+import { Users, UserCheck, Shield, Eye, Mail, Calendar, Briefcase } from 'lucide-react'
 
 const UsersPage = () => {
   const navigate = useNavigate()
@@ -62,7 +62,8 @@ const UsersPage = () => {
         const response = await get(`/admin/users?${params.toString()}`)
 
         if (response.success && response.data) {
-          setUsers(response.data.users || [])
+          const usersData = response.data.users || []
+          setUsers(usersData)
           setPagination(prev => ({
             ...prev,
             total: response.data.pagination?.total || 0,
@@ -282,24 +283,29 @@ const UsersPage = () => {
                           </Badge>
                         </td>
                         <td className="py-4 px-4">
-                          <Badge
-                            style={{
-                              backgroundColor: user.userType === 'freelancer' ? 'var(--color-accent-teal)' : '#3B82F6',
-                              color: 'white',
-                            }}
-                          >
-                            {user.userType === 'freelancer' ? (
-                              <span className="flex items-center gap-1">
-                                <Users size={14} />
-                                Freelancer
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1">
-                                <UserCheck size={14} />
-                                Customer
-                              </span>
-                            )}
-                          </Badge>
+                          {(() => {
+                            const isFreelancer = user.freelancer !== null && user.freelancer !== undefined && user.freelancer.id
+                            return (
+                              <Badge
+                                style={{
+                                  backgroundColor: isFreelancer ? '#14B8A6' : '#3B82F6',
+                                  color: 'white',
+                                }}
+                              >
+                                {isFreelancer ? (
+                                  <span className="flex items-center gap-1">
+                                    <Briefcase size={14} />
+                                    Freelancer
+                                  </span>
+                                ) : (
+                                  <span className="flex items-center gap-1">
+                                    <UserCheck size={14} />
+                                    Customer
+                                  </span>
+                                )}
+                              </Badge>
+                            )
+                          })()}
                         </td>
                         <td className="py-4 px-4">
                           {user.isAdmin ? (
