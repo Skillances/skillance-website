@@ -104,6 +104,15 @@ const Footer = () => {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  to="/login"
+                  className="text-xs sm:text-sm hover:text-white transition-colors py-1 inline-block touch-target"
+                  style={{ color: 'rgba(255, 255, 255, 0.8)' }}
+                >
+                  Login
+                </Link>
+              </li>
             </ul>
           </div>
 

@@ -2,10 +2,13 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { useEffect } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import { SectionProvider, useSectionContext } from './context/SectionContext'
+import { AuthProvider } from './context/AuthContext'
 import SectionToggle from './components/layout/SectionToggle'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import ScrollProgress from './components/app/ScrollProgress'
+import ScrollToTopButton from './components/common/ScrollToTopButton'
+import ProtectedRoute from './components/common/ProtectedRoute'
 
 // App Pages
 import AppHomePage from './pages/app/AppHomePage'
@@ -26,6 +29,8 @@ import ContractingPrivacyPage from './pages/contracting/ContractingPrivacyPage'
 import ContractingTermsPage from './pages/contracting/ContractingTermsPage'
 
 import NotFoundPage from './pages/NotFoundPage'
+import LoginPage from './pages/LoginPage'
+import AdminRoutes from './components/layout/AdminRoutes'
 
 // Scroll to top on route change
 function ScrollToTop() {
@@ -44,37 +49,57 @@ function AppContent() {
 
   return (
     <>
-      <SectionToggle />
-      <ScrollProgress />
-      <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
-        <Header />
-        <main className="flex-grow overflow-x-hidden">
-          {isApp ? (
-            <Routes>
-              <Route path="/" element={<AppHomePage />} />
-              <Route path="/features" element={<AppFeaturesPage />} />
-              <Route path="/categories" element={<AppCategoriesPage />} />
-              <Route path="/about" element={<AppAboutPage />} />
-              <Route path="/contact" element={<AppContactPage />} />
-              <Route path="/privacy" element={<AppPrivacyPage />} />
-              <Route path="/terms" element={<AppTermsPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          ) : (
-            <Routes>
-              <Route path="/" element={<ContractingHomePage />} />
-              <Route path="/about" element={<ContractingAboutPage />} />
-              <Route path="/services" element={<ContractingServicesPage />} />
-              <Route path="/portfolio" element={<ContractingPortfolioPage />} />
-              <Route path="/contact" element={<ContractingContactPage />} />
-              <Route path="/privacy" element={<ContractingPrivacyPage />} />
-              <Route path="/terms" element={<ContractingTermsPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          )}
-        </main>
-        <Footer />
-      </div>
+      <Routes>
+        {/* Admin Routes - Separate layout without header/footer */}
+        <Route 
+          path="/admin/*" 
+          element={
+            <ProtectedRoute requireAdmin={true}>
+              <AdminRoutes />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Public Routes - Normal layout with header/footer */}
+        <Route path="*" element={
+          <>
+            <SectionToggle />
+            <ScrollProgress />
+            <ScrollToTopButton />
+            <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+              <Header />
+              <main className="flex-grow overflow-x-hidden">
+                {isApp ? (
+                  <Routes>
+                    <Route path="/" element={<AppHomePage />} />
+                    <Route path="/features" element={<AppFeaturesPage />} />
+                    <Route path="/categories" element={<AppCategoriesPage />} />
+                    <Route path="/about" element={<AppAboutPage />} />
+                    <Route path="/contact" element={<AppContactPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/privacy" element={<AppPrivacyPage />} />
+                    <Route path="/terms" element={<AppTermsPage />} />
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Routes>
+                ) : (
+                  <Routes>
+                    <Route path="/" element={<ContractingHomePage />} />
+                    <Route path="/about" element={<ContractingAboutPage />} />
+                    <Route path="/services" element={<ContractingServicesPage />} />
+                    <Route path="/portfolio" element={<ContractingPortfolioPage />} />
+                    <Route path="/contact" element={<ContractingContactPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/privacy" element={<ContractingPrivacyPage />} />
+                    <Route path="/terms" element={<ContractingTermsPage />} />
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Routes>
+                )}
+              </main>
+              <Footer />
+            </div>
+          </>
+        } />
+      </Routes>
     </>
   )
 }
@@ -82,11 +107,13 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <SectionProvider>
-        <ScrollToTop />
-        <AppContent />
-        <Analytics />
-      </SectionProvider>
+      <AuthProvider>
+        <SectionProvider>
+          <ScrollToTop />
+          <AppContent />
+          <Analytics />
+        </SectionProvider>
+      </AuthProvider>
     </Router>
   )
 }

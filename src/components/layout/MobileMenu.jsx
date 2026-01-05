@@ -65,19 +65,19 @@ const MobileMenu = ({ isOpen, onClose, onShowComingSoon }) => {
                     <Link
                       to={item.path}
                       onClick={onClose}
-                      style={{ fontFamily: 'var(--font-family-inter)' }}
                       className={`flex items-center justify-between text-base font-medium transition-all py-3.5 px-4 rounded-xl touch-target group ${
                         location.pathname === item.path
                           ? 'text-white shadow-lg'
                           : 'text-text-secondary hover:text-text-primary hover:bg-white hover:shadow-md'
                       }`}
-                      style={
-                        location.pathname === item.path
+                      style={{
+                        fontFamily: 'var(--font-family-inter)',
+                        ...(location.pathname === item.path
                           ? {
                               background: 'linear-gradient(135deg, var(--color-section-primary), var(--color-section-secondary))',
                             }
-                          : {}
-                      }
+                          : {})
+                      }}
                     >
                       <span>{item.name}</span>
                       {location.pathname === item.path && (
