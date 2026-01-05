@@ -383,3 +383,6 @@ export const FLAT_CATEGORIES = Object.values(CATEGORY_HIERARCHY).map((cat) => ({
   subcategoryCount: cat.subcategories?.length || 0,
 }))
 
+
+
+

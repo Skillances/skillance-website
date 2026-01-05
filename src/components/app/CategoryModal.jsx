@@ -174,3 +174,6 @@ const CategoryModal = ({ categoryId, isOpen, onClose }) => {
 
 export default CategoryModal
 
+
+
+

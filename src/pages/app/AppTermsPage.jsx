@@ -175,3 +175,6 @@ const AppTermsPage = () => {
 
 export default AppTermsPage
 
+
+
+
