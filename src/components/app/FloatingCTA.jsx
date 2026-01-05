@@ -44,7 +44,7 @@ const FloatingCTA = () => {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="fixed bottom-8 right-8 z-40"
+          className="fixed bottom-8 left-8 z-40"
         >
           <motion.button
             onClick={() => isComingSoon && setIsModalOpen(true)}
