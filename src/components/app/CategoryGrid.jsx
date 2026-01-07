@@ -76,7 +76,20 @@ const CategoryGrid = ({ limit }) => {
             className="h-full"
             onClick={() => handleCategoryClick(category.id)}
           >
-            <Card className="h-full cursor-pointer group relative overflow-hidden shadow-md hover:shadow-2xl transition-shadow duration-300">
+            <Card 
+              className="h-full cursor-pointer group relative overflow-hidden shadow-md hover:shadow-2xl transition-shadow duration-300 border-2 border-transparent"
+              style={{ borderColor: 'transparent' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = color1
+                const title = e.currentTarget.querySelector('h3')
+                if (title) title.style.color = color1
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'transparent'
+                const title = e.currentTarget.querySelector('h3')
+                if (title) title.style.color = ''
+              }}
+            >
                 {/* Gradient background on hover */}
                 <div 
                   className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300"
@@ -141,7 +154,7 @@ const CategoryGrid = ({ limit }) => {
 
                   <CardTitle 
                     style={{ fontFamily: 'var(--font-family-poppins)' }} 
-                    className="text-lg mb-2 group-hover:text-[var(--color-primary)] transition-colors"
+                    className="text-lg mb-2 transition-colors"
                   >
                     {category.name}
                   </CardTitle>

@@ -4,13 +4,13 @@
   "description": "Professional mobile and web development services, plus a marketplace platform connecting customers with verified freelancers.",
   "icons": [
     {
-      "src": "/app_icon.png",
+      "src": "/app-icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/app_icon.png",
+      "src": "/app-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -24,6 +24,8 @@
   "scope": "/",
   "lang": "en"
 }
+
+
 
 
 

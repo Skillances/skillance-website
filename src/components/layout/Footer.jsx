@@ -30,8 +30,8 @@ const Footer = () => {
     <footer 
       className="text-white relative overflow-hidden"
       style={{ 
-        background: 'linear-gradient(135deg, var(--color-section-primary, #1E3A8A) 0%, var(--color-accent-teal, #14B8A6) 50%, var(--color-accent-cyan, #0891B2) 100%)',
-        backgroundColor: 'var(--color-section-primary, #1E3A8A)'
+        background: 'linear-gradient(135deg, var(--color-section-primary) 0%, var(--color-section-secondary) 50%, var(--color-section-secondary) 100%)',
+        backgroundColor: 'var(--color-section-primary)'
       }}
     >
       {/* Decorative elements */}
@@ -45,7 +45,8 @@ const Footer = () => {
               <img 
                 src="/app_icon.png" 
                 alt="Skillance" 
-                className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
+                style={{ width: '62px', height: '50px' }}
+                className="object-contain"
               />
               <span style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-lg sm:text-xl font-bold block">
                 Skillance
@@ -92,12 +93,12 @@ const Footer = () => {
             <h3 style={{ fontFamily: 'var(--font-family-poppins)', color: '#FFFFFF' }} className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">
               Quick Links
             </h3>
-            <ul className="space-y-1.5 sm:space-y-2">
+            <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               {navigation.map((item) => (
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className="text-xs sm:text-sm hover:text-white transition-colors py-1 inline-block touch-target"
+                    className="hover:text-white transition-colors touch-target"
                     style={{ color: 'rgba(255, 255, 255, 0.8)' }}
                   >
                     {item.name}

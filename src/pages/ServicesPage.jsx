@@ -31,11 +31,18 @@ const ServicesPage = () => {
 
             return (
               <AnimatedSection key={service.id} animation={isEven ? 'slideInLeft' : 'slideInRight'}>
-                <Card className="overflow-hidden">
+                <Card 
+                  className="overflow-hidden hover-lift border-2 border-transparent transition-all duration-300"
+                  style={{ 
+                    borderColor: 'transparent',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                >
                   <div className="grid md:grid-cols-2 gap-8 p-8">
                     <div>
                       <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'var(--color-surface-variant)' }}>
-                        <Icon size={32} style={{ color: 'var(--color-primary)' }} />
+                        <Icon size={32} style={{ color: 'var(--color-section-primary)' }} />
                       </div>
                       <CardTitle style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-3xl mb-4">
                         {service.title}
@@ -43,7 +50,10 @@ const ServicesPage = () => {
                       <CardDescription className="text-base mb-6">
                         {service.description}
                       </CardDescription>
-                      <Button asChild>
+                      <Button 
+                        asChild
+                        style={{ backgroundColor: 'var(--color-section-primary)', height: '40px' }}
+                      >
                         <Link to="/contact">Get a Quote</Link>
                       </Button>
                     </div>
@@ -85,9 +95,16 @@ const ServicesPage = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {PROCESS_STEPS.map((step, index) => (
             <AnimatedSection key={step.number} animation="fadeInUp">
-              <Card className="h-full">
+              <Card 
+                className="h-full hover-lift border-2 border-transparent transition-all duration-300"
+                style={{ 
+                  borderColor: 'transparent',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+              >
                 <CardHeader>
-                  <div style={{ fontFamily: 'var(--font-family-poppins)', color: 'var(--color-secondary-teal)' }} className="text-4xl font-bold mb-2">
+                  <div style={{ fontFamily: 'var(--font-family-poppins)', color: 'var(--color-section-primary)' }} className="text-4xl font-bold mb-2">
                     {step.number}
                   </div>
                   <CardTitle style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-xl">

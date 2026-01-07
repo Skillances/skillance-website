@@ -44,7 +44,12 @@ const TrustSection = () => {
           
           return (
             <AnimatedSection key={item.id} animation="fadeInUp">
-              <Card className="h-full text-center hover:shadow-lg transition-shadow duration-300">
+              <Card 
+                className="h-full text-center hover:shadow-lg transition-shadow duration-300 border-2 border-transparent"
+                style={{ borderColor: 'transparent' }}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+              >
                 <CardHeader className="p-4 sm:p-6">
                   <div 
                     className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-full flex items-center justify-center mb-3 sm:mb-4"

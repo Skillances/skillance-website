@@ -181,7 +181,12 @@ const HowItWorks = ({ userType = 'customers' }) => {
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+                <Card 
+                  className="p-6 text-center hover:shadow-lg transition-shadow border-2 border-transparent"
+                  style={{ borderColor: 'transparent' }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                >
                   <div 
                     className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 text-white"
                     style={{ backgroundColor: 'var(--color-section-primary)' }}

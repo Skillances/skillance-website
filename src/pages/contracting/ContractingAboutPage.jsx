@@ -51,7 +51,7 @@ const ContractingAboutPage = () => {
             >
               <Card className="h-full hover-lift border-2 border-transparent hover:border-[var(--color-accent-teal)] transition-all duration-300 bg-gradient-card">
                 <CardHeader>
-                  <div className="w-12 h-12 rounded-lg bg-gradient-accent flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'var(--color-section-primary)' }}>
                     <Lightbulb size={24} className="text-white" />
                   </div>
                   <CardTitle style={{ fontFamily: 'var(--font-family-poppins)' }}>Our Mission</CardTitle>
@@ -71,7 +71,7 @@ const ContractingAboutPage = () => {
             >
               <Card className="h-full hover-lift border-2 border-transparent hover:border-[var(--color-accent-teal)] transition-all duration-300 bg-gradient-card">
                 <CardHeader>
-                  <div className="w-12 h-12 rounded-lg bg-gradient-accent flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'var(--color-section-primary)' }}>
                     <Award size={24} className="text-white" />
                   </div>
                   <CardTitle style={{ fontFamily: 'var(--font-family-poppins)' }}>Our Vision</CardTitle>
@@ -111,7 +111,8 @@ const ContractingAboutPage = () => {
                   <Card className="h-full text-center hover-lift border-2 border-transparent hover:border-[var(--color-accent-teal)] transition-all duration-300 bg-gradient-card">
                     <CardHeader>
                       <motion.div 
-                        className="mx-auto w-14 h-14 rounded-lg flex items-center justify-center mb-4 bg-gradient-accent shadow-accent"
+                        className="mx-auto w-14 h-14 rounded-lg flex items-center justify-center mb-4 shadow-accent"
+                        style={{ backgroundColor: 'var(--color-section-primary)' }}
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                       >

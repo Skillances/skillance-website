@@ -36,7 +36,8 @@ const ContractingServicesPage = () => {
                   <div className="grid md:grid-cols-2 gap-8 p-8">
                     <div>
                       <motion.div 
-                        className="w-14 h-14 rounded-lg flex items-center justify-center mb-4 bg-gradient-accent shadow-accent"
+                        className="w-14 h-14 rounded-lg flex items-center justify-center mb-4 shadow-accent"
+                        style={{ backgroundColor: 'var(--color-section-primary)' }}
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                       >
@@ -75,7 +76,7 @@ const ContractingServicesPage = () => {
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
                           >
-                            <div className="w-5 h-5 rounded-full bg-gradient-accent flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
+                            <div className="w-5 h-5 rounded-full flex items-center justify-center mr-3 flex-shrink-0 mt-0.5" style={{ backgroundColor: 'var(--color-section-primary)' }}>
                               <Check size={14} className="text-white" />
                             </div>
                             <span className="text-text-secondary">{feature}</span>
@@ -119,7 +120,7 @@ const ContractingServicesPage = () => {
                   <div className="absolute inset-0 bg-gradient-accent opacity-0 hover:opacity-5 rounded-lg transition-opacity duration-300" />
                   
                   <CardHeader className="relative z-10">
-                    <div className="w-16 h-16 rounded-full bg-gradient-accent flex items-center justify-center mb-4 shadow-accent">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-accent" style={{ backgroundColor: 'var(--color-section-primary)' }}>
                       <span style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-2xl font-bold text-white">
                         {step.number}
                       </span>

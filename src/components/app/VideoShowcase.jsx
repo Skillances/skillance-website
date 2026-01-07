@@ -44,7 +44,10 @@ const VideoShowcase = () => {
                 animate={inView ? (isEven ? slideInFromLeft.animate : slideInFromRight.animate) : {}}
               >
                 <Card 
-                  className="group relative overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300"
+                  className="group relative overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 border-2 border-transparent"
+                  style={{ borderColor: 'transparent' }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
                   onClick={() => setSelectedVideo(video)}
                 >
                   {/* Video thumbnail placeholder */}
@@ -86,7 +89,7 @@ const VideoShowcase = () => {
                     {/* App icon */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <img 
-                        src="/app_icon.png" 
+                        src="/app-icon.png" 
                         alt="Skillance App" 
                         className="w-24 h-24 object-contain opacity-20"
                       />
@@ -150,7 +153,7 @@ const VideoShowcase = () => {
               <div className="aspect-video bg-gray-900 flex items-center justify-center">
                 <div className="text-center text-white p-8">
                   <img 
-                    src="/app_icon.png" 
+                    src="/app-icon.png" 
                     alt="Skillance App" 
                     className="w-32 h-32 object-contain mx-auto mb-4 opacity-50"
                   />

@@ -94,7 +94,7 @@ const InteractiveDemo = () => {
                     {/* App Icon */}
                     <div className="absolute inset-0 flex items-center justify-center p-8">
                       <motion.img
-                        src="/app_icon.png"
+                        src="/app-icon.png"
                         alt="Skillance App"
                         className="w-32 h-32 object-contain opacity-80"
                         initial={{ scale: 0.8 }}
@@ -162,7 +162,12 @@ const InteractiveDemo = () => {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="p-6">
+                <Card 
+                  className="p-6 border-2 border-transparent"
+                  style={{ borderColor: 'transparent' }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                >
                   <h3 
                     style={{ fontFamily: 'var(--font-family-poppins)' }} 
                     className="text-2xl font-bold mb-4"

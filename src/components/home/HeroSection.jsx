@@ -116,7 +116,7 @@ const HeroSection = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-[var(--color-accent-teal)] opacity-5" />
               
               <motion.img
-                src="/app_icon.png"
+                src="/app-icon.png"
                 alt="Skillance App"
                 className="w-full h-full object-contain p-6 sm:p-8 relative z-10"
                 initial={{ scale: 0.8 }}

@@ -188,7 +188,7 @@ const ContractingContactPage = () => {
                     className="flex items-start space-x-3 p-3 rounded-lg hover:bg-white/50 transition-colors"
                     whileHover={{ x: 4 }}
                   >
-                    <div className="w-10 h-10 rounded-lg bg-gradient-accent flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--color-section-primary)' }}>
                       <Mail size={20} className="text-white" />
                     </div>
                     <div>
@@ -201,7 +201,7 @@ const ContractingContactPage = () => {
                     className="flex items-start space-x-3 p-3 rounded-lg hover:bg-white/50 transition-colors"
                     whileHover={{ x: 4 }}
                   >
-                    <div className="w-10 h-10 rounded-lg bg-gradient-accent flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--color-section-primary)' }}>
                       <Phone size={20} className="text-white" />
                     </div>
                     <div>
@@ -214,7 +214,7 @@ const ContractingContactPage = () => {
                     className="flex items-start space-x-3 p-3 rounded-lg hover:bg-white/50 transition-colors"
                     whileHover={{ x: 4 }}
                   >
-                    <div className="w-10 h-10 rounded-lg bg-gradient-accent flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--color-section-primary)' }}>
                       <MapPin size={20} className="text-white" />
                     </div>
                     <div>
@@ -239,7 +239,20 @@ const ContractingContactPage = () => {
                       href={COMPANY_INFO.social.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-3 rounded-lg bg-gradient-subtle border border-[var(--color-accent-teal)]/20 hover:bg-gradient-accent hover:border-[var(--color-accent-teal)] transition-all"
+                      className="p-3 rounded-lg bg-gradient-subtle border border-[var(--color-section-primary)]/20 hover:border-[var(--color-section-primary)] transition-all"
+                      style={{ 
+                        '--hover-bg': 'var(--color-section-primary)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--color-section-primary)'
+                        const icon = e.currentTarget.querySelector('svg')
+                        if (icon) icon.style.color = 'white'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = ''
+                        const icon = e.currentTarget.querySelector('svg')
+                        if (icon) icon.style.color = 'var(--color-section-primary)'
+                      }}
                       aria-label="LinkedIn"
                       whileHover={{ scale: 1.1, y: -2 }}
                       whileTap={{ scale: 0.95 }}
@@ -250,7 +263,20 @@ const ContractingContactPage = () => {
                       href={COMPANY_INFO.social.twitter}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-3 rounded-lg bg-gradient-subtle border border-[var(--color-accent-teal)]/20 hover:bg-gradient-accent hover:border-[var(--color-accent-teal)] transition-all"
+                      className="p-3 rounded-lg bg-gradient-subtle border border-[var(--color-section-primary)]/20 hover:border-[var(--color-section-primary)] transition-all"
+                      style={{ 
+                        '--hover-bg': 'var(--color-section-primary)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--color-section-primary)'
+                        const icon = e.currentTarget.querySelector('svg')
+                        if (icon) icon.style.color = 'white'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = ''
+                        const icon = e.currentTarget.querySelector('svg')
+                        if (icon) icon.style.color = 'var(--color-section-primary)'
+                      }}
                       aria-label="X (Twitter)"
                       whileHover={{ scale: 1.1, y: -2 }}
                       whileTap={{ scale: 0.95 }}
@@ -261,7 +287,20 @@ const ContractingContactPage = () => {
                       href={COMPANY_INFO.social.facebook}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-3 rounded-lg bg-gradient-subtle border border-[var(--color-accent-teal)]/20 hover:bg-gradient-accent hover:border-[var(--color-accent-teal)] transition-all"
+                      className="p-3 rounded-lg bg-gradient-subtle border border-[var(--color-section-primary)]/20 hover:border-[var(--color-section-primary)] transition-all"
+                      style={{ 
+                        '--hover-bg': 'var(--color-section-primary)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'var(--color-section-primary)'
+                        const icon = e.currentTarget.querySelector('svg')
+                        if (icon) icon.style.color = 'white'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = ''
+                        const icon = e.currentTarget.querySelector('svg')
+                        if (icon) icon.style.color = 'var(--color-section-primary)'
+                      }}
                       aria-label="Facebook"
                       whileHover={{ scale: 1.1, y: -2 }}
                       whileTap={{ scale: 0.95 }}

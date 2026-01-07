@@ -47,7 +47,12 @@ const FeatureComparison = () => {
             
             return (
               <AnimatedSection key={feature.id} animation="slideInLeft">
-                <Card className="hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-[var(--color-section-primary)]">
+                <Card 
+                  className="hover:shadow-lg transition-all duration-300 border-2 border-transparent"
+                  style={{ borderColor: 'transparent' }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                >
                   <CardHeader className="p-4 sm:p-6 pb-3">
                     <div className="flex items-center gap-2.5 sm:gap-3">
                       <div 
@@ -100,7 +105,12 @@ const FeatureComparison = () => {
             
             return (
               <AnimatedSection key={feature.id} animation="slideInRight">
-                <Card className="hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-[var(--color-section-primary)]">
+                <Card 
+                  className="hover:shadow-lg transition-all duration-300 border-2 border-transparent"
+                  style={{ borderColor: 'transparent' }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                >
                   <CardHeader className="p-4 sm:p-6 pb-3">
                     <div className="flex items-center gap-2.5 sm:gap-3">
                       <div 

@@ -9,7 +9,7 @@ const CTASection = () => {
     <div className="relative">
       {/* Gradient background */}
       <div className="absolute inset-0 bg-gradient-primary rounded-2xl opacity-95" />
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-section-primary)] via-[var(--color-accent-teal)] to-[var(--color-accent-cyan)] rounded-2xl opacity-90" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-section-primary)] via-[var(--color-section-secondary)] to-[var(--color-section-secondary)] rounded-2xl opacity-90" />
       
       {/* Decorative elements */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />

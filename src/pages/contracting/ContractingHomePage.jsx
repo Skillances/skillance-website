@@ -25,7 +25,8 @@ const ContractingHomePage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6 }}
-                  className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-accent mb-6"
+                  className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6"
+                  style={{ backgroundColor: 'var(--color-section-primary)' }}
                 >
                   <Target size={32} className="text-white" />
                 </motion.div>

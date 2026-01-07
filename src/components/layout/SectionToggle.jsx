@@ -85,12 +85,12 @@ const SectionToggle = () => {
               <div className="inline-flex rounded-lg bg-surface-variant p-1">
                 <button
                   onClick={() => handleSectionChange('app')}
-                  className={`relative px-3 sm:px-4 md:px-6 py-2 rounded-md text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 sm:gap-2 touch-target ${
+                  className={`relative px-3 sm:px-4 md:px-6 rounded-md text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 sm:gap-2 touch-target ${
                     activeSection === 'app'
                       ? 'text-white'
                       : 'text-text-secondary hover:text-text-primary'
                   }`}
-                  style={{ fontFamily: 'var(--font-family-inter)' }}
+                  style={{ fontFamily: 'var(--font-family-inter)', height: '40px' }}
                 >
                   {activeSection === 'app' && (
                     <motion.div
@@ -106,12 +106,12 @@ const SectionToggle = () => {
                 
                 <button
                   onClick={() => handleSectionChange('contracting')}
-                  className={`relative px-3 sm:px-4 md:px-6 py-2 rounded-md text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 sm:gap-2 touch-target ${
+                  className={`relative px-3 sm:px-4 md:px-6 rounded-md text-xs sm:text-sm font-medium transition-all duration-300 flex items-center gap-1.5 sm:gap-2 touch-target ${
                     activeSection === 'contracting'
                       ? 'text-white'
                       : 'text-text-secondary hover:text-text-primary'
                   }`}
-                  style={{ fontFamily: 'var(--font-family-inter)' }}
+                  style={{ fontFamily: 'var(--font-family-inter)', height: '40px' }}
                 >
                   {activeSection === 'contracting' && (
                     <motion.div

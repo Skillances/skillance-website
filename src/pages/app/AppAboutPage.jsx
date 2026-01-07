@@ -130,7 +130,12 @@ const AppAboutPage = () => {
                     whileHover={{ scale: 1.05, y: -5 }}
                     transition={{ type: 'spring', stiffness: 300 }}
                   >
-                    <Card className="text-center border-2 border-transparent hover:border-[var(--color-section-primary)] transition-all duration-300">
+                    <Card 
+                      className="text-center border-2 border-transparent transition-all duration-300"
+                      style={{ borderColor: 'transparent' }}
+                      onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+                      onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                    >
                       <CardContent className="pt-6">
                         <motion.div
                           className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4"
@@ -163,7 +168,7 @@ const AppAboutPage = () => {
                     <div className="relative">
                       {/* App icon as drop cap */}
                       <motion.img
-                        src="/app_icon.png"
+                        src="/app-icon.png"
                         alt="Skillance"
                         className="float-left mr-3 mb-2 rounded-xl shadow-lg"
                         style={{

@@ -27,10 +27,11 @@ const ServicesPreview = () => {
               whileHover={{ y: -8 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
-              <Card className="h-full hover-lift border-2 border-transparent hover:border-[var(--color-accent-teal)] transition-all duration-300 flex flex-col bg-gradient-card">
+              <Card className="h-full hover-lift border-2 border-transparent hover:border-[var(--color-section-primary)] transition-all duration-300 flex flex-col bg-gradient-card">
                 <CardHeader className="flex-grow flex flex-col">
                   <motion.div
-                    className="w-14 h-14 rounded-lg flex items-center justify-center mb-4 bg-gradient-accent shadow-accent"
+                    className="w-14 h-14 rounded-lg flex items-center justify-center mb-4 shadow-accent"
+                    style={{ backgroundColor: 'var(--color-section-primary)' }}
                     whileHover={{ scale: 1.1, rotate: 5 }}
                     transition={{ type: 'spring', stiffness: 300 }}
                   >
@@ -50,7 +51,7 @@ const ServicesPreview = () => {
                   >
                     <Button 
                       variant="outline" 
-                      className="w-full border-2 hover:border-[var(--color-accent-teal)] hover:text-[var(--color-accent-teal)] transition-all" 
+                      className="w-full border-2 hover:border-[var(--color-section-primary)] hover:text-[var(--color-section-primary)] transition-all" 
                       asChild
                     >
                       <Link to="/services">Learn More</Link>

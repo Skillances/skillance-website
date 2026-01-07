@@ -38,7 +38,12 @@ const HowItWorksSideBySide = () => {
         transition={{ delay: index * 0.1, duration: 0.5 }}
         className="relative"
       >
-        <Card className="p-4 hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-[var(--color-section-primary)]">
+        <Card 
+          className="p-4 hover:shadow-lg transition-all duration-300 border-2 border-transparent"
+          style={{ borderColor: 'transparent' }}
+          onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+        >
           <div className="flex items-center gap-4">
             {/* Step Number & Icon */}
             <div className="flex-shrink-0 relative">
