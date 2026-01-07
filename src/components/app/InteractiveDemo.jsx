@@ -8,6 +8,7 @@ const featureKeys = Object.keys(interactiveFeatures)
 
 const InteractiveDemo = () => {
   const [activeFeature, setActiveFeature] = useState(featureKeys[0])
+  const [hoveredHotspot, setHoveredHotspot] = useState(null)
   const currentFeature = interactiveFeatures[activeFeature]
 
   return (
@@ -41,7 +42,10 @@ const InteractiveDemo = () => {
               return (
                 <motion.button
                   key={key}
-                  onClick={() => setActiveFeature(key)}
+                  onClick={() => {
+                    setActiveFeature(key)
+                    setHoveredHotspot(null)
+                  }}
                   className={`w-full text-left p-4 rounded-lg transition-all ${
                     isActive ? 'shadow-lg' : 'hover:shadow-md'
                   }`}
@@ -104,51 +108,85 @@ const InteractiveDemo = () => {
                     </div>
 
                     {/* Hotspots */}
-                    {currentFeature.hotspots.map((hotspot, index) => (
-                      <motion.div
-                        key={index}
-                        className="absolute group"
-                        style={{
-                          left: `${hotspot.x}%`,
-                          top: `${hotspot.y}%`,
-                          transform: 'translate(-50%, -50%)',
-                        }}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: index * 0.1 + 0.3 }}
-                      >
+                    {currentFeature.hotspots.map((hotspot, index) => {
+                      return (
                         <motion.div
-                          className="w-8 h-8 rounded-full cursor-pointer relative"
-                          style={{ backgroundColor: 'var(--color-section-primary)' }}
-                          whileHover={{ scale: 1.2 }}
-                          animate={{
-                            scale: [1, 1.1, 1],
+                          key={index}
+                          className="absolute"
+                          style={{
+                            left: `${hotspot.x}%`,
+                            top: `${hotspot.y}%`,
+                            transform: 'translate(-50%, -50%)',
                           }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            delay: index * 0.2,
-                          }}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: index * 0.1 + 0.3 }}
+                          onMouseEnter={() => setHoveredHotspot(index)}
+                          onMouseLeave={() => setHoveredHotspot(null)}
                         >
-                          {/* Pulse ring */}
-                          <div 
-                            className="absolute inset-0 rounded-full animate-ping"
-                            style={{ backgroundColor: 'var(--color-section-primary)', opacity: 0.3 }}
-                          />
+                          <motion.div
+                            className="w-8 h-8 rounded-full cursor-pointer relative z-10"
+                            style={{ backgroundColor: 'var(--color-section-primary)' }}
+                            whileHover={{ scale: 1.2 }}
+                            animate={{
+                              scale: [1, 1.1, 1],
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              delay: index * 0.2,
+                            }}
+                          >
+                            {/* Pulse ring */}
+                            <div 
+                              className="absolute inset-0 rounded-full animate-ping"
+                              style={{ backgroundColor: 'var(--color-section-primary)', opacity: 0.3 }}
+                            />
+                          </motion.div>
                         </motion.div>
-
-                        {/* Tooltip */}
-                        <div className="absolute left-full ml-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                          <div className="glass-card px-3 py-2 rounded-lg shadow-lg">
-                            <p className="text-sm font-medium">{hotspot.label}</p>
-                            <p className="text-xs text-text-secondary">{hotspot.detail}</p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
+                      )
+                    })}
                   </motion.div>
                 </AnimatePresence>
               </div>
+
+              {/* Tooltips - positioned outside phone frame to overlay on top */}
+              {currentFeature.hotspots.map((hotspot, index) => {
+                // Calculate absolute position based on phone dimensions (300px x 600px)
+                const phoneWidth = 300
+                const phoneHeight = 600
+                const left = (hotspot.x / 100) * phoneWidth
+                const top = (hotspot.y / 100) * phoneHeight
+                const isHovered = hoveredHotspot === index
+                
+                return (
+                  <div
+                    key={`tooltip-${activeFeature}-${index}`}
+                    className="absolute pointer-events-none"
+                    style={{
+                      left: `${left}px`,
+                      top: `${top}px`,
+                      transform: 'translate(-50%, -50%)',
+                      zIndex: 50,
+                    }}
+                  >
+                    {/* Tooltip - always appears to the right, overlaying the phone */}
+                    <div 
+                      className={`absolute left-full ml-4 top-1/2 -translate-y-1/2 transition-opacity whitespace-nowrap ${
+                        isHovered ? 'opacity-100' : 'opacity-0'
+                      }`}
+                      style={{
+                        maxWidth: '200px',
+                      }}
+                    >
+                      <div className="glass-card px-3 py-2 rounded-lg shadow-lg">
+                        <p className="text-sm font-medium">{hotspot.label}</p>
+                        <p className="text-xs text-text-secondary">{hotspot.detail}</p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
