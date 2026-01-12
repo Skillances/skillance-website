@@ -4,11 +4,12 @@ export const COMPANY_INFO = {
   description: 'We create innovative mobile and web applications that help businesses thrive in the digital age.',
   email: 'services@skillance.co.za',
   phone: '+27 66 220 3312',
-  address: 'Pretoria, South Africa',
+  address: 'Centurion, Gauteng, South Africa',
   social: {
-    linkedin: 'https://www.linkedin.com/company/skillance/',
+    linkedin: 'https://www.linkedin.com/company/skillanceza/',
     twitter: 'https://x.com/skillance',
-    facebook: 'https://www.facebook.com/skillance',
+    facebook: 'https://www.facebook.com/share/18A2F6LDQH/?mibextid=wwXIfr',
+    instagram: 'https://www.instagram.com/skillanceza',
   },
 }
 

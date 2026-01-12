@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Mail, Phone, MapPin, Linkedin, Facebook, Apple } from 'lucide-react'
+import { Mail, Phone, MapPin, Linkedin, Facebook, Instagram, Apple } from 'lucide-react'
 import XIcon from '@/components/icons/XIcon'
 import { useSectionContext } from '@/context/SectionContext'
 import { APP_INFO, APP_NAVIGATION, APP_COMPANY_INFO } from '@/utils/appConstants'
@@ -84,6 +84,17 @@ const Footer = () => {
                 >
                   <Facebook size={20} className="sm:w-5 sm:h-5" />
                 </a>
+                {CONTRACTING_COMPANY_INFO.social.instagram && (
+                  <a
+                    href={CONTRACTING_COMPANY_INFO.social.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:opacity-80 transition-opacity touch-target"
+                    aria-label="Instagram"
+                  >
+                    <Instagram size={20} className="sm:w-5 sm:h-5" />
+                  </a>
+                )}
               </div>
             )}
           </div>

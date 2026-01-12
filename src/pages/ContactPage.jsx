@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Mail, Phone, MapPin, Linkedin, Facebook } from 'lucide-react'
+import { Mail, Phone, MapPin, Linkedin, Facebook, Instagram } from 'lucide-react'
 import XIcon from '@/components/icons/XIcon'
 import { COMPANY_INFO } from '@/utils/constants'
 
@@ -239,6 +239,18 @@ const ContactPage = () => {
                     >
                       <Facebook size={24} />
                     </a>
+                    {COMPANY_INFO.social.instagram && (
+                      <a
+                        href={COMPANY_INFO.social.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-3 rounded-lg transition-colors"
+                        style={{ backgroundColor: 'var(--color-surface-variant)' }}
+                        aria-label="Instagram"
+                      >
+                        <Instagram size={24} />
+                      </a>
+                    )}
                   </div>
                 </CardContent>
               </Card>

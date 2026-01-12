@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Mail, Phone, MapPin, Linkedin, Facebook } from 'lucide-react'
+import { Mail, Phone, MapPin, Linkedin, Facebook, Instagram } from 'lucide-react'
 import XIcon from '@/components/icons/XIcon'
 import { COMPANY_INFO } from '@/utils/contractingConstants'
 import { motion } from 'framer-motion'
@@ -307,6 +307,32 @@ const ContractingContactPage = () => {
                     >
                       <Facebook size={24} className="text-[var(--color-section-primary)]" />
                     </motion.a>
+                    {COMPANY_INFO.social.instagram && (
+                      <motion.a
+                        href={COMPANY_INFO.social.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-3 rounded-lg bg-gradient-subtle border border-[var(--color-section-primary)]/20 hover:border-[var(--color-section-primary)] transition-all"
+                        style={{ 
+                          '--hover-bg': 'var(--color-section-primary)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'var(--color-section-primary)'
+                          const icon = e.currentTarget.querySelector('svg')
+                          if (icon) icon.style.color = 'white'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = ''
+                          const icon = e.currentTarget.querySelector('svg')
+                          if (icon) icon.style.color = 'var(--color-section-primary)'
+                        }}
+                        aria-label="Instagram"
+                        whileHover={{ scale: 1.1, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Instagram size={24} className="text-[var(--color-section-primary)]" />
+                      </motion.a>
+                    )}
                   </div>
                 </CardContent>
               </Card>
