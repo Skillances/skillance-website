@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { Mail, Phone, MapPin, Linkedin, Facebook, Instagram, Apple } from 'lucide-react'
-import XIcon from '@/components/icons/XIcon'
 import { useSectionContext } from '@/context/SectionContext'
 import { APP_INFO, APP_NAVIGATION, APP_COMPANY_INFO } from '@/utils/appConstants'
 import { COMPANY_INFO as CONTRACTING_COMPANY_INFO, CONTRACTING_NAVIGATION } from '@/utils/contractingConstants'
@@ -55,38 +54,33 @@ const Footer = () => {
             <p className="text-xs sm:text-sm leading-relaxed" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
               {info.description}
             </p>
-            {!isApp && CONTRACTING_COMPANY_INFO.social && (
+            {info.social && (
               <div className="flex space-x-3 sm:space-x-4">
-                <a
-                  href={CONTRACTING_COMPANY_INFO.social.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:opacity-80 transition-opacity touch-target"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin size={20} className="sm:w-5 sm:h-5" />
-                </a>
-                <a
-                  href={CONTRACTING_COMPANY_INFO.social.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:opacity-80 transition-opacity touch-target"
-                  aria-label="X (Twitter)"
-                >
-                  <XIcon size={20} className="sm:w-5 sm:h-5" />
-                </a>
-                <a
-                  href={CONTRACTING_COMPANY_INFO.social.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:opacity-80 transition-opacity touch-target"
-                  aria-label="Facebook"
-                >
-                  <Facebook size={20} className="sm:w-5 sm:h-5" />
-                </a>
-                {CONTRACTING_COMPANY_INFO.social.instagram && (
+                {info.social.linkedin && (
                   <a
-                    href={CONTRACTING_COMPANY_INFO.social.instagram}
+                    href={info.social.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:opacity-80 transition-opacity touch-target"
+                    aria-label="LinkedIn"
+                  >
+                    <Linkedin size={20} className="sm:w-5 sm:h-5" />
+                  </a>
+                )}
+                {info.social.facebook && (
+                  <a
+                    href={info.social.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:opacity-80 transition-opacity touch-target"
+                    aria-label="Facebook"
+                  >
+                    <Facebook size={20} className="sm:w-5 sm:h-5" />
+                  </a>
+                )}
+                {info.social.instagram && (
+                  <a
+                    href={info.social.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:opacity-80 transition-opacity touch-target"

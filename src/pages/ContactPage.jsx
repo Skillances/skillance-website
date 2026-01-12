@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Mail, Phone, MapPin, Linkedin, Facebook, Instagram } from 'lucide-react'
-import XIcon from '@/components/icons/XIcon'
 import { COMPANY_INFO } from '@/utils/constants'
 
 const ContactPage = () => {
@@ -218,16 +217,6 @@ const ContactPage = () => {
                       aria-label="LinkedIn"
                     >
                       <Linkedin size={24} />
-                    </a>
-                    <a
-                      href={COMPANY_INFO.social.twitter}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-3 rounded-lg transition-colors"
-                      style={{ backgroundColor: 'var(--color-surface-variant)' }}
-                      aria-label="X (Twitter)"
-                    >
-                      <XIcon size={24} />
                     </a>
                     <a
                       href={COMPANY_INFO.social.facebook}

@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Mail, Phone, MapPin, Linkedin, Facebook, Instagram } from 'lucide-react'
-import XIcon from '@/components/icons/XIcon'
 import { COMPANY_INFO } from '@/utils/contractingConstants'
 import { motion } from 'framer-motion'
 
@@ -258,30 +257,6 @@ const ContractingContactPage = () => {
                       whileTap={{ scale: 0.95 }}
                     >
                       <Linkedin size={24} className="text-[var(--color-section-primary)] group-hover:text-white" />
-                    </motion.a>
-                    <motion.a
-                      href={COMPANY_INFO.social.twitter}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-3 rounded-lg bg-gradient-subtle border border-[var(--color-section-primary)]/20 hover:border-[var(--color-section-primary)] transition-all"
-                      style={{ 
-                        '--hover-bg': 'var(--color-section-primary)'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'var(--color-section-primary)'
-                        const icon = e.currentTarget.querySelector('svg')
-                        if (icon) icon.style.color = 'white'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = ''
-                        const icon = e.currentTarget.querySelector('svg')
-                        if (icon) icon.style.color = 'var(--color-section-primary)'
-                      }}
-                      aria-label="X (Twitter)"
-                      whileHover={{ scale: 1.1, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <XIcon size={24} className="text-[var(--color-section-primary)]" />
                     </motion.a>
                     <motion.a
                       href={COMPANY_INFO.social.facebook}

@@ -9,6 +9,20 @@ export const APP_INFO = {
   status: 'Coming Soon', // Change to 'Available' when launched
 }
 
+export const APP_COMPANY_INFO = {
+  name: 'Skillance',
+  tagline: 'Find trusted freelancers near you',
+  description: 'A mobile marketplace platform that connects customers with verified freelancers for a wide range of services.',
+  email: 'services@skillance.co.za',
+  phone: '+27 66 220 3312',
+  address: 'Centurion, Gauteng, South Africa',
+  social: {
+    linkedin: 'https://www.linkedin.com/company/skillanceza/',
+    facebook: 'https://www.facebook.com/share/18A2F6LDQH/?mibextid=wwXIfr',
+    instagram: 'https://www.instagram.com/skillanceza',
+  },
+}
+
 export const APP_NAVIGATION = [
   { name: 'Home', path: '/' },
   { name: 'Features', path: '/features' },
@@ -306,14 +320,6 @@ export const TRUST_SECURITY = [
  * TODO: Add your stats data here
  */
 export const APP_STATS = [] // Replace with your stats data array
-
-export const APP_COMPANY_INFO = {
-  name: 'Skillance',
-  description: 'A mobile marketplace platform connecting customers with verified freelancers.',
-  email: 'hello@skillance.app',
-  phone: '+27 (0)11 234 5678',
-  address: 'Johannesburg, South Africa',
-}
 
 export const FAQ_ITEMS = [
   {

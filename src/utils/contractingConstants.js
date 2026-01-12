@@ -7,7 +7,6 @@ export const COMPANY_INFO = {
   address: 'Centurion, Gauteng, South Africa',
   social: {
     linkedin: 'https://www.linkedin.com/company/skillanceza/',
-    twitter: 'https://x.com/skillance',
     facebook: 'https://www.facebook.com/share/18A2F6LDQH/?mibextid=wwXIfr',
     instagram: 'https://www.instagram.com/skillanceza',
   },
