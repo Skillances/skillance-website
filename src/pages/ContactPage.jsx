@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Mail, Phone, MapPin, Linkedin, Facebook, Instagram } from 'lucide-react'
 import { COMPANY_INFO } from '@/utils/constants'
+import { sendEmail, formatContactFormData } from '@/utils/emailjs'
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -33,22 +34,38 @@ const ContactPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setSubmitStatus(null)
 
-    // Simulate form submission
-    setTimeout(() => {
-      setSubmitStatus('success')
-      setIsSubmitting(false)
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        company: '',
-        service: '',
-        message: '',
-      })
+    try {
+      const templateParams = formatContactFormData(formData)
+      console.log('Form data:', formData)
+      console.log('Template params:', templateParams)
+      
+      const result = await sendEmail(templateParams)
 
+      if (result.success) {
+        setSubmitStatus('success')
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          company: '',
+          service: '',
+          message: '',
+        })
+        setTimeout(() => setSubmitStatus(null), 5000)
+      } else {
+        console.error('EmailJS failed:', result.error)
+        setSubmitStatus('error')
+        setTimeout(() => setSubmitStatus(null), 5000)
+      }
+    } catch (error) {
+      console.error('Form submission error:', error)
+      setSubmitStatus('error')
       setTimeout(() => setSubmitStatus(null), 5000)
-    }, 1500)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -151,6 +168,15 @@ const ContactPage = () => {
                   {submitStatus === 'success' && (
                     <div className="p-4 rounded-md" style={{ backgroundColor: 'var(--color-success)', color: 'white' }}>
                       Thank you! We'll get back to you soon.
+                    </div>
+                  )}
+
+                  {submitStatus === 'error' && (
+                    <div className="p-4 rounded-md" style={{ backgroundColor: 'var(--color-error)', color: 'white' }}>
+                      <div className="font-medium mb-1">Error sending message</div>
+                      <div className="text-sm opacity-90">
+                        Please check the browser console for details or contact us directly at {COMPANY_INFO.email}
+                      </div>
                     </div>
                   )}
 

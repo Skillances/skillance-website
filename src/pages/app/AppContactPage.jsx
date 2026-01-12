@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import PageHeader from '@/components/common/PageHeader'
 import Section from '@/components/common/Section'
 import AnimatedSection from '@/components/common/AnimatedSection'
@@ -7,8 +8,63 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Mail, MessageSquare, Briefcase, HelpCircle } from 'lucide-react'
+import { sendEmail, formatContactFormData } from '@/utils/emailjs'
+import { APP_COMPANY_INFO } from '@/utils/appConstants'
 
 const AppContactPage = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    subject: '',
+    message: '',
+  })
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState(null)
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitStatus(null)
+
+    try {
+      const templateParams = formatContactFormData({
+        ...formData,
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+      })
+      const result = await sendEmail(templateParams)
+
+      if (result.success) {
+        setSubmitStatus('success')
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          subject: '',
+          message: '',
+        })
+        setTimeout(() => setSubmitStatus(null), 5000)
+      } else {
+        setSubmitStatus('error')
+        setTimeout(() => setSubmitStatus(null), 5000)
+      }
+    } catch (error) {
+      console.error('Form submission error:', error)
+      setSubmitStatus('error')
+      setTimeout(() => setSubmitStatus(null), 5000)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const contactReasons = [
     {
       icon: HelpCircle,
@@ -102,44 +158,93 @@ const AppContactPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" placeholder="John" />
+                      <Input 
+                        id="firstName" 
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        placeholder="John" 
+                        required
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" placeholder="Doe" />
+                      <Input 
+                        id="lastName" 
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        placeholder="Doe" 
+                        required
+                      />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="john@example.com" />
+                    <Input 
+                      id="email" 
+                      name="email"
+                      type="email" 
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="john@example.com" 
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="subject">Subject</Label>
-                    <Input id="subject" placeholder="How can we help?" />
+                    <Input 
+                      id="subject" 
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      placeholder="How can we help?" 
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="message">Message</Label>
                     <Textarea 
                       id="message" 
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
                       placeholder="Tell us more about your inquiry..." 
                       rows={6}
+                      required
                     />
                   </div>
+
+                  {submitStatus === 'success' && (
+                    <div className="p-4 rounded-md" style={{ backgroundColor: 'var(--color-success)', color: 'white' }}>
+                      Thank you! We'll get back to you soon.
+                    </div>
+                  )}
+
+                  {submitStatus === 'error' && (
+                    <div className="p-4 rounded-md" style={{ backgroundColor: 'var(--color-error)', color: 'white' }}>
+                      <div className="font-medium mb-1">Error sending message</div>
+                      <div className="text-sm opacity-90">
+                        Please check the browser console for details or contact us directly at {APP_COMPANY_INFO.email}
+                      </div>
+                    </div>
+                  )}
 
                   <Button 
                     type="submit" 
                     size="lg" 
                     className="w-full"
                     style={{ backgroundColor: 'var(--color-section-primary)' }}
+                    disabled={isSubmitting}
                   >
-                    Send Message
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                   </Button>
                 </form>
               </CardContent>
@@ -202,6 +307,7 @@ const AppContactPage = () => {
 }
 
 export default AppContactPage
+
 
 
 
