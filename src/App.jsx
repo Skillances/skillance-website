@@ -12,7 +12,8 @@ import ScrollToTopButton from './components/common/ScrollToTopButton'
 import ProtectedRoute from './components/common/ProtectedRoute'
 
 // Lazy load pages for better performance
-const AppHomePage = lazy(() => import('./pages/app/AppHomePage'))
+// Import AppHomePage normally since it's the landing page and needs to load fast
+import AppHomePage from './pages/app/AppHomePage'
 const AppAboutPage = lazy(() => import('./pages/app/AppAboutPage'))
 const AppFeaturesPage = lazy(() => import('./pages/app/AppFeaturesPage'))
 const AppVideosPage = lazy(() => import('./pages/app/AppVideosPage'))

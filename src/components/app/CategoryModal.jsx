@@ -59,13 +59,17 @@ const CategoryModal = ({ categoryId, isOpen, onClose }) => {
                       {/* Animation */}
                       <div className="w-24 h-24 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
                         <div className="w-20 h-20">
-                          <Lottie
-                            animationData={loadedAnimation}
-                            path={category.animation}
-                            loop={true}
-                            autoplay={true}
-                            onLoad={(data) => setLoadedAnimation(data)}
-                          />
+                          {isOpen ? (
+                            <Lottie
+                              animationData={loadedAnimation}
+                              path={category.animation}
+                              loop={true}
+                              autoplay={true}
+                              onLoad={(data) => setLoadedAnimation(data)}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-white/10 rounded-lg animate-pulse" />
+                          )}
                         </div>
                       </div>
 

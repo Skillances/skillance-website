@@ -28,12 +28,24 @@ export default defineConfig({
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'framer-motion': ['framer-motion'],
           'lucide-react': ['lucide-react'],
+          'gsap': ['gsap', '@gsap/react'],
+          'lenis': ['lenis'],
+          'lottie': ['lottie-react'],
+          'recharts': ['recharts'],
         },
       },
     },
     chunkSizeWarningLimit: 1000,
+    // Enable minification and source maps for production
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.logs in production
+        drop_debugger: true,
+      },
+    },
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'framer-motion'],
+    include: ['react', 'react-dom', 'react-router-dom', 'gsap', 'lenis', 'lottie-react'],
   },
 })

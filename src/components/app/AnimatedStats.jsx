@@ -111,7 +111,6 @@ const AnimatedStats = () => {
                     backgroundColor: `${stat.color}15`,
                   }}
                   whileHover={{ scale: 1.15, rotate: 360 }}
-                  transition={{ duration: 0.6 }}
                   animate={inView ? {
                     boxShadow: [
                       `0 0 0 0 ${stat.color}40`,
@@ -120,6 +119,7 @@ const AnimatedStats = () => {
                     ],
                   } : {}}
                   transition={{
+                    duration: 0.6,
                     boxShadow: {
                       duration: 2,
                       repeat: Infinity,

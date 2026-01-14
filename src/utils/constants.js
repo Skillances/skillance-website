@@ -72,9 +72,9 @@ export const SERVICES = [
 ]
 
 export const STATS = [
-  { value: '50+', label: 'Projects Completed' },
-  { value: '30+', label: 'Happy Clients' },
-  { value: '5+', label: 'Years Experience' },
+  { value: '5+', label: 'Projects Completed' },
+  { value: '3+', label: 'Happy Clients' },
+  { value: '3+', label: 'Years Experience' },
   { value: '10+', label: 'Team Members' },
 ]
 

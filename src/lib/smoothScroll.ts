@@ -1,11 +1,6 @@
-import Lenis from 'lenis'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-// Register GSAP plugins
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-}
+// Lenis and GSAP will be loaded dynamically
+type LenisType = any
+type ScrollTriggerType = any
 
 // Check for reduced motion preference
 export const prefersReducedMotion = (): boolean => {
@@ -23,10 +18,10 @@ export interface LenisConfig {
   infinite?: boolean
 }
 
-export const createLenisInstance = (config: LenisConfig = {}) => {
+export const createLenisInstance = (config: LenisConfig = {}, LenisClass: any) => {
   const reducedMotion = prefersReducedMotion()
 
-  const lenis = new Lenis({
+  const lenis = new LenisClass({
     duration: config.duration ?? (reducedMotion ? 0 : 1.2),
     easing: config.easing ?? ((t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))),
     lerp: config.lerp ?? (reducedMotion ? 1 : 0.1),
@@ -45,11 +40,13 @@ export const raf = (time: number) => {
   // This will be set by the provider
 }
 
-let lenisInstance: Lenis | null = null
+let lenisInstance: any | null = null
 let rafId: number | null = null
+let scrollTriggerInstance: any = null
 
-export const startLenisRaf = (lenis: Lenis) => {
+export const startLenisRaf = (lenis: any, ScrollTrigger: any) => {
   lenisInstance = lenis
+  scrollTriggerInstance = ScrollTrigger
   
   const tick = (time: number) => {
     lenis.raf(time)
@@ -59,21 +56,26 @@ export const startLenisRaf = (lenis: Lenis) => {
   rafId = requestAnimationFrame(tick)
   
   // Integrate with GSAP ScrollTrigger
-  lenis.on('scroll', ScrollTrigger.update)
-  
-  // Refresh ScrollTrigger on resize
-  const handleResize = () => {
-    ScrollTrigger.refresh()
+  if (ScrollTrigger) {
+    lenis.on('scroll', ScrollTrigger.update)
+    
+    // Refresh ScrollTrigger on resize
+    const handleResize = () => {
+      ScrollTrigger.refresh()
+    }
+    window.addEventListener('resize', handleResize, { passive: true })
   }
-  window.addEventListener('resize', handleResize, { passive: true })
   
   return () => {
     if (rafId !== null) {
       cancelAnimationFrame(rafId)
       rafId = null
     }
-    window.removeEventListener('resize', handleResize)
+    if (scrollTriggerInstance) {
+      window.removeEventListener('resize', () => scrollTriggerInstance.refresh())
+    }
     lenisInstance = null
+    scrollTriggerInstance = null
   }
 }
 

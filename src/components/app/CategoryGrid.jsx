@@ -24,6 +24,36 @@ const gradientColors = [
   ['#64748B', '#475569'], // Slate
 ]
 
+// Lazy Lottie component that only renders when in viewport
+const LazyLottieAnimation = ({ categoryId, animationPath, onLoad }) => {
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+    rootMargin: '50px', // Start loading slightly before entering viewport
+  })
+  const [animationData, setAnimationData] = useState(null)
+
+  return (
+    <div ref={ref} className="w-16 h-16">
+      {inView ? (
+        <Lottie
+          animationData={animationData}
+          path={animationPath}
+          loop={true}
+          autoplay={true}
+          onLoad={(data) => {
+            setAnimationData(data)
+            onLoad?.(data)
+          }}
+          style={{ width: '100%', height: '100%' }}
+        />
+      ) : (
+        <div className="w-full h-full bg-gray-100 rounded-lg animate-pulse" />
+      )}
+    </div>
+  )
+}
+
 const CategoryGrid = ({ limit }) => {
   const categories = limit ? SERVICE_CATEGORIES.slice(0, limit) : SERVICE_CATEGORIES
   const { ref, inView } = useInView({
@@ -109,17 +139,12 @@ const CategoryGrid = ({ limit }) => {
                             background: `linear-gradient(135deg, ${color1}15, ${color2}15)`
                           }}
                         >
-                          {/* Lottie Animation */}
-                          <div className="w-16 h-16">
-                            <Lottie
-                              animationData={loadedAnimations[category.id]}
-                              path={category.animation}
-                              loop={true}
-                              autoplay={true}
-                              onLoad={(data) => handleAnimationLoad(category.id, data)}
-                              style={{ width: '100%', height: '100%' }}
-                            />
-                          </div>
+                          {/* Lazy Lottie Animation - Only loads when in viewport */}
+                          <LazyLottieAnimation
+                            categoryId={category.id}
+                            animationPath={category.animation}
+                            onLoad={(data) => handleAnimationLoad(category.id, data)}
+                          />
                         </div>
 
                         <CardTitle 

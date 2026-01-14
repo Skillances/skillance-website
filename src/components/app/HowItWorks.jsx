@@ -102,7 +102,6 @@ const HowItWorks = ({ userType = 'customers' }) => {
                       className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg relative overflow-hidden"
                       style={{ backgroundColor: 'var(--color-section-primary)' }}
                       whileHover={{ scale: 1.15, rotate: 360 }}
-                      transition={{ duration: 0.6 }}
                       animate={inView ? {
                         boxShadow: [
                           `0 10px 30px -10px rgba(20, 184, 166, 0.4)`,
@@ -111,6 +110,7 @@ const HowItWorks = ({ userType = 'customers' }) => {
                         ],
                       } : {}}
                       transition={{
+                        duration: 0.6,
                         boxShadow: {
                           duration: 3,
                           repeat: Infinity,
