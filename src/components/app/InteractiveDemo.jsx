@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { interactiveFeatures } from '@/utils/appFeatures'
 import { Smartphone } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import Card3D from './Card3D'
+import MagneticElement from './MagneticElement'
 
 const featureKeys = Object.keys(interactiveFeatures)
 
@@ -70,28 +72,35 @@ const InteractiveDemo = () => {
             })}
           </div>
 
-          {/* Phone mockup (center) */}
+          {/* Phone mockup (center) with 3D effects */}
           <div className="flex justify-center">
-            <div className="relative">
-              {/* Phone frame */}
-              <div 
-                className="relative rounded-[40px] border-[14px] border-gray-800 overflow-hidden shadow-2xl"
-                style={{
-                  width: '300px',
-                  height: '600px',
-                }}
-              >
+            <MagneticElement strength={0.1} range={200}>
+              <Card3D depth={12} scaleOnHover={1.02}>
+                <div className="relative">
+                  {/* Phone frame */}
+                  <div 
+                    className="relative rounded-[40px] border-[14px] border-gray-800 overflow-hidden shadow-2xl"
+                    style={{
+                      width: '300px',
+                      height: '600px',
+                    }}
+                  >
                 {/* Phone notch */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-800 rounded-b-2xl z-10" />
 
-                {/* Screen content */}
+                {/* Screen content with 3D transitions */}
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeFeature}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3 }}
+                    initial={{ opacity: 0, scale: 0.9, rotateY: -15 }}
+                    animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, rotateY: 15 }}
+                    transition={{ 
+                      duration: 0.5,
+                      type: 'spring',
+                      stiffness: 200,
+                      damping: 20,
+                    }}
                     className="w-full h-full flex items-center justify-center relative"
                     style={{ backgroundColor: currentFeature.screenColor }}
                   >
@@ -111,25 +120,30 @@ const InteractiveDemo = () => {
                     {currentFeature.hotspots.map((hotspot, index) => {
                       return (
                         <motion.div
-                          key={index}
+                          key={`hotspot-${activeFeature}-${index}`}
                           className="absolute"
                           style={{
                             left: `${hotspot.x}%`,
                             top: `${hotspot.y}%`,
                             transform: 'translate(-50%, -50%)',
                           }}
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ delay: index * 0.1 + 0.3 }}
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ 
+                            delay: index * 0.1 + 0.3,
+                            type: 'spring',
+                            stiffness: 200,
+                            damping: 15,
+                          }}
                           onMouseEnter={() => setHoveredHotspot(index)}
                           onMouseLeave={() => setHoveredHotspot(null)}
                         >
                           <motion.div
                             className="w-8 h-8 rounded-full cursor-pointer relative z-10"
                             style={{ backgroundColor: 'var(--color-section-primary)' }}
-                            whileHover={{ scale: 1.2 }}
+                            whileHover={{ scale: 1.3, rotate: 180 }}
                             animate={{
-                              scale: [1, 1.1, 1],
+                              scale: [1, 1.15, 1],
                             }}
                             transition={{
                               duration: 2,
@@ -137,10 +151,32 @@ const InteractiveDemo = () => {
                               delay: index * 0.2,
                             }}
                           >
-                            {/* Pulse ring */}
-                            <div 
-                              className="absolute inset-0 rounded-full animate-ping"
+                            {/* Multiple pulse rings for depth */}
+                            <motion.div 
+                              className="absolute inset-0 rounded-full"
                               style={{ backgroundColor: 'var(--color-section-primary)', opacity: 0.3 }}
+                              animate={{
+                                scale: [1, 2, 1],
+                                opacity: [0.3, 0, 0.3],
+                              }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                delay: index * 0.2,
+                              }}
+                            />
+                            <motion.div 
+                              className="absolute inset-0 rounded-full"
+                              style={{ backgroundColor: 'var(--color-section-primary)', opacity: 0.2 }}
+                              animate={{
+                                scale: [1, 2.5, 1],
+                                opacity: [0.2, 0, 0.2],
+                              }}
+                              transition={{
+                                duration: 2.5,
+                                repeat: Infinity,
+                                delay: index * 0.2 + 0.5,
+                              }}
                             />
                           </motion.div>
                         </motion.div>
@@ -150,7 +186,7 @@ const InteractiveDemo = () => {
                 </AnimatePresence>
               </div>
 
-              {/* Tooltips - positioned outside phone frame to overlay on top */}
+              {/* Enhanced Tooltips with animations */}
               {currentFeature.hotspots.map((hotspot, index) => {
                 // Calculate absolute position based on phone dimensions (300px x 600px)
                 const phoneWidth = 300
@@ -170,24 +206,32 @@ const InteractiveDemo = () => {
                       zIndex: 50,
                     }}
                   >
-                    {/* Tooltip - always appears to the right, overlaying the phone */}
-                    <div 
-                      className={`absolute left-full ml-4 top-1/2 -translate-y-1/2 transition-opacity whitespace-nowrap ${
-                        isHovered ? 'opacity-100' : 'opacity-0'
-                      }`}
-                      style={{
-                        maxWidth: '200px',
-                      }}
-                    >
-                      <div className="glass-card px-3 py-2 rounded-lg shadow-lg">
-                        <p className="text-sm font-medium">{hotspot.label}</p>
-                        <p className="text-xs text-text-secondary">{hotspot.detail}</p>
-                      </div>
-                    </div>
+                    {/* Tooltip with smooth animations */}
+                    <AnimatePresence>
+                      {isHovered && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8, x: -10 }}
+                          animate={{ opacity: 1, scale: 1, x: 0 }}
+                          exit={{ opacity: 0, scale: 0.8, x: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute left-full ml-4 top-1/2 -translate-y-1/2 whitespace-nowrap"
+                          style={{
+                            maxWidth: '200px',
+                          }}
+                        >
+                          <div className="glass-card px-3 py-2 rounded-lg shadow-xl border border-white/20">
+                            <p className="text-sm font-medium">{hotspot.label}</p>
+                            <p className="text-xs text-text-secondary">{hotspot.detail}</p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 )
               })}
-            </div>
+                </div>
+              </Card3D>
+            </MagneticElement>
           </div>
 
           {/* Feature details (right side) */}
@@ -200,12 +244,13 @@ const InteractiveDemo = () => {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card 
-                  className="p-6 border-2 border-transparent"
-                  style={{ borderColor: 'transparent' }}
-                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
-                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
-                >
+                <Card3D depth={5} scaleOnHover={1.01}>
+                  <Card 
+                    className="p-6 border-2 border-transparent"
+                    style={{ borderColor: 'transparent' }}
+                    onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                  >
                   <h3 
                     style={{ fontFamily: 'var(--font-family-poppins)' }} 
                     className="text-2xl font-bold mb-4"
@@ -220,7 +265,7 @@ const InteractiveDemo = () => {
                     <h4 className="font-semibold text-sm uppercase text-gray-500">Key Points:</h4>
                     {currentFeature.hotspots.map((hotspot, index) => (
                       <motion.div
-                        key={index}
+                        key={`point-${activeFeature}-${index}`}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
@@ -239,7 +284,8 @@ const InteractiveDemo = () => {
                       </motion.div>
                     ))}
                   </div>
-                </Card>
+                  </Card>
+                </Card3D>
               </motion.div>
             </AnimatePresence>
           </div>

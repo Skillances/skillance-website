@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { X } from 'lucide-react'
+import { X, ChevronRight } from 'lucide-react'
 import Lottie from 'lottie-react'
 import { Card } from '@/components/ui/card'
 import { CATEGORY_HIERARCHY } from '@/utils/categoriesData'
@@ -50,14 +50,14 @@ const CategoryModal = ({ categoryId, isOpen, onClose }) => {
                   >
                     <button
                       onClick={onClose}
-                      className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
+                      className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors z-10"
                     >
                       <X size={24} />
                     </button>
 
                     <div className="flex items-center gap-6">
                       {/* Animation */}
-                      <div className="w-24 h-24 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <div className="w-24 h-24 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
                         <div className="w-20 h-20">
                           <Lottie
                             animationData={loadedAnimation}
@@ -69,7 +69,7 @@ const CategoryModal = ({ categoryId, isOpen, onClose }) => {
                         </div>
                       </div>
 
-                      <div>
+                      <div className="flex-1">
                         <h2 
                           style={{ fontFamily: 'var(--font-family-poppins)' }}
                           className="text-3xl font-bold mb-2"
@@ -87,60 +87,91 @@ const CategoryModal = ({ categoryId, isOpen, onClose }) => {
                   <div className="p-8 max-h-[60vh] overflow-y-auto">
                     <h3 
                       style={{ fontFamily: 'var(--font-family-poppins)' }}
-                      className="text-xl font-bold mb-6"
+                      className="text-xl font-bold mb-6 text-text-primary"
                     >
                       Available Services
                     </h3>
 
-                    <div className="grid md:grid-cols-2 gap-4">
+                    {/* Improved List Design */}
+                    <div className="space-y-3">
                       {category.subcategories?.map((sub, index) => (
                         <motion.div
                           key={sub.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05, type: 'spring', stiffness: 100 }}
+                          className="group relative"
                         >
-                          <div className="p-4 rounded-lg border border-border hover:border-primary hover:shadow-md transition-all cursor-pointer">
-                            <div className="flex items-start gap-3">
-                              <div 
-                                className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
-                                style={{ backgroundColor: color1 }}
-                              />
-                              <div className="flex-1">
+                          <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:border-primary hover:shadow-lg hover:shadow-primary/10">
+                            <div className="p-5">
+                              <div className="flex items-start gap-4">
+                                {/* Colored indicator */}
                                 <div 
-                                  style={{ fontFamily: 'var(--font-family-poppins)' }}
-                                  className="font-semibold mb-1"
-                                >
-                                  {sub.name}
-                                </div>
-                                {sub.subcategories && (
-                                  <div className="text-sm text-text-secondary">
-                                    {sub.subcategories.length} specializations
-                                  </div>
-                                )}
-                                {sub.grades && (
-                                  <div className="flex flex-wrap gap-1 mt-2">
-                                    {sub.grades.slice(0, 3).map((grade, i) => (
-                                      <span
-                                        key={i}
-                                        className="text-xs px-2 py-1 rounded-full"
-                                        style={{
-                                          backgroundColor: `${color1}15`,
-                                          color: color1,
-                                        }}
+                                  className="w-1.5 h-full min-h-[40px] rounded-full flex-shrink-0 mt-1 transition-all duration-300 group-hover:w-2"
+                                  style={{ backgroundColor: color1 }}
+                                />
+                                
+                                {/* Content */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between gap-4">
+                                    <div className="flex-1">
+                                      <h4 
+                                        style={{ fontFamily: 'var(--font-family-poppins)' }}
+                                        className="font-semibold text-lg mb-1.5 text-text-primary group-hover:text-primary transition-colors"
                                       >
-                                        {grade}
-                                      </span>
-                                    ))}
-                                    {sub.grades.length > 3 && (
-                                      <span className="text-xs text-text-secondary px-2 py-1">
-                                        +{sub.grades.length - 3} more
-                                      </span>
-                                    )}
+                                        {sub.name}
+                                      </h4>
+                                      
+                                      {sub.subcategories && (
+                                        <p className="text-sm text-text-secondary mb-3">
+                                          {sub.subcategories.length} {sub.subcategories.length === 1 ? 'specialization' : 'specializations'} available
+                                        </p>
+                                      )}
+                                      
+                                      {/* Grades/Tags */}
+                                      {sub.grades && sub.grades.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mt-3">
+                                          {sub.grades.slice(0, 4).map((grade, i) => (
+                                            <motion.span
+                                              key={i}
+                                              initial={{ opacity: 0, scale: 0.8 }}
+                                              animate={{ opacity: 1, scale: 1 }}
+                                              transition={{ delay: index * 0.05 + i * 0.02 }}
+                                              className="text-xs font-medium px-3 py-1.5 rounded-full transition-all duration-300 group-hover:scale-105"
+                                              style={{
+                                                backgroundColor: `${color1}15`,
+                                                color: color1,
+                                              }}
+                                            >
+                                              {grade}
+                                            </motion.span>
+                                          ))}
+                                          {sub.grades.length > 4 && (
+                                            <span className="text-xs text-text-secondary px-3 py-1.5">
+                                              +{sub.grades.length - 4} more
+                                            </span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                    
+                                    {/* Chevron icon */}
+                                    <ChevronRight 
+                                      size={20} 
+                                      className="text-text-secondary group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 flex-shrink-0 mt-1"
+                                    />
                                   </div>
-                                )}
+                                </div>
                               </div>
                             </div>
+                            
+                            {/* Hover gradient overlay */}
+                            <div 
+                              className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none"
+                              style={{
+                                background: `linear-gradient(135deg, ${color1}, ${color2})`
+                              }}
+                            />
                           </div>
                         </motion.div>
                       ))}
@@ -148,13 +179,19 @@ const CategoryModal = ({ categoryId, isOpen, onClose }) => {
 
                     {/* Coming Soon Badge */}
                     <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 }}
-                      className="mt-8 p-6 rounded-lg text-center"
-                      style={{ backgroundColor: `${color1}10` }}
+                      className="mt-8 p-6 rounded-xl text-center border-2 border-dashed transition-all duration-300 hover:border-solid"
+                      style={{ 
+                        backgroundColor: `${color1}08`,
+                        borderColor: `${color1}30`
+                      }}
                     >
-                      <p className="text-lg font-semibold mb-2" style={{ color: color1 }}>
+                      <p 
+                        className="text-lg font-semibold mb-2"
+                        style={{ color: color1 }}
+                      >
                         Coming Soon!
                       </p>
                       <p className="text-sm text-text-secondary">
@@ -173,15 +210,3 @@ const CategoryModal = ({ categoryId, isOpen, onClose }) => {
 }
 
 export default CategoryModal
-
-
-
-
-
-
-
-
-
-
-
-

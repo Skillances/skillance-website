@@ -5,6 +5,8 @@ import { Card } from '@/components/ui/card'
 import { videoPlaceholders } from '@/utils/appFeatures'
 import { useInView } from 'react-intersection-observer'
 import { slideInFromLeft, slideInFromRight } from '@/utils/animations'
+import MagneticElement from './MagneticElement'
+import Card3D from './Card3D'
 
 const VideoShowcase = () => {
   const [selectedVideo, setSelectedVideo] = useState(null)
@@ -43,13 +45,15 @@ const VideoShowcase = () => {
                 initial={isEven ? slideInFromLeft.initial : slideInFromRight.initial}
                 animate={inView ? (isEven ? slideInFromLeft.animate : slideInFromRight.animate) : {}}
               >
-                <Card 
-                  className="group relative overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 border-2 border-transparent"
-                  style={{ borderColor: 'transparent' }}
-                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
-                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
-                  onClick={() => setSelectedVideo(video)}
-                >
+                <MagneticElement strength={0.15} range={150}>
+                  <Card3D depth={8} scaleOnHover={1.02}>
+                    <Card 
+                      className="group relative overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 border-2 border-transparent"
+                      style={{ borderColor: 'transparent' }}
+                      onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+                      onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                      onClick={() => setSelectedVideo(video)}
+                    >
                   {/* Video thumbnail placeholder */}
                   <div 
                     className="relative aspect-video overflow-hidden"
@@ -65,18 +69,31 @@ const VideoShowcase = () => {
                       }20)`
                     }}
                   >
-                    {/* Play button overlay */}
+                    {/* Play button overlay with ripple effect */}
                     <motion.div
                       className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors"
                       whileHover={{ scale: 1.05 }}
                     >
                       <motion.div
-                        className="w-20 h-20 rounded-full flex items-center justify-center text-white"
+                        className="relative w-20 h-20 rounded-full flex items-center justify-center text-white"
                         style={{ backgroundColor: 'var(--color-section-primary)' }}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        <Play size={32} fill="white" />
+                        {/* Ripple effect */}
+                        <motion.div
+                          className="absolute inset-0 rounded-full border-2 border-white/50"
+                          animate={{
+                            scale: [1, 1.5, 1],
+                            opacity: [0.5, 0, 0.5],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                          }}
+                        />
+                        <Play size={32} fill="white" className="relative z-10" />
                       </motion.div>
                     </motion.div>
 
@@ -109,7 +126,7 @@ const VideoShowcase = () => {
                     </div>
                     <h3 
                       style={{ fontFamily: 'var(--font-family-poppins)' }} 
-                      className="text-xl font-bold mb-2 group-hover:text-[var(--color-section-primary)] transition-colors"
+                      className="text-xl font-bold mb-2 group-hover:text-(--color-section-primary) transition-colors"
                     >
                       {video.title}
                     </h3>
@@ -117,27 +134,35 @@ const VideoShowcase = () => {
                       {video.description}
                     </p>
                   </div>
-                </Card>
+                    </Card>
+                  </Card3D>
+                </MagneticElement>
               </motion.div>
             )
           })}
         </div>
       </div>
 
-      {/* Video Modal */}
+      {/* Video Modal with enhanced transitions */}
       <AnimatePresence>
         {selectedVideo && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
             onClick={() => setSelectedVideo(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ 
+                type: 'spring',
+                stiffness: 300,
+                damping: 30,
+              }}
               className="relative w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >

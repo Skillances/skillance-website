@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Star, Quote } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import Card3D from './Card3D'
+import MagneticElement from './MagneticElement'
 
 /**
  * TESTIMONIALS DATA STRUCTURE
@@ -104,24 +106,32 @@ const Testimonials = () => {
         </motion.div>
 
         <div className="relative">
-          {/* Navigation buttons */}
-          <button
-            onClick={() => paginate(-1)}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
-            style={{ backgroundColor: 'var(--color-section-primary)' }}
-            aria-label="Previous testimonial"
-          >
-            <ChevronLeft size={24} className="text-white" />
-          </button>
+          {/* Navigation buttons with magnetic effect */}
+          <MagneticElement strength={0.2} range={100}>
+            <motion.button
+              onClick={() => paginate(-1)}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+              style={{ backgroundColor: 'var(--color-section-primary)' }}
+              aria-label="Previous testimonial"
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ChevronLeft size={24} className="text-white" />
+            </motion.button>
+          </MagneticElement>
 
-          <button
-            onClick={() => paginate(1)}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
-            style={{ backgroundColor: 'var(--color-section-primary)' }}
-            aria-label="Next testimonial"
-          >
-            <ChevronRight size={24} className="text-white" />
-          </button>
+          <MagneticElement strength={0.2} range={100}>
+            <motion.button
+              onClick={() => paginate(1)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+              style={{ backgroundColor: 'var(--color-section-primary)' }}
+              aria-label="Next testimonial"
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ChevronRight size={24} className="text-white" />
+            </motion.button>
+          </MagneticElement>
 
           {/* Testimonial card */}
           <div className="px-16">
@@ -150,22 +160,35 @@ const Testimonials = () => {
                   }
                 }}
               >
-                <Card className="p-8 md:p-12 relative overflow-hidden">
+                <Card3D depth={10} scaleOnHover={1.01}>
+                  <Card className="p-8 md:p-12 relative overflow-hidden">
                   {/* Quote icon background */}
                   <div className="absolute top-4 right-4 opacity-5">
                     <Quote size={120} style={{ color: 'var(--color-section-primary)' }} />
                   </div>
 
                   <div className="relative z-10">
-                    {/* Rating stars */}
+                    {/* Rating stars with animation */}
                     <div className="flex items-center justify-center gap-1 mb-6">
                       {[...Array(5)].map((_, i) => (
-                        <Star
+                        <motion.div
                           key={i}
-                          size={24}
-                          fill={i < currentTestimonial.rating ? '#F59E0B' : 'none'}
-                          stroke={i < currentTestimonial.rating ? '#F59E0B' : '#D1D5DB'}
-                        />
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ 
+                            delay: i * 0.1,
+                            type: 'spring',
+                            stiffness: 200,
+                            damping: 15,
+                          }}
+                          whileHover={{ scale: 1.2, rotate: 360 }}
+                        >
+                          <Star
+                            size={24}
+                            fill={i < currentTestimonial.rating ? '#F59E0B' : 'none'}
+                            stroke={i < currentTestimonial.rating ? '#F59E0B' : '#D1D5DB'}
+                          />
+                        </motion.div>
                       ))}
                     </div>
 
@@ -174,15 +197,26 @@ const Testimonials = () => {
                       "{currentTestimonial.quote}"
                     </blockquote>
 
-                    {/* Author */}
+                    {/* Author with animated avatar */}
                     <div className="flex flex-col items-center">
-                      {/* Avatar placeholder */}
-                      <div 
-                        className="w-16 h-16 rounded-full mb-4 flex items-center justify-center text-white text-2xl font-bold"
+                      {/* Avatar placeholder with animation */}
+                      <motion.div 
+                        className="w-16 h-16 rounded-full mb-4 flex items-center justify-center text-white text-2xl font-bold relative overflow-hidden"
                         style={{ backgroundColor: 'var(--color-section-primary)' }}
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ 
+                          delay: 0.5,
+                          type: 'spring',
+                          stiffness: 200,
+                          damping: 15,
+                        }}
+                        whileHover={{ scale: 1.1, rotate: 360 }}
                       >
-                        {currentTestimonial.name.charAt(0)}
-                      </div>
+                        {/* Gradient overlay for depth */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
+                        <span className="relative z-10">{currentTestimonial.name.charAt(0)}</span>
+                      </motion.div>
 
                       <h4 
                         style={{ fontFamily: 'var(--font-family-poppins)' }} 
@@ -205,15 +239,16 @@ const Testimonials = () => {
                       </span>
                     </div>
                   </div>
-                </Card>
+                  </Card>
+                </Card3D>
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* Dot indicators */}
+          {/* Dot indicators with animations */}
           <div className="flex items-center justify-center gap-2 mt-8">
             {testimonials.map((_, index) => (
-              <button
+              <motion.button
                 key={index}
                 onClick={() => {
                   setDirection(index > currentIndex ? 1 : -1)
@@ -221,9 +256,11 @@ const Testimonials = () => {
                 }}
                 className="transition-all"
                 aria-label={`Go to testimonial ${index + 1}`}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.9 }}
               >
-                <div
-                  className={`rounded-full transition-all ${
+                <motion.div
+                  className={`rounded-full ${
                     index === currentIndex ? 'w-8 h-2' : 'w-2 h-2'
                   }`}
                   style={{
@@ -231,8 +268,15 @@ const Testimonials = () => {
                       ? 'var(--color-section-primary)'
                       : '#D1D5DB',
                   }}
+                  animate={{
+                    scale: index === currentIndex ? [1, 1.1, 1] : 1,
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: index === currentIndex ? Infinity : 0,
+                  }}
                 />
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>

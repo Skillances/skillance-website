@@ -20,6 +20,10 @@ const Section = ({
         bgClasses[background],
         className
       )}
+      style={{ 
+        paddingTop: 'clamp(3rem, 8vw, 6rem)',
+        paddingBottom: 'clamp(3rem, 8vw, 6rem)',
+      }}
     >
       <div className="container mx-auto container-padding max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px]">
         {children}

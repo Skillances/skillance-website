@@ -7,6 +7,7 @@ import {
 import { Card } from '@/components/ui/card'
 import { HOW_IT_WORKS_CUSTOMERS, HOW_IT_WORKS_FREELANCERS } from '@/utils/appConstants'
 import { useInView } from 'react-intersection-observer'
+import Card3D from './Card3D'
 
 const iconMap = {
   Search,
@@ -58,13 +59,28 @@ const HowItWorks = ({ userType = 'customers' }) => {
       <div className="max-w-4xl mx-auto">
         {/* Desktop: Timeline view */}
         <div className="hidden md:block relative">
-          {/* Vertical line */}
+          {/* Animated connecting lines with gradient */}
           <motion.div
             className="absolute left-8 top-0 bottom-0 w-1 origin-top"
-            style={{ backgroundColor: 'var(--color-section-primary)', opacity: 0.2 }}
+            style={{ 
+              background: 'linear-gradient(to bottom, var(--color-section-primary), var(--color-section-secondary))',
+              opacity: 0.3,
+            }}
             initial={{ scaleY: 0 }}
             animate={inView ? { scaleY: 1 } : {}}
             transition={{ duration: 1.5, ease: 'easeInOut' }}
+          />
+          
+          {/* Progress indicator that fills as user scrolls */}
+          <motion.div
+            className="absolute left-8 top-0 w-1 origin-top"
+            style={{ 
+              background: 'linear-gradient(to bottom, var(--color-section-primary), var(--color-section-secondary))',
+              opacity: 0.6,
+            }}
+            initial={{ scaleY: 0 }}
+            animate={inView ? { scaleY: 1 } : {}}
+            transition={{ duration: 2, ease: 'easeInOut', delay: 0.3 }}
           />
 
           <div className="space-y-8">
@@ -80,17 +96,18 @@ const HowItWorks = ({ userType = 'customers' }) => {
                   transition={{ delay: index * 0.2, duration: 0.5 }}
                   className="relative flex items-start gap-8"
                 >
-                  {/* Timeline node */}
+                  {/* Timeline node with rotating number badge */}
                   <div className="relative z-10 flex-shrink-0">
                     <motion.div
-                      className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg"
+                      className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg relative overflow-hidden"
                       style={{ backgroundColor: 'var(--color-section-primary)' }}
-                      whileHover={{ scale: 1.1 }}
+                      whileHover={{ scale: 1.15, rotate: 360 }}
+                      transition={{ duration: 0.6 }}
                       animate={inView ? {
                         boxShadow: [
-                          '0 10px 30px -10px rgba(37, 99, 235, 0.3)',
-                          '0 10px 30px -10px rgba(124, 58, 237, 0.3)',
-                          '0 10px 30px -10px rgba(37, 99, 235, 0.3)',
+                          `0 10px 30px -10px rgba(20, 184, 166, 0.4)`,
+                          `0 10px 30px -10px rgba(8, 145, 178, 0.4)`,
+                          `0 10px 30px -10px rgba(20, 184, 166, 0.4)`,
                         ],
                       } : {}}
                       transition={{
@@ -101,19 +118,29 @@ const HowItWorks = ({ userType = 'customers' }) => {
                         },
                       }}
                     >
+                      {/* Rotating number badge */}
+                      <motion.div
+                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                        style={{ backgroundColor: 'var(--color-section-secondary)' }}
+                        animate={inView ? { rotate: [0, 360] } : {}}
+                        transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
+                      >
+                        {step.number}
+                      </motion.div>
                       <Icon size={28} />
                     </motion.div>
                   </div>
 
-                  {/* Content card */}
+                  {/* Content card with 3D flip */}
                   <motion.div 
                     className="flex-grow"
                     whileHover={{ x: 5 }}
                   >
-                    <Card 
-                      className="p-6 cursor-pointer hover:shadow-xl transition-shadow"
-                      onClick={() => setExpandedStep(isExpanded ? null : index)}
-                    >
+                    <Card3D depth={8} scaleOnHover={1.01}>
+                      <Card 
+                        className="p-6 cursor-pointer hover:shadow-xl transition-shadow"
+                        onClick={() => setExpandedStep(isExpanded ? null : index)}
+                      >
                       <div className="flex items-start justify-between">
                         <div className="flex-grow">
                           <div className="flex items-center gap-3 mb-2">
@@ -161,7 +188,8 @@ const HowItWorks = ({ userType = 'customers' }) => {
                           <ChevronDown size={24} className="text-text-secondary" />
                         </motion.div>
                       </div>
-                    </Card>
+                      </Card>
+                    </Card3D>
                   </motion.div>
                 </motion.div>
               )
@@ -181,12 +209,13 @@ const HowItWorks = ({ userType = 'customers' }) => {
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card 
-                  className="p-6 text-center hover:shadow-lg transition-shadow border-2 border-transparent"
-                  style={{ borderColor: 'transparent' }}
-                  onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
-                  onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
-                >
+                <Card3D depth={5} scaleOnHover={1.02}>
+                  <Card 
+                    className="p-6 text-center hover:shadow-lg transition-shadow border-2 border-transparent"
+                    style={{ borderColor: 'transparent' }}
+                    onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                  >
                   <div 
                     className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 text-white"
                     style={{ backgroundColor: 'var(--color-section-primary)' }}
@@ -211,7 +240,8 @@ const HowItWorks = ({ userType = 'customers' }) => {
                   <p className="text-text-secondary text-sm">
                     {step.description}
                   </p>
-                </Card>
+                  </Card>
+                </Card3D>
               </motion.div>
             )
           })}

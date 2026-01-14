@@ -3,6 +3,8 @@ import { X, Check, AlertCircle, Shield, CreditCard, Star, MapPin } from 'lucide-
 import { Card } from '@/components/ui/card'
 import { useInView } from 'react-intersection-observer'
 import { slideInFromLeft, slideInFromRight } from '@/utils/animations'
+import Card3D from './Card3D'
+import GlowEffect from './GlowEffect'
 
 const beforePoints = [
   { icon: AlertCircle, text: 'Endless searching through classifieds', color: '#EF4444' },
@@ -103,7 +105,8 @@ const ComparisonSection = () => {
             initial="initial"
             animate={inViewBefore ? "animate" : "initial"}
           >
-            <Card className="p-4 sm:p-6 md:p-8 h-full border-2 border-red-100 bg-gradient-to-br from-red-50 to-white">
+            <Card3D depth={5} scaleOnHover={1.01}>
+              <Card className="p-4 sm:p-6 md:p-8 h-full border-2 border-red-100 bg-gradient-to-br from-red-50 to-white">
               <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-100 flex items-center justify-center">
                   <X size={20} className="sm:w-6 sm:h-6 text-red-500" />
@@ -135,7 +138,8 @@ const ComparisonSection = () => {
                   )
                 })}
               </div>
-            </Card>
+              </Card>
+            </Card3D>
           </motion.div>
 
           {/* After */}
@@ -144,7 +148,9 @@ const ComparisonSection = () => {
             initial="initial"
             animate={inViewBefore ? "animate" : "initial"}
           >
-            <Card className="p-4 sm:p-6 md:p-8 h-full border-2 border-green-100 bg-gradient-to-br from-green-50 to-white relative overflow-hidden">
+            <GlowEffect glowColor="var(--color-section-primary)" glowOpacity={0.2}>
+              <Card3D depth={5} scaleOnHover={1.01}>
+                <Card className="p-4 sm:p-6 md:p-8 h-full border-2 border-green-100 bg-gradient-to-br from-green-50 to-white relative overflow-hidden">
               {/* Sparkle effect */}
               <div className="absolute top-2 right-2 sm:top-4 sm:right-4 text-4xl sm:text-6xl opacity-10">✨</div>
 
@@ -182,7 +188,9 @@ const ComparisonSection = () => {
                   )
                 })}
               </div>
-            </Card>
+                </Card>
+              </Card3D>
+            </GlowEffect>
           </motion.div>
         </div>
 
@@ -288,30 +296,65 @@ const ComparisonSection = () => {
                           }}
                         >
                           {row.skillance === true ? (
-                            <div className="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full" style={{ backgroundColor: 'var(--color-section-primary)' }}>
+                            <motion.div 
+                              className="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full" 
+                              style={{ backgroundColor: 'var(--color-section-primary)' }}
+                              initial={{ scale: 0, rotate: -180 }}
+                              animate={inViewTable ? { scale: 1, rotate: 0 } : {}}
+                              transition={{ 
+                                delay: index * 0.05 + 0.2,
+                                type: 'spring',
+                                stiffness: 200,
+                                damping: 15,
+                              }}
+                              whileHover={{ scale: 1.2, rotate: 360 }}
+                            >
                               <Check size={16} className="sm:w-5 sm:h-5 text-white" />
-                            </div>
+                            </motion.div>
                           ) : (
                             <span className="text-xs sm:text-sm text-gray-400">{row.skillance}</span>
                           )}
                         </td>
                         <td className="p-3 sm:p-4 text-center">
                           {row.wordOfMouth === false ? (
-                            <X size={16} className="sm:w-5 sm:h-5 inline text-gray-300" />
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={inViewTable ? { scale: 1 } : {}}
+                              transition={{ delay: index * 0.05 + 0.3 }}
+                            >
+                              <X size={16} className="sm:w-5 sm:h-5 inline text-gray-300" />
+                            </motion.div>
                           ) : (
                             <span className="text-xs sm:text-sm text-gray-600">{row.wordOfMouth}</span>
                           )}
                         </td>
                         <td className="p-3 sm:p-4 text-center">
                           {row.classifieds === false ? (
-                            <X size={16} className="sm:w-5 sm:h-5 inline text-gray-300" />
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={inViewTable ? { scale: 1 } : {}}
+                              transition={{ delay: index * 0.05 + 0.3 }}
+                            >
+                              <X size={16} className="sm:w-5 sm:h-5 inline text-gray-300" />
+                            </motion.div>
                           ) : (
                             <span className="text-xs sm:text-sm text-gray-600">{row.classifieds}</span>
                           )}
                         </td>
                         <td className="p-3 sm:p-4 text-center">
                           {row.otherApps === true ? (
-                            <Check size={16} className="sm:w-5 sm:h-5 inline text-gray-400" />
+                            <motion.div
+                              initial={{ scale: 0, rotate: -180 }}
+                              animate={inViewTable ? { scale: 1, rotate: 0 } : {}}
+                              transition={{ 
+                                delay: index * 0.05 + 0.3,
+                                type: 'spring',
+                                stiffness: 200,
+                                damping: 15,
+                              }}
+                            >
+                              <Check size={16} className="sm:w-5 sm:h-5 inline text-gray-400" />
+                            </motion.div>
                           ) : (
                             <span className="text-xs sm:text-sm text-gray-600">{row.otherApps}</span>
                           )}

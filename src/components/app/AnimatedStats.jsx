@@ -106,22 +106,61 @@ const AnimatedStats = () => {
                 className="text-center group"
               >
                 <motion.div
-                  className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 mx-auto"
+                  className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 mx-auto relative overflow-hidden"
                   style={{ 
                     backgroundColor: `${stat.color}15`,
                   }}
-                  whileHover={{ scale: 1.1, rotate: 360 }}
-                  transition={{ duration: 0.5 }}
+                  whileHover={{ scale: 1.15, rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                  animate={inView ? {
+                    boxShadow: [
+                      `0 0 0 0 ${stat.color}40`,
+                      `0 0 20px 5px ${stat.color}20`,
+                      `0 0 0 0 ${stat.color}40`,
+                    ],
+                  } : {}}
+                  transition={{
+                    boxShadow: {
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: index * 0.2,
+                    },
+                  }}
                 >
-                  <Icon size={28} style={{ color: stat.color }} />
+                  {/* Pulsing background */}
+                  <motion.div
+                    className="absolute inset-0 rounded-full"
+                    style={{ backgroundColor: stat.color }}
+                    animate={{
+                      scale: [1, 1.3, 1],
+                      opacity: [0.1, 0, 0.1],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: index * 0.2,
+                    }}
+                  />
+                  <Icon size={28} style={{ color: stat.color }} className="relative z-10" />
                 </motion.div>
                 
-                <div 
+                <motion.div 
                   style={{ 
                     fontFamily: 'var(--font-family-poppins)',
-                    color: stat.color,
+                    background: `linear-gradient(135deg, ${stat.color}, ${stat.color}CC)`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
                   }} 
                   className="text-4xl font-bold mb-2"
+                  animate={inView ? {
+                    scale: [1, 1.05, 1],
+                  } : {}}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: index * 0.15,
+                  }}
                 >
                   {inView && (
                     <CountUp
@@ -132,7 +171,7 @@ const AnimatedStats = () => {
                       separator=","
                     />
                   )}
-                </div>
+                </motion.div>
                 
                 <div className="text-sm text-text-secondary font-medium">
                   {stat.label}

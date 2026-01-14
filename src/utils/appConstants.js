@@ -26,6 +26,7 @@ export const APP_COMPANY_INFO = {
 export const APP_NAVIGATION = [
   { name: 'Home', path: '/' },
   { name: 'Features', path: '/features' },
+  { name: 'Videos', path: '/videos' },
   { name: 'Categories', path: '/categories' },
   { name: 'About', path: '/about' },
   { name: 'Contact', path: '/contact' },

@@ -1,319 +1,266 @@
-import { motion } from 'framer-motion'
-import { TypeAnimation } from 'react-type-animation'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
+import { useRef, useEffect, useState } from 'react'
 import DownloadCTA from './DownloadCTA'
 import { APP_STATS } from '@/utils/appConstants'
-import { floatAnimation, parallaxVariants } from '@/utils/animations'
+import { floatAnimation, fadeInUpStagger } from '@/utils/animations'
+import DarkVeil from './DarkVeil'
+import TextRotator from './TextRotator'
+import MagneticElement from './MagneticElement'
+import Card3D from './Card3D'
+
+// Particle System Component
+const ParticleSystem = () => {
+  const [particles, setParticles] = useState([])
+  const containerRef = useRef(null)
+
+  useEffect(() => {
+    const particleCount = 50
+    const newParticles = Array.from({ length: particleCount }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 4 + 1,
+      duration: Math.random() * 20 + 10,
+      delay: Math.random() * 5,
+    }))
+    setParticles(newParticles)
+  }, [])
+
+  return (
+    <div ref={containerRef} className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute rounded-full"
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+            background: `radial-gradient(circle, var(--color-section-primary) 0%, transparent 70%)`,
+            opacity: 0.3,
+          }}
+          animate={{
+            y: [0, -100, 0],
+            x: [0, Math.random() * 50 - 25, 0],
+            opacity: [0.3, 0.6, 0.3],
+            scale: [1, 1.5, 1],
+          }}
+          transition={{
+            duration: particle.duration,
+            repeat: Infinity,
+            delay: particle.delay,
+            ease: 'easeInOut',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
 
 const ParallaxHero = () => {
+  const sectionRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  })
+
+  // Transform scroll progress to phone rotation
+  const phoneRotateY = useTransform(scrollYProgress, [0, 1], [0, 15])
+  const phoneRotateX = useTransform(scrollYProgress, [0, 1], [0, -5])
+  const phoneScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95])
+  const phoneOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.8])
+
   return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden w-full">
-      {/* Animated background shapes */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Large orbs */}
-        <motion.div
-          className="absolute w-64 sm:w-96 h-64 sm:h-96 rounded-full blur-3xl opacity-20"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-section-primary), var(--color-section-secondary))',
-            top: '10%',
-            left: '-20%',
-            willChange: 'transform',
-          }}
-          animate={parallaxVariants.slow}
-        />
-        <motion.div
-          className="absolute w-56 sm:w-80 h-56 sm:h-80 rounded-full blur-3xl opacity-15"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-section-secondary), var(--color-section-primary))',
-            bottom: '20%',
-            right: '-15%',
-            willChange: 'transform',
-          }}
-          animate={parallaxVariants.medium}
-        />
-        <motion.div
-          className="absolute w-48 sm:w-64 h-48 sm:h-64 rounded-full blur-3xl opacity-10"
-          style={{
-            background: 'linear-gradient(135deg, var(--color-section-primary), var(--color-section-secondary))',
-            top: '50%',
-            left: '50%',
-            willChange: 'transform',
-          }}
-          animate={parallaxVariants.fast}
-        />
+    <section ref={sectionRef} className="relative min-h-screen flex items-center pt-20 overflow-hidden w-full">
+      {/* Dark Veil Background */}
+      <div className="absolute inset-0 z-0">
+        <DarkVeil intensity={0.6} speed={25} />
       </div>
+
+      {/* Particle System */}
+      <ParticleSystem />
 
       <div className="container mx-auto container-padding max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px] relative z-10">
         <div className="grid lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center">
           {/* Left Column - Text Content */}
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="space-y-4 md:space-y-6"
+            variants={fadeInUpStagger.container}
+            initial="initial"
+            animate="animate"
+            className="space-y-6 md:space-y-8"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
+            <motion.div variants={fadeInUpStagger.item}>
               <span 
-                className="text-xs sm:text-sm font-semibold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full inline-block mb-4"
+                className="text-xs sm:text-sm font-semibold px-4 py-2 rounded-full inline-block mb-4 backdrop-blur-sm border border-(--color-section-primary)/20"
                 style={{ 
                   backgroundColor: 'var(--color-section-primary)',
                   color: 'white',
-                  opacity: 0.9
+                  boxShadow: '0 4px 14px 0 rgba(20, 184, 166, 0.3)'
                 }}
               >
                 Coming Soon
               </span>
             </motion.div>
 
-            <h1 
+            <motion.h1 
+              variants={fadeInUpStagger.item}
               style={{ fontFamily: 'var(--font-family-poppins)' }} 
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight"
             >
-              <TypeAnimation
-                sequence={[
-                  'Find trusted',
-                  1000,
-                  'Find verified',
-                  1000,
-                  'Find skilled',
-                  1000,
-                  'Find trusted',
-                ]}
-                wrapper="span"
-                speed={50}
-                repeat={Infinity}
+              <span className="block mb-2">Find trusted</span>
+              <TextRotator
+                words={['freelancers', 'experts', 'professionals', 'talent']}
+                className="text-(--color-section-primary)"
+                interval={2500}
               />
-              <span 
-                className="block mt-2" 
-                style={{ color: 'var(--color-section-primary)' }}
-              >
-                freelancers near you
-              </span>
-            </h1>
+              <span className="block mt-2">near you</span>
+            </motion.h1>
 
             <motion.p 
+              variants={fadeInUpStagger.item}
               style={{ fontFamily: 'var(--font-family-inter)' }} 
-              className="text-base sm:text-lg md:text-xl text-text-secondary max-w-lg"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
+              className="text-base sm:text-lg md:text-xl text-text-secondary max-w-lg leading-relaxed"
             >
               Connect with verified professionals for 13+ services. From tutors to mechanics,
-              find the perfect match in your area.
+              find the perfect match in your area with our secure platform.
             </motion.p>
 
-            <DownloadCTA variant="hero" />
+            <motion.div variants={fadeInUpStagger.item} className="pt-4">
+              <MagneticElement strength={0.2} range={100}>
+                <DownloadCTA variant="hero" />
+              </MagneticElement>
+            </motion.div>
 
-            {/* Stats - Only show if data exists */}
+            {/* Stats */}
             {APP_STATS && APP_STATS.length > 0 && (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="grid grid-cols-2 gap-4 sm:gap-6 pt-6 sm:pt-8"
+                variants={fadeInUpStagger.item}
+                className="grid grid-cols-2 gap-6 sm:gap-8 pt-8 border-t border-gray-100/50"
               >
                 {APP_STATS.slice(0, 2).map((stat, index) => (
-                  <motion.div
-                    key={stat.label}
-                    whileHover={{ scale: 1.05 }}
-                  >
+                  <div key={stat.label}>
                     <div 
                       style={{ 
                         fontFamily: 'var(--font-family-poppins)',
                         color: 'var(--color-section-primary)'
                       }} 
-                      className="text-2xl sm:text-3xl md:text-4xl font-bold"
+                      className="text-3xl sm:text-4xl font-bold mb-1"
                     >
                       {stat.value}
                     </div>
-                    <div className="text-xs sm:text-sm text-text-secondary">{stat.label}</div>
-                  </motion.div>
+                    <div className="text-sm text-text-secondary font-medium">{stat.label}</div>
+                  </div>
                 ))}
               </motion.div>
             )}
           </motion.div>
 
-          {/* Right Column - Phone Mockup */}
+          {/* Right Column - 3D Phone Mockup */}
           <motion.div
             initial={{ opacity: 0, x: 40 }}
-            animate={{ 
-              opacity: 1, 
-              x: 0,
-            }}
-            transition={{ 
-              opacity: { duration: 0.8, ease: 'easeOut', delay: 0.2 },
-              x: { duration: 0.8, ease: 'easeOut', delay: 0.2 },
-            }}
-            className="relative flex items-center justify-center mt-8 lg:mt-0 overflow-visible"
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+            className="relative flex items-center justify-center mt-12 lg:mt-0 perspective-1000"
           >
             <motion.div
               animate={floatAnimation.animate}
-              className="relative mx-auto max-w-full"
-              style={{ 
-                perspective: '2000px',
-                transformStyle: 'preserve-3d'
+              style={{
+                rotateY: phoneRotateY,
+                rotateX: phoneRotateX,
+                scale: phoneScale,
+                opacity: phoneOpacity,
               }}
+              className="relative z-10"
             >
-              {/* Phone mockup with enhanced 3D tilt effect */}
-              <motion.div
-                className="relative"
-                whileHover={{ 
-                  rotateY: 5, 
-                  rotateX: -5,
-                  scale: 1.05,
-                  transition: { type: 'spring', stiffness: 300, damping: 20 }
-                }}
-                style={{ 
-                  transformStyle: 'preserve-3d',
-                }}
+              <Card3D 
+                depth={20} 
+                className="relative mx-auto w-[280px] sm:w-[320px] h-[560px] sm:h-[640px]"
               >
-                {/* Enhanced shadow layers for depth */}
+                {/* Phone Frame */}
                 <div 
-                  className="absolute inset-0 rounded-[40px] sm:rounded-[50px]"
+                  className="relative w-full h-full rounded-[45px] border-14 border-gray-900 bg-gray-900 overflow-hidden shadow-2xl"
                   style={{
-                    transform: 'translateZ(-30px)',
-                    background: 'rgba(0, 0, 0, 0.3)',
-                    filter: 'blur(25px)',
-                    width: '100%',
-                    height: '100%',
-                  }}
-                />
-                <div 
-                  className="absolute inset-0 rounded-[40px] sm:rounded-[50px]"
-                  style={{
-                    transform: 'translateZ(-15px)',
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    filter: 'blur(15px)',
-                    width: '100%',
-                    height: '100%',
-                  }}
-                />
-
-                {/* Phone frame with enhanced depth */}
-                <div 
-                  className="relative rounded-[40px] sm:rounded-[50px] border-[12px] sm:border-[16px] border-gray-900 overflow-hidden mx-auto"
-                  style={{
-                    width: 'min(280px, 90vw)',
-                    height: 'min(560px, 180vw)',
-                    maxWidth: '320px',
-                    maxHeight: '640px',
-                    boxShadow: `
-                      0 25px 50px -12px rgba(0, 0, 0, 0.5),
-                      0 0 0 1px rgba(0, 0, 0, 0.1),
-                      inset 0 2px 4px rgba(255, 255, 255, 0.1),
-                      8px 0 20px -5px rgba(0, 0, 0, 0.6),
-                      12px 2px 30px -8px rgba(0, 0, 0, 0.4),
-                      inset -3px 0 8px -2px rgba(0, 0, 0, 0.3)
-                    `,
-                    transform: 'perspective(1000px) rotateY(-12deg) rotateX(3deg) translateZ(0)',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0,0,0,0.1)'
                   }}
                 >
-                  {/* Phone notch */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 sm:w-36 h-6 sm:h-7 bg-gray-900 rounded-b-3xl z-10" />
+                  {/* Dynamic Island / Notch */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-black rounded-b-2xl z-20" />
 
-                  {/* Screen content - gradient */}
-                  <div 
-                    className="w-full h-full relative overflow-hidden"
-                    style={{
-                      background: `linear-gradient(135deg, var(--color-section-primary), var(--color-section-secondary))`
-                    }}
-                  >
-                    {/* App Icon */}
-                    <div className="absolute inset-0 flex items-center justify-center p-6 sm:p-8">
-                      <motion.img
-                        src="/app-icon.png"
-                        alt="Skillance App"
-                        className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 object-contain"
-                        initial={{ scale: 0, rotate: -180 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
-                      />
+                  {/* Screen Content */}
+                  <div className="w-full h-full bg-white relative overflow-hidden">
+                    {/* Header */}
+                    <div className="h-24 bg-linear-to-br from-(--color-section-primary) to-(--color-section-secondary) relative">
+                      <div className="absolute bottom-4 left-6 text-white font-bold text-xl">Skillance</div>
+                      <div className="absolute bottom-4 right-6 w-8 h-8 bg-white/20 rounded-full backdrop-blur-sm" />
                     </div>
 
-                    {/* Floating elements */}
-                    {[...Array(6)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        className="absolute w-3 h-3 bg-white rounded-full opacity-20"
-                        style={{
-                          left: `${20 + i * 15}%`,
-                          top: `${30 + (i % 3) * 20}%`,
-                        }}
-                        animate={{
-                          y: [0, -20, 0],
-                          opacity: [0.2, 0.5, 0.2],
-                        }}
-                        transition={{
-                          duration: 2 + i * 0.5,
-                          repeat: Infinity,
-                          delay: i * 0.2,
-                        }}
-                      />
-                    ))}
+                    {/* Content Placeholder */}
+                    <div className="p-6 space-y-4">
+                      {/* Search Bar */}
+                      <div className="h-12 bg-gray-100 rounded-xl w-full animate-pulse" />
+                      
+                      {/* Categories */}
+                      <div className="grid grid-cols-4 gap-4 pt-2">
+                        {[...Array(4)].map((_, i) => (
+                          <div key={i} className="flex flex-col items-center gap-2">
+                            <div className={`w-12 h-12 rounded-full bg-(--color-section-primary) opacity-${20 + i * 10}`} />
+                            <div className="w-10 h-2 bg-gray-100 rounded" />
+                          </div>
+                        ))}
+                      </div>
 
-                    {/* Subtle highlight on left edge to enhance 3D effect */}
-                    <div 
-                      className="absolute top-0 bottom-0 left-0 w-[2px]"
-                      style={{
-                        background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3))',
-                        pointerEvents: 'none',
-                      }}
-                    />
+                      {/* Featured Card */}
+                      <div className="h-40 bg-linear-to-br from-(--color-section-primary)/10 to-(--color-section-secondary)/10 rounded-2xl mt-4 border border-(--color-section-primary)/20 p-4 relative overflow-hidden">
+                        <div className="w-2/3 h-4 bg-(--color-section-primary)/20 rounded mb-2" />
+                        <div className="w-1/2 h-3 bg-gray-200 rounded" />
+                        
+                        <div className="absolute bottom-4 right-4 w-10 h-10 bg-(--color-section-primary) rounded-full flex items-center justify-center text-white shadow-lg shadow-(--color-section-primary)/30">
+                          <motion.div
+                            animate={{ scale: [1, 1.1, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                            className="w-4 h-4 bg-white rounded-full"
+                          />
+                        </div>
+                      </div>
 
-                    {/* Dark edge on right to create depth illusion */}
-                    <div 
-                      className="absolute top-0 bottom-0 right-0 w-[3px]"
-                      style={{
-                        background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4))',
-                        pointerEvents: 'none',
-                      }}
-                    />
+                      {/* List Items */}
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="h-20 bg-white border border-gray-100 rounded-xl shadow-sm p-3 flex items-center gap-3">
+                          <div className="w-14 h-14 bg-gray-100 rounded-lg shrink-0" />
+                          <div className="flex-1 space-y-2">
+                            <div className="w-3/4 h-3 bg-gray-100 rounded" />
+                            <div className="w-1/2 h-2 bg-gray-50 rounded" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Enhanced multi-layer glow effect - constrained for mobile */}
-                <div 
-                  className="absolute inset-0 -z-20 blur-3xl opacity-40 hidden sm:block"
-                  style={{
-                    background: `linear-gradient(135deg, var(--color-section-primary), var(--color-section-secondary))`,
-                    transform: 'translateZ(-40px) scale(1.3)',
-                  }}
-                />
-                <div 
-                  className="absolute inset-0 -z-10 blur-2xl opacity-30"
-                  style={{
-                    background: `radial-gradient(circle at 50% 50%, var(--color-section-primary), transparent)`,
-                    transform: 'translateZ(-20px) scale(1.1)',
-                  }}
-                />
-                
-                {/* Reflection effect - hidden on mobile */}
-                <div 
-                  className="absolute -bottom-4 left-0 right-0 h-32 opacity-20 hidden sm:block"
-                  style={{
-                    background: `linear-gradient(to bottom, var(--color-section-primary), transparent)`,
-                    transform: 'translateZ(-10px) scaleY(-0.5) translateY(100%)',
-                    filter: 'blur(10px)',
-                  }}
-                />
-              </motion.div>
+                  {/* Reflection */}
+                  <div className="absolute inset-0 bg-linear-to-tr from-transparent via-white/10 to-transparent pointer-events-none z-30" />
+                </div>
+              </Card3D>
             </motion.div>
+
+            {/* Back Glow */}
+            <div 
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[600px] bg-linear-to-br from-(--color-section-primary) to-(--color-section-secondary) blur-[80px] opacity-30 -z-10 rounded-full pointer-events-none" 
+            />
           </motion.div>
         </div>
       </div>
 
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 cursor-pointer"
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 1.5, repeat: Infinity }}
+        onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
       >
-        <div className="flex flex-col items-center text-text-secondary">
-          <span className="text-sm mb-2">Scroll to explore</span>
+        <div className="flex flex-col items-center text-text-secondary/70 hover:text-(--color-section-primary) transition-colors">
+          <span className="text-sm mb-2 font-medium tracking-wide">Scroll to explore</span>
           <ChevronDown size={24} />
         </div>
       </motion.div>
@@ -322,4 +269,3 @@ const ParallaxHero = () => {
 }
 
 export default ParallaxHero
-

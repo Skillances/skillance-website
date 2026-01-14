@@ -1,17 +1,13 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Play } from 'lucide-react'
 import Section from '@/components/common/Section'
 import AnimatedSection from '@/components/common/AnimatedSection'
 import ParallaxHero from '@/components/app/ParallaxHero'
 import AnimatedStats from '@/components/app/AnimatedStats'
-import VideoShowcase from '@/components/app/VideoShowcase'
-import InteractiveDemo from '@/components/app/InteractiveDemo'
 import CategoryGrid from '@/components/app/CategoryGrid'
 import HowItWorks from '@/components/app/HowItWorks'
 import ComparisonSection from '@/components/app/ComparisonSection'
-import Testimonials from '@/components/app/Testimonials'
-import TrustSection from '@/components/app/TrustSection'
 import DownloadCTA from '@/components/app/DownloadCTA'
 import FloatingCTA from '@/components/app/FloatingCTA'
 
@@ -27,13 +23,7 @@ const AppHomePage = () => {
       {/* Animated Statistics Bar */}
       <AnimatedStats />
 
-      {/* Video Showcase Section */}
-      <VideoShowcase />
-
-      {/* Interactive Feature Demo */}
-      <InteractiveDemo />
-
-      {/* How It Works - Interactive Timeline */}
+      {/* Quick How It Works */}
       <Section background="grey">
         <HowItWorks userType="customers" />
       </Section>
@@ -76,12 +66,33 @@ const AppHomePage = () => {
         <ComparisonSection />
       </Section>
 
-      {/* Testimonials Carousel */}
-      <Testimonials />
-
-      {/* Trust & Security - Enhanced */}
-      <Section background="grey">
-        <TrustSection />
+      {/* Videos CTA */}
+      <Section>
+        <div className="text-center max-w-2xl mx-auto">
+          <AnimatedSection animation="fadeInUp">
+            <h2 
+              style={{ fontFamily: 'var(--font-family-poppins)' }} 
+              className="text-3xl md:text-4xl font-bold mb-4"
+            >
+              See Skillance in Action
+            </h2>
+            <p className="text-lg text-text-secondary mb-8">
+              Watch how easy it is to find freelancers and book services
+            </p>
+            <Button 
+              size="lg" 
+              asChild
+              style={{ backgroundColor: 'var(--color-section-primary)' }}
+              className="group"
+            >
+              <Link to="/videos">
+                <Play className="mr-2" size={20} />
+                Watch Videos
+                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+              </Link>
+            </Button>
+          </AnimatedSection>
+        </div>
       </Section>
 
       {/* Final Download CTA */}

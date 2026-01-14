@@ -3,7 +3,7 @@ import Lottie from 'lottie-react'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { SERVICE_CATEGORIES } from '@/utils/appConstants'
 import { useInView } from 'react-intersection-observer'
-import { fadeInUpStagger, cardHoverLift } from '@/utils/animations'
+import { fadeInUpStagger } from '@/utils/animations'
 import { useState } from 'react'
 import CategoryModal from './CategoryModal'
 
@@ -61,126 +61,97 @@ const CategoryGrid = ({ limit }) => {
         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
       >
         {categories.map((category, index) => {
-        const [color1, color2] = gradientColors[index % gradientColors.length]
-        const isPopular = popularIds.includes(category.id)
-        
-        return (
-          <motion.div
-            key={category.id}
-            variants={fadeInUpStagger.item}
-          >
-          <motion.div
-            variants={cardHoverLift}
-            initial="rest"
-            whileHover="hover"
-            className="h-full"
-            onClick={() => handleCategoryClick(category.id)}
-          >
-            <Card 
-              className="h-full cursor-pointer group relative overflow-hidden shadow-md hover:shadow-2xl transition-shadow duration-300 border-2 border-transparent"
-              style={{ borderColor: 'transparent' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = color1
-                const title = e.currentTarget.querySelector('h3')
-                if (title) title.style.color = color1
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'transparent'
-                const title = e.currentTarget.querySelector('h3')
-                if (title) title.style.color = ''
-              }}
+          const [color1, color2] = gradientColors[index % gradientColors.length]
+          const isPopular = popularIds.includes(category.id)
+          
+          return (
+            <motion.div
+              key={category.id}
+              variants={fadeInUpStagger.item}
+              className="h-full"
             >
-                {/* Gradient background on hover */}
-                <div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300"
-                  style={{
-                    background: `linear-gradient(135deg, ${color1}, ${color2})`
-                  }}
-                />
+              <div 
+                onClick={() => handleCategoryClick(category.id)}
+                className="h-full cursor-pointer"
+              >
+                <Card 
+                  className="h-full relative overflow-hidden border border-gray-100 bg-white shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                >
 
-                {/* Popular badge */}
-                {isPopular && (
-                  <div className="absolute top-2 right-2 z-10">
-                    <motion.span
-                      className="text-xs px-2 py-1 rounded-full text-white font-semibold"
-                      style={{ 
-                        background: `linear-gradient(135deg, ${color1}, ${color2})`
-                      }}
-                      animate={{
-                        scale: [1, 1.05, 1],
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                      }}
-                    >
-                      Popular
-                    </motion.span>
-                  </div>
-                )}
-
-                <CardHeader className="text-center relative z-10">
-                  <motion.div 
-                    className="w-24 h-24 mx-auto rounded-2xl flex items-center justify-center mb-4 relative"
-                    style={{ 
-                      background: `linear-gradient(135deg, ${color1}10, ${color2}10)`
-                    }}
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                  >
-                    {/* Icon glow effect */}
-                    <div 
-                      className="absolute inset-0 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity"
-                      style={{ 
-                        background: `linear-gradient(135deg, ${color1}, ${color2})`
-                      }}
-                    />
-                    
-                    {/* Lottie Animation */}
-                    <div className="w-20 h-20">
-                      <Lottie
-                        animationData={loadedAnimations[category.id]}
-                        path={category.animation}
-                        loop={true}
-                        autoplay={true}
-                        onLoad={(data) => handleAnimationLoad(category.id, data)}
+                      {/* Animated Gradient Background on Hover */}
+                      <div 
+                        className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-500 bg-linear-to-br"
                         style={{
-                          width: '100%',
-                          height: '100%',
+                          backgroundImage: `linear-gradient(135deg, ${color1}, ${color2})`
                         }}
                       />
-                    </div>
-                  </motion.div>
 
-                  <CardTitle 
-                    style={{ fontFamily: 'var(--font-family-poppins)' }} 
-                    className="text-lg mb-2 transition-colors"
-                  >
-                    {category.name}
-                  </CardTitle>
-                  <CardDescription className="text-sm">
-                    {category.description}
-                  </CardDescription>
+                      {/* Popular badge */}
+                      {isPopular && (
+                        <div className="absolute top-3 right-3 z-20">
+                          <motion.span
+                            className="text-[10px] px-2 py-1 rounded-full text-white font-bold tracking-wide uppercase shadow-sm"
+                            style={{ 
+                              background: `linear-gradient(135deg, ${color1}, ${color2})`
+                            }}
+                            animate={{ scale: [1, 1.05, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          >
+                            Popular
+                          </motion.span>
+                        </div>
+                      )}
 
-                  {category.subcategoryCount > 0 && (
-                    <div className="mt-3">
-                      <span 
-                        className="text-xs px-3 py-1 rounded-full font-medium"
-                        style={{ 
-                          backgroundColor: `${color1}15`,
-                          color: color1,
-                        }}
-                      >
-                        {category.subcategoryCount}+ Services
-                      </span>
-                    </div>
-                  )}
-                </CardHeader>
-              </Card>
+                      <CardHeader className="text-center relative z-10 p-6 flex flex-col h-full">
+                        <div 
+                          className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-4 relative"
+                          style={{ 
+                            background: `linear-gradient(135deg, ${color1}15, ${color2}15)`
+                          }}
+                        >
+                          {/* Lottie Animation */}
+                          <div className="w-16 h-16">
+                            <Lottie
+                              animationData={loadedAnimations[category.id]}
+                              path={category.animation}
+                              loop={true}
+                              autoplay={true}
+                              onLoad={(data) => handleAnimationLoad(category.id, data)}
+                              style={{ width: '100%', height: '100%' }}
+                            />
+                          </div>
+                        </div>
+
+                        <CardTitle 
+                          style={{ fontFamily: 'var(--font-family-poppins)' }} 
+                          className="text-lg font-bold mb-2 transition-colors group-hover:text-(--color-section-primary)"
+                        >
+                          {category.name}
+                        </CardTitle>
+                        
+                        <CardDescription className="text-sm text-text-secondary line-clamp-2 mb-4 grow">
+                          {category.description}
+                        </CardDescription>
+
+                        {category.subcategoryCount > 0 && (
+                          <div className="mt-auto pt-2">
+                            <span 
+                              className="text-xs font-semibold px-3 py-1 rounded-full inline-block transition-colors"
+                              style={{ 
+                                backgroundColor: `${color1}10`,
+                                color: color1,
+                              }}
+                            >
+                              {category.subcategoryCount}+ Services
+                            </span>
+                          </div>
+                        )}
+                      </CardHeader>
+                    </Card>
+              </div>
             </motion.div>
-          </motion.div>
-        )
-      })}
+          )
+        })}
       </motion.div>
 
       {/* Category Modal */}
@@ -196,4 +167,3 @@ const CategoryGrid = ({ limit }) => {
 }
 
 export default CategoryGrid
-

@@ -3,6 +3,7 @@ import { useEffect, lazy, Suspense } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import { SectionProvider, useSectionContext } from './context/SectionContext'
 import { AuthProvider } from './context/AuthContext'
+import { SmoothScrollProvider } from './components/SmoothScrollProvider'
 import SectionToggle from './components/layout/SectionToggle'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
@@ -14,6 +15,7 @@ import ProtectedRoute from './components/common/ProtectedRoute'
 const AppHomePage = lazy(() => import('./pages/app/AppHomePage'))
 const AppAboutPage = lazy(() => import('./pages/app/AppAboutPage'))
 const AppFeaturesPage = lazy(() => import('./pages/app/AppFeaturesPage'))
+const AppVideosPage = lazy(() => import('./pages/app/AppVideosPage'))
 const AppCategoriesPage = lazy(() => import('./pages/app/AppCategoriesPage'))
 const AppContactPage = lazy(() => import('./pages/app/AppContactPage'))
 const AppPrivacyPage = lazy(() => import('./pages/app/AppPrivacyPage'))
@@ -38,12 +40,20 @@ const PageLoader = () => (
   </div>
 )
 
-// Scroll to top on route change
+// Scroll to top on route change (works with Lenis)
 function ScrollToTop() {
   const { pathname } = useLocation()
 
   useEffect(() => {
-    window.scrollTo(0, 0)
+    // Use Lenis if available, otherwise fallback to native scroll
+    if (typeof window !== 'undefined') {
+      const lenisInstance = window.lenis
+      if (lenisInstance) {
+        lenisInstance.scrollTo(0, { immediate: true })
+      } else {
+        window.scrollTo(0, 0)
+      }
+    }
   }, [pathname])
 
   return null
@@ -82,6 +92,7 @@ function AppContent() {
                     <Routes>
                       <Route path="/" element={<AppHomePage />} />
                       <Route path="/features" element={<AppFeaturesPage />} />
+                      <Route path="/videos" element={<AppVideosPage />} />
                       <Route path="/categories" element={<AppCategoriesPage />} />
                       <Route path="/about" element={<AppAboutPage />} />
                       <Route path="/contact" element={<AppContactPage />} />
@@ -119,9 +130,11 @@ function App() {
     <Router>
       <AuthProvider>
         <SectionProvider>
-          <ScrollToTop />
-          <AppContent />
-          <Analytics />
+          <SmoothScrollProvider>
+            <ScrollToTop />
+            <AppContent />
+            <Analytics />
+          </SmoothScrollProvider>
         </SectionProvider>
       </AuthProvider>
     </Router>

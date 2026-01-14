@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 import { APP_INFO } from '@/utils/appConstants'
 import AnimatedSection from '@/components/common/AnimatedSection'
+import MagneticElement from './MagneticElement'
+import GlowEffect from './GlowEffect'
 
 // Custom Android icon component
 const AndroidIcon = ({ size = 24, className = '' }) => (
@@ -16,35 +19,70 @@ const AndroidIcon = ({ size = 24, className = '' }) => (
 )
 
 const StoreBadge = ({ href, disabled = false, store = 'google' }) => {
+  const [isHovered, setIsHovered] = useState(false)
   const altText = 'Download on the App Store and Get it on Google Play'
   const imageSrc = '/get_it_on.png'
   
   if (disabled) {
     return (
-      <img 
-        src={imageSrc}
-        alt={altText}
-        className="w-[180px] sm:w-[230px] h-auto opacity-70 cursor-not-allowed"
-      />
+      <motion.div
+        className="relative inline-block"
+        whileHover={{ scale: 1.05 }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+      >
+        <img 
+          src={imageSrc}
+          alt={altText}
+          className="w-[180px] sm:w-[230px] h-auto opacity-70 cursor-not-allowed"
+        />
+        {/* Coming soon overlay */}
+        {isHovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-text-secondary bg-white px-3 py-1 rounded-full shadow-lg"
+          >
+            Coming Soon
+          </motion.div>
+        )}
+      </motion.div>
     )
   }
 
   return (
-    <motion.a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-      className="inline-block cursor-pointer touch-target"
-    >
-      <img 
-        src={imageSrc}
-        alt={altText}
-        className="w-[180px] sm:w-[230px] h-auto"
-      />
-    </motion.a>
+    <MagneticElement strength={0.15} range={150}>
+      <motion.a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+        className="relative inline-block cursor-pointer touch-target"
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+      >
+        <GlowEffect glowColor="var(--color-section-primary)" glowOpacity={0.3}>
+          <img 
+            src={imageSrc}
+            alt={altText}
+            className="w-[180px] sm:w-[230px] h-auto"
+          />
+        </GlowEffect>
+        {/* Ripple effect on hover */}
+        {isHovered && (
+          <motion.div
+            className="absolute inset-0 rounded-lg"
+            style={{ backgroundColor: 'var(--color-section-primary)' }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 0.1, scale: 1.2 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          />
+        )}
+      </motion.a>
+    </MagneticElement>
   )
 }
 
@@ -66,12 +104,21 @@ const DownloadCTA = ({ variant = 'default' }) => {
   // Full section variant
   return (
     <AnimatedSection animation="fadeInUp">
-      <div 
-        className="rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-12 text-center text-white"
+      <motion.div 
+        className="rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-12 text-center text-white relative overflow-hidden"
         style={{ 
           background: `linear-gradient(135deg, var(--color-section-primary) 0%, var(--color-section-secondary) 100%)`
         }}
+        whileHover={{ scale: 1.01 }}
+        transition={{ duration: 0.3 }}
       >
+        {/* Animated gradient overlay */}
+        <motion.div
+          className="absolute inset-0 opacity-0 hover:opacity-20 transition-opacity"
+          style={{
+            background: `radial-gradient(circle at center, white, transparent 70%)`,
+          }}
+        />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -107,7 +154,7 @@ const DownloadCTA = ({ variant = 'default' }) => {
             </p>
           )}
         </motion.div>
-      </div>
+      </motion.div>
     </AnimatedSection>
   )
 }

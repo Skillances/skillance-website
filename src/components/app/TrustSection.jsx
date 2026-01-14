@@ -2,6 +2,7 @@ import { ShieldCheck, Lock, Star, Headphones } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import AnimatedSection from '@/components/common/AnimatedSection'
 import { TRUST_SECURITY } from '@/utils/appConstants'
+import { motion } from 'framer-motion'
 
 const iconMap = {
   ShieldCheck,
@@ -45,20 +46,35 @@ const TrustSection = () => {
           return (
             <AnimatedSection key={item.id} animation="fadeInUp">
               <Card 
-                className="h-full text-center hover:shadow-lg transition-shadow duration-300 border-2 border-transparent"
-                style={{ borderColor: 'transparent' }}
-                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
-                onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                className="h-full text-center hover:shadow-lg transition-all duration-300 border border-gray-100 hover:scale-[1.02]"
               >
-                <CardHeader className="p-4 sm:p-6">
-                  <div 
-                    className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-full flex items-center justify-center mb-3 sm:mb-4"
-                    style={{ 
-                      backgroundColor: colors.bg
-                    }}
-                  >
-                    <Icon size={28} className="sm:w-8 sm:h-8" style={{ color: colors.icon }} />
-                  </div>
+                    <CardHeader className="p-4 sm:p-6">
+                      <motion.div 
+                        className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-full flex items-center justify-center mb-3 sm:mb-4 relative overflow-hidden"
+                        style={{ 
+                          backgroundColor: colors.bg
+                        }}
+                        whileHover={{ scale: 1.15, rotate: 360 }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        {/* Animated gradient overlay */}
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"
+                          animate={{
+                            rotate: [0, 360],
+                          }}
+                          transition={{
+                            duration: 10,
+                            repeat: Infinity,
+                            ease: 'linear',
+                          }}
+                        />
+                        <Icon 
+                          size={28} 
+                          className="sm:w-8 sm:h-8 relative z-10" 
+                          style={{ color: colors.icon }}
+                        />
+                      </motion.div>
                   <CardTitle 
                     style={{ fontFamily: 'var(--font-family-poppins)' }} 
                     className="text-lg sm:text-xl mb-2 sm:mb-3"
@@ -68,8 +84,8 @@ const TrustSection = () => {
                   <CardDescription className="text-sm sm:text-base">
                     {item.description}
                   </CardDescription>
-                </CardHeader>
-              </Card>
+                    </CardHeader>
+                  </Card>
             </AnimatedSection>
           )
         })}

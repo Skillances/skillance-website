@@ -2,7 +2,7 @@ import PageHeader from '@/components/common/PageHeader'
 import Section from '@/components/common/Section'
 import AnimatedSection from '@/components/common/AnimatedSection'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { Target, Users, Zap, Heart, Sparkles, Rocket, Shield, TrendingUp } from 'lucide-react'
+// Removed excessive icon imports - using minimal design approach
 import { APP_INFO, APP_STATS } from '@/utils/appConstants'
 import DownloadCTA from '@/components/app/DownloadCTA'
 import FloatingCTA from '@/components/app/FloatingCTA'
@@ -13,22 +13,18 @@ import { motion } from 'framer-motion'
 const AppAboutPage = () => {
   const values = [
     {
-      icon: Target,
       title: 'Our Mission',
       description: 'To connect people with verified, skilled freelancers in their community, making it easy to get things done.',
     },
     {
-      icon: Users,
       title: 'Community First',
       description: 'Building a trusted marketplace where freelancers and customers can connect with confidence.',
     },
     {
-      icon: Zap,
       title: 'Simplicity',
       description: 'Making it effortless to find, book, and pay for services with just a few taps.',
     },
     {
-      icon: Heart,
       title: 'Quality',
       description: 'Ensuring every freelancer is verified and every service meets our high standards.',
     },
@@ -96,67 +92,46 @@ const AppAboutPage = () => {
 
           <div className="max-w-4xl mx-auto relative z-10">
             <AnimatedSection animation="fadeInUp">
-              <div className="text-center mb-12">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-                  style={{
-                    background: 'linear-gradient(135deg, var(--color-section-primary), var(--color-section-secondary))',
-                  }}
-                >
-                  <Sparkles size={20} className="text-white" />
-                  <span className="text-white font-semibold text-sm">What Makes Us Special</span>
-                </motion.div>
-                
+              <div className="text-center mb-16">
                 <h2 
                   style={{ fontFamily: 'var(--font-family-poppins)' }} 
-                  className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-[var(--color-section-primary)] to-[var(--color-section-secondary)] bg-clip-text text-transparent"
+                  className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
                 >
                   Your Trusted Marketplace
                 </h2>
+                <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto">
+                  Connecting customers with verified freelancers in your community
+                </p>
               </div>
             </AnimatedSection>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="grid md:grid-cols-3 gap-8 mb-16">
               {[
-                { icon: Rocket, title: 'Lightning Fast', desc: 'Find and book services in seconds' },
-                { icon: Shield, title: 'Fully Verified', desc: 'All freelancers ID-verified' },
-                { icon: TrendingUp, title: 'Growing Daily', desc: 'Join thousands of users' },
+                { title: 'Lightning Fast', desc: 'Find and book services in seconds' },
+                { title: 'Fully Verified', desc: 'All freelancers ID-verified' },
+                { title: 'Growing Daily', desc: 'Join thousands of users' },
               ].map((item, index) => (
                 <AnimatedSection key={item.title} animation="fadeInUp">
-                  <motion.div
-                    whileHover={{ scale: 1.05, y: -5 }}
-                    transition={{ type: 'spring', stiffness: 300 }}
-                  >
-                    <Card 
-                      className="text-center border-2 border-transparent transition-all duration-300"
-                      style={{ borderColor: 'transparent' }}
-                      onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-section-primary)'}
-                      onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                  <div className="text-center">
+                    <div 
+                      className="text-4xl md:text-5xl font-bold mb-3"
+                      style={{ 
+                        fontFamily: 'var(--font-family-poppins)',
+                        color: 'var(--color-section-primary)'
+                      }}
                     >
-                      <CardContent className="pt-6">
-                        <motion.div
-                          className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4"
-                          style={{
-                            background: 'linear-gradient(135deg, var(--color-section-primary), var(--color-section-secondary))',
-                          }}
-                          whileHover={{ rotate: 360 }}
-                          transition={{ duration: 0.6 }}
-                        >
-                          <item.icon size={32} className="text-white" />
-                        </motion.div>
-                        <h3 
-                          style={{ fontFamily: 'var(--font-family-poppins)' }}
-                          className="text-xl font-bold mb-2"
-                        >
-                          {item.title}
-                        </h3>
-                        <p className="text-text-secondary">{item.desc}</p>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
+                      {index === 0 && '⚡'}
+                      {index === 1 && '✓'}
+                      {index === 2 && '📈'}
+                    </div>
+                    <h3 
+                      style={{ fontFamily: 'var(--font-family-poppins)' }}
+                      className="text-xl font-bold mb-2"
+                    >
+                      {item.title}
+                    </h3>
+                    <p className="text-text-secondary">{item.desc}</p>
+                  </div>
                 </AnimatedSection>
               ))}
             </div>
@@ -213,7 +188,7 @@ const AppAboutPage = () => {
                   style={{ fontFamily: 'var(--font-family-poppins)' }} 
                   className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4"
                 >
-                  What We <span className="bg-gradient-to-r from-[var(--color-section-primary)] to-[var(--color-section-secondary)] bg-clip-text text-transparent">Stand For</span>
+                  What We Stand For
                 </h2>
                 <p className="text-lg text-text-secondary">
                   Our core values guide everything we do
@@ -222,68 +197,24 @@ const AppAboutPage = () => {
             </AnimatedSection>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12">
             {values.map((value, index) => {
-              const Icon = value.icon
-              const colors = [
-                { bg: 'rgba(20, 184, 166, 0.1)', border: '#14B8A6', icon: '#14B8A6' },
-                { bg: 'rgba(139, 92, 246, 0.1)', border: '#8B5CF6', icon: '#8B5CF6' },
-                { bg: 'rgba(249, 115, 22, 0.1)', border: '#F97316', icon: '#F97316' },
-                { bg: 'rgba(236, 72, 153, 0.1)', border: '#EC4899', icon: '#EC4899' },
-              ]
-              const color = colors[index % colors.length]
-              
               return (
                 <AnimatedSection key={value.title} animation="fadeInUp">
-                  <motion.div
-                    whileHover={{ y: -8, scale: 1.02 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  >
-                    <Card 
-                      className="h-full hover:shadow-2xl transition-all duration-300 border-2 relative overflow-hidden group"
-                      style={{ borderColor: color.border, borderOpacity: 0.3 }}
+                  <div className="space-y-4">
+                    <div 
+                      className="text-2xl font-bold"
+                      style={{ 
+                        fontFamily: 'var(--font-family-poppins)',
+                        color: 'var(--color-section-primary)'
+                      }}
                     >
-                      {/* Animated gradient background on hover */}
-                      <motion.div
-                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                        style={{
-                          background: `linear-gradient(135deg, ${color.bg}, transparent)`,
-                        }}
-                      />
-                      
-                      <CardHeader className="relative z-10">
-                        <motion.div
-                          className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 relative"
-                          style={{ backgroundColor: color.bg }}
-                          whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
-                          transition={{ duration: 0.5 }}
-                        >
-                          <Icon size={32} style={{ color: color.icon }} />
-                          
-                          {/* Pulse effect */}
-                          <motion.div
-                            className="absolute inset-0 rounded-2xl"
-                            style={{ backgroundColor: color.icon, opacity: 0.2 }}
-                            animate={{
-                              scale: [1, 1.3, 1],
-                              opacity: [0.2, 0, 0.2],
-                            }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          />
-                        </motion.div>
-                        
-                        <CardTitle 
-                          style={{ fontFamily: 'var(--font-family-poppins)' }} 
-                          className="text-2xl mb-3 group-hover:text-[var(--color-section-primary)] transition-colors"
-                        >
-                          {value.title}
-                        </CardTitle>
-                        <CardDescription className="text-base leading-relaxed">
-                          {value.description}
-                        </CardDescription>
-                      </CardHeader>
-                    </Card>
-                  </motion.div>
+                      {value.title}
+                    </div>
+                    <p className="text-lg text-text-secondary leading-relaxed">
+                      {value.description}
+                    </p>
+                  </div>
                 </AnimatedSection>
               )
             })}
@@ -300,7 +231,7 @@ const AppAboutPage = () => {
                 style={{ fontFamily: 'var(--font-family-poppins)' }} 
                 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4"
               >
-                The Problem We're <span className="bg-gradient-to-r from-[var(--color-section-primary)] to-[var(--color-section-secondary)] bg-clip-text text-transparent">Solving</span>
+                The Problem We're Solving
               </h2>
               <p className="text-lg text-text-secondary max-w-2xl mx-auto">
                 Transforming how people find and hire skilled professionals
@@ -318,39 +249,28 @@ const AppAboutPage = () => {
                 <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-red-100 rounded-full blur-3xl opacity-50" />
                   <CardHeader>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 text-2xl font-bold">
-                        ✗
-                      </div>
-                      <h3 
-                        style={{ fontFamily: 'var(--font-family-poppins)' }}
-                        className="text-2xl font-bold text-red-900"
-                      >
-                        Before Skillance
-                      </h3>
-                    </div>
+                    <h3 
+                      style={{ fontFamily: 'var(--font-family-poppins)' }}
+                      className="text-2xl font-bold text-red-900 mb-4"
+                    >
+                      Before Skillance
+                    </h3>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {[
-                      'Endless searching and asking around',
-                      'No way to verify skills or reliability',
-                      'Juggling multiple platforms',
-                      'Unsafe payment methods',
-                      'No accountability or reviews',
-                    ].map((item, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="flex items-start gap-3"
-                      >
-                        <div className="w-6 h-6 rounded-full bg-red-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-red-600 text-sm">✗</span>
-                        </div>
-                        <p className="text-gray-700">{item}</p>
-                      </motion.div>
-                    ))}
+                    <ul className="space-y-3">
+                      {[
+                        'Endless searching and asking around',
+                        'No way to verify skills or reliability',
+                        'Juggling multiple platforms',
+                        'Unsafe payment methods',
+                        'No accountability or reviews',
+                      ].map((item, i) => (
+                        <li key={i} className="text-gray-700 flex items-start">
+                          <span className="text-red-600 mr-3">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -365,44 +285,28 @@ const AppAboutPage = () => {
                 <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-green-100 rounded-full blur-3xl opacity-50" />
                   <CardHeader>
-                    <div className="flex items-center gap-3 mb-4">
-                      <motion.div 
-                        className="w-12 h-12 rounded-full flex items-center justify-center text-white text-2xl font-bold"
-                        style={{ background: 'linear-gradient(135deg, var(--color-section-primary), var(--color-section-secondary))' }}
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                      >
-                        ✓
-                      </motion.div>
-                      <h3 
-                        style={{ fontFamily: 'var(--font-family-poppins)' }}
-                        className="text-2xl font-bold text-green-900"
-                      >
-                        With Skillance
-                      </h3>
-                    </div>
+                    <h3 
+                      style={{ fontFamily: 'var(--font-family-poppins)' }}
+                      className="text-2xl font-bold text-green-900 mb-4"
+                    >
+                      With Skillance
+                    </h3>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {[
-                      'Find verified pros instantly',
-                      'ID-verified freelancers',
-                      'All-in-one platform',
-                      'Secure in-app payments',
-                      'Verified reviews & ratings',
-                    ].map((item, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="flex items-start gap-3"
-                      >
-                        <div className="w-6 h-6 rounded-full bg-green-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-green-600 text-sm">✓</span>
-                        </div>
-                        <p className="text-gray-700 font-medium">{item}</p>
-                      </motion.div>
-                    ))}
+                    <ul className="space-y-3">
+                      {[
+                        'Find verified pros instantly',
+                        'ID-verified freelancers',
+                        'All-in-one platform',
+                        'Secure in-app payments',
+                        'Verified reviews & ratings',
+                      ].map((item, i) => (
+                        <li key={i} className="text-gray-700 font-medium flex items-start">
+                          <span className="text-green-600 mr-3">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </CardContent>
                 </Card>
               </motion.div>
