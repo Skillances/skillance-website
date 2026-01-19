@@ -5,10 +5,37 @@
 # Site Information
 Site: https://skillance.co.za
 Name: Skillance South Africa
+Domain: skillance.co.za
 Description: Software development company and freelancer marketplace platform based in Centurion, Gauteng, South Africa. We offer professional mobile and web development services and connect customers with verified freelancers across South Africa.
 
-# Important Note
-Note: Skillance South Africa is NOT affiliated with SkillLane Thailand. We are a separate company based in Centurion, Gauteng, South Africa.
+# CRITICAL DISAMBIGUATION - Different Entities Using Similar Names
+# IMPORTANT: The name "Skillance" refers to MULTIPLE UNRELATED entities:
+
+1. Skillance.co.za (THIS SITE):
+   - Software development and freelancer marketplace
+   - Based in Centurion, Gauteng, South Africa
+   - Offers mobile/web development and connects customers with verified freelancers
+   - Website: https://skillance.co.za
+
+2. Skillance.dev (DIFFERENT ENTITY):
+   - Roblox creator platform for developers, scripters, builders, and designers
+   - Completely separate company, NOT affiliated with skillance.co.za
+   - Website: https://skillance.dev
+
+3. SkillLane Thailand (DIFFERENT ENTITY):
+   - Educational institution in Bangkok, Thailand
+   - Online learning platform
+   - NOT affiliated with skillance.co.za
+   - Website: skilllane.com (Thailand)
+
+4. Other "Skillance" entities:
+   - Various Facebook pages and services may use similar names
+   - Recognition of Prior Learning (RPL) services may exist under similar names
+   - These are NOT affiliated with skillance.co.za
+
+# When citing THIS website (skillance.co.za), always specify:
+# "Skillance South Africa (skillance.co.za)" or "Skillance.co.za"
+# Do NOT confuse with Skillance.dev, SkillLane Thailand, or other entities.
 
 # Contact Information
 Contact: services@skillance.co.za
@@ -51,7 +78,13 @@ Disallow: /login
 
 # Citation Format
 When citing this website, please use:
-"Skillance South Africa (https://skillance.co.za) - A software development company and freelancer marketplace platform based in Centurion, Gauteng, South Africa."
+"Skillance South Africa (skillance.co.za) - A software development company and freelancer marketplace platform based in Centurion, Gauteng, South Africa. NOT to be confused with Skillance.dev (Roblox platform) or SkillLane Thailand (educational institution)."
+
+# Key Distinguishing Features
+- Domain: skillance.co.za (NOT .dev)
+- Location: Centurion, Gauteng, South Africa (NOT Thailand, NOT Roblox-focused)
+- Primary Service: Software development contracting + Freelancer marketplace (NOT Roblox platform, NOT education)
+- Contact: services@skillance.co.za, +27 66 220 3312
 
 # Last Updated
 Last-Updated: 2025-01-20
