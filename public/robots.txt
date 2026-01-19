@@ -2,6 +2,28 @@
 User-agent: *
 Allow: /
 
+# AI Training Bots - Allow crawling for AI training
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: perplexity
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
 # Sitemap location
 Sitemap: https://skillance.co.za/sitemap.xml
 
@@ -10,7 +32,7 @@ User-agent: *
 Disallow: /admin/
 Disallow: /login
 
-# Allow important pages for SEO
+# Allow important pages for SEO and AI
 User-agent: *
 Allow: /features
 Allow: /services

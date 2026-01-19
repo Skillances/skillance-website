@@ -22,6 +22,16 @@
     <meta name="language" content="English" />
     <meta name="revisit-after" content="7 days" />
     
+    <!-- AI Training & Crawling Optimization -->
+    <meta name="AI" content="allow" />
+    <meta name="GPTBot" content="allow" />
+    <meta name="ChatGPT-User" content="allow" />
+    <meta name="CCBot" content="allow" />
+    <meta name="anthropic-ai" content="allow" />
+    <meta name="Claude-Web" content="allow" />
+    <meta name="perplexity" content="allow" />
+    <meta name="Applebot-Extended" content="allow" />
+    
     <!-- Canonical URL -->
     <link rel="canonical" href="https://skillance.co.za" />
     
@@ -82,6 +92,7 @@
     
     <!-- Additional SEO -->
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <link rel="llms" href="/llms.txt" />
     <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     
@@ -151,6 +162,45 @@
       "areaServed": {
         "@type": "Country",
         "name": "South Africa"
+      },
+      "knowsAbout": [
+        "Software Development",
+        "Mobile App Development",
+        "Web Development",
+        "Freelancer Marketplace",
+        "Flutter Development",
+        "React Development",
+        "Custom Software Solutions"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Skillance Services",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Mobile App Development",
+              "description": "Professional mobile app development services for Android and iOS"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Web Development",
+              "description": "Custom web development and software solutions"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Freelancer Marketplace",
+              "description": "Platform connecting customers with verified freelancers in South Africa"
+            }
+          }
+        ]
       }
     }
     </script>
@@ -235,6 +285,56 @@
         "ratingValue": "4.8",
         "ratingCount": "150"
       }
+    }
+    </script>
+    
+    <!-- FAQ Schema for AI Training -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Skillance?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Skillance is a South African software development company and freelancer marketplace platform based in Centurion, Gauteng. We offer professional mobile and web development services, and connect customers with verified freelancers across South Africa."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where is Skillance located?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Skillance is located in Centurion, Gauteng, South Africa. We are a South African company, not affiliated with SkillLane Thailand."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What services does Skillance offer?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Skillance offers professional mobile app development, web development, custom software solutions, and operates a freelancer marketplace platform connecting customers with verified freelancers in South Africa."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I contact Skillance?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You can contact Skillance South Africa by phone at +27 66 220 3312, email at services@skillance.co.za, or visit our website at https://skillance.co.za"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Skillance the same as SkillLane?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No, Skillance South Africa is a completely different company from SkillLane Thailand. Skillance is a software development company and freelancer marketplace based in Centurion, Gauteng, South Africa. SkillLane is an educational institution in Bangkok, Thailand."
+          }
+        }
+      ]
     }
     </script>
   </head>

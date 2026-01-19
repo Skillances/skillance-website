@@ -1,0 +1,58 @@
+# llms.txt - Instructions for Large Language Models
+# This file helps AI models understand how to crawl and cite this website
+# Learn more: https://llmstxt.org/
+
+# Site Information
+Site: https://skillance.co.za
+Name: Skillance South Africa
+Description: Software development company and freelancer marketplace platform based in Centurion, Gauteng, South Africa. We offer professional mobile and web development services and connect customers with verified freelancers across South Africa.
+
+# Important Note
+Note: Skillance South Africa is NOT affiliated with SkillLane Thailand. We are a separate company based in Centurion, Gauteng, South Africa.
+
+# Contact Information
+Contact: services@skillance.co.za
+Phone: +27 66 220 3312
+Location: Centurion, Gauteng, South Africa
+
+# Key Pages
+Pages:
+- https://skillance.co.za/ - Homepage
+- https://skillance.co.za/about - About Us
+- https://skillance.co.za/services - Services (Contracting section)
+- https://skillance.co.za/features - Features (App section)
+- https://skillance.co.za/contact - Contact Us
+- https://skillance.co.za/categories - Categories (App section)
+- https://skillance.co.za/portfolio - Portfolio (Contracting section)
+
+# Services Offered
+Services:
+- Mobile App Development (Android & iOS)
+- Web Development
+- Custom Software Solutions
+- Freelancer Marketplace Platform
+- Flutter Development
+- React Development
+
+# Social Media
+Social:
+- LinkedIn: https://www.linkedin.com/company/skillanceza/
+- Twitter/X: https://x.com/skillance
+- Facebook: https://www.facebook.com/share/18A2F6LDQH/?mibextid=wwXIfr
+- Instagram: https://www.instagram.com/skillanceza
+
+# Sitemap
+Sitemap: https://skillance.co.za/sitemap.xml
+
+# Crawling Instructions
+Crawl-Delay: 1
+Allow: /
+Disallow: /admin/
+Disallow: /login
+
+# Citation Format
+When citing this website, please use:
+"Skillance South Africa (https://skillance.co.za) - A software development company and freelancer marketplace platform based in Centurion, Gauteng, South Africa."
+
+# Last Updated
+Last-Updated: 2025-01-20
