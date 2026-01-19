@@ -27,7 +27,34 @@ export const contractingRoutes = ['/', '/services', '/portfolio', '/about', '/co
 
 export const SectionProvider = ({ children }) => {
   const [activeSection, setActiveSection] = useState(() => {
-    // Get initial section from localStorage or default to 'app'
+    // For SSR, default to 'app'
+    if (typeof window === 'undefined') {
+      return 'app'
+    }
+    
+    // Detect section from current URL path
+    // App routes: /features, /categories, /videos
+    // Contracting routes: /services, /portfolio
+    const pathname = window.location.pathname
+    const appOnlyRoutes = ['/features', '/categories', '/videos']
+    const contractingOnlyRoutes = ['/services', '/portfolio']
+    
+    if (appOnlyRoutes.includes(pathname)) {
+      return 'app'
+    }
+    if (contractingOnlyRoutes.includes(pathname)) {
+      return 'contracting'
+    }
+    
+    // Check if this is a bot/crawler - always use 'app' for bots
+    const userAgent = navigator.userAgent.toLowerCase()
+    const isBot = /bot|crawler|spider|crawling|googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|sogou|exabot|facebot|ia_archiver/i.test(userAgent)
+    
+    if (isBot) {
+      return 'app'
+    }
+    
+    // For regular users on shared routes, get from localStorage or default to 'app'
     const saved = localStorage.getItem('skillance-active-section')
     return saved || 'app'
   })

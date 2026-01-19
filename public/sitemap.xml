@@ -12,57 +12,29 @@
     <priority>1.0</priority>
   </url>
   
-  <!-- App Section Pages -->
+  <!-- App Section Pages (Freelancer Marketplace) -->
+  <!-- Note: These routes work when section toggle is set to "App" -->
   <url>
-    <loc>https://skillance.co.za/app</loc>
+    <loc>https://skillance.co.za/features</loc>
     <lastmod>2025-01-15</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://skillance.co.za/app/about</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://skillance.co.za/app/features</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://skillance.co.za/app/categories</loc>
+    <loc>https://skillance.co.za/categories</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://skillance.co.za/app/contact</loc>
+    <loc>https://skillance.co.za/videos</loc>
     <lastmod>2025-01-15</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-  <url>
-    <loc>https://skillance.co.za/app/privacy</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://skillance.co.za/app/terms</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
   
-  <!-- Contracting Section Pages -->
-  <url>
-    <loc>https://skillance.co.za/about</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
+  <!-- Contracting Section Pages (Software Development Services) -->
+  <!-- Note: These routes work when section toggle is set to "Contracting" -->
   <url>
     <loc>https://skillance.co.za/services</loc>
     <lastmod>2025-01-15</lastmod>
@@ -71,6 +43,14 @@
   </url>
   <url>
     <loc>https://skillance.co.za/portfolio</loc>
+    <lastmod>2025-01-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Shared Pages (work in both sections) -->
+  <url>
+    <loc>https://skillance.co.za/about</loc>
     <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

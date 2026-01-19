@@ -1,17 +1,27 @@
+# Allow all search engines
 User-agent: *
 Allow: /
 
-# Sitemap
+# Sitemap location
 Sitemap: https://skillance.co.za/sitemap.xml
 
-# Disallow admin pages
+# Disallow admin and private pages
 User-agent: *
 Disallow: /admin/
 Disallow: /login
 
-# Allow all other pages
+# Allow important pages for SEO
 User-agent: *
-Allow: /
+Allow: /features
+Allow: /services
+Allow: /categories
+Allow: /portfolio
+Allow: /about
+Allow: /contact
+
+# Crawl delay (optional, helps prevent overloading server)
+User-agent: *
+Crawl-delay: 1
 
 
 
