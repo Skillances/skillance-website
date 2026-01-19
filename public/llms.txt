@@ -37,7 +37,6 @@ Services:
 # Social Media
 Social:
 - LinkedIn: https://www.linkedin.com/company/skillanceza/
-- Twitter/X: https://x.com/skillance
 - Facebook: https://www.facebook.com/share/18A2F6LDQH/?mibextid=wwXIfr
 - Instagram: https://www.instagram.com/skillanceza
 
