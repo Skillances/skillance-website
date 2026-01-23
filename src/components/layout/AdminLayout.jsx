@@ -14,7 +14,8 @@ import {
   ChevronRight,
   BarChart3,
   FileText,
-  UserCheck
+  UserCheck,
+  Shield
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -71,6 +72,11 @@ const AdminLayout = ({ children }) => {
       name: 'Analytics',
       path: '/admin/analytics',
       icon: BarChart3,
+    },
+    {
+      name: 'Security Logs',
+      path: '/admin/security',
+      icon: Shield,
     },
     {
       name: 'Reports',
