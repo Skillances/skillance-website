@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { ModeToggle } from '@/components/common/ModeToggle'
 import { 
   LayoutDashboard, 
   Users, 
@@ -101,7 +102,7 @@ const AdminLayout = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-background flex">
       {/* Mobile sidebar backdrop */}
       {isMobileMenuOpen && (
         <div
@@ -114,7 +115,7 @@ const AdminLayout = ({ children }) => {
       <motion.aside
         animate={{ width: isSidebarCollapsed ? '80px' : '256px' }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className="hidden lg:flex bg-white border-r border-border overflow-hidden flex-shrink-0"
+        className="hidden lg:flex bg-card border-r border-border overflow-hidden flex-shrink-0"
       >
         <div className="flex flex-col h-full w-full">
           {/* Logo/Brand */}
@@ -130,13 +131,13 @@ const AdminLayout = ({ children }) => {
                   <h1 
                     style={{ 
                       fontFamily: 'var(--font-family-poppins)',
-                      color: 'var(--color-section-primary)'
+                      color: 'var(--primary)'
                     }}
-                    className="text-lg font-bold truncate"
+                    className="text-lg font-bold truncate text-primary"
                   >
                     Skillance
                   </h1>
-                  <p className="text-xs text-text-tertiary">Admin Panel</p>
+                  <p className="text-xs text-muted-foreground">Admin Panel</p>
                 </div>
               )}
             </div>
@@ -146,12 +147,12 @@ const AdminLayout = ({ children }) => {
           {!isSidebarCollapsed && (
             <div className="p-4 border-b border-border">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary-teal flex items-center justify-center text-white font-semibold flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold flex-shrink-0">
                   {user?.fullName?.charAt(0) || 'A'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{user?.fullName || 'Admin'}</p>
-                  <p className="text-xs text-text-tertiary truncate">{user?.email || ''}</p>
+                  <p className="text-sm font-medium truncate text-foreground">{user?.fullName || 'Admin'}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email || ''}</p>
                 </div>
               </div>
             </div>
@@ -161,13 +162,13 @@ const AdminLayout = ({ children }) => {
           <div className="p-4 border-b border-border">
             <button
               onClick={toggleSidebar}
-              className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-muted transition-colors"
               aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {isSidebarCollapsed ? (
-                <ChevronRight size={20} className="text-text-secondary" />
+                <ChevronRight size={20} className="text-muted-foreground" />
               ) : (
-                <ChevronLeft size={20} className="text-text-secondary" />
+                <ChevronLeft size={20} className="text-muted-foreground" />
               )}
             </button>
           </div>
@@ -187,12 +188,9 @@ const AdminLayout = ({ children }) => {
                     isSidebarCollapsed ? 'justify-center' : ''
                   } ${
                     active
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'text-text-secondary hover:bg-gray-100 hover:text-text-primary'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   }`}
-                  style={active ? {
-                    backgroundColor: 'var(--color-section-primary)',
-                  } : {}}
                 >
                   <Icon size={20} className="flex-shrink-0" />
                   {!isSidebarCollapsed && (
@@ -210,7 +208,7 @@ const AdminLayout = ({ children }) => {
             <button
               onClick={handleLogout}
               title={isSidebarCollapsed ? 'Logout' : ''}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-red-50 hover:text-red-600 transition-all duration-200 w-full ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200 w-full ${
                 isSidebarCollapsed ? 'justify-center' : ''
               }`}
             >
@@ -233,7 +231,7 @@ const AdminLayout = ({ children }) => {
             animate={{ x: 0 }}
             exit={{ x: -280 }}
             transition={{ duration: 0.3 }}
-            className="w-64 bg-white border-r border-border fixed left-0 top-0 bottom-0 z-50 lg:hidden overflow-y-auto"
+            className="w-64 bg-background border-r border-border fixed left-0 top-0 bottom-0 z-50 lg:hidden overflow-y-auto"
           >
             <div className="flex flex-col h-full">
               {/* Logo/Brand */}
@@ -248,13 +246,13 @@ const AdminLayout = ({ children }) => {
                     <h1 
                       style={{ 
                         fontFamily: 'var(--font-family-poppins)',
-                        color: 'var(--color-section-primary)'
+                        color: 'var(--primary)'
                       }}
-                      className="text-lg font-bold"
+                      className="text-lg font-bold text-primary"
                     >
                       Skillance
                     </h1>
-                    <p className="text-xs text-text-tertiary">Admin Panel</p>
+                    <p className="text-xs text-muted-foreground">Admin Panel</p>
                   </div>
                 </div>
               </div>
@@ -262,12 +260,12 @@ const AdminLayout = ({ children }) => {
               {/* User Info */}
               <div className="p-4 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary-teal flex items-center justify-center text-white font-semibold">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
                     {user?.fullName?.charAt(0) || 'A'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{user?.fullName || 'Admin'}</p>
-                    <p className="text-xs text-text-tertiary truncate">{user?.email || ''}</p>
+                    <p className="text-sm font-medium truncate text-foreground">{user?.fullName || 'Admin'}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email || ''}</p>
                   </div>
                 </div>
               </div>
@@ -285,12 +283,9 @@ const AdminLayout = ({ children }) => {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                         active
-                          ? 'bg-primary text-white shadow-sm'
-                          : 'text-text-secondary hover:bg-gray-100 hover:text-text-primary'
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                       }`}
-                      style={active ? {
-                        backgroundColor: 'var(--color-section-primary)',
-                      } : {}}
                     >
                       <Icon size={20} />
                       <span className="text-sm font-medium" style={{ fontFamily: 'var(--font-family-inter)' }}>
@@ -305,7 +300,7 @@ const AdminLayout = ({ children }) => {
               <div className="p-4 border-t border-border">
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:bg-red-50 hover:text-red-600 transition-all duration-200 w-full"
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200 w-full"
                 >
                   <LogOut size={20} />
                   <span className="text-sm font-medium" style={{ fontFamily: 'var(--font-family-inter)' }}>
@@ -321,11 +316,11 @@ const AdminLayout = ({ children }) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
-        <header className="bg-white border-b border-border px-4 lg:px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+        <header className="bg-background border-b border-border px-4 lg:px-6 py-4 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-3">
             <button
               onClick={toggleMobileMenu}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors lg:hidden"
+              className="p-2 rounded-lg hover:bg-muted transition-colors lg:hidden"
               aria-label="Toggle mobile menu"
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -333,7 +328,7 @@ const AdminLayout = ({ children }) => {
             
             <button
               onClick={toggleSidebar}
-              className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="hidden lg:flex p-2 rounded-lg hover:bg-muted transition-colors"
               aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               <Menu size={24} />
@@ -342,16 +337,19 @@ const AdminLayout = ({ children }) => {
             <div className="flex-1 lg:ml-0 ml-4">
               <h2 
                 style={{ fontFamily: 'var(--font-family-poppins)' }}
-                className="text-xl font-semibold"
+                className="text-xl font-semibold text-foreground"
               >
                 {adminMenuItems.find(item => isActive(item.path))?.name || 'Admin Panel'}
               </h2>
             </div>
           </div>
+          <div className="flex items-center gap-2">
+            <ModeToggle />
+          </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-muted/20">
           {children}
         </main>
       </div>

@@ -126,18 +126,22 @@ function AppContent() {
   )
 }
 
+import { ThemeProvider } from './components/common/ThemeProvider'
+
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <SectionProvider>
-          <SmoothScrollProvider>
-            <ScrollToTop />
-            <AppContent />
-            <Analytics />
-          </SmoothScrollProvider>
-        </SectionProvider>
-      </AuthProvider>
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <AuthProvider>
+          <SectionProvider>
+            <SmoothScrollProvider>
+              <ScrollToTop />
+              <AppContent />
+              <Analytics />
+            </SmoothScrollProvider>
+          </SectionProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   )
 }

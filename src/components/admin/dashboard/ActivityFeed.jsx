@@ -51,49 +51,27 @@ const ActivityItem = ({ activity, index }) => {
 }
 
 const ActivityFeed = ({ activities = [] }) => {
-  // Generate mock activities if empty, to show "lived-in" feel
-  const displayActivities = activities.length > 0 ? activities : [
-    {
-      id: 1,
-      type: 'user_signup',
-      title: 'New Freelancer Registration',
-      description: 'John Doe registered as a Electrician',
-      timestamp: new Date(Date.now() - 1000 * 60 * 5) // 5 mins ago
-    },
-    {
-      id: 2,
-      type: 'security',
-      title: 'Failed Login Attempt',
-      description: 'Multiple failed attempts from IP 192.168.1.1',
-      timestamp: new Date(Date.now() - 1000 * 60 * 30) // 30 mins ago
-    },
-    {
-      id: 3,
-      type: 'verification',
-      title: 'Document Verified',
-      description: 'Sarah Smith submitted ID verification documents',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2) // 2 hours ago
-    },
-    {
-      id: 4,
-      type: 'login',
-      title: 'Admin Login',
-      description: 'Super Admin accessed the dashboard',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5) // 5 hours ago
-    }
-  ]
-
   return (
-    <Card className="h-full border-none shadow-lg bg-white/80 backdrop-blur-sm">
+    <Card className="h-full border-none shadow-lg bg-white/80 dark:bg-card/50 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-slate-900">Recent Activity</CardTitle>
+        <CardTitle className="text-lg font-semibold text-slate-900 dark:text-foreground">Recent Activity</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-1">
-          {displayActivities.map((activity, index) => (
-            <ActivityItem key={activity.id || index} activity={activity} index={index} />
-          ))}
-        </div>
+        {activities.length > 0 ? (
+          <div className="space-y-1">
+            {activities.map((activity, index) => (
+              <ActivityItem key={activity.id || index} activity={activity} index={index} />
+            ))}
+          </div>
+        ) : (
+           <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                 <Shield size={24} className="opacity-50" />
+              </div>
+              <p className="font-medium">No recent activity</p>
+              <p className="text-sm">System events and logs will appear here.</p>
+           </div>
+        )}
       </CardContent>
     </Card>
   )

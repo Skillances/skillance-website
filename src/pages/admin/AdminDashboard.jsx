@@ -14,71 +14,106 @@ const AdminDashboard = () => {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [dashboardData, setDashboardData] = useState(null)
+  const [growthData, setGrowthData] = useState([])
+  const [chartLoading, setChartLoading] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
-  
-  // Mock data for the main chart
-  const growthData = [
-    { name: 'Jan', users: 400, freelancers: 240 },
-    { name: 'Feb', users: 300, freelancers: 139 },
-    { name: 'Mar', users: 200, freelancers: 980 },
-    { name: 'Apr', users: 278, freelancers: 390 },
-    { name: 'May', users: 189, freelancers: 480 },
-    { name: 'Jun', users: 239, freelancers: 380 },
-    { name: 'Jul', users: 349, freelancers: 430 },
-  ]
 
+  // Fetch all dashboard data
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchAllData = async () => {
       try {
         setIsLoading(true)
-        const response = await get('/admin/dashboard')
         
-        if (response.success && response.data) {
-          setDashboardData(response.data)
+        // Parallel fetch for speed
+        const [dashboardRes, userGrowthRes, freelancerGrowthRes] = await Promise.all([
+          get('/admin/dashboard'),
+          get('/admin/analytics/user-growth?interval=daily'),
+          get('/admin/analytics/freelancer-growth?interval=daily')
+        ])
+
+        if (dashboardRes.success && dashboardRes.data) {
+          setDashboardData(dashboardRes.data)
         }
+
+        // Process growth data for charts
+        if (userGrowthRes.success && freelancerGrowthRes.success) {
+          // Merge series by date
+          const userSeries = userGrowthRes.data.data.series || []
+          const freelancerSeries = freelancerGrowthRes.data.data.series || []
+          
+          // Create a map of all dates
+          const dateMap = new Map()
+          
+          userSeries.forEach(item => {
+            const date = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            if (!dateMap.has(item.date)) dateMap.set(item.date, { name: date, date: item.date, users: 0, freelancers: 0 })
+            dateMap.get(item.date).users = item.cumulative
+          })
+
+          freelancerSeries.forEach(item => {
+             const date = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+             if (!dateMap.has(item.date)) dateMap.set(item.date, { name: date, date: item.date, users: 0, freelancers: 0 })
+             dateMap.get(item.date).freelancers = item.cumulative
+          })
+
+          // Convert map to array and sort by date
+          const sortedData = Array.from(dateMap.values())
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            // Take only last 7-14 days for cleaner view if too many points
+            .slice(-30)
+
+           // If completely empty (fresh app), add some placeholder points to start the chart at 0
+           if (sortedData.length === 0) {
+             const today = new Date();
+             for (let i = 6; i >= 0; i--) {
+               const d = new Date(today);
+               d.setDate(today.getDate() - i);
+               sortedData.push({
+                 name: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), 
+                 users: 0, 
+                 freelancers: 0
+               })
+             }
+           }
+
+          setGrowthData(sortedData)
+        }
+        
       } catch (err) {
         console.error('Error fetching dashboard data:', err)
-        // We'll fall back to loading state or handle visually in components
       } finally {
         setIsLoading(false)
+        setChartLoading(false)
       }
     }
 
-    fetchDashboardData()
+    fetchAllData()
   }, [])
 
   const metrics = dashboardData ? [
     {
-      title: 'Total Revenue',
-      value: 'R 45,231.89',
-      change: '+20.1%',
-      icon: TrendingUp,
-      color: '#10B981', // Emerald
-      data: Array.from({ length: 20 }, (_, i) => ({ value: 10 + i + Math.random() * 5 }))
-    },
-    {
       title: 'Active Users',
       value: dashboardData.users.total.toLocaleString(),
-      change: '+12.5%',
+      change: dashboardData.users.newThisMonth > 0 ? `+${dashboardData.users.newThisMonth} this month` : '0% this month',
       icon: Users,
       color: '#3B82F6', // Blue
-      data: Array.from({ length: 20 }, (_, i) => ({ value: 20 + i + Math.random() * 10 }))
+      data: growthData.map(d => ({ value: d.users })) // Real data for sparkline
     },
     {
       title: 'Freelancers',
       value: dashboardData.freelancers.total.toLocaleString(),
-      change: '+15.2%',
+      change: `${((dashboardData.freelancers.verified / (dashboardData.freelancers.total || 1)) * 100).toFixed(0)}% verified`,
       icon: Briefcase,
       color: '#8B5CF6', // Violet
-      data: Array.from({ length: 20 }, (_, i) => ({ value: 5 + i + Math.random() * 2 }))
+      data: growthData.map(d => ({ value: d.freelancers })) // Real data for sparkline
     },
     {
       title: 'Pending Verifications',
       value: dashboardData.pendingVerifications.count.toLocaleString(),
-      change: dashboardData.pendingVerifications.count > 0 ? '+4.3%' : '0%',
+      change: dashboardData.pendingVerifications.count > 0 ? 'Action required' : 'All caught up',
       icon: ShieldCheck,
       color: '#F59E0B', // Amber
-      data: Array.from({ length: 20 }, (_, i) => ({ value: 30 - i + Math.random() * 5 }))
+      data: Array.from({ length: 15 }, (_, i) => ({ value: Math.max(0, dashboardData.pendingVerifications.count + (Math.random() * 5 - 2)) })) // Semi-mock
     }
   ] : []
 
