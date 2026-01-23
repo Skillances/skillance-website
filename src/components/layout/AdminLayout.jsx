@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
-import { get } from '@/utils/api'
 import { 
   LayoutDashboard, 
   Users, 
@@ -16,8 +15,7 @@ import {
   BarChart3,
   FileText,
   UserCheck,
-  Shield,
-  Download
+  Shield
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -349,36 +347,6 @@ const AdminLayout = ({ children }) => {
                 {adminMenuItems.find(item => isActive(item.path))?.name || 'Admin Panel'}
               </h2>
             </div>
-            
-            {/* Download API Docs Button */}
-            <button
-              onClick={async () => {
-                try {
-                  const data = await get('/admin/docs/json');
-                  
-                  // Convert to JSON string and create blob
-                  const jsonString = JSON.stringify(data, null, 2);
-                  const blob = new Blob([jsonString], { type: 'application/json' });
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'skillance-api-openapi.json';
-                  document.body.appendChild(a);
-                  a.click();
-                  window.URL.revokeObjectURL(url);
-                  document.body.removeChild(a);
-                } catch (error) {
-                  console.error('Error downloading API docs:', error);
-                  alert('Failed to download API docs. Please try again.');
-                }
-              }}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors text-sm font-medium"
-              style={{ backgroundColor: 'var(--color-section-primary)' }}
-              title="Download API Documentation (OpenAPI JSON) for Postman"
-            >
-              <Download size={16} />
-              <span className="hidden sm:inline">Download API Docs</span>
-            </button>
           </div>
         </header>
 
