@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./glass.css";
 
 @theme {
   /* Custom colors - these will generate utilities like text-primary, bg-surface-variant, etc. */
@@ -30,7 +31,7 @@
   --color-section-background: #F8FAFC;
 
   /* Typography */
-  --font-family-poppins: 'Poppins', sans-serif;
+  --font-family-poppins: 'DM Sans', sans-serif;
   --font-family-inter: 'Inter', sans-serif;
 
   /* Border Radius */
@@ -76,6 +77,28 @@
   --color-border: #E5E5E5;
   --color-divider: #EEEEEE;
   --color-rating: #EAB308;
+  
+  /* Glass morphism variables */
+  --glass-bg-opacity-light: 0.15;
+  --glass-bg-opacity-medium: 0.25;
+  --glass-bg-opacity-heavy: 0.3;
+  --glass-blur: 20px;
+  --glass-border-opacity: 0.3;
+  --glass-shadow: rgba(20, 184, 166, 0.2);
+  --glass-shadow-lg: rgba(20, 184, 166, 0.3);
+  --glass-teal-transparent: rgba(20, 184, 166, 0.15);
+  --glass-teal-transparent-medium: rgba(20, 184, 166, 0.25);
+  --glass-cyan-transparent: rgba(8, 145, 178, 0.15);
+  --glass-mint-highlight: rgba(94, 234, 212, 0.2);
+  --glass-white: rgba(255, 255, 255, 0.1);
+  --glass-white-medium: rgba(255, 255, 255, 0.2);
+  --glass-white-heavy: rgba(255, 255, 255, 0.3);
+  
+  /* Gradient definitions for app section */
+  --gradient-primary: linear-gradient(135deg, var(--color-section-primary) 0%, var(--color-section-secondary) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--color-section-primary) 0%, var(--color-secondary-teal) 100%);
+  --gradient-subtle: linear-gradient(135deg, color-mix(in srgb, var(--color-section-primary) 5%, transparent) 0%, color-mix(in srgb, var(--color-secondary-teal) 5%, transparent) 100%);
+  --gradient-card: linear-gradient(135deg, color-mix(in srgb, var(--color-section-primary) 2%, transparent) 0%, color-mix(in srgb, var(--color-secondary-teal) 2%, transparent) 100%);
 }
 
 /* Contracting Section Theme */
@@ -156,6 +179,74 @@
     position: relative;
   }
 
+  /* Parallax container styles - Optimized for smooth scrolling */
+  .parallax-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    /* Performance optimizations */
+    will-change: scroll-position;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scene transitions */
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  .parallax-container-static {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  /* Performance: GPU acceleration for parallax layers */
+  [class*="ParallaxLayer"] {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    /* Smooth layer transitions */
+    transition: transform 0.1s ease-out;
+  }
+
+  /* Scene flow optimization */
+  .app-homepage-parallax {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    overflow: hidden;
+    /* Prevent layout shifts */
+    contain: layout style paint;
+  }
+
+  /* Reduce motion for better performance on low-end devices */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    
+    .parallax-container {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Performance: Optimize glass effects on mobile */
+  @media (max-width: 768px) {
+    .glass,
+    .glass-hero,
+    .glass-card {
+      backdrop-filter: blur(16px) saturate(150%);
+      -webkit-backdrop-filter: blur(16px) saturate(150%);
+    }
+    
+    /* Reduce complex animations on mobile */
+    .fog-background::before {
+      animation: none;
+    }
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-text-primary);
@@ -220,6 +311,23 @@
   }
 
   /* Gradient text utilities */
+  /* Text gradient - matches reference */
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(174 72% 40%), hsl(168 84% 50%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Teal mint color - matches reference */
+  .text-teal-mint {
+    color: hsl(168 84% 78%);
+  }
+  
+  .bg-teal-mint {
+    background-color: hsl(168 84% 78%);
+  }
+  
   .text-gradient-primary {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
@@ -300,6 +408,11 @@
   50% { background-position: 100% 50%; }
 }
 
+@keyframes gradient-shift-text {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 @keyframes gradient-shift-subtle {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -373,6 +486,20 @@
   .container-padding {
     padding-left: 2rem;
     padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container-padding {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  .container-padding {
+    padding-left: 4rem;
+    padding-right: 4rem;
   }
 }
 
@@ -511,3 +638,4 @@
     padding: 3rem;
   }
 }
+

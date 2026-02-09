@@ -5,9 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Smartphone, Code2 } from 'lucide-react'
 
 const SectionToggle = () => {
-  const { activeSection, toggleSection } = useSectionContext()
+  const { activeSection, toggleSection, isApp } = useSectionContext()
   const navigate = useNavigate()
   const location = useLocation()
+  
+  // Hide on parallax homepage
+  const isHomePage = location.pathname === '/' && isApp
 
   const handleSectionChange = (newSection) => {
     // If switching to the same section, do nothing
@@ -65,6 +68,11 @@ const SectionToggle = () => {
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // Don't render on parallax homepage
+  if (isHomePage) {
+    return null
+  }
 
   return (
     <AnimatePresence mode="wait">

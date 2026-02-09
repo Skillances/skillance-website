@@ -14,7 +14,7 @@ const iconMap = {
 
 const ServicesPreview = () => {
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12">
       {SERVICES.map((service, index) => {
         const Icon = iconMap[service.icon]
 
@@ -27,10 +27,10 @@ const ServicesPreview = () => {
               whileHover={{ y: -8 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
-              <Card className="h-full hover-lift border-2 border-transparent hover:border-[var(--color-section-primary)] transition-all duration-300 flex flex-col bg-gradient-card">
+              <Card className="h-full hover-lift border-2 border-transparent hover:border-[var(--color-section-primary)] transition-all duration-300 flex flex-col" style={{ backgroundColor: 'var(--color-surface)' }}>
                 <CardHeader className="flex-grow flex flex-col">
                   <motion.div
-                    className="w-14 h-14 rounded-lg flex items-center justify-center mb-4 shadow-accent"
+                    className="w-14 h-14 rounded-lg flex items-center justify-center mb-4"
                     style={{ backgroundColor: 'var(--color-section-primary)' }}
                     whileHover={{ scale: 1.1, rotate: 5 }}
                     transition={{ type: 'spring', stiffness: 300 }}

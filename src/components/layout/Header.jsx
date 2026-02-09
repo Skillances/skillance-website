@@ -16,10 +16,12 @@ const Header = () => {
   const [isSectionToggleVisible, setIsSectionToggleVisible] = useState(true)
   const [isComingSoonModalOpen, setIsComingSoonModalOpen] = useState(false)
   const [lastScrollY, setLastScrollY] = useState(0)
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true)
   const location = useLocation()
   const { isApp } = useSectionContext()
 
   const navigation = isApp ? APP_NAVIGATION : CONTRACTING_NAVIGATION
+  const isHomePage = location.pathname === '/' && isApp
 
   useEffect(() => {
     let ticking = false
@@ -34,6 +36,23 @@ const Header = () => {
           // Track SectionToggle visibility - only visible at top
           setIsSectionToggleVisible(currentScrollY < 5)
           
+          // On homepage, hide header when scrolling down, show when scrolling up or at top
+          if (isHomePage) {
+            if (currentScrollY < 10) {
+              // Always show at the very top
+              setIsHeaderVisible(true)
+            } else if (currentScrollY > lastScrollY) {
+              // Scrolling down - hide header
+              setIsHeaderVisible(false)
+            } else if (currentScrollY < lastScrollY) {
+              // Scrolling up - show header
+              setIsHeaderVisible(true)
+            }
+          } else {
+            // Not homepage - always visible
+            setIsHeaderVisible(true)
+          }
+          
           setLastScrollY(currentScrollY)
           ticking = false
         })
@@ -43,17 +62,23 @@ const Header = () => {
     
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [isHomePage, lastScrollY])
+
+  // On parallax homepage, make header slightly transparent with glass effect
+  const headerClasses = isHomePage 
+    ? 'bg-white/70 backdrop-blur-md shadow-sm py-4 md:py-6'
+    : isScrolled 
+      ? 'bg-white/95 backdrop-blur-sm shadow-md py-3 md:py-4' 
+      : 'bg-transparent py-4 md:py-6'
 
   return (
     <>
       <header
-        className={`fixed left-0 right-0 z-40 transition-all duration-300 ${
-          isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-md py-3 md:py-4' : 'bg-transparent py-4 md:py-6'
-        }`}
+        className={`fixed left-0 right-0 z-40 transition-all duration-300 ${headerClasses}`}
         style={{ 
-          top: isSectionToggleVisible ? '56px' : '0px',
-          transition: 'top 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, padding 0.3s ease'
+          top: isHomePage ? '0px' : (isSectionToggleVisible ? '56px' : '0px'),
+          transform: isHomePage && !isHeaderVisible ? 'translateY(-100%)' : 'translateY(0)',
+          transition: 'top 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, padding 0.3s ease, transform 0.3s ease'
         }}
       >
         <div className="container mx-auto container-padding max-w-7xl xl:max-w-[1400px] 2xl:max-w-[1600px]">
