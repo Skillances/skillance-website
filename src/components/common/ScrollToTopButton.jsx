@@ -1,25 +1,30 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUp } from 'lucide-react'
 
+const SCROLL_THRESHOLD = 300
+
 const ScrollToTopButton = () => {
   const [isVisible, setIsVisible] = useState(false)
+  const lastVisibleRef = useRef(false)
 
   useEffect(() => {
     let ticking = false
-    
+
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY
-          // Show button when scrolled down more than 300px
-          setIsVisible(currentScrollY > 300)
+          const visible = window.scrollY > SCROLL_THRESHOLD
+          if (visible !== lastVisibleRef.current) {
+            lastVisibleRef.current = visible
+            setIsVisible(visible)
+          }
           ticking = false
         })
         ticking = true
       }
     }
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])

@@ -41,11 +41,14 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-3 sm:space-y-4 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center space-x-2">
-              <img 
-                src="/app_icon.png" 
-                alt="Skillance" 
+              <img
+                src="/app_icon.png"
+                alt="Skillance"
+                width={62}
+                height={50}
                 style={{ width: '62px', height: '50px' }}
                 className="object-contain"
+                loading="lazy"
               />
               <span style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-lg sm:text-xl font-bold block">
                 Skillance
@@ -158,22 +161,28 @@ const Footer = () => {
                 </p>
                 <div>
                   {APP_INFO.status === 'Coming Soon' ? (
-                    <img 
-                      src="/get_it_on.png" 
+                    <img
+                      src="/get_it_on.png"
                       alt="Download on the App Store and Get it on Google Play"
+                      width={230}
+                      height={153}
                       className="w-[180px] sm:w-[230px] h-auto opacity-70"
+                      loading="lazy"
                     />
                   ) : (
-                    <a 
-                      href={APP_INFO.playStoreUrl} 
+                    <a
+                      href={APP_INFO.playStoreUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block transition-opacity hover:opacity-80 touch-target"
                     >
-                      <img 
-                        src="/get_it_on.png" 
+                      <img
+                        src="/get_it_on.png"
                         alt="Download on the App Store and Get it on Google Play"
+                        width={230}
+                        height={153}
                         className="w-[180px] sm:w-[230px] h-auto"
+                        loading="lazy"
                       />
                     </a>
                   )}

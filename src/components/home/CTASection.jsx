@@ -7,21 +7,16 @@ import { motion } from 'framer-motion'
 const CTASection = () => {
   return (
     <div className="relative">
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-primary rounded-2xl opacity-95" />
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-section-primary)] via-[var(--color-section-secondary)] to-[var(--color-section-secondary)] rounded-2xl opacity-90" />
+      {/* Solid background */}
+      <div className="absolute inset-0 rounded-2xl" style={{ backgroundColor: 'var(--color-section-primary)' }} />
       
-      {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
-      
-      <div className="relative z-10 p-12 md:p-16">
+      <div className="relative z-10 p-6 sm:p-8 md:p-12 lg:p-16 xl:p-20">
         <AnimatedSection animation="fadeInUp">
-          <div className="text-center max-w-3xl mx-auto text-white">
-            <h2 style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+          <div className="text-center max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto text-white">
+            <h2 style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-5 md:mb-6 lg:mb-8">
               Ready to Start Your Project?
             </h2>
-            <p className="text-lg md:text-xl text-white/90 mb-8">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-6 sm:mb-7 md:mb-8 lg:mb-10">
               Let's discuss how we can help bring your ideas to life with our expert development team.
             </p>
             <motion.div
@@ -31,7 +26,7 @@ const CTASection = () => {
               <Button 
                 size="lg" 
                 asChild
-                className="bg-white text-[var(--color-section-primary)] border-0 shadow-professional-xl hover:shadow-accent-lg hover:bg-white/95 transition-all font-semibold"
+                className="bg-white text-[var(--color-section-primary)] border-0 hover:bg-white/95 transition-all font-semibold"
               >
                 <Link to="/contact">
                   Get in Touch

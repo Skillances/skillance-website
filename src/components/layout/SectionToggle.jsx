@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useSectionContext, routeMapping, appRoutes, contractingRoutes } from '@/context/SectionContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -8,7 +8,7 @@ const SectionToggle = () => {
   const { activeSection, toggleSection } = useSectionContext()
   const navigate = useNavigate()
   const location = useLocation()
-
+  
   const handleSectionChange = (newSection) => {
     // If switching to the same section, do nothing
     if (newSection === activeSection) {
@@ -39,29 +39,26 @@ const SectionToggle = () => {
     }
   }
   const [isVisible, setIsVisible] = useState(true)
-  const [lastScrollY, setLastScrollY] = useState(0)
+  const lastVisibleRef = useRef(true)
 
   useEffect(() => {
     let ticking = false
-    
+
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY
-          
-          // Only show when at the very top of the page
-          setIsVisible(currentScrollY < 5)
-          
-          setLastScrollY(currentScrollY)
+          const atTop = window.scrollY < 5
+          if (atTop !== lastVisibleRef.current) {
+            lastVisibleRef.current = atTop
+            setIsVisible(atTop)
+          }
           ticking = false
         })
         ticking = true
       }
     }
 
-    // Check initial scroll position
     handleScroll()
-    
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])

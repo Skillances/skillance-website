@@ -121,9 +121,11 @@ const AdminLayout = ({ children }) => {
           {/* Logo/Brand */}
           <div className={`p-6 border-b border-border ${isSidebarCollapsed ? 'px-4' : ''}`}>
             <div className="flex items-center gap-3">
-              <img 
-                src="/app_icon.png" 
-                alt="Skillance" 
+              <img
+                src="/app_icon.png"
+                alt="Skillance"
+                width={32}
+                height={32}
                 className="w-8 h-8 object-contain flex-shrink-0"
               />
               {!isSidebarCollapsed && (
@@ -237,9 +239,11 @@ const AdminLayout = ({ children }) => {
               {/* Logo/Brand */}
               <div className="p-6 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <img 
-                    src="/app_icon.png" 
-                    alt="Skillance" 
+                  <img
+                    src="/app_icon.png"
+                    alt="Skillance"
+                    width={32}
+                    height={32}
                     className="w-8 h-8 object-contain"
                   />
                   <div>

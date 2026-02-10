@@ -12,7 +12,7 @@ import ScrollToTopButton from './components/common/ScrollToTopButton'
 import ProtectedRoute from './components/common/ProtectedRoute'
 
 // Lazy load pages for better performance
-// Import AppHomePage normally since it's the landing page and needs to load fast
+// AppHomePage is imported normally - it has its own parallax system
 import AppHomePage from './pages/app/AppHomePage'
 const AppAboutPage = lazy(() => import('./pages/app/AppAboutPage'))
 const AppFeaturesPage = lazy(() => import('./pages/app/AppFeaturesPage'))
@@ -41,18 +41,23 @@ const PageLoader = () => (
   </div>
 )
 
-// Scroll to top on route change (works with Lenis)
+// Scroll to top on route change
 function ScrollToTop() {
   const { pathname } = useLocation()
 
   useEffect(() => {
-    // Use Lenis if available, otherwise fallback to native scroll
     if (typeof window !== 'undefined') {
-      const lenisInstance = window.lenis
-      if (lenisInstance) {
-        lenisInstance.scrollTo(0, { immediate: true })
-      } else {
+      // For parallax homepage, use native scroll
+      if (pathname === '/') {
         window.scrollTo(0, 0)
+      } else {
+        // Use Lenis if available for other pages
+        const lenisInstance = window.lenis
+        if (lenisInstance) {
+          lenisInstance.scrollTo(0, { immediate: true })
+        } else {
+          window.scrollTo(0, 0)
+        }
       }
     }
   }, [pathname])
@@ -60,12 +65,34 @@ function ScrollToTop() {
   return null
 }
 
+// Conditional wrapper - no SmoothScrollProvider for homepage
+function ConditionalScrollProvider({ children }) {
+  const location = useLocation()
+  const isHomePage = location.pathname === '/'
+
+  if (isHomePage) {
+    return <>{children}</>
+  }
+
+  return <SmoothScrollProvider>{children}</SmoothScrollProvider>
+}
+
 // Main content component with conditional routing
 function AppContent() {
   const { isApp } = useSectionContext()
+  const location = useLocation()
+  const isHomePage = location.pathname === '/' && isApp
 
   return (
     <>
+      {/* Header always visible, but transparent on parallax homepage */}
+      <div style={{ position: 'relative', zIndex: 50 }}>
+        <Header />
+      </div>
+      <SectionToggle />
+      {!isHomePage && <ScrollProgress />}
+      {!isHomePage && <ScrollToTopButton />}
+      
       <Routes>
         {/* Admin Routes - Separate layout without header/footer */}
         <Route 
@@ -79,47 +106,201 @@ function AppContent() {
           } 
         />
 
-        {/* Public Routes - Normal layout with header/footer */}
-        <Route path="*" element={
+        {/* App Homepage - Standalone with parallax, no header/footer wrapper */}
+        {isApp && (
+          <Route 
+            path="/" 
+            element={<AppHomePage />} 
+          />
+        )}
+
+        {/* Other App Routes - Normal layout */}
+        {isApp && (
           <>
-            <SectionToggle />
-            <ScrollProgress />
-            <ScrollToTopButton />
-            <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
-              <Header />
-              <main className="flex-grow overflow-x-hidden">
-                <Suspense fallback={<PageLoader />}>
-                  {isApp ? (
-                    <Routes>
-                      <Route path="/" element={<AppHomePage />} />
-                      <Route path="/features" element={<AppFeaturesPage />} />
-                      <Route path="/videos" element={<AppVideosPage />} />
-                      <Route path="/categories" element={<AppCategoriesPage />} />
-                      <Route path="/about" element={<AppAboutPage />} />
-                      <Route path="/contact" element={<AppContactPage />} />
-                      <Route path="/login" element={<LoginPage />} />
-                      <Route path="/privacy" element={<AppPrivacyPage />} />
-                      <Route path="/terms" element={<AppTermsPage />} />
-                      <Route path="*" element={<NotFoundPage />} />
-                    </Routes>
-                  ) : (
-                    <Routes>
-                      <Route path="/" element={<ContractingHomePage />} />
-                      <Route path="/about" element={<ContractingAboutPage />} />
-                      <Route path="/services" element={<ContractingServicesPage />} />
-                      <Route path="/portfolio" element={<ContractingPortfolioPage />} />
-                      <Route path="/contact" element={<ContractingContactPage />} />
-                      <Route path="/login" element={<LoginPage />} />
-                      <Route path="/privacy" element={<ContractingPrivacyPage />} />
-                      <Route path="/terms" element={<ContractingTermsPage />} />
-                      <Route path="*" element={<NotFoundPage />} />
-                    </Routes>
-                  )}
-                </Suspense>
-              </main>
-              <Footer />
-            </div>
+            <Route path="/features" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <AppFeaturesPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/videos" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <AppVideosPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/categories" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <AppCategoriesPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/about" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <AppAboutPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/contact" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <AppContactPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/login" element={
+              <Suspense fallback={<PageLoader />}>
+                <LoginPage />
+              </Suspense>
+            } />
+            <Route path="/privacy" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <AppPrivacyPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/terms" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <AppTermsPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
           </>
+        )}
+
+        {/* Contracting Routes */}
+        {!isApp && (
+          <>
+            <Route path="/" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <ContractingHomePage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/about" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <ContractingAboutPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/services" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <ContractingServicesPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/portfolio" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <ContractingPortfolioPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/contact" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <ContractingContactPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/login" element={
+              <Suspense fallback={<PageLoader />}>
+                <LoginPage />
+              </Suspense>
+            } />
+            <Route path="/privacy" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <ContractingPrivacyPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/terms" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <ContractingTermsPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+          </>
+        )}
+
+        {/* 404 */}
+        <Route path="*" element={
+          <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+            <Header />
+            <main className="flex-grow overflow-x-hidden">
+              <Suspense fallback={<PageLoader />}>
+                <NotFoundPage />
+              </Suspense>
+            </main>
+            <Footer />
+          </div>
         } />
       </Routes>
     </>
@@ -131,17 +312,15 @@ import { ThemeProvider } from './components/common/ThemeProvider'
 function App() {
   return (
     <Router>
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <AuthProvider>
-          <SectionProvider>
-            <SmoothScrollProvider>
-              <ScrollToTop />
-              <AppContent />
-              <Analytics />
-            </SmoothScrollProvider>
-          </SectionProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <SectionProvider>
+          <ConditionalScrollProvider>
+            <ScrollToTop />
+            <AppContent />
+            <Analytics />
+          </ConditionalScrollProvider>
+        </SectionProvider>
+      </AuthProvider>
     </Router>
   )
 }

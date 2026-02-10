@@ -1,36 +1,45 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { APP_INFO } from '@/utils/appConstants'
 import ComingSoonModal from './ComingSoonModal'
+
+const HERO_HEIGHT = 600
+const FLOATING_CTA_FOOTER_OFFSET = 300
 
 const FloatingCTA = () => {
   const [isVisible, setIsVisible] = useState(false)
   const [isNearFooter, setIsNearFooter] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const lastVisibleRef = useRef(false)
+  const lastNearFooterRef = useRef(false)
 
   useEffect(() => {
     let ticking = false
-    
+
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const scrollPosition = window.scrollY
-          const heroHeight = 600
-          setIsVisible(scrollPosition > heroHeight)
+          const footerOffset = document.body.scrollHeight - window.innerHeight - FLOATING_CTA_FOOTER_OFFSET
+          const visible = scrollPosition > HERO_HEIGHT
+          const nearFooter = scrollPosition > footerOffset
 
-          // Hide when near footer
-          const footerOffset = document.body.scrollHeight - window.innerHeight - 300
-          setIsNearFooter(scrollPosition > footerOffset)
-          
+          if (visible !== lastVisibleRef.current) {
+            lastVisibleRef.current = visible
+            setIsVisible(visible)
+          }
+          if (nearFooter !== lastNearFooterRef.current) {
+            lastNearFooterRef.current = nearFooter
+            setIsNearFooter(nearFooter)
+          }
           ticking = false
         })
         ticking = true
       }
     }
 
-    handleScroll() // Check initial position
+    handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
-
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 

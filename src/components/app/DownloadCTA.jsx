@@ -31,10 +31,13 @@ const StoreBadge = ({ href, disabled = false, store = 'google' }) => {
         onHoverStart={() => setIsHovered(true)}
         onHoverEnd={() => setIsHovered(false)}
       >
-        <img 
+        <img
           src={imageSrc}
           alt={altText}
+          width={230}
+          height={153}
           className="w-[180px] sm:w-[230px] h-auto opacity-70 cursor-not-allowed"
+          loading="lazy"
         />
         {/* Coming soon overlay */}
         {isHovered && (
@@ -64,10 +67,13 @@ const StoreBadge = ({ href, disabled = false, store = 'google' }) => {
         onHoverEnd={() => setIsHovered(false)}
       >
         <GlowEffect glowColor="var(--color-section-primary)" glowOpacity={0.3}>
-          <img 
+          <img
             src={imageSrc}
             alt={altText}
+            width={230}
+            height={153}
             className="w-[180px] sm:w-[230px] h-auto"
+            loading="lazy"
           />
         </GlowEffect>
         {/* Ripple effect on hover */}
