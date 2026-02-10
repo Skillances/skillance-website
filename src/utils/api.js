@@ -2,7 +2,8 @@
  * API utility for making authenticated requests to the backend
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+// Normalize API base URL - remove trailing slash to prevent double slashes
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
 // Track if we're currently refreshing to prevent multiple refresh attempts
 let isRefreshing = false;
@@ -111,7 +112,9 @@ async function refreshAccessToken() {
  * @returns {Promise<Response>}
  */
 export async function apiRequest(endpoint, options = {}, retryOn401 = true) {
-  const url = `${API_BASE_URL}${endpoint}`;
+  // Ensure endpoint starts with a slash and normalize URL construction
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${API_BASE_URL}${normalizedEndpoint}`;
   const token = getAccessToken();
 
   const headers = {

@@ -307,6 +307,8 @@ function AppContent() {
   )
 }
 
+import { ThemeProvider } from './components/common/ThemeProvider'
+
 function App() {
   return (
     <Router>

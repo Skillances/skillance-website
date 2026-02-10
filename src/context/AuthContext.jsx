@@ -46,17 +46,20 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      // Sanitize and validate input
+      const sanitizedEmail = email.trim().toLowerCase()
+      
+      if (!sanitizedEmail || !password) {
+        throw new Error('Email and password are required')
+      }
+
       const response = await post('/auth/login', {
-        email: email.trim().toLowerCase(),
-        password,
+        email: sanitizedEmail,
+        password, // Don't trim password - spaces may be intentional
       })
 
       if (response.success && response.data) {
         const { user: userData, accessToken, refreshToken } = response.data
-
-        // Debug: Log user data to check isAdmin field
-        console.log('Login response user data:', userData)
-        console.log('isAdmin value:', userData.isAdmin, 'Type:', typeof userData.isAdmin)
 
         // Store tokens in localStorage (for mobile app compatibility)
         // Cookies are set automatically by the backend (httpOnly, more secure)
@@ -75,12 +78,27 @@ export const AuthProvider = ({ children }) => {
         throw new Error(response.message || 'Login failed')
       }
     } catch (error) {
+      // Preserve rate limiting errors
+      if (error.retryAfter) {
+        const rateLimitError = new Error(error.message || 'Too many login attempts')
+        rateLimitError.retryAfter = error.retryAfter
+        throw rateLimitError
+      }
+      
       // Handle API errors
       if (error.errors) {
         // Validation errors from backend
         const firstError = error.errors[0]
         throw new Error(firstError?.message || 'Validation failed')
       }
+      
+      // Don't reveal specific error details for security (prevent user enumeration)
+      if (error.message?.includes('Invalid email or password') || 
+          error.message?.includes('Invalid credentials') ||
+          error.message?.includes('User not found')) {
+        throw new Error('Invalid email or password')
+      }
+      
       throw new Error(error.message || 'Login failed. Please try again.')
     }
   }

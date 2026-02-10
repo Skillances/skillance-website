@@ -1,105 +1,82 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 
-const Pagination = ({ 
-  currentPage, 
-  totalPages, 
-  onPageChange, 
-  totalItems,
-  itemsPerPage,
-  showInfo = true 
-}) => {
-  const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1
+const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage }) => {
+  const startItem = (currentPage - 1) * itemsPerPage + 1
   const endItem = Math.min(currentPage * itemsPerPage, totalItems)
 
-  const getPageNumbers = () => {
-    const pages = []
-    const maxVisible = 5
-    
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i)
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i)
-        }
-        pages.push('...')
-        pages.push(totalPages)
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1)
-        pages.push('...')
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pages.push(i)
-        }
-      } else {
-        pages.push(1)
-        pages.push('...')
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i)
-        }
-        pages.push('...')
-        pages.push(totalPages)
-      }
-    }
-    
-    return pages
-  }
-
-  if (totalPages <= 1) return null
-
   return (
-    <div className="flex items-center justify-between mt-6">
-      {showInfo && (
-        <div className="text-sm text-text-tertiary" style={{ fontFamily: 'var(--font-family-inter)' }}>
-          Showing <span className="font-medium text-text-primary">{startItem}</span> to{' '}
-          <span className="font-medium text-text-primary">{endItem}</span> of{' '}
-          <span className="font-medium text-text-primary">{totalItems}</span> results
-        </div>
-      )}
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-2">
+      <div className="text-sm text-slate-500">
+        Showing <span className="font-medium text-slate-900">{totalItems > 0 ? startItem : 0}</span> to{' '}
+        <span className="font-medium text-slate-900">{endItem}</span> of{' '}
+        <span className="font-medium text-slate-900">{totalItems}</span> results
+      </div>
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <Button
           variant="outline"
-          size="sm"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onPageChange(1)}
+          disabled={currentPage === 1}
+        >
+          <ChevronsLeft size={16} />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="flex items-center gap-1"
         >
           <ChevronLeft size={16} />
-          Previous
         </Button>
         
-        <div className="flex items-center gap-1">
-          {getPageNumbers().map((page, index) => (
-            <button
-              key={index}
-              onClick={() => typeof page === 'number' && onPageChange(page)}
-              disabled={page === '...' || page === currentPage}
-              className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                page === currentPage
-                  ? 'bg-primary text-white'
-                  : page === '...'
-                  ? 'text-text-tertiary cursor-default'
-                  : 'text-text-secondary hover:bg-gray-100'
-              }`}
-              style={page === currentPage ? { backgroundColor: 'var(--color-section-primary)' } : {}}
-            >
-              {page}
-            </button>
-          ))}
+        <div className="flex items-center gap-1 mx-2">
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            // Logic to show window of pages around current page
+            let pageNum = i + 1;
+            if (totalPages > 5) {
+                if (currentPage > 3) {
+                    pageNum = currentPage - 2 + i;
+                }
+                if (pageNum > totalPages) {
+                    pageNum = totalPages - 4 + i;
+                }
+            }
+            
+            return (
+                <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    size="sm"
+                    className={`h-8 w-8 p-0 ${currentPage === pageNum ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
+                    onClick={() => onPageChange(pageNum)}
+                >
+                    {pageNum}
+                </Button>
+            )
+          })}
         </div>
-        
+
         <Button
           variant="outline"
-          size="sm"
+          size="icon"
+          className="h-8 w-8"
           onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="flex items-center gap-1"
+          disabled={currentPage === totalPages || totalPages === 0}
         >
-          Next
           <ChevronRight size={16} />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onPageChange(totalPages)}
+          disabled={currentPage === totalPages || totalPages === 0}
+        >
+          <ChevronsRight size={16} />
         </Button>
       </div>
     </div>
@@ -107,4 +84,3 @@ const Pagination = ({
 }
 
 export default Pagination
-

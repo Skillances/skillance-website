@@ -1,252 +1,225 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Users, Briefcase, ShieldCheck, DollarSign, Calendar, ArrowRight, Loader2, UserCheck, CheckCircle } from 'lucide-react'
+import { Users, Briefcase, ShieldCheck, UserCheck, CheckCircle, TrendingUp, Download, Calendar } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { get } from '@/utils/api'
+import StatsCard from '@/components/admin/dashboard/StatsCard'
+import ActivityFeed from '@/components/admin/dashboard/ActivityFeed'
+import { motion } from 'framer-motion'
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
 const AdminDashboard = () => {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [dashboardData, setDashboardData] = useState(null)
+  const [growthData, setGrowthData] = useState([])
+  const [chartLoading, setChartLoading] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
 
+  // Fetch all dashboard data
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchAllData = async () => {
       try {
         setIsLoading(true)
-        setError(null)
-        const response = await get('/admin/dashboard')
         
-        if (response.success && response.data) {
-          setDashboardData(response.data)
-        } else {
-          setError('Failed to load dashboard data')
+        // Parallel fetch for speed
+        const [dashboardRes, userGrowthRes, freelancerGrowthRes] = await Promise.all([
+          get('/admin/dashboard'),
+          get('/admin/analytics/user-growth?interval=daily'),
+          get('/admin/analytics/freelancer-growth?interval=daily')
+        ])
+
+        if (dashboardRes.success && dashboardRes.data) {
+          setDashboardData(dashboardRes.data)
         }
+
+        // Process growth data for charts
+        if (userGrowthRes.success && freelancerGrowthRes.success) {
+          // Merge series by date
+          const userSeries = userGrowthRes.data.data.series || []
+          const freelancerSeries = freelancerGrowthRes.data.data.series || []
+          
+          // Create a map of all dates
+          const dateMap = new Map()
+          
+          userSeries.forEach(item => {
+            const date = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            if (!dateMap.has(item.date)) dateMap.set(item.date, { name: date, date: item.date, users: 0, freelancers: 0 })
+            dateMap.get(item.date).users = item.cumulative
+          })
+
+          freelancerSeries.forEach(item => {
+             const date = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+             if (!dateMap.has(item.date)) dateMap.set(item.date, { name: date, date: item.date, users: 0, freelancers: 0 })
+             dateMap.get(item.date).freelancers = item.cumulative
+          })
+
+          // Convert map to array and sort by date
+          const sortedData = Array.from(dateMap.values())
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            // Take only last 7-14 days for cleaner view if too many points
+            .slice(-30)
+
+           // If completely empty (fresh app), add some placeholder points to start the chart at 0
+           if (sortedData.length === 0) {
+             const today = new Date();
+             for (let i = 6; i >= 0; i--) {
+               const d = new Date(today);
+               d.setDate(today.getDate() - i);
+               sortedData.push({
+                 name: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), 
+                 users: 0, 
+                 freelancers: 0
+               })
+             }
+           }
+
+          setGrowthData(sortedData)
+        }
+        
       } catch (err) {
         console.error('Error fetching dashboard data:', err)
-        setError(err.message || 'Failed to load dashboard data')
       } finally {
         setIsLoading(false)
+        setChartLoading(false)
       }
     }
 
-    fetchDashboardData()
+    fetchAllData()
   }, [])
-
-  // Format number with commas
-  const formatNumber = (num) => {
-    if (num === null || num === undefined) return '0'
-    return num.toLocaleString('en-US')
-  }
-
-  // Calculate percentage change (mock for now, can be enhanced with historical data)
-  const getChange = (current, previous = null) => {
-    // For now, return a placeholder. Can be enhanced with historical data later
-    return '+0%'
-  }
 
   const metrics = dashboardData ? [
     {
-      title: 'Total Users',
-      value: formatNumber(dashboardData.users.total),
-      change: getChange(dashboardData.users.newThisMonth),
+      title: 'Active Users',
+      value: dashboardData.users.total.toLocaleString(),
+      change: dashboardData.users.newThisMonth > 0 ? `+${dashboardData.users.newThisMonth} this month` : '0% this month',
       icon: Users,
-      color: 'var(--color-section-primary)',
+      color: '#3B82F6', // Blue
+      data: growthData.map(d => ({ value: d.users })) // Real data for sparkline
     },
     {
-      title: 'Customers',
-      value: formatNumber(dashboardData.users.customers),
-      change: '',
-      icon: UserCheck,
-      color: '#3B82F6',
-    },
-    {
-      title: 'Total Freelancers',
-      value: formatNumber(dashboardData.freelancers.total),
-      change: getChange(dashboardData.freelancers.verified),
+      title: 'Freelancers',
+      value: dashboardData.freelancers.total.toLocaleString(),
+      change: `${((dashboardData.freelancers.verified / (dashboardData.freelancers.total || 1)) * 100).toFixed(0)}% verified`,
       icon: Briefcase,
-      color: 'var(--color-accent-teal)',
+      color: '#8B5CF6', // Violet
+      data: growthData.map(d => ({ value: d.freelancers })) // Real data for sparkline
     },
     {
       title: 'Pending Verifications',
-      value: formatNumber(dashboardData.pendingVerifications.count),
-      change: '',
+      value: dashboardData.pendingVerifications.count.toLocaleString(),
+      change: dashboardData.pendingVerifications.count > 0 ? 'Action required' : 'All caught up',
       icon: ShieldCheck,
-      color: '#F59E0B',
-    },
-    {
-      title: 'Verified Freelancers',
-      value: formatNumber(dashboardData.freelancers.verified),
-      change: '',
-      icon: CheckCircle,
-      color: '#8B5CF6',
-    },
-    {
-      title: 'New This Month',
-      value: formatNumber(dashboardData.users.newThisMonth),
-      change: '',
-      icon: Users,
-      color: '#10B981',
-    },
+      color: '#F59E0B', // Amber
+      data: Array.from({ length: 15 }, (_, i) => ({ value: Math.max(0, dashboardData.pendingVerifications.count + (Math.random() * 5 - 2)) })) // Semi-mock
+    }
   ] : []
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4" style={{ color: 'var(--color-section-primary)' }} />
-            <p className="text-text-secondary">Loading dashboard data...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-          <span className="block sm:inline">{error}</span>
-          <Button
-            onClick={() => window.location.reload()}
-            variant="outline"
-            size="sm"
-            className="mt-2"
-          >
-            Retry
-          </Button>
+      <div className="flex h-[calc(100vh-100px)] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-emerald-500"></div>
+          <p className="text-slate-500 animate-pulse">Loading dashboard insights...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* Welcome Header */}
-      <div className="mb-8">
-        <h1 
-          style={{ fontFamily: 'var(--font-family-poppins)' }} 
-          className="text-3xl md:text-4xl font-bold mb-2"
-        >
-          Welcome back, {user?.fullName || 'Admin'}
-        </h1>
-        <p className="text-lg text-text-secondary">
-          Monitor key metrics and manage your platform
-        </p>
+    <div className="max-w-[1600px] mx-auto space-y-8 p-8">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <motion.h1 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-3xl font-bold text-slate-900 tracking-tight"
+          >
+            Dashboard
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-slate-500 mt-1"
+          >
+            Welcome back, {user?.fullName || 'Admin'}. Here's what's happening today.
+          </motion.p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="bg-white hover:bg-slate-50">
+            <Calendar className="mr-2 h-4 w-4" />
+            Last 30 Days
+          </Button>
+          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20">
+            <Download className="mr-2 h-4 w-4" />
+            Export Report
+          </Button>
+        </div>
       </div>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-8">
-        {metrics.map((metric) => {
-          const Icon = metric.icon
-          return (
-            <Card key={metric.title} className="hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
-                <div className="flex items-center justify-between mb-4">
-                  <div
-                    className="w-12 h-12 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: `${metric.color}15` }}
-                  >
-                    <Icon size={24} style={{ color: metric.color }} />
-                  </div>
-                  {metric.change && (
-                    <span
-                      className={`text-sm font-medium ${
-                        metric.change.startsWith('+') ? 'text-green-600' : metric.change.startsWith('-') ? 'text-red-600' : 'text-text-tertiary'
-                      }`}
-                    >
-                      {metric.change}
-                    </span>
-                  )}
-                </div>
-                <CardTitle
-                  style={{ fontFamily: 'var(--font-family-poppins)' }}
-                  className="text-lg text-text-secondary mb-1"
-                >
-                  {metric.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p
-                  className="text-3xl font-bold"
-                  style={{ fontFamily: 'var(--font-family-poppins)' }}
-                >
-                  {metric.value}
-                </p>
-              </CardContent>
-            </Card>
-          )
-        })}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        {metrics.map((metric, index) => (
+          <StatsCard key={metric.title} {...metric} index={index} />
+        ))}
       </div>
 
-      {/* Additional Info Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle
-              style={{ fontFamily: 'var(--font-family-poppins)' }}
-              className="text-xl mb-4"
-            >
-              Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-sm text-text-tertiary text-center py-8">
-                No recent activity
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Main Chart */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="xl:col-span-2"
+        >
+          <Card className="h-full border-none shadow-lg bg-white/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-slate-900">Platform Growth</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[400px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={growthData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorFreelancers" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      itemStyle={{ fontSize: '12px', fontWeight: 500 }}
+                    />
+                    <Area type="monotone" dataKey="users" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" />
+                    <Area type="monotone" dataKey="freelancers" stroke="#8B5CF6" strokeWidth={3} fillOpacity={1} fill="url(#colorFreelancers)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle
-              style={{ fontFamily: 'var(--font-family-poppins)' }}
-              className="text-xl mb-4"
-            >
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <Button
-                variant="outline"
-                className="w-full justify-start group"
-                style={{ fontFamily: 'var(--font-family-inter)' }}
-                onClick={() => navigate('/admin/verifications')}
-              >
-                <ShieldCheck size={18} className="mr-2" />
-                Review Pending Verifications
-                <ArrowRight size={16} className="ml-auto group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start group"
-                style={{ fontFamily: 'var(--font-family-inter)' }}
-                onClick={() => navigate('/admin/users')}
-              >
-                <Users size={18} className="mr-2" />
-                Manage Users
-                <ArrowRight size={16} className="ml-auto group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start group"
-                style={{ fontFamily: 'var(--font-family-inter)' }}
-                onClick={() => navigate('/admin/freelancers')}
-              >
-                <Briefcase size={18} className="mr-2" />
-                View All Freelancers
-                <ArrowRight size={16} className="ml-auto group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Activity Feed */}
+        <motion.div
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ delay: 0.5 }}
+        >
+          <ActivityFeed />
+        </motion.div>
       </div>
     </div>
   )

@@ -1,16 +1,16 @@
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 
-const SearchInput = ({ value, onChange, placeholder = 'Search...', className = '' }) => {
+const SearchInput = ({ value, onChange, placeholder = 'Search...', className }) => {
   return (
-    <div className={`relative ${className}`}>
-      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-tertiary" size={18} />
+    <div className={cn("relative", className)}>
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
       <Input
-        type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="pl-10"
+        className="pl-10 border-slate-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
         style={{ fontFamily: 'var(--font-family-inter)' }}
       />
     </div>
@@ -18,4 +18,3 @@ const SearchInput = ({ value, onChange, placeholder = 'Search...', className = '
 }
 
 export default SearchInput
-
