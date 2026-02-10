@@ -23,9 +23,9 @@ const SecurityLogsPage = () => {
     hasMore: false,
   })
 
-  // Filters
+  // Filters (use 'all' for Event Type so Select.Item never has value="")
   const [ipAddress, setIpAddress] = useState('')
-  const [eventType, setEventType] = useState('')
+  const [eventType, setEventType] = useState('all')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [orderBy, setOrderBy] = useState('createdAt')
@@ -56,7 +56,7 @@ const SecurityLogsPage = () => {
         })
 
         if (debouncedIpAddress) params.append('ipAddress', debouncedIpAddress)
-        if (eventType) params.append('eventType', eventType)
+        if (eventType && eventType !== 'all') params.append('eventType', eventType)
         if (startDate) params.append('startDate', new Date(startDate).toISOString())
         if (endDate) params.append('endDate', new Date(endDate).toISOString())
 
@@ -146,7 +146,7 @@ const SecurityLogsPage = () => {
 
   const handleResetFilters = () => {
     setIpAddress('')
-    setEventType('')
+    setEventType('all')
     setStartDate('')
     setEndDate('')
     setOrderBy('createdAt')
@@ -154,7 +154,7 @@ const SecurityLogsPage = () => {
     setPagination(prev => ({ ...prev, offset: 0 }))
   }
 
-  const hasActiveFilters = ipAddress || eventType || startDate || endDate || orderBy !== 'createdAt' || orderDirection !== 'desc'
+  const hasActiveFilters = ipAddress || (eventType && eventType !== 'all') || startDate || endDate || orderBy !== 'createdAt' || orderDirection !== 'desc'
 
   const currentPage = Math.floor(pagination.offset / pagination.limit) + 1
   const totalPages = Math.ceil(pagination.total / pagination.limit)
@@ -244,7 +244,7 @@ const SecurityLogsPage = () => {
               value={eventType}
               onChange={setEventType}
               options={[
-                { value: '', label: 'All Types' },
+                { value: 'all', label: 'All Types' },
                 { value: 'blocked', label: 'Blocked' },
                 { value: 'rate_limited', label: 'Rate Limited' },
                 { value: 'suspicious', label: 'Suspicious' },

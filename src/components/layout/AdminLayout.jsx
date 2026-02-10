@@ -21,7 +21,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 
 const AdminLayout = ({ children }) => {
-  const { user, logout } = useAuth()
+  const { logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
@@ -145,21 +145,6 @@ const AdminLayout = ({ children }) => {
             </div>
           </div>
 
-          {/* User Info */}
-          {!isSidebarCollapsed && (
-            <div className="p-4 border-b border-border">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold flex-shrink-0">
-                  {user?.fullName?.charAt(0) || 'A'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate text-foreground">{user?.fullName || 'Admin'}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user?.email || ''}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Collapse Toggle Button */}
           <div className="p-4 border-b border-border">
             <button
@@ -257,19 +242,6 @@ const AdminLayout = ({ children }) => {
                       Skillance
                     </h1>
                     <p className="text-xs text-muted-foreground">Admin Panel</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* User Info */}
-              <div className="p-4 border-b border-border">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-                    {user?.fullName?.charAt(0) || 'A'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-foreground">{user?.fullName || 'Admin'}</p>
-                    <p className="text-xs text-muted-foreground truncate">{user?.email || ''}</p>
                   </div>
                 </div>
               </div>
