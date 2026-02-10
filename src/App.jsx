@@ -173,9 +173,11 @@ function AppContent() {
               </div>
             } />
             <Route path="/login" element={
-              <Suspense fallback={<PageLoader />}>
-                <LoginPage />
-              </Suspense>
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '120px' }}>
+                <Suspense fallback={<PageLoader />}>
+                  <LoginPage />
+                </Suspense>
+              </div>
             } />
             <Route path="/privacy" element={
               <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
@@ -261,9 +263,11 @@ function AppContent() {
               </div>
             } />
             <Route path="/login" element={
-              <Suspense fallback={<PageLoader />}>
-                <LoginPage />
-              </Suspense>
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '120px' }}>
+                <Suspense fallback={<PageLoader />}>
+                  <LoginPage />
+                </Suspense>
+              </div>
             } />
             <Route path="/privacy" element={
               <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
