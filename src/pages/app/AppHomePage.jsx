@@ -596,11 +596,11 @@ const AppHomePage = () => {
           </div>
         </ParallaxLayer>
 
-        {/* Shield anchor */}
-        <ParallaxLayer offset={2.85} speed={0.4} sticky={{ start: 2.85, end: 3.35 }}>
+        {/* Shield anchor - no parallax (speed 0) so it stays fixed relative to page */}
+        <ParallaxLayer offset={2.85} speed={0}>
           <div className="absolute top-1/2 right-[15%] md:right-[20%] -translate-y-1/2">
-            <FloatingSymbol symbol="shield" size={280} className="animate-float" />
-        </div>
+            <FloatingSymbol symbol="shield" size={280} />
+          </div>
         </ParallaxLayer>
 
         {/* Trust content - larger text, moved right, better spacing */}
