@@ -99,8 +99,16 @@
     <link rel="alternate" hreflang="en" href="https://skillance.co.za" />
     <link rel="alternate" hreflang="x-default" href="https://skillance.co.za" />
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <!-- Google Fonts: load async so they don't block initial render (saves ~1s on LCP) -->
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    </noscript>
     
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">

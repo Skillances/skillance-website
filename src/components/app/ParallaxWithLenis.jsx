@@ -83,10 +83,11 @@ const ParallaxWithLenis = forwardRef(({ children, pages = 5, className = '' }, r
   }, [pages])
 
   return (
-    <Parallax 
-      ref={parallaxRef} 
-      pages={pages} 
+    <Parallax
+      ref={parallaxRef}
+      pages={pages}
       className={className}
+      config={{ tension: 200, friction: 50, mass: 0.5 }}
     >
       {children}
     </Parallax>

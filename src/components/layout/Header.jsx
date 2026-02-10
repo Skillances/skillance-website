@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -15,8 +15,8 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSectionToggleVisible, setIsSectionToggleVisible] = useState(true)
   const [isComingSoonModalOpen, setIsComingSoonModalOpen] = useState(false)
-  const [lastScrollY, setLastScrollY] = useState(0)
   const [isHeaderVisible, setIsHeaderVisible] = useState(true)
+  const lastScrollYRef = useRef(0)
   const location = useLocation()
   const { isApp } = useSectionContext()
 
@@ -25,44 +25,38 @@ const Header = () => {
 
   useEffect(() => {
     let ticking = false
-    
+
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const currentScrollY = window.scrollY
-          
+          const lastScrollY = lastScrollYRef.current
+          lastScrollYRef.current = currentScrollY
+
           setIsScrolled(currentScrollY > 20)
-          
-          // Track SectionToggle visibility - only visible at top
           setIsSectionToggleVisible(currentScrollY < 5)
-          
-          // On homepage, hide header when scrolling down, show when scrolling up or at top
+
           if (isHomePage) {
             if (currentScrollY < 10) {
-              // Always show at the very top
               setIsHeaderVisible(true)
             } else if (currentScrollY > lastScrollY) {
-              // Scrolling down - hide header
               setIsHeaderVisible(false)
             } else if (currentScrollY < lastScrollY) {
-              // Scrolling up - show header
               setIsHeaderVisible(true)
             }
           } else {
-            // Not homepage - always visible
             setIsHeaderVisible(true)
           }
-          
-          setLastScrollY(currentScrollY)
+
           ticking = false
         })
         ticking = true
       }
     }
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [isHomePage, lastScrollY])
+  }, [isHomePage])
 
   // On parallax homepage, make header slightly transparent with glass effect
   const headerClasses = isHomePage 
@@ -76,7 +70,7 @@ const Header = () => {
       <header
         className={`fixed left-0 right-0 z-40 transition-all duration-300 ${headerClasses}`}
         style={{ 
-          top: isHomePage ? '0px' : (isSectionToggleVisible ? '56px' : '0px'),
+          top: isSectionToggleVisible ? '56px' : '0px',
           transform: isHomePage && !isHeaderVisible ? 'translateY(-100%)' : 'translateY(0)',
           transition: 'top 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, padding 0.3s ease, transform 0.3s ease'
         }}
@@ -85,9 +79,11 @@ const Header = () => {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2 touch-target">
-              <img 
-                src="/app_icon.png" 
-                alt="Skillance" 
+              <img
+                src="/app_icon.png"
+                alt="Skillance"
+                width={32}
+                height={32}
                 className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
               />
               <span 

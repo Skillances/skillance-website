@@ -115,6 +115,19 @@
     0 0 120px rgba(20, 184, 166, 0.2);
 }
 
+/* Lightweight orb for category grid - no inner blurs, smaller backdrop blur */
+.glass-orb-simple {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(20, 184, 166, 0.08) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 24px rgba(20, 184, 166, 0.2);
+}
+
 /* Glass Hover Effects - Optimized */
 .glass-hover {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 

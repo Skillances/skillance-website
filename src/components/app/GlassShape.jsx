@@ -38,6 +38,16 @@ export const GlassShape = ({
           </div>
         )
 
+      case "orb-simple":
+        return (
+          <div
+            className={cn("glass-orb-simple rounded-full relative overflow-hidden", className)}
+            style={baseStyles}
+          >
+            {children}
+          </div>
+        )
+
       case "prism":
         return (
           <div 

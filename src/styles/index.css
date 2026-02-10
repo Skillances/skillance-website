@@ -205,8 +205,7 @@
     will-change: transform;
     transform: translateZ(0);
     backface-visibility: hidden;
-    /* Smooth layer transitions */
-    transition: transform 0.1s ease-out;
+    contain: layout style paint;
   }
 
   /* Scene flow optimization */

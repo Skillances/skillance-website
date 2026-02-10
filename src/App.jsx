@@ -89,7 +89,7 @@ function AppContent() {
       <div style={{ position: 'relative', zIndex: 50 }}>
         <Header />
       </div>
-      {!isHomePage && <SectionToggle />}
+      <SectionToggle />
       {!isHomePage && <ScrollProgress />}
       {!isHomePage && <ScrollToTopButton />}
       

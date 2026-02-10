@@ -7,11 +7,12 @@ import { motion } from 'framer-motion'
  * CategoryLottieSymbol - Lottie animation for category icons
  * Lazy loads when in viewport
  */
-const CategoryLottieSymbol = ({ 
-  category, 
-  size = 100, 
+const CategoryLottieSymbol = ({
+  category,
+  size = 100,
   className = '',
-  style = {}
+  style = {},
+  loop = true,
 }) => {
   const { ref, inView } = useInView({
     threshold: 0.1,
@@ -34,7 +35,7 @@ const CategoryLottieSymbol = ({
         <Lottie
           animationData={animationData}
           path={category.animation}
-          loop={true}
+          loop={loop}
           autoplay={true}
           onLoad={(data) => setAnimationData(data)}
           style={{ width: '100%', height: '100%' }}

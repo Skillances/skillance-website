@@ -6,11 +6,11 @@ import { motion } from 'framer-motion'
 import GlassShape from '@/components/app/GlassShape'
 import FogLayer from '@/components/app/FogLayer'
 import FloatingSymbol from '@/components/app/FloatingSymbol'
-import CategoryLottieSymbol from '@/components/app/CategoryLottieSymbol'
 import TextRotator from '@/components/app/TextRotator'
 import DownloadCTA from '@/components/app/DownloadCTA'
 import { SERVICE_CATEGORIES, HOW_IT_WORKS_CUSTOMERS, APP_STATS } from '@/utils/appConstants'
 import FloatingCTA from '@/components/app/FloatingCTA'
+import CategoryLottieSymbol from '@/components/app/CategoryLottieSymbol'
 
 /**
  * AppHomePage - Matches reference structure exactly
@@ -200,10 +200,10 @@ const AppHomePage = () => {
           </div>
         </ParallaxLayer>
 
-        {/* Services header - centered */}
+        {/* Services section: title + category labels in one layer, no icon loading (avoids lag and overlap) */}
         <ParallaxLayer offset={0.95} speed={0.5}>
-          <div className="h-screen flex flex-col items-center justify-center px-6 md:px-12 lg:px-20 text-center">
-            <motion.span 
+          <div className="min-h-screen flex flex-col items-center justify-start px-6 md:px-12 lg:px-20 text-center pt-12 md:pt-16 pb-20">
+            <motion.span
               className="inline-block px-4 py-2 mb-6 text-sm font-medium text-[var(--color-section-primary)] glass-subtle rounded-full w-fit"
               initial={{ opacity: 0, y: -20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -212,7 +212,7 @@ const AppHomePage = () => {
             >
               Services
             </motion.span>
-            <motion.h2 
+            <motion.h2
               style={{ fontFamily: 'var(--font-family-poppins)' }}
               className="text-4xl md:text-5xl lg:text-6xl font-semibold mb-6 leading-tight max-w-3xl"
               initial={{ opacity: 0, y: 30 }}
@@ -224,9 +224,9 @@ const AppHomePage = () => {
               <br />
               <span className="text-gradient">endless expertise</span>
             </motion.h2>
-            <motion.p 
+            <motion.p
               style={{ fontFamily: 'var(--font-family-inter)' }}
-              className="text-lg text-text-secondary leading-relaxed max-w-2xl mb-16 md:mb-20"
+              className="text-lg text-text-secondary leading-relaxed max-w-2xl mb-14 md:mb-16"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -234,73 +234,42 @@ const AppHomePage = () => {
             >
               From home repairs to personal growth, find the right expert for every need. All verified, all trusted.
             </motion.p>
-          </div>
-        </ParallaxLayer>
-
-        {/* Categories with individual parallax speeds - move with scroll for a little while */}
-        {displayCategories.map((category, index) => {
-          // Different speeds for each category (0.45 to 0.65 range for noticeable parallax movement)
-          const speeds = [0.45, 0.48, 0.52, 0.55, 0.58, 0.62]
-          const speed = speeds[index] || 0.52
-          
-          // Calculate position in a grid layout below the text - closer horizontally, spaced vertically
-          const row = Math.floor(index / 3)
-          const col = index % 3
-          const topPosition = 60 + row * 30 // Start at 60%, each row 30% apart (keep vertical spacing)
-          const leftPosition = col === 0 ? 20 : col === 1 ? 50 : 80 // Closer horizontally: 20%, 50%, 80% (was 5%, 50%, 95%)
-          
-          return (
-            <ParallaxLayer 
-              key={`category-${index}`}
-              offset={0.95} 
-              speed={speed}
-            >
-              <div className="h-screen flex items-center justify-center overflow-hidden px-2 sm:px-4">
-                <motion.div 
-                  className="flex flex-col items-center absolute"
-                  style={{
-                    top: `${topPosition}%`,
-                    left: `${leftPosition}%`,
-                    transform: 'translate(-50%, -50%)',
-                    maxWidth: 'calc(100vw - 1rem)',
-                  }}
-                  initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            {/* Category labels only – no Lottie/icons to avoid lag; grid aligned below title */}
+            <div className="w-full max-w-3xl mx-auto grid grid-cols-3 gap-x-4 gap-y-10 md:gap-y-12">
+              {displayCategories.map((category, index) => (
+                <motion.div
+                  key={`category-${index}`}
+                  className="flex flex-col items-center"
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ 
-                    duration: 0.5, 
-                    delay: 0.6 + index * 0.1, 
-                    type: 'spring', 
-                    stiffness: 120, 
-                    damping: 20 
-                  }}
+                  transition={{ duration: 0.4, delay: 0.2 + index * 0.05 }}
                 >
-                  <GlassShape 
-                    variant="orb" 
+                  <GlassShape
+                    variant="orb-simple"
                     size={140}
-                    className="animate-float" 
-                    style={{ 
-                      animationDelay: `${index * 150}ms`, 
-                      width: 'clamp(80px, 8vw, 160px)', 
-                      height: 'clamp(80px, 8vw, 160px)'
+                    style={{
+                      width: 'clamp(72px, 10vw, 120px)',
+                      height: 'clamp(72px, 10vw, 120px)',
                     }}
                   >
-                    <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-4 md:p-5">
-                      <CategoryLottieSymbol 
-                        category={category} 
+                    <div className="absolute inset-0 flex items-center justify-center p-2 sm:p-3">
+                      <CategoryLottieSymbol
+                        category={category}
                         size={50}
-                        style={{ width: 'clamp(40px, 4vw, 65px)', height: 'clamp(40px, 4vw, 65px)' }}
+                        loop={true}
+                        style={{ width: 'clamp(36px, 5vw, 56px)', height: 'clamp(36px, 5vw, 56px)' }}
                       />
                     </div>
                   </GlassShape>
-                  <span className="mt-4 md:mt-5 text-sm md:text-base font-medium text-text-secondary whitespace-nowrap">
+                  <span className="mt-3 md:mt-4 text-sm md:text-base font-medium text-text-secondary whitespace-nowrap">
                     {category?.name || 'Service'}
                   </span>
                 </motion.div>
-              </div>
-            </ParallaxLayer>
-          )
-        })}
+              ))}
+            </div>
+          </div>
+        </ParallaxLayer>
 
         {/* ═══════════════════════════════════════════════════════════════════
             SCENE 3: HOW IT WORKS - Flowing steps
