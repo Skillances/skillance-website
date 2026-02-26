@@ -51,10 +51,14 @@ const TextRotator = ({
     })
   }
 
+  const currentWordObj = words[currentIndex]
+  const currentWordText = typeof currentWordObj === 'string' ? currentWordObj : currentWordObj.text
+  const currentWordColor = typeof currentWordObj === 'object' && currentWordObj.color ? currentWordObj.color : (textGradient ? 'var(--color-section-primary)' : undefined)
+
   return (
     <span className={cn(
       "relative inline-block min-w-[200px] min-h-[1.2em]",
-      !letterAnimation && textGradient && "bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-section-primary)] to-[var(--color-section-secondary)]",
+      !letterAnimation && textGradient && typeof words[0] === 'string' && "bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-section-primary)] to-[var(--color-section-secondary)]",
       className
     )}>
       <AnimatePresence mode="wait">
@@ -66,13 +70,13 @@ const TextRotator = ({
             animate="visible"
             exit="exit"
           >
-            {words[currentIndex].split('').map((letter, i) => (
+            {currentWordText.split('').map((letter, i) => (
               <motion.span
                 key={`${currentIndex}-${i}`}
                 custom={i}
                 variants={letterVariants}
-                style={textGradient ? {
-                  color: 'var(--color-section-primary)',
+                style={currentWordColor ? {
+                  color: currentWordColor,
                   display: 'inline-block',
                 } : { display: 'inline-block' }}
                 className={letter === ' ' ? 'ml-2' : ''}
@@ -109,12 +113,13 @@ const TextRotator = ({
               filter: { duration: 0.4 },
               scale: { duration: 0.4 }
             }}
+            style={currentWordColor ? { color: currentWordColor } : {}}
           >
-            {words[currentIndex]}
+            {currentWordText}
           </motion.span>
         )}
       </AnimatePresence>
-      <span className="opacity-0">{words[0]}</span>
+      <span className="opacity-0">{typeof words[0] === 'string' ? words[0] : words[0].text}</span>
     </span>
   )
 }

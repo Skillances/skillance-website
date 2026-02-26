@@ -59,12 +59,35 @@ const AppHomePage = () => {
         {/* Background ambience - slowest layer */}
         <ParallaxLayer offset={0} speed={0.1}>
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-transparent" />
-          <div 
-            className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[150%] h-[80%] opacity-40"
-            style={{ 
-              background: "radial-gradient(ellipse at center, hsl(174 72% 40% / 0.25), transparent 60%)" 
+          
+          {/* Subtle Grid/Dot Pattern */}
+          <div className="absolute inset-0 opacity-30" 
+            style={{
+              backgroundImage: 'radial-gradient(hsl(var(--foreground) / 0.15) 1px, transparent 1px)',
+              backgroundSize: '32px 32px'
             }}
           />
+
+          {/* Animated Gradients / Blobs - PERFORMANCE OPTIMIZED (No CSS blurs) */}
+          <motion.div 
+            className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full pointer-events-none"
+            style={{ background: "radial-gradient(circle, hsl(174 72% 40% / 0.15) 0%, transparent 60%)" }}
+            animate={{
+              x: ['0%', '5%', '-5%', '0%'],
+              y: ['0%', '10%', '5%', '0%'],
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div 
+            className="absolute top-[20%] right-[-10%] w-[50%] h-[50%] rounded-full pointer-events-none"
+            style={{ background: "radial-gradient(circle, hsl(168 84% 78% / 0.1) 0%, transparent 60%)" }}
+            animate={{
+              x: ['0%', '-5%', '5%', '0%'],
+              y: ['0%', '-10%', '-5%', '0%'],
+            }}
+            transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+          />
+
           <FogLayer variant="ambient" intensity="medium" />
         </ParallaxLayer>
 
@@ -133,8 +156,13 @@ const AppHomePage = () => {
                   transition={{ duration: 0.8, delay: 0.4, type: 'spring', stiffness: 120, damping: 20 }}
                 >
                   <span className="block text-foreground">Find <TextRotator
-                    words={['trusted', 'verified', 'skilled', 'expert']}
-                    className="font-semibold text-[var(--color-section-primary)]"
+                    words={[
+                      { text: 'trusted', color: 'hsl(174, 72%, 40%)' },
+                      { text: 'verified', color: 'hsl(260, 60%, 60%)' },
+                      { text: 'skilled', color: 'hsl(200, 80%, 50%)' },
+                      { text: 'expert', color: 'hsl(35, 90%, 55%)' }
+                    ]}
+                    className="font-semibold"
                     interval={2500}
                   /> freelancers</span>
                   <span className="block text-gradient mt-2">near you</span>
@@ -156,7 +184,7 @@ const AppHomePage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.8 }}
                 >
-                  <div className="glass-card glass-hover glass-rounded-lg p-5 md:p-7">
+                  <div className="pt-2">
                     <DownloadCTA variant="hero" />
                   </div>
                   
@@ -684,17 +712,15 @@ const AppHomePage = () => {
             Stats flowing upward, large call to action
         ═══════════════════════════════════════════════════════════════════ */}
 
-        {/* Scene 5 background - glassy blurry texture */}
+        {/* Scene 5 background - Performance Optimized */}
         <ParallaxLayer offset={3.8} speed={0.1}>
           <div 
             className="absolute inset-0"
             style={{ 
               background: `
-                radial-gradient(ellipse 100% 50% at 50% 100%, hsl(174 72% 40% / 0.15), transparent 60%),
-                linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)
+                radial-gradient(ellipse 100% 50% at 50% 100%, hsl(174 72% 40% / 0.1), transparent 60%),
+                linear-gradient(0deg, rgba(200, 240, 235, 0.4) 0%, transparent 100%)
               `,
-              backdropFilter: 'blur(40px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(150%)',
             }}
           />
         </ParallaxLayer>
@@ -737,17 +763,14 @@ const AppHomePage = () => {
           </div>
         </ParallaxLayer>
 
-        {/* Footer attribution - glassy blurry texture */}
+        {/* Footer attribution - Performance Optimized */}
         <ParallaxLayer offset={3.8} speed={0.6}>
           <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 text-center px-4">
             <div 
-              className="px-6 sm:px-8 py-3 sm:py-4 rounded-2xl"
+              className="px-6 sm:px-8 py-3 sm:py-4 rounded-2xl bg-white/90"
               style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(20px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                border: '1px solid rgba(200, 220, 215, 0.5)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
               }}
             >
               <p 

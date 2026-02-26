@@ -37,6 +37,7 @@ const CategoryLottieSymbol = ({
           path={category.animation}
           loop={loop}
           autoplay={true}
+          renderer="canvas"
           onLoad={(data) => setAnimationData(data)}
           style={{ width: '100%', height: '100%' }}
         />

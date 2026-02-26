@@ -4,6 +4,7 @@ import { APP_INFO } from '@/utils/appConstants'
 import AnimatedSection from '@/components/common/AnimatedSection'
 import MagneticElement from './MagneticElement'
 import GlowEffect from './GlowEffect'
+import { QrCode } from 'lucide-react'
 
 // Custom Android icon component
 const AndroidIcon = ({ size = 24, className = '' }) => (
@@ -20,8 +21,10 @@ const AndroidIcon = ({ size = 24, className = '' }) => (
 
 const StoreBadge = ({ href, disabled = false, store = 'google' }) => {
   const [isHovered, setIsHovered] = useState(false)
-  const altText = 'Download on the App Store and Get it on Google Play'
-  const imageSrc = '/get_it_on.png'
+  
+  const isApple = store === 'apple'
+  const altText = isApple ? 'Download on the App Store' : 'Get it on Google Play'
+  const imageSrc = isApple ? '/get_it_on_apple.png' : '/get_it_on_android.png'
   
   if (disabled) {
     return (
@@ -34,9 +37,7 @@ const StoreBadge = ({ href, disabled = false, store = 'google' }) => {
         <img
           src={imageSrc}
           alt={altText}
-          width={230}
-          height={153}
-          className="w-[180px] sm:w-[230px] h-auto opacity-70 cursor-not-allowed"
+          className="h-[48px] w-auto opacity-70 cursor-not-allowed"
           loading="lazy"
         />
         {/* Coming soon overlay */}
@@ -44,7 +45,7 @@ const StoreBadge = ({ href, disabled = false, store = 'google' }) => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-text-secondary bg-white px-3 py-1 rounded-full shadow-lg"
+            className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-text-secondary bg-white px-3 py-1 rounded-full shadow-lg z-10"
           >
             Coming Soon
           </motion.div>
@@ -59,7 +60,7 @@ const StoreBadge = ({ href, disabled = false, store = 'google' }) => {
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        whileHover={{ scale: 1.08 }}
+        whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         transition={{ type: 'spring', stiffness: 400, damping: 17 }}
         className="relative inline-block cursor-pointer touch-target"
@@ -70,9 +71,7 @@ const StoreBadge = ({ href, disabled = false, store = 'google' }) => {
           <img
             src={imageSrc}
             alt={altText}
-            width={230}
-            height={153}
-            className="w-[180px] sm:w-[230px] h-auto"
+            className="h-[48px] w-auto"
             loading="lazy"
           />
         </GlowEffect>
@@ -82,7 +81,7 @@ const StoreBadge = ({ href, disabled = false, store = 'google' }) => {
             className="absolute inset-0 rounded-lg"
             style={{ backgroundColor: 'var(--color-section-primary)' }}
             initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 0.1, scale: 1.2 }}
+            animate={{ opacity: 0.1, scale: 1.1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           />
@@ -97,12 +96,32 @@ const DownloadCTA = ({ variant = 'default' }) => {
 
   if (variant === 'hero') {
     return (
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 items-center sm:items-start">
-        {isComingSoon ? (
-          <StoreBadge href="#" disabled store="google" />
-        ) : (
-          <StoreBadge href={APP_INFO.playStoreUrl} store="google" />
-        )}
+      <div className="flex flex-col md:flex-row items-center gap-6 pt-4">
+        {/* App Store Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center">
+          {isComingSoon ? (
+            <>
+              <StoreBadge href="#" disabled store="apple" />
+              <StoreBadge href="#" disabled store="google" />
+            </>
+          ) : (
+            <>
+              <StoreBadge href={APP_INFO.appStoreUrl || '#'} store="apple" />
+              <StoreBadge href={APP_INFO.playStoreUrl || '#'} store="google" />
+            </>
+          )}
+        </div>
+        
+        {/* Desktop QR Code */}
+        <div className="hidden md:flex items-center gap-3 pl-4 border-l border-border/50">
+          <div className="p-2 bg-white rounded-lg shadow-sm">
+            <QrCode className="w-10 h-10 text-primary" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xs font-semibold uppercase tracking-wider text-text-secondary">Scan to</span>
+            <span className="text-sm font-medium">Download App</span>
+          </div>
+        </div>
       </div>
     )
   }
@@ -144,15 +163,19 @@ const DownloadCTA = ({ variant = 'default' }) => {
             }
           </p>
 
-          {isComingSoon ? (
-            <div className="flex justify-center items-center">
-              <StoreBadge href="#" disabled store="google" />
-            </div>
-          ) : (
-            <div className="flex justify-center items-center">
-              <StoreBadge href={APP_INFO.playStoreUrl} store="google" />
-            </div>
-          )}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+            {isComingSoon ? (
+              <>
+                <StoreBadge href="#" disabled store="apple" />
+                <StoreBadge href="#" disabled store="google" />
+              </>
+            ) : (
+              <>
+                <StoreBadge href={APP_INFO.appStoreUrl || '#'} store="apple" />
+                <StoreBadge href={APP_INFO.playStoreUrl || '#'} store="google" />
+              </>
+            )}
+          </div>
 
           {isComingSoon && (
             <p className="mt-4 sm:mt-6 text-xs sm:text-sm opacity-75">

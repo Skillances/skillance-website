@@ -28,12 +28,18 @@ export const GlassShape = ({
             )}
             style={baseStyles}
           >
-            {/* Inner luminescence */}
-            <div className="absolute inset-[15%] rounded-full bg-gradient-to-br from-[rgba(94,234,212,0.2)] via-transparent to-[rgba(20,184,166,0.1)] blur-xl" />
-            {/* Caustic highlight */}
-            <div className="absolute top-[10%] left-[20%] w-[40%] h-[15%] rounded-full bg-gradient-to-r from-transparent via-white/25 to-transparent blur-sm rotate-[-15deg]" />
-            {/* Secondary refraction */}
-            <div className="absolute bottom-[20%] right-[15%] w-[25%] h-[8%] rounded-full bg-[rgba(94,234,212,0.1)] blur-md rotate-[30deg]" />
+            {/* Inner luminescence - Optimized */}
+            <div className="absolute inset-[15%] rounded-full" 
+              style={{ background: "radial-gradient(circle, rgba(94,234,212,0.15) 0%, transparent 70%)" }} 
+            />
+            {/* Caustic highlight - Optimized */}
+            <div className="absolute top-[10%] left-[20%] w-[40%] h-[15%] rounded-full rotate-[-15deg]" 
+              style={{ background: "radial-gradient(ellipse, rgba(255,255,255,0.4) 0%, transparent 60%)" }}
+            />
+            {/* Secondary refraction - Optimized */}
+            <div className="absolute bottom-[20%] right-[15%] w-[25%] h-[8%] rounded-full rotate-[30deg]" 
+              style={{ background: "radial-gradient(ellipse, rgba(94,234,212,0.2) 0%, transparent 70%)" }}
+            />
             {children}
           </div>
         )
@@ -54,15 +60,13 @@ export const GlassShape = ({
             className={cn("relative overflow-hidden", className)}
             style={{
               ...baseStyles,
-              background: "linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02))",
-              backdropFilter: "blur(40px)",
-              WebkitBackdropFilter: "blur(40px)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: "linear-gradient(135deg, rgba(230,255,250,0.4), rgba(255,255,255,0.1))",
+              border: "1px solid rgba(255,255,255,0.3)",
               clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)",
-              boxShadow: "0 0 80px rgba(20,184,166,0.25), inset 0 0 40px rgba(94,234,212,0.1)",
+              boxShadow: "0 0 80px rgba(20,184,166,0.15), inset 0 0 40px rgba(255,255,255,0.4)",
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-[rgba(94,234,212,0.1)] to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[rgba(94,234,212,0.15)] to-transparent" />
             {children}
           </div>
         )
@@ -82,7 +86,7 @@ export const GlassShape = ({
                 `,
               }}
             />
-            {/* Light catch */}
+            {/* Light catch - Optimized */}
             <div 
               className="absolute rounded-full"
               style={{
@@ -90,8 +94,7 @@ export const GlassShape = ({
                 left: "10%",
                 width: "25%",
                 height: "8%",
-                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
-                filter: "blur(2px)",
+                background: "radial-gradient(ellipse, rgba(255,255,255,0.4) 0%, transparent 70%)",
                 transform: "rotate(-45deg)",
               }}
             />
@@ -106,15 +109,13 @@ export const GlassShape = ({
             style={{
               ...baseStyles,
               height: size * 2.5,
-              background: "linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02))",
-              backdropFilter: "blur(30px)",
-              WebkitBackdropFilter: "blur(30px)",
-              border: "1px solid rgba(255,255,255,0.12)",
+              background: "linear-gradient(180deg, rgba(230,255,250,0.3), rgba(255,255,255,0.05))",
+              border: "1px solid rgba(255,255,255,0.2)",
               clipPath: "polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)",
-              boxShadow: "0 0 60px rgba(20,184,166,0.2)",
+              boxShadow: "0 0 60px rgba(20,184,166,0.15)",
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-[rgba(94,234,212,0.1)] via-transparent to-[rgba(20,184,166,0.05)]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[rgba(94,234,212,0.15)] via-transparent to-[rgba(20,184,166,0.05)]" />
             {children}
           </div>
         )
@@ -151,17 +152,15 @@ export const GlassShape = ({
               ...baseStyles,
               height: size * 0.4,
               borderRadius: "50%",
-              background: "linear-gradient(180deg, rgba(255,255,255,0.15), rgba(255,255,255,0.03))",
-              backdropFilter: "blur(40px)",
-              WebkitBackdropFilter: "blur(40px)",
-              border: "1px solid rgba(255,255,255,0.2)",
+              background: "linear-gradient(180deg, rgba(230,255,250,0.4), rgba(255,255,255,0.1))",
+              border: "1px solid rgba(255,255,255,0.3)",
               boxShadow: `
-                0 20px 60px rgba(20,184,166,0.25),
-                inset 0 -10px 30px rgba(94,234,212,0.1)
+                0 20px 60px rgba(20,184,166,0.15),
+                inset 0 -10px 30px rgba(255,255,255,0.4)
               `,
             }}
           >
-            <div className="absolute top-[10%] left-[15%] w-[50%] h-[30%] bg-gradient-to-r from-transparent via-white/20 to-transparent blur-sm rounded-full" />
+            <div className="absolute top-[10%] left-[15%] w-[50%] h-[30%] bg-gradient-to-r from-transparent via-white/40 to-transparent blur-sm rounded-full" />
             {children}
           </div>
         )
@@ -173,15 +172,13 @@ export const GlassShape = ({
             style={{
               ...baseStyles,
               height: size * 1.4,
-              background: "linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03))",
-              backdropFilter: "blur(40px)",
-              WebkitBackdropFilter: "blur(40px)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: "linear-gradient(180deg, rgba(230,255,250,0.3), rgba(255,255,255,0.05))",
+              border: "1px solid rgba(255,255,255,0.2)",
               borderRadius: "50% 50% 50% 50% / 30% 30% 70% 70%",
-              boxShadow: "0 30px 80px rgba(20,184,166,0.25), inset 0 0 50px rgba(94,234,212,0.08)",
+              boxShadow: "0 30px 80px rgba(20,184,166,0.15), inset 0 0 50px rgba(255,255,255,0.3)",
             }}
           >
-            <div className="absolute top-[15%] left-[25%] w-[35%] h-[15%] rounded-full bg-gradient-to-r from-transparent via-white/25 to-transparent blur-sm rotate-[-20deg]" />
+            <div className="absolute top-[15%] left-[25%] w-[35%] h-[15%] rounded-full bg-gradient-to-r from-transparent via-white/40 to-transparent blur-sm rotate-[-20deg]" />
             {children}
           </div>
         )
