@@ -1,93 +1,70 @@
 import { motion } from 'framer-motion'
-import { useState } from 'react'
 import { APP_INFO } from '@/utils/appConstants'
 import AnimatedSection from '@/components/common/AnimatedSection'
-import MagneticElement from './MagneticElement'
-import GlowEffect from './GlowEffect'
 import { QrCode } from 'lucide-react'
 
-// Custom Android icon component
-const AndroidIcon = ({ size = 24, className = '' }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className={className}
-  >
-    <path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 0 0-.83.22l-1.88 3.24a11.43 11.43 0 0 0-8.94 0L5.65 5.67a.643.643 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.81 10.81 0 0 0 1 18h22a10.81 10.81 0 0 0-5.4-8.52M7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5m10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5" />
+const AppleIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 384 512" fill="currentColor" className={className}>
+    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-62.6 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+  </svg>
+)
+
+const PlayIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 512 512" fill="currentColor" className={className}>
+    <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/>
   </svg>
 )
 
 const StoreBadge = ({ href, disabled = false, store = 'google' }) => {
-  const [isHovered, setIsHovered] = useState(false)
-  
   const isApple = store === 'apple'
-  const altText = isApple ? 'Download on the App Store' : 'Get it on Google Play'
-  const imageSrc = isApple ? '/get_it_on_apple.png' : '/get_it_on_android.png'
-  
+
+  const content = (
+    <div className="flex items-center gap-3">
+      {isApple ? (
+        <AppleIcon className="w-6 h-6 sm:w-7 sm:h-7" />
+      ) : (
+        <PlayIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+      )}
+      <div className="flex flex-col items-start leading-tight">
+        <span className="text-[10px] sm:text-[11px] font-normal opacity-80">
+          {isApple ? 'Download on the' : 'GET IT ON'}
+        </span>
+        <span className="text-sm sm:text-base font-semibold -mt-0.5">
+          {isApple ? 'App Store' : 'Google Play'}
+        </span>
+      </div>
+    </div>
+  )
+
+  const badgeClasses = `inline-flex items-center px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gray-900 text-white transition-all ${
+    disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-black cursor-pointer'
+  }`
+
   if (disabled) {
     return (
       <motion.div
-        className="relative inline-block"
-        whileHover={{ scale: 1.05 }}
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
+        className="relative"
+        whileHover={{ scale: 1.03 }}
       >
-        <img
-          src={imageSrc}
-          alt={altText}
-          className="h-[48px] w-auto opacity-70 cursor-not-allowed"
-          loading="lazy"
-        />
-        {/* Coming soon overlay */}
-        {isHovered && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-text-secondary bg-white px-3 py-1 rounded-full shadow-lg z-10"
-          >
-            Coming Soon
-          </motion.div>
-        )}
+        <div className={badgeClasses}>
+          {content}
+        </div>
       </motion.div>
     )
   }
 
   return (
-    <MagneticElement strength={0.15} range={150}>
-      <motion.a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-        className="relative inline-block cursor-pointer touch-target"
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
-      >
-        <GlowEffect glowColor="var(--color-section-primary)" glowOpacity={0.3}>
-          <img
-            src={imageSrc}
-            alt={altText}
-            className="h-[48px] w-auto"
-            loading="lazy"
-          />
-        </GlowEffect>
-        {/* Ripple effect on hover */}
-        {isHovered && (
-          <motion.div
-            className="absolute inset-0 rounded-lg"
-            style={{ backgroundColor: 'var(--color-section-primary)' }}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 0.1, scale: 1.1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          />
-        )}
-      </motion.a>
-    </MagneticElement>
+    <motion.a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+      className={badgeClasses}
+    >
+      {content}
+    </motion.a>
   )
 }
 
@@ -96,37 +73,33 @@ const DownloadCTA = ({ variant = 'default' }) => {
 
   if (variant === 'hero') {
     return (
-      <div className="flex flex-col md:flex-row items-center gap-6 pt-4">
-        {/* App Store Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center">
-          {isComingSoon ? (
-            <>
-              <StoreBadge href="#" disabled store="apple" />
-              <StoreBadge href="#" disabled store="google" />
-            </>
-          ) : (
-            <>
-              <StoreBadge href={APP_INFO.appStoreUrl || '#'} store="apple" />
-              <StoreBadge href={APP_INFO.playStoreUrl || '#'} store="google" />
-            </>
-          )}
-        </div>
+      <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 pt-4">
+        {isComingSoon ? (
+          <>
+            <StoreBadge href="#" disabled store="apple" />
+            <StoreBadge href="#" disabled store="google" />
+          </>
+        ) : (
+          <>
+            <StoreBadge href={APP_INFO.appStoreUrl || '#'} store="apple" />
+            <StoreBadge href={APP_INFO.playStoreUrl || '#'} store="google" />
+          </>
+        )}
         
         {/* Desktop QR Code */}
-        <div className="hidden md:flex items-center gap-3 pl-4 border-l border-border/50">
-          <div className="p-2 bg-white rounded-lg shadow-sm">
-            <QrCode className="w-10 h-10 text-primary" />
+        <div className="hidden md:flex items-center gap-2.5 pl-4 ml-1 border-l border-border/40">
+          <div className="p-1.5 bg-white rounded-md shadow-sm">
+            <QrCode className="w-7 h-7" style={{ color: 'var(--color-section-primary)' }} />
           </div>
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold uppercase tracking-wider text-text-secondary">Scan to</span>
-            <span className="text-sm font-medium">Download App</span>
+          <div className="flex flex-col leading-tight">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-text-secondary">Scan to</span>
+            <span className="text-xs font-medium text-text-primary">Download</span>
           </div>
         </div>
       </div>
     )
   }
 
-  // Full section variant
   return (
     <AnimatedSection animation="fadeInUp">
       <motion.div 
@@ -137,12 +110,9 @@ const DownloadCTA = ({ variant = 'default' }) => {
         whileHover={{ scale: 1.01 }}
         transition={{ duration: 0.3 }}
       >
-        {/* Animated gradient overlay */}
         <motion.div
           className="absolute inset-0 opacity-0 hover:opacity-20 transition-opacity"
-          style={{
-            background: `radial-gradient(circle at center, white, transparent 70%)`,
-          }}
+          style={{ background: `radial-gradient(circle at center, white, transparent 70%)` }}
         />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -189,4 +159,3 @@ const DownloadCTA = ({ variant = 'default' }) => {
 }
 
 export default DownloadCTA
-
