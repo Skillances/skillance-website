@@ -4,7 +4,6 @@ import { Analytics } from '@vercel/analytics/react'
 import { SectionProvider, useSectionContext } from './context/SectionContext'
 import { AuthProvider } from './context/AuthContext'
 import { SmoothScrollProvider } from './components/SmoothScrollProvider'
-import SectionToggle from './components/layout/SectionToggle'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import ScrollProgress from './components/app/ScrollProgress'
@@ -89,7 +88,6 @@ function AppContent() {
       <div style={{ position: 'relative', zIndex: 50 }}>
         <Header />
       </div>
-      <SectionToggle />
       {!isHomePage && <ScrollProgress />}
       {!isHomePage && <ScrollToTopButton />}
       
