@@ -220,6 +220,9 @@ const Footer = () => {
               <Link to="/terms" className="hover:text-white transition-colors touch-target" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                 Terms of Service
               </Link>
+              <Link to="/refund" className="hover:text-white transition-colors touch-target" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                Refund Policy
+              </Link>
             </div>
           </div>
         </div>

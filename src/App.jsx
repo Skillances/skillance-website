@@ -20,6 +20,7 @@ const AppCategoriesPage = lazy(() => import('./pages/app/AppCategoriesPage'))
 const AppContactPage = lazy(() => import('./pages/app/AppContactPage'))
 const AppPrivacyPage = lazy(() => import('./pages/app/AppPrivacyPage'))
 const AppTermsPage = lazy(() => import('./pages/app/AppTermsPage'))
+const AppRefundPage = lazy(() => import('./pages/app/AppRefundPage'))
 
 const ContractingHomePage = lazy(() => import('./pages/contracting/ContractingHomePage'))
 const ContractingAboutPage = lazy(() => import('./pages/contracting/ContractingAboutPage'))
@@ -199,6 +200,17 @@ function AppContent() {
                 <Footer />
               </div>
             } />
+            <Route path="/refund" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <AppRefundPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
           </>
         )}
 
@@ -284,6 +296,17 @@ function AppContent() {
                 <main className="flex-grow overflow-x-hidden">
                   <Suspense fallback={<PageLoader />}>
                     <ContractingTermsPage />
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            } />
+            <Route path="/refund" element={
+              <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ paddingTop: '56px' }}>
+                <Header />
+                <main className="flex-grow overflow-x-hidden">
+                  <Suspense fallback={<PageLoader />}>
+                    <AppRefundPage />
                   </Suspense>
                 </main>
                 <Footer />

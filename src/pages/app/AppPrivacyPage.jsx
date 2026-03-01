@@ -6,14 +6,14 @@ const AppPrivacyPage = () => {
     <Section>
       <div className="container mx-auto container-padding max-w-4xl">
         <AnimatedSection animation="fadeInUp">
-          <h1 
-            style={{ fontFamily: 'var(--font-family-poppins)' }} 
+          <h1
+            style={{ fontFamily: 'var(--font-family-poppins)' }}
             className="text-4xl md:text-5xl font-bold mb-4"
           >
             Privacy Policy
           </h1>
           <p className="text-text-secondary mb-8">
-            Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            Last updated: 27 February 2025
           </p>
         </AnimatedSection>
 
@@ -24,7 +24,7 @@ const AppPrivacyPage = () => {
                 1. Introduction
               </h2>
               <p className="text-text-secondary leading-relaxed">
-                Skillance ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and services.
+                Skillance is a marketplace connecting customers with freelancers for services such as tutoring and home services. This Privacy Policy explains how we collect, use, and protect your personal information in accordance with the Protection of Personal Information Act 4 of 2013 (POPIA) and other applicable South African law.
               </p>
             </section>
 
@@ -32,27 +32,18 @@ const AppPrivacyPage = () => {
               <h2 style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-2xl font-semibold mb-4">
                 2. Information We Collect
               </h2>
-              <h3 className="text-xl font-semibold mb-3">2.1 Personal Information</h3>
               <p className="text-text-secondary leading-relaxed mb-4">
-                We collect information that you provide directly to us, including:
+                We collect information you provide directly:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-text-secondary">
-                <li>Name, email address, phone number</li>
-                <li>Profile information and photos</li>
-                <li>Payment information (processed securely through third-party providers)</li>
-                <li>Location data when you enable location services</li>
-                <li>Service preferences and booking history</li>
-              </ul>
-
-              <h3 className="text-xl font-semibold mb-3 mt-6">2.2 Automatically Collected Information</h3>
-              <p className="text-text-secondary leading-relaxed mb-4">
-                We automatically collect certain information when you use our app:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-text-secondary">
-                <li>Device information (model, operating system, unique identifiers)</li>
-                <li>Usage data and app interactions</li>
-                <li>IP address and network information</li>
-                <li>Cookies and similar tracking technologies</li>
+                <li><strong>Account:</strong> name, email, phone number, profile photo</li>
+                <li><strong>Profile (freelancers):</strong> bio, skills, rates, certifications, portfolio photos, age (optional), gender (optional), service locations and addresses</li>
+                <li><strong>Identity verification (freelancers):</strong> South African ID or passport number, photos of ID document (front and back), a selfie, and optional proof of address for verification purposes</li>
+                <li><strong>Payment:</strong> card and bank details are processed by our payment partner WalletDoc; we do not store full card numbers</li>
+                <li><strong>Booking history:</strong> dates, times, addresses, notes, and service details</li>
+                <li><strong>Messaging:</strong> chat messages (text, images, voice) exchanged between customers and freelancers</li>
+                <li><strong>Reviews:</strong> ratings and comments you leave after completed bookings</li>
+                <li><strong>Location:</strong> city and approximate coordinates for service area display; precise location only when you enable proximity search (opt-in)</li>
               </ul>
             </section>
 
@@ -64,72 +55,83 @@ const AppPrivacyPage = () => {
                 We use the information we collect to:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-text-secondary">
-                <li>Provide, maintain, and improve our services</li>
-                <li>Process transactions and send related information</li>
-                <li>Verify freelancer identities and credentials</li>
-                <li>Match customers with appropriate freelancers</li>
-                <li>Send you updates, security alerts, and support messages</li>
-                <li>Respond to your comments and questions</li>
-                <li>Monitor and analyze usage patterns</li>
-                <li>Detect, prevent, and address technical issues</li>
+                <li>Provide and operate the Skillance platform</li>
+                <li>Process bookings and payments</li>
+                <li>Facilitate messaging between customers and freelancers</li>
+                <li>Verify freelancer identity and display service areas on maps</li>
+                <li>Send technical notices, support messages, and booking updates</li>
+                <li>Improve our services and analyse usage (via analytics)</li>
+                <li>Comply with legal obligations</li>
               </ul>
             </section>
 
             <section>
               <h2 style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-2xl font-semibold mb-4">
-                4. Information Sharing and Disclosure
+                4. Third-Party Services
               </h2>
               <p className="text-text-secondary leading-relaxed mb-4">
-                We may share your information in the following circumstances:
+                We use trusted third parties who process data on our behalf:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-text-secondary">
-                <li><strong>With Service Providers:</strong> We share information with third-party service providers who perform services on our behalf (payment processing, data storage, analytics)</li>
-                <li><strong>Between Users:</strong> Basic profile information is shared between customers and freelancers to facilitate bookings</li>
-                <li><strong>Legal Requirements:</strong> We may disclose information if required by law or to protect our rights and safety</li>
-                <li><strong>Business Transfers:</strong> Information may be transferred in connection with a merger, acquisition, or sale of assets</li>
+                <li><strong>Firebase (Google):</strong> authentication, analytics, and performance monitoring</li>
+                <li><strong>Mapbox:</strong> maps and location display (approximate locations shown for freelancer privacy)</li>
+                <li><strong>Soketi/Pusher:</strong> real-time chat messaging</li>
+                <li><strong>Payment processor (WalletDoc):</strong> payment processing</li>
               </ul>
-            </section>
-
-            <section>
-              <h2 style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-2xl font-semibold mb-4">
-                5. Data Security
-              </h2>
-              <p className="text-text-secondary leading-relaxed">
-                We implement appropriate technical and organizational measures to protect your personal information. However, no method of transmission over the internet or electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your data, we cannot guarantee absolute security.
+              <p className="text-text-secondary leading-relaxed mt-4">
+                These providers have their own privacy policies. We do not sell your personal information.
               </p>
             </section>
 
             <section>
               <h2 style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-2xl font-semibold mb-4">
-                6. Your Rights and Choices
+                5. Information Sharing
               </h2>
               <p className="text-text-secondary leading-relaxed mb-4">
-                You have the right to:
+                We do not sell your personal information. We may share information:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-text-secondary">
-                <li>Access and update your personal information</li>
-                <li>Delete your account and associated data</li>
-                <li>Opt-out of marketing communications</li>
-                <li>Control location sharing through device settings</li>
-                <li>Request a copy of your data</li>
+                <li>With freelancers/customers as needed to fulfil bookings and messages</li>
+                <li>With service providers who assist us (under strict data processing agreements)</li>
+                <li>To comply with legal obligations or lawful requests</li>
+                <li>To protect our rights, safety, or the safety of users</li>
               </ul>
             </section>
 
             <section>
               <h2 style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-2xl font-semibold mb-4">
-                7. Children's Privacy
+                6. Data Security and Retention
               </h2>
               <p className="text-text-secondary leading-relaxed">
-                Our services are not intended for individuals under the age of 18. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately.
+                We implement appropriate technical and organisational measures to protect your personal information. No internet transmission is 100% secure. We retain your data for as long as your account is active and as needed to comply with legal obligations (e.g. tax, disputes).
               </p>
             </section>
 
             <section>
               <h2 style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-2xl font-semibold mb-4">
-                8. Changes to This Privacy Policy
+                7. Data Breach Notification
               </h2>
               <p className="text-text-secondary leading-relaxed">
-                We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date. You are advised to review this Privacy Policy periodically for any changes.
+                In the event of a data breach that materially affects your personal information, we will notify affected users and the Information Regulator (South Africa) in accordance with POPIA and applicable law.
+              </p>
+            </section>
+
+            <section>
+              <h2 style={{ fontFamily: 'var(--font-family-poppins)' }} className="text-2xl font-semibold mb-4">
+                8. Your Rights (POPIA)
+              </h2>
+              <p className="text-text-secondary leading-relaxed mb-4">
+                Under POPIA and our policies, you have the right to:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-text-secondary">
+                <li>Access the personal information we hold about you</li>
+                <li>Correct inaccurate or incomplete information</li>
+                <li>Request deletion of your information (subject to legal retention requirements)</li>
+                <li>Object to processing or withdraw consent where applicable</li>
+                <li>Lodge a complaint with the Information Regulator (South Africa)</li>
+              </ul>
+              <p className="text-text-secondary leading-relaxed mt-4">
+                To exercise these rights, contact us at the email below.
               </p>
             </section>
 
@@ -138,11 +140,11 @@ const AppPrivacyPage = () => {
                 9. Contact Us
               </h2>
               <p className="text-text-secondary leading-relaxed">
-                If you have any questions about this Privacy Policy, please contact us at:
+                For questions about this Privacy Policy or to exercise your rights, contact us at:
               </p>
               <p className="text-text-secondary leading-relaxed mt-4">
-                <strong>Email:</strong> privacy@skillance.app<br />
-                <strong>Address:</strong> Johannesburg, South Africa
+                <strong>Email:</strong> services@skillance.co.za<br />
+                <strong>Website:</strong> https://skillance.co.za
               </p>
             </section>
           </div>
@@ -153,15 +155,3 @@ const AppPrivacyPage = () => {
 }
 
 export default AppPrivacyPage
-
-
-
-
-
-
-
-
-
-
-
-
