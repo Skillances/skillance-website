@@ -502,23 +502,11 @@ const AppHomePage = () => {
           />
         </ParallaxLayer>
 
-        <ParallaxLayer offset={o.trust} speed={0.2}>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-15">
-            <GlassShape variant="ring" size={isMobile ? 300 : 600} />
-          </div>
-        </ParallaxLayer>
-
-        <ParallaxLayer offset={o.trust} speed={0}>
-          <div className={`absolute ${isMobile ? 'top-[8%] right-[50%] translate-x-1/2' : 'top-1/2 right-[15%] md:right-[20%] -translate-y-1/2'}`}>
-            <FloatingSymbol symbol="shield" size={isMobile ? 120 : 280} />
-          </div>
-        </ParallaxLayer>
-
         <ParallaxLayer offset={o.trust} speed={0.5}>
-          <div className={`${isMobile ? 'min-h-screen flex flex-col justify-start pt-40 pb-8' : 'h-screen flex flex-col justify-center'} px-5 md:px-12 lg:px-20`}>
-            <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 md:gap-12">
+          <div className="h-screen flex flex-col justify-center px-5 md:px-12 lg:px-20">
+            <div className="w-full max-w-7xl mx-auto">
               <motion.div 
-                className="flex-1 flex flex-col justify-center md:max-w-[55%] md:ml-auto md:pr-8"
+                className="flex-1 flex flex-col justify-center max-w-2xl"
                 initial={{ opacity: 0, x: -30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
@@ -581,8 +569,6 @@ const AppHomePage = () => {
                   ))}
                 </motion.div>
               </motion.div>
-              
-              <div className="hidden md:block w-[280px] flex-shrink-0" />
             </div>
           </div>
         </ParallaxLayer>

@@ -88,14 +88,19 @@ const ScrollStack = ({
 
     const endElementTop = endElement ? getElementOffset(endElement) : 0
 
+    // Snapshot all card positions once before applying any transform to avoid
+    // feedback loop (transforms changing layout and thus next card's getBoundingClientRect)
+    const cardTops = cardsRef.current.map((card) => (card ? getElementOffset(card) : 0))
+
+    const pinEnd = endElementTop - containerHeight / 2
+
     cardsRef.current.forEach((card, i) => {
       if (!card) return
 
-      const cardTop = getElementOffset(card)
+      const cardTop = cardTops[i]
       const triggerStart = cardTop - stackPositionPx - itemStackDistance * i
       const triggerEnd = cardTop - scaleEndPositionPx
       const pinStart = cardTop - stackPositionPx - itemStackDistance * i
-      const pinEnd = endElementTop - containerHeight / 2
 
       const scaleProgress = calculateProgress(scrollTop, triggerStart, triggerEnd)
       const targetScale = baseScale + i * itemScale
@@ -106,7 +111,7 @@ const ScrollStack = ({
       if (blurAmount) {
         let topCardIndex = 0
         for (let j = 0; j < cardsRef.current.length; j++) {
-          const jCardTop = getElementOffset(cardsRef.current[j])
+          const jCardTop = cardTops[j]
           const jTriggerStart = jCardTop - stackPositionPx - itemStackDistance * j
           if (scrollTop >= jTriggerStart) {
             topCardIndex = j
@@ -186,23 +191,16 @@ const ScrollStack = ({
   }, [updateCardTransforms])
 
   const setupLenis = useCallback(() => {
-    // Don't create a new Lenis instance if we're using window scroll
-    // The SmoothScrollProvider already handles that
     if (useWindowScroll) {
-      // Just listen to scroll events from the existing Lenis instance
+      // Update only on scroll (no continuous RAF) to avoid glitches at pin boundaries.
+      // Lenis emits scroll during smooth scroll; one update per event is enough.
       if (typeof window !== 'undefined' && window.lenis) {
         window.lenis.on('scroll', handleScroll)
         lenisRef.current = window.lenis
       } else {
-        // Fallback to native scroll if Lenis isn't available
         window.addEventListener('scroll', handleScroll, { passive: true })
       }
-      // Also listen to RAF for smooth updates
-      const raf = () => {
-        handleScroll()
-        animationFrameRef.current = requestAnimationFrame(raf)
-      }
-      animationFrameRef.current = requestAnimationFrame(raf)
+      handleScroll()
       return
     } else {
       const scroller = scrollerRef.current

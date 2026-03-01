@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useInView } from 'react-intersection-observer'
 import CountUp from 'react-countup'
 import { Users, Briefcase, Star, Grid3x3, ThumbsUp, Clock } from 'lucide-react'
@@ -34,49 +35,28 @@ import { fadeInUpStagger } from '@/utils/animations'
 import { stats } from '@/utils/statsData'
 
 const AnimatedStats = () => {
-  // Don't render if no stats data
-  if (!stats || stats.length === 0) {
-    return null
-  }
+  if (!stats || stats.length === 0) return null
+
   const { ref, inView } = useInView({
     threshold: 0.2,
     triggerOnce: true,
   })
+  const [hasAnimated, setHasAnimated] = useState(false)
+
+  useEffect(() => {
+    if (inView) setHasAnimated(true)
+  }, [inView])
+
+  const show = hasAnimated || inView
 
   return (
     <div className="relative overflow-hidden py-12 sm:py-16 md:py-20" style={{ background: 'linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%)' }}>
-      {/* Background particles/shapes */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full opacity-10"
-            style={{
-              width: Math.random() * 300 + 100,
-              height: Math.random() * 300 + 100,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              backgroundColor: stats[i]?.color || '#2563EB',
-            }}
-            animate={{
-              y: [0, -30, 0],
-              x: [0, 20, 0],
-            }}
-            transition={{
-              duration: 5 + i,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
-      </div>
-
       <div className="container mx-auto container-padding max-w-7xl relative z-10">
         <motion.div
           ref={ref}
           variants={fadeInUpStagger.container}
           initial="initial"
-          animate={inView ? 'animate' : 'initial'}
+          animate={show ? 'animate' : 'initial'}
           className="text-center mb-16"
         >
           <h2 
@@ -93,12 +73,12 @@ const AnimatedStats = () => {
         <motion.div
           variants={fadeInUpStagger.container}
           initial="initial"
-          animate={inView ? 'animate' : 'initial'}
+          animate={show ? 'animate' : 'initial'}
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8"
         >
           {stats.map((stat, index) => {
             const Icon = stat.icon
-            
+
             return (
               <motion.div
                 key={stat.id}
@@ -107,62 +87,23 @@ const AnimatedStats = () => {
               >
                 <motion.div
                   className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 mx-auto relative overflow-hidden"
-                  style={{ 
-                    backgroundColor: `${stat.color}15`,
-                  }}
-                  whileHover={{ scale: 1.15, rotate: 360 }}
-                  animate={inView ? {
-                    boxShadow: [
-                      `0 0 0 0 ${stat.color}40`,
-                      `0 0 20px 5px ${stat.color}20`,
-                      `0 0 0 0 ${stat.color}40`,
-                    ],
-                  } : {}}
-                  transition={{
-                    duration: 0.6,
-                    boxShadow: {
-                      duration: 2,
-                      repeat: Infinity,
-                      delay: index * 0.2,
-                    },
-                  }}
+                  style={{ backgroundColor: `${stat.color}15` }}
+                  whileHover={{ scale: 1.1 }}
                 >
-                  {/* Pulsing background */}
-                  <motion.div
-                    className="absolute inset-0 rounded-full"
-                    style={{ backgroundColor: stat.color }}
-                    animate={{
-                      scale: [1, 1.3, 1],
-                      opacity: [0.1, 0, 0.1],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      delay: index * 0.2,
-                    }}
-                  />
                   <Icon size={28} style={{ color: stat.color }} className="relative z-10" />
                 </motion.div>
-                
-                <motion.div 
-                  style={{ 
+
+                <div
+                  style={{
                     fontFamily: 'var(--font-family-poppins)',
                     background: `linear-gradient(135deg, ${stat.color}, ${stat.color}CC)`,
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
-                  }} 
-                  className="text-4xl font-bold mb-2"
-                  animate={inView ? {
-                    scale: [1, 1.05, 1],
-                  } : {}}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    delay: index * 0.15,
                   }}
+                  className="text-4xl font-bold mb-2"
                 >
-                  {inView && (
+                  {show && (
                     <CountUp
                       end={stat.value}
                       duration={2.5}
@@ -171,7 +112,7 @@ const AnimatedStats = () => {
                       separator=","
                     />
                   )}
-                </motion.div>
+                </div>
                 
                 <div className="text-sm text-text-secondary font-medium">
                   {stat.label}

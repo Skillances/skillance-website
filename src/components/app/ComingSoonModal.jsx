@@ -54,9 +54,13 @@ const ComingSoonModal = ({ isOpen, onClose }) => {
                   }}
                 />
 
-                {/* Sparkles */}
-                <div className="absolute top-8 right-12 text-6xl opacity-20 animate-pulse">✨</div>
-                <div className="absolute bottom-12 left-8 text-4xl opacity-20 animate-pulse" style={{ animationDelay: '0.5s' }}>🎉</div>
+                {/* Decorative icons */}
+                <div className="absolute top-8 right-12 opacity-20 animate-pulse" style={{ color: 'var(--color-section-primary)' }}>
+                  <Sparkles size={32} />
+                </div>
+                <div className="absolute bottom-12 left-8 opacity-20 animate-pulse" style={{ animationDelay: '0.5s', color: 'var(--color-section-secondary)' }}>
+                  <Sparkles size={24} />
+                </div>
 
                 {/* Content */}
                 <div className="relative p-8 sm:p-12">

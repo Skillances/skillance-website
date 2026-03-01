@@ -110,20 +110,9 @@ const AppAboutPage = () => {
                 { title: 'Lightning Fast', desc: 'Find and book services in seconds' },
                 { title: 'Fully Verified', desc: 'All freelancers ID-verified' },
                 { title: 'Growing Daily', desc: 'Join thousands of users' },
-              ].map((item, index) => (
+              ].map((item) => (
                 <AnimatedSection key={item.title} animation="fadeInUp">
                   <div className="text-center">
-                    <div 
-                      className="text-4xl md:text-5xl font-bold mb-3"
-                      style={{ 
-                        fontFamily: 'var(--font-family-poppins)',
-                        color: 'var(--color-section-primary)'
-                      }}
-                    >
-                      {index === 0 && '⚡'}
-                      {index === 1 && '✓'}
-                      {index === 2 && '📈'}
-                    </div>
                     <h3 
                       style={{ fontFamily: 'var(--font-family-poppins)' }}
                       className="text-xl font-bold mb-2"
@@ -140,26 +129,9 @@ const AppAboutPage = () => {
               <Card className="overflow-hidden border-2" style={{ borderColor: 'var(--color-section-primary)', borderOpacity: 0.2 }}>
                 <CardContent className="p-8">
                   <div className="space-y-6 text-base md:text-lg text-text-secondary leading-relaxed">
-                    <div className="relative">
-                      {/* App icon as drop cap */}
-                      <motion.img
-                        src="/app-icon.png"
-                        alt="Skillance"
-                        className="float-left mr-3 mb-2 rounded-xl shadow-lg"
-                        style={{
-                          width: '60px',
-                          height: '60px',
-                          shapeOutside: 'circle(50%)',
-                        }}
-                        initial={{ scale: 0, rotate: -180 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.3 }}
-                        whileHover={{ scale: 1.1, rotate: 5 }}
-                      />
-                      <p>
-                        <strong className="text-text-primary">killance</strong> is a revolutionary mobile marketplace that removes the hassle of finding skilled professionals. No more asking around or relying on word of mouth – find verified freelancers instantly through smart category browsing, proximity search, and intelligent filtering.
-                      </p>
-                    </div>
+                    <p>
+                      <strong className="text-text-primary">Skillance</strong> is a revolutionary mobile marketplace that removes the hassle of finding skilled professionals. No more asking around or relying on word of mouth – find verified freelancers instantly through smart category browsing, proximity search, and intelligent filtering.
+                    </p>
                     <p>
                       <strong className="text-text-primary">For customers,</strong> we provide a seamless journey: discover services, view comprehensive profiles, message before booking, select details with real-time pricing, pay securely, and manage everything in one place with live tracking.
                     </p>

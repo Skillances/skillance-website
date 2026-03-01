@@ -1,10 +1,15 @@
 import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 const AnimatedSection = ({ children, animation = 'fadeInUp', className = '' }) => {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-50px", amount: 0.2 })
+  const isInView = useInView(ref, { once: true, margin: '-50px', amount: 0.2 })
+  const [hasBeenVisible, setHasBeenVisible] = useState(false)
+
+  useEffect(() => {
+    if (isInView) setHasBeenVisible(true)
+  }, [isInView])
 
   const variants = {
     fadeInUp: {
@@ -33,7 +38,7 @@ const AnimatedSection = ({ children, animation = 'fadeInUp', className = '' }) =
     <motion.div
       ref={ref}
       initial="hidden"
-      animate={isInView ? 'visible' : 'hidden'}
+      animate={hasBeenVisible || isInView ? 'visible' : 'hidden'}
       variants={variants[animation]}
       transition={{ duration: 0.4, ease: 'easeOut' }}
       className={className}
