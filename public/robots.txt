@@ -22,8 +22,3 @@ Allow: /contact
 # Crawl delay (optional, helps prevent overloading server)
 User-agent: *
 Crawl-delay: 1
-
-
-
-
-
