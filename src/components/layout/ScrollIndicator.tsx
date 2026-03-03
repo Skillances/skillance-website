@@ -3,7 +3,7 @@ import gsap from 'gsap';
 
 const ScrollIndicator = () => {
   const indicatorRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
