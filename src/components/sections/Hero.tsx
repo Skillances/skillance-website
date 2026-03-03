@@ -1,55 +1,36 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { AnimatePresence, motion } from 'framer-motion';
+
 
 gsap.registerPlugin(ScrollTrigger);
 
-const MarketplaceText = () => {
-  const [currentText, setCurrentText] = useState('marketplace');
-  const [isAnimating, setIsAnimating] = useState(false);
-  const textRef = useRef<HTMLSpanElement>(null);
-
-  const texts = ['marketplace', 'platform', 'community', 'network', 'ecosystem'];
-
+// Custom inline word rotate
+const InlineWordRotate = ({ words }: { words: string[] }) => {
+  const [index, setIndex] = useState(0);
+  
   useEffect(() => {
     const interval = setInterval(() => {
-      if (isAnimating) return;
-      
-      setIsAnimating(true);
-      const currentIndex = texts.indexOf(currentText);
-      const nextIndex = (currentIndex + 1) % texts.length;
-      
-      if (textRef.current) {
-        gsap.fromTo(textRef.current, 
-          { opacity: 1, y: 0 },
-          {
-            opacity: 0,
-            y: -10,
-            duration: 0.3,
-            onComplete: () => {
-              setCurrentText(texts[nextIndex]);
-              gsap.fromTo(textRef.current, 
-                { opacity: 0, y: 10 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  duration: 0.3,
-                  onComplete: () => setIsAnimating(false)
-                }
-              );
-            }
-          }
-        );
-      }
-    }, 3000);
-
+      setIndex((prev) => (prev + 1) % words.length);
+    }, 2500);
     return () => clearInterval(interval);
-  }, [currentText, isAnimating]);
-
+  }, [words]);
+  
   return (
-    <span ref={textRef} className="italic">
-      {currentText}
-    </span>
+    <AnimatePresence mode="wait">
+      <motion.span
+        key={words[index]}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+        className="italic"
+        style={{ width: '100%', display: 'inline-block' }}
+      >
+        {words[index]}
+      </motion.span>
+    </AnimatePresence>
   );
 };
 
@@ -144,10 +125,14 @@ const Hero = () => {
         ref={textRef}
         className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6"
       >
-        <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-white leading-[1.1] max-w-4xl">
-          The <MarketplaceText />
-          <br />
-          <span className="italic">designed for trust.</span>
+        <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-white leading-[1.1] max-w-4xl flex flex-col items-center">
+          <div className="flex items-baseline">
+            <span>The</span>
+            <span style={{ width: '9ch' }}>
+              <InlineWordRotate words={['marketplace', 'platform', 'community', 'network', 'ecosystem']} />
+            </span>
+          </div>
+          <span className="italic mt-4">designed for trust.</span>
         </h1>
       </div>
 
@@ -163,5 +148,6 @@ const Hero = () => {
     </section>
   );
 };
+
 
 export default Hero;

@@ -23,6 +23,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import CookieConsent from './components/layout/CookieConsent';
 import LaunchCountdown from './components/layout/LaunchCountdown';
+import ScrollIndicator from './components/layout/ScrollIndicator';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -124,6 +125,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
         <>
           <CookieConsent />
           <LaunchCountdown />
+          <ScrollIndicator />
         </>
       )}
     </div>
