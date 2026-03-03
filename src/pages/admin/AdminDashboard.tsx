@@ -96,7 +96,7 @@ const AdminDashboard: React.FC = () => {
       change: dashboardData.pendingVerifications.count > 0 ? 'Urgent attention' : 'All clear',
       icon: ShieldCheck,
       color: '#fbbf24',
-      data: Array.from({ length: 15 }, (_, i) => ({ value: Math.max(0, dashboardData.pendingVerifications.count + (Math.random() * 2 - 1)) }))
+      data: Array.from({ length: 15 }, () => ({ value: Math.max(0, dashboardData.pendingVerifications.count + (Math.random() * 2 - 1)) }))
     }
   ] : [];
 
