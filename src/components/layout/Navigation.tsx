@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { MenuToggleIcon } from '../ui/menu-toggle-icon';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import ComingSoonPopup from '../ui/ComingSoonPopup';
 
 interface NavigationProps {
   isLoaded: boolean;
@@ -13,6 +14,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
   const [isPastHero, setIsPastHero] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -78,12 +80,25 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [location.pathname]);
 
+  useEffect(() => {
+    // Show Coming Soon popup after 30 seconds of visit
+    const hasShownPrompt = sessionStorage.getItem('hasShownWaitlistPrompt');
+    if (!hasShownPrompt) {
+      const timer = setTimeout(() => {
+        setIsComingSoonOpen(true);
+        sessionStorage.setItem('hasShownWaitlistPrompt', 'true');
+      }, 30000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   const navLinks = [
     { name: 'Mission', href: '/#mission' },
-    { name: 'Services', href: '/#services' },
     { name: 'How It Works', href: '/#how-it-works' },
+    { name: 'Services', href: '/#services' },
+    { name: 'Reviews', href: '/#reviews' },
+    { name: 'Contact', href: '/contact' },
     { name: 'Trust', href: '/#trust-safety' },
-    { name: 'FAQ', href: '/faq' },
   ];
 
   const handleLinkClick = (href: string) => {
@@ -128,7 +143,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
       </svg>
 
       <nav
-        className="fixed top-8 lg:top-0 left-0 right-0 z-50 py-5 transition-all duration-500"
+        className="fixed top-8 left-0 right-0 z-50 py-5 transition-all duration-500"
         style={{
           backgroundColor: isPastHero || location.pathname !== '/'
             ? (isDarkSection ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.85)')
@@ -185,7 +200,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                 </button>
               ))}
               <button
-                onClick={() => handleLinkClick('/#cta')}
+                onClick={() => setIsComingSoonOpen(true)}
                 className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${buttonBg}`}
               >
                 Get the App
@@ -248,7 +263,10 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
               ))}
             </div>
             <button
-              onClick={() => handleLinkClick('/#cta')}
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                setIsComingSoonOpen(true);
+              }}
               className="w-full mt-10 bg-black text-white px-6 py-4 rounded-full text-sm font-medium hover:bg-neutral-800 transition-colors shadow-lg shadow-black/10"
             >
               Get the App
@@ -256,6 +274,11 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
           </div>
         </div>
       </div>
+
+      <ComingSoonPopup 
+        isOpen={isComingSoonOpen} 
+        onClose={() => setIsComingSoonOpen(false)} 
+      />
     </>
   );
 };

@@ -88,7 +88,7 @@ const CTA = () => {
           )}
 
           <p className="text-sm text-neutral-400 mb-8">
-            Available for iOS and Android
+            Available for iOS and Android soon
           </p>
 
           {/* App Store Buttons */}

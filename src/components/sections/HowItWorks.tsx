@@ -104,7 +104,7 @@ const HowItWorks = () => {
     <section
       id="how-it-works"
       ref={sectionRef}
-      className="py-32 lg:py-48 bg-white overflow-hidden"
+      className="py-24 lg:py-32 2xl:py-24 bg-white overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}

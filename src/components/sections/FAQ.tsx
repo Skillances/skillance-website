@@ -29,7 +29,7 @@ const faqItems: FAQItem[] = [
   },
   {
     question: 'What areas does Skillance cover?',
-    answer: 'Currently, Skillance operates in major cities across South Africa including Cape Town, Johannesburg, Pretoria, and Durban. We are rapidly expanding to more locations. Sign up for notifications to be informed when we launch in your area.',
+    answer: 'Skillance covers the whole of South Africa. Whether you are in a major city or a smaller town, we are committed to connecting you with trusted professionals across the country.',
   },
   {
     question: 'How do I become a Skillancer?',

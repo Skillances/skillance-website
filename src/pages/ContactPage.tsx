@@ -1,13 +1,37 @@
 import { useState } from 'react';
+import emailjs from '@emailjs/browser';
+import { toast } from 'sonner';
 import PageTemplate from '../components/layout/PageTemplate';
 import { Send, MapPin, Mail, Phone } from 'lucide-react';
 
 const ContactPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setIsSending(true);
+
+    const form = e.currentTarget;
+    
+    try {
+      const result = await emailjs.sendForm(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        form,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+      );
+
+      if (result.text === 'OK') {
+        setIsSubmitted(true);
+        toast.success('Message sent successfully!');
+      }
+    } catch (error) {
+      console.error('Email error:', error);
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -22,20 +46,22 @@ const ContactPage = () => {
                   <label htmlFor="name" className="text-sm uppercase tracking-widest text-neutral-400 font-semibold">Your Name</label>
                   <input
                     id="name"
+                    name="user_name"
                     type="text"
                     required
                     placeholder="Enter your full name"
-                    className="w-full px-8 py-5 bg-neutral-50 rounded-2xl text-black border border-neutral-100 focus:border-black focus:outline-none transition-colors"
+                    className="w-full px-4 py-5 bg-neutral-50 rounded-2xl text-black text-sm border border-neutral-100 focus:border-black focus:outline-none transition-colors"
                   />
                 </div>
                 <div className="space-y-4">
                   <label htmlFor="email" className="text-sm uppercase tracking-widest text-neutral-400 font-semibold">Email Address</label>
                   <input
                     id="email"
+                    name="user_email"
                     type="email"
                     required
                     placeholder="Enter your email"
-                    className="w-full px-8 py-5 bg-neutral-50 rounded-2xl text-black border border-neutral-100 focus:border-black focus:outline-none transition-colors"
+                    className="w-full px-4 py-5 bg-neutral-50 rounded-2xl text-black text-sm border border-neutral-100 focus:border-black focus:outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -44,10 +70,11 @@ const ContactPage = () => {
                 <label htmlFor="subject" className="text-sm uppercase tracking-widest text-neutral-400 font-semibold">Subject</label>
                 <input
                   id="subject"
+                  name="subject"
                   type="text"
                   required
                   placeholder="What is this about?"
-                  className="w-full px-8 py-5 bg-neutral-50 rounded-2xl text-black border border-neutral-100 focus:border-black focus:outline-none transition-colors"
+                  className="w-full px-4 py-5 bg-neutral-50 rounded-2xl text-black text-sm border border-neutral-100 focus:border-black focus:outline-none transition-colors"
                 />
               </div>
 
@@ -55,19 +82,21 @@ const ContactPage = () => {
                 <label htmlFor="message" className="text-sm uppercase tracking-widest text-neutral-400 font-semibold">Message</label>
                 <textarea
                   id="message"
+                  name="message"
                   required
                   rows={6}
                   placeholder="How can we help you?"
-                  className="w-full px-8 py-5 bg-neutral-50 rounded-2xl text-black border border-neutral-100 focus:border-black focus:outline-none transition-colors resize-none"
+                  className="w-full px-4 py-5 bg-neutral-50 rounded-2xl text-black text-sm border border-neutral-100 focus:border-black focus:outline-none transition-colors resize-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="group flex items-center justify-center gap-4 w-full py-5 bg-black text-white rounded-full text-sm font-semibold hover:bg-neutral-800 transition-all hover:scale-[1.02] shadow-xl shadow-black/10"
+                disabled={isSending}
+                className="group flex items-center justify-center gap-4 w-full py-5 bg-black text-white rounded-full text-sm font-semibold hover:bg-neutral-800 transition-all hover:scale-[1.02] shadow-xl shadow-black/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send Message
-                <Send className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                {isSending ? 'Sending...' : 'Send Message'}
+                <Send className={`w-4 h-4 transition-transform ${!isSending ? 'group-hover:translate-x-1 group-hover:-translate-y-1' : ''}`} />
               </button>
             </form>
           ) : (
@@ -105,7 +134,7 @@ const ContactPage = () => {
               </div>
               <div>
                 <h4 className="font-serif text-xl text-black mb-1">Our Studio</h4>
-                <p className="text-neutral-500 font-light">Cape Town, South Africa <br /> 8001, Central Area</p>
+                <p className="text-neutral-500 font-light">Centurion, Gauteng <br />South Africa </p>
               </div>
             </div>
 
@@ -115,7 +144,9 @@ const ContactPage = () => {
               </div>
               <div>
                 <h4 className="font-serif text-xl text-black mb-1">Inquiries</h4>
-                <p className="text-neutral-500 font-light">hello@skillance.co.za <br /> support@skillance.co.za</p>
+                <p className="text-neutral-500 font-light">
+                  <a href="mailto:services@skillance.co.za" className="hover:text-black transition-colors">services@skillance.co.za</a>
+                </p>
               </div>
             </div>
 
@@ -125,7 +156,10 @@ const ContactPage = () => {
               </div>
               <div>
                 <h4 className="font-serif text-xl text-black mb-1">Support</h4>
-                <p className="text-neutral-500 font-light">+27 21 000 0000 <br /> (Mon-Fri, 9am - 5pm)</p>
+                <p className="text-neutral-500 font-light">
+                  <a href="tel:+27662203312" className="hover:text-black transition-colors">+27 66 220 3312</a> <br /> 
+                  (Mon-Fri, 9am - 5pm)
+                </p>
               </div>
             </div>
           </div>

@@ -18,6 +18,7 @@ const Footer = () => {
       { name: 'FAQ', href: '/faq' },
       { name: 'Trust & Safety', href: '/trust-safety' },
       { name: 'Get in touch', href: '/contact' },
+      { name: 'Admin', href: '/admin' },
     ],
     Legal: [
       { name: 'Privacy', href: '/privacy' },

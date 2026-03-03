@@ -4,48 +4,20 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface Testimonial {
-  id: number;
-  name: string;
-  role: 'client' | 'skillancer';
-  quote: string;
-  location: string;
-}
-
-const testimonials: Testimonial[] = [
-  {
-    id: 1,
-    name: 'Sarah Mitchell',
-    role: 'client',
-    quote: 'I found an amazing math tutor for my daughter through Skillance. The verification process gave me peace of mind, and the tutor was professional and punctual.',
-    location: 'Cape Town',
-  },
-  {
-    id: 2,
-    name: 'James Nkosi',
-    role: 'skillancer',
-    quote: 'As a handyman, Skillance has transformed my business. I now have a steady stream of clients who trust my work. The platform handles payments securely.',
-    location: 'Johannesburg',
-  },
-  {
-    id: 3,
-    name: 'Emma van der Berg',
-    role: 'client',
-    quote: 'The pet sitting service was a lifesaver when I had to travel for work. My dogs were well cared for, and I received daily updates.',
-    location: 'Pretoria',
-  },
-  {
-    id: 4,
-    name: 'David Petersen',
-    role: 'skillancer',
-    quote: 'I started offering fitness training on Skillance six months ago. The platform is easy to use, and I have built a loyal client base.',
-    location: 'Durban',
-  },
-];
+import type { Review } from '../../lib/reviews-db';
+import { getReviews } from '../../lib/reviews-db';
 
 const Testimonials = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    // Only use reviews with high ratings (4 or 5) for the homepage testimonials
+    const allReviews = getReviews();
+    const featuredReviews = allReviews.filter(r => r.rating >= 4);
+    setReviews(featuredReviews);
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -66,15 +38,9 @@ const Testimonials = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [reviews]);
 
-  // Auto-rotate testimonials
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, []);
+  if (reviews.length === 0) return null;
 
   return (
     <section
@@ -84,14 +50,37 @@ const Testimonials = () => {
     >
       <div className="max-w-5xl mx-auto px-6 lg:px-8">
         <div className="testimonials-content">
-          {/* Section Label */}
-          <p className="text-sm uppercase tracking-widest text-neutral-500 mb-12">
-            What Our Users Say
-          </p>
+          <div className="flex items-center justify-between mb-12">
+            <p className="text-sm uppercase tracking-widest text-neutral-500">
+              What the people are saying
+            </p>
+            {reviews.length > 1 && (
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length)}
+                  className="w-12 h-12 rounded-full border border-neutral-700 flex items-center justify-center hover:border-white transition-colors"
+                  aria-label="Previous testimonial"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button 
+                  onClick={() => setCurrentIndex((prev) => (prev + 1) % reviews.length)}
+                  className="w-12 h-12 rounded-full border border-neutral-700 flex items-center justify-center hover:border-white transition-colors"
+                  aria-label="Next testimonial"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Testimonial */}
           <div className="relative min-h-[300px]">
-            {testimonials.map((testimonial, index) => (
+            {reviews.map((testimonial, index) => (
               <div
                 key={testimonial.id}
                 className={`transition-all duration-700 ${
@@ -105,13 +94,13 @@ const Testimonials = () => {
                 
                 {/* Quote */}
                 <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl text-white leading-relaxed mb-10">
-                  {testimonial.quote}
+                  {testimonial.comment}
                 </blockquote>
 
                 {/* Author */}
                 <div className="flex items-center gap-4">
                   <div>
-                    <p className="font-medium text-white">{testimonial.name}</p>
+                    <p className="font-medium text-white">{testimonial.isAnonymous ? 'Anonymous' : testimonial.name}</p>
                     <p className="text-sm text-neutral-500">
                       {testimonial.role === 'client' ? 'Client' : 'Skillancer'} · {testimonial.location}
                     </p>
@@ -122,17 +111,19 @@ const Testimonials = () => {
           </div>
 
           {/* Navigation Dots */}
-          <div className="flex gap-3 mt-12">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`h-1 rounded-full transition-all duration-500 ${
-                  index === currentIndex ? 'w-12 bg-white' : 'w-6 bg-neutral-700 hover:bg-neutral-600'
-                }`}
-              />
-            ))}
-          </div>
+          {reviews.length > 1 && (
+            <div className="flex gap-3 mt-12">
+              {reviews.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`h-1 rounded-full transition-all duration-500 ${
+                    index === currentIndex ? 'w-12 bg-white' : 'w-6 bg-neutral-700 hover:bg-neutral-600'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>

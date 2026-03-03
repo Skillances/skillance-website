@@ -4,52 +4,12 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface Review {
-  id: number;
-  name: string;
-  role: 'client' | 'skillancer';
-  rating: number;
-  comment: string;
-  isAnonymous: boolean;
-  location: string;
-  date: string;
-}
-
-const mockReviews: Review[] = [
-  {
-    id: 1,
-    name: 'Michael Chen',
-    role: 'client',
-    rating: 5,
-    comment: 'Found a great plumber through Skillance. Professional, on time, and fair pricing. The verification process really gives you confidence.',
-    isAnonymous: false,
-    location: 'Cape Town',
-    date: '2 days ago',
-  },
-  {
-    id: 2,
-    name: 'Anonymous',
-    role: 'skillancer',
-    rating: 5,
-    comment: 'This platform has been amazing for my tutoring business. I have consistent clients and the payment system is reliable.',
-    isAnonymous: true,
-    location: 'Johannesburg',
-    date: '1 week ago',
-  },
-  {
-    id: 3,
-    name: 'Priya Naidoo',
-    role: 'client',
-    rating: 4,
-    comment: 'Used the cleaning service twice now. Both times were excellent. The app makes booking so easy.',
-    isAnonymous: false,
-    location: 'Durban',
-    date: '2 weeks ago',
-  },
-];
+import type { Review } from '../../lib/reviews-db';
+import { getReviews, addReview } from '../../lib/reviews-db';
 
 const Reviews = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   
   // Form state
   const [userRole, setUserRole] = useState<'client' | 'skillancer'>('client');
@@ -60,6 +20,11 @@ const Reviews = () => {
   const [comment, setComment] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  useEffect(() => {
+    // Load initial reviews
+    setReviews(getReviews());
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -85,7 +50,18 @@ const Reviews = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (rating > 0 && comment && location) {
+      const newReview = addReview({
+        name: isAnonymous ? 'Anonymous' : name || 'Valued User',
+        role: userRole,
+        rating,
+        comment,
+        isAnonymous,
+        location,
+      });
+      
+      setReviews(prev => [newReview, ...prev]);
       setIsSubmitted(true);
+      
       setTimeout(() => {
         setIsSubmitted(false);
         setRating(0);
@@ -116,10 +92,10 @@ const Reviews = () => {
             </h2>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
+          <div className={`${reviews.length === 0 ? 'max-w-2xl mx-auto' : 'grid lg:grid-cols-2 gap-12 lg:gap-16'}`}>
             {/* Review Form */}
-            <div className="bg-neutral-50 rounded-3xl p-8 md:p-10">
-              <h3 className="font-serif text-2xl text-black mb-6">Write a Review</h3>
+            <div className={`bg-neutral-50 rounded-3xl p-8 md:p-10 ${reviews.length === 0 ? 'w-full' : ''}`}>
+              <h3 className={`font-serif text-2xl text-black mb-6 ${reviews.length === 0 ? 'text-center' : ''}`}>Write a Review</h3>
               
               {isSubmitted ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -132,9 +108,9 @@ const Reviews = () => {
                   <p className="text-neutral-600">Your review has been submitted.</p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className={`space-y-6 ${reviews.length === 0 ? 'max-w-md mx-auto' : ''}`}>
                   {/* Role Selection */}
-                  <div>
+                  <div className={`${reviews.length === 0 ? 'text-center' : ''}`}>
                     <label className="block text-sm font-medium text-neutral-700 mb-3">
                       I used Skillance as a
                     </label>
@@ -157,8 +133,8 @@ const Reviews = () => {
                   </div>
 
                   {/* Rating */}
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-3">
+                  <div className={`${reviews.length === 0 ? 'flex flex-col items-center' : ''}`}>
+                    <label className={`block text-sm font-medium text-neutral-700 mb-3 ${reviews.length === 0 ? 'text-center' : ''}`}>
                       Your Rating
                     </label>
                     <div className="flex gap-2">
@@ -188,7 +164,7 @@ const Reviews = () => {
 
                   {/* Location */}
                   <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    <label className={`block text-sm font-medium text-neutral-700 mb-2 ${reviews.length === 0 ? 'text-center' : ''}`}>
                       Location
                     </label>
                     <input
@@ -202,7 +178,7 @@ const Reviews = () => {
                   </div>
 
                   {/* Anonymous Toggle */}
-                  <div className="flex items-center gap-3">
+                  <div className={`flex items-center gap-3 ${reviews.length === 0 ? 'justify-center' : ''}`}>
                     <button
                       type="button"
                       onClick={() => setIsAnonymous(!isAnonymous)}
@@ -222,7 +198,7 @@ const Reviews = () => {
                   {/* Name (if not anonymous) */}
                   {!isAnonymous && (
                     <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      <label className={`block text-sm font-medium text-neutral-700 mb-2 ${reviews.length === 0 ? 'text-center' : ''}`}>
                         Your Name
                       </label>
                       <input
@@ -237,7 +213,7 @@ const Reviews = () => {
 
                   {/* Comment */}
                   <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    <label className={`block text-sm font-medium text-neutral-700 mb-2 ${reviews.length === 0 ? 'text-center' : ''}`}>
                       Your Review
                     </label>
                     <textarea
@@ -262,35 +238,37 @@ const Reviews = () => {
             </div>
 
             {/* Recent Reviews */}
-            <div>
-              <h3 className="font-serif text-2xl text-black mb-6">Recent Reviews</h3>
-              <div className="space-y-4">
-                {mockReviews.map((review) => (
-                  <div key={review.id} className="bg-neutral-50 rounded-2xl p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <p className="font-medium text-black">
-                          {review.isAnonymous ? 'Anonymous' : review.name}
-                        </p>
-                        <p className="text-xs text-neutral-500 capitalize">{review.role} · {review.location} · {review.date}</p>
+            {reviews.length > 0 && (
+              <div>
+                <h3 className="font-serif text-2xl text-black mb-6">Recent Reviews</h3>
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <div key={review.id} className="bg-neutral-50 rounded-2xl p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <p className="font-medium text-black">
+                            {review.isAnonymous ? 'Anonymous' : review.name}
+                          </p>
+                          <p className="text-xs text-neutral-500 capitalize">{review.role} · {review.location} · {review.date}</p>
+                        </div>
                       </div>
+                      
+                      <div className="flex gap-0.5 mb-3">
+                        {[...Array(review.rating)].map((_, i) => (
+                          <svg key={i} className="w-4 h-4 fill-black text-black" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                          </svg>
+                        ))}
+                      </div>
+                      
+                      <p className="text-neutral-600 text-sm leading-relaxed">
+                        {review.comment}
+                      </p>
                     </div>
-                    
-                    <div className="flex gap-0.5 mb-3">
-                      {[...Array(review.rating)].map((_, i) => (
-                        <svg key={i} className="w-4 h-4 fill-black text-black" viewBox="0 0 24 24">
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-                      ))}
-                    </div>
-                    
-                    <p className="text-neutral-600 text-sm leading-relaxed">
-                      {review.comment}
-                    </p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,147 +1,120 @@
 import { useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageTemplate from '../components/layout/PageTemplate';
-import { ArrowUpRight, Search, Filter } from 'lucide-react';
+import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import gsap from 'gsap';
-
-interface Specialist {
-  id: string;
-  name: string;
-  role: string;
-  rating: number;
-  reviews: number;
-  image: string;
-  location: string;
-}
-
-const categoriesMap: Record<string, { title: string; roles: string[] }> = {
-  'handyman': {
-    title: 'Handyman',
-    roles: [
-      'Electrician', 'Plumber', 'Carpenter', 'Painter', 'Tiler', 'Roofer', 
-      'Locksmith', 'Appliance Repair', 'General Handyman', 'HVAC Services', 
-      'Flooring', 'Drywall Repair', 'Fence Installation', 'Deck Building', 
-      'Cabinet Installation', 'Bathroom Renovation', 'Kitchen Installation'
-    ]
-  },
-  'gardening-landscaping': {
-    title: 'Gardening & Landscaping',
-    roles: ['Lawn Care', 'Garden Design', 'Tree Felling', 'Irrigation']
-  },
-  'technology-it': {
-    title: 'Technology & IT',
-    roles: ['Web Development', 'Computer Repair', 'Network Setup', 'Smart Home']
-  }
-};
-
-const getSpecialists = (slug: string): Specialist[] => {
-  const category = categoriesMap[slug.toLowerCase()];
-  if (!category) return [];
-  
-  return category.roles.map((role, i) => ({
-    id: `${slug}-${i}`,
-    name: `Pro ${role.split(' ')[0]}`,
-    role: role,
-    rating: 4.7 + (Math.random() * 0.3),
-    reviews: Math.floor(Math.random() * 150) + 20,
-    image: `https://images.unsplash.com/photo-1581578731548-c64695cc6954?auto=format&fit=crop&q=80&w=200&h=200`,
-    location: 'Cape Town, ZA'
-  }));
-};
+import { CATEGORY_HIERARCHY } from '@/lib/categories';
 
 const CategoryPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const categoryData = id ? categoriesMap[id.toLowerCase()] : null;
-  const specialists = id ? getSpecialists(id) : [];
+  const category = id ? CATEGORY_HIERARCHY[id.toLowerCase()] : null;
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    // GSAP animations for cards
     const ctx = gsap.context(() => {
-      gsap.fromTo('.specialist-card', 
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: 'power2.out' }
+      gsap.fromTo('.subcategory-item', 
+        { opacity: 0, x: -20 },
+        { opacity: 1, x: 0, duration: 0.5, stagger: 0.03, ease: 'power2.out', delay: 0.2 }
       );
     }, containerRef);
     return () => ctx.revert();
   }, [id]);
 
-  const displayName = categoryData?.title || (id ? id.replace(/-/g, ' ') : 'Category');
+  if (!category) {
+    return (
+      <PageTemplate title="Category Not Found">
+        <div className="py-32 text-center">
+          <p className="text-neutral-500 mb-8">The category you're looking for doesn't exist.</p>
+          <button onClick={() => navigate('/services')} className="px-8 py-4 bg-black text-white rounded-full">
+            Back to Services
+          </button>
+        </div>
+      </PageTemplate>
+    );
+  }
 
   return (
-    <PageTemplate title={`${displayName} Specialists`}>
+    <PageTemplate title={category.name}>
       <div className="space-y-16" ref={containerRef}>
-        {/* Header & Filters */}
-        <div className="flex flex-col md:flex-row gap-8 justify-between items-end pb-12 border-b border-neutral-100">
-          <div className="max-w-xl">
-            <button 
-              onClick={() => navigate('/services')}
-              className="group flex items-center gap-2 text-neutral-400 hover:text-black mb-8 transition-colors"
-            >
-              <ArrowUpRight className="w-4 h-4 rotate-[225deg]" />
-              <span className="text-xs uppercase tracking-widest font-semibold">All Categories</span>
-            </button>
-            <h2 className="font-serif text-4xl lg:text-5xl text-black mb-4 capitalize">
-              Find the best <br /><span className="italic">{id} professionals</span>
-            </h2>
-          </div>
+        {/* Header */}
+        <div className="pb-12 border-b border-neutral-100">
+          <button 
+            onClick={() => navigate('/services')}
+            className="group flex items-center gap-2 text-neutral-400 hover:text-black mb-8 transition-colors"
+          >
+            <ArrowUpRight className="w-4 h-4 rotate-[225deg]" />
+            <span className="text-xs uppercase tracking-widest font-semibold">All Categories</span>
+          </button>
           
-          <div className="flex gap-4 w-full md:w-auto">
-            <div className="relative flex-1 md:w-80">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-              <input 
-                type="text" 
-                placeholder="Search specialty..." 
-                className="w-full pl-14 pr-8 py-4 bg-neutral-50 rounded-full border border-neutral-100 focus:border-black outline-none"
-              />
-            </div>
-            <button className="p-4 bg-neutral-50 rounded-full border border-neutral-100 hover:bg-black hover:text-white transition-all">
-              <Filter className="w-5 h-5" />
-            </button>
+          <div className="max-w-3xl">
+            <h2 className="font-serif text-5xl lg:text-7xl text-black mb-6">
+              {category.name}
+            </h2>
+            <p className="text-xl text-neutral-500 font-light leading-relaxed">
+              {category.description}
+            </p>
           </div>
         </div>
 
-        {/* Specialists Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {specialists.map((specialist) => (
+        {/* Subcategories List */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-4">
+          {category.subcategories.map((sub) => (
             <div 
-              key={specialist.id}
-              className="specialist-card group bg-white p-6 rounded-3xl border border-neutral-100 hover:shadow-2xl hover:shadow-black/5 transition-all duration-500"
+              key={sub.id}
+              className="subcategory-item group flex items-center justify-between py-6 border-b border-neutral-50 hover:border-black transition-colors cursor-pointer"
+              onClick={() => navigate(`/contact?interest=${sub.id}`)}
             >
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-neutral-100">
-                  <img src={specialist.image} alt="" className="w-full h-full object-cover" />
-                </div>
-                <div>
-                  <h4 className="font-serif text-lg text-black">{specialist.name}</h4>
-                  <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium">{specialist.role}</p>
+              <div className="flex flex-col">
+                <h4 className="text-lg lg:text-xl font-medium text-neutral-800 group-hover:text-black transition-colors">
+                  {sub.name}
+                </h4>
+                {sub.grades && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {sub.grades.map(grade => (
+                      <span key={grade} className="text-[10px] uppercase tracking-wider text-neutral-400 bg-neutral-50 px-2 py-0.5 rounded">
+                        {grade}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {sub.subcategories && (
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                    {sub.subcategories.map(nested => (
+                      <span key={nested.id} className="text-xs text-neutral-400 italic">
+                        • {nested.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-xs uppercase tracking-widest text-neutral-300 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
+                  Enquire Now
+                </span>
+                <div className="w-10 h-10 rounded-full bg-neutral-50 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all">
+                  <ChevronRight className="w-5 h-5" />
                 </div>
               </div>
-              
-              <div className="flex items-center justify-between mb-8 pb-8 border-b border-neutral-50">
-                <div className="flex items-center gap-1">
-                  <span className="text-sm font-bold text-black">{specialist.rating.toFixed(1)}</span>
-                  <span className="text-yellow-400">★</span>
-                  <span className="text-xs text-neutral-400 ml-1">({specialist.reviews})</span>
-                </div>
-                <span className="text-[11px] text-neutral-500 font-medium">{specialist.location}</span>
-              </div>
-              
-              <button className="w-full py-4 bg-neutral-50 text-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all">
-                Request Quote
-              </button>
             </div>
           ))}
-          
-          {specialists.length === 0 && (
-            <div className="col-span-full py-20 text-center bg-neutral-50 rounded-[3rem]">
-              <p className="text-neutral-400 italic">No specialists listed in this category yet. We are onboarding new professionals daily.</p>
-            </div>
-          )}
         </div>
+
+        {/* CTA */}
+        <section className="mt-32 p-12 lg:p-20 bg-neutral-50 rounded-[3rem] text-center">
+          <h3 className="font-serif text-3xl lg:text-4xl mb-6">Can't find exactly what you need?</h3>
+          <p className="text-neutral-500 mb-10 max-w-xl mx-auto">
+            Our network is growing every day. If you don't see the specific service you're looking for, let us know and we'll help you find the right specialist.
+          </p>
+          <button 
+            onClick={() => navigate('/contact')}
+            className="px-12 py-5 bg-black text-white rounded-full font-semibold hover:scale-105 transition-transform"
+          >
+            Contact Support
+          </button>
+        </section>
       </div>
     </PageTemplate>
   );

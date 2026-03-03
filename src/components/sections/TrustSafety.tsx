@@ -69,7 +69,7 @@ const TrustSafety = () => {
     <section
       id="trust-safety"
       ref={sectionRef}
-      className="py-32 lg:py-40 bg-neutral-900 text-white"
+      className="py-24 lg:py-32 2xl:py-24 bg-neutral-900 text-white"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}

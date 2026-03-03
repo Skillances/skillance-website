@@ -35,7 +35,7 @@ const serviceCategories: ServiceCategory[] = [
     name: 'Cleaning',
     description: 'Spotless spaces, total peace.',
     longDescription: 'Experience the luxury of a pristine environment. Our professional cleaning teams deliver meticulous care for homes and offices, using safe and effective methods for a healthier space.',
-    image: 'https://images.unsplash.com/photo-3hO8igCybds?auto=format&fit=crop&q=80&w=2070',
+    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=2070',
     icon: Sparkles,
     subcategories: ['House Cleaning', 'Deep Cleaning', 'Office Cleaning', 'End of Tenancy', 'Window Cleaning', 'Carpet Cleaning', 'Laundry Service', 'Organization'],
   },
@@ -108,7 +108,7 @@ const Services = () => {
     <section 
       id="services" 
       ref={sectionRef} 
-      className="py-32 lg:py-48 bg-white overflow-hidden"
+      className="py-24 lg:py-32 2xl:py-24 bg-white overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}

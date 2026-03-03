@@ -12,7 +12,7 @@ interface Stat {
 
 const stats: Stat[] = [
   { value: 100, suffix: '%', label: 'of professionals are verified before joining' },
-  { value: 50, suffix: 'K+', label: 'successful service bookings completed' },
+  { value: 1, suffix: 'K+', label: 'successful service bookings completed' },
   { value: 4.8, suffix: '', label: 'average rating from satisfied customers' },
 ];
 
