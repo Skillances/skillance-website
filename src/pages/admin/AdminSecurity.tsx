@@ -8,6 +8,7 @@ import SearchFilter, { type FilterConfig } from '@/components/admin/SearchFilter
 import DataTable, { type Column } from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 import StatsCard from '@/components/admin/dashboard/StatsCard';
+import SecurityWorldMap from '@/components/admin/SecurityWorldMap';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
@@ -41,8 +42,6 @@ const AdminSecurity: React.FC = () => {
   const [byCountry, setByCountry] = useState<CountryData[]>([]);
   const [byCountryLoading, setByCountryLoading] = useState(false);
   const [byCountryError, setByCountryError] = useState(false);
-  const [mapDialogOpen, setMapDialogOpen] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<CountryData | null>(null);
 
   const fetchEvents = useCallback(async () => { try { setIsLoading(true); const params = new URLSearchParams(); params.set('limit', String(pageSize)); params.set('offset', String((page - 1) * pageSize)); params.set('orderBy', 'createdAt'); params.set('orderDirection', 'desc'); if (eventTypeFilter !== 'all') params.set('eventType', eventTypeFilter); const res = await get(`/admin/security/events?${params.toString()}`); if (res.success) { setEvents(res.data.events || []); setTotal(res.data.total || 0); } } catch { toast.error('Failed to load security events'); } finally { setIsLoading(false); } }, [page, pageSize, eventTypeFilter]);
   const fetchStats = useCallback(async () => { try { const res = await get('/admin/security/statistics'); if (res.success) setStats(res.data); } catch {} }, []);
@@ -68,11 +67,6 @@ const AdminSecurity: React.FC = () => {
   useEffect(() => { fetchStats(); }, [fetchStats]);
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
   useEffect(() => { fetchByCountry(); }, [fetchByCountry]);
-
-  const openMapForCountry = (c: CountryData) => {
-    setSelectedCountry(c);
-    setMapDialogOpen(true);
-  };
 
   const viewIpHistory = async (ip: string) => { setIpAddress(ip); setIpDialogOpen(true); setIpLoading(true); try { const res = await get(`/admin/security/ip/${encodeURIComponent(ip)}?limit=50`); if (res.success) setIpHistory(res.data.events || []); } catch { toast.error('Failed to load IP history'); } finally { setIpLoading(false); } };
 
@@ -102,43 +96,39 @@ const AdminSecurity: React.FC = () => {
       <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)] overflow-hidden">
         <CardHeader className="border-b border-neutral-100 dark:border-neutral-700/80 pb-4 px-6">
           <CardTitle className="text-sm font-medium text-neutral-500 dark:text-neutral-400 tracking-wide uppercase flex items-center gap-2">
-            <MapPin className="h-4 w-4" /> Events by Country (Heat Map)
+            <MapPin className="h-4 w-4" /> Events by Country
           </CardTitle>
-          <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">Click a country to view on map</p>
+          <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">Hover over a circle to see details. Scroll to zoom, drag to pan.</p>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="p-0">
           {byCountryLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
-                <Skeleton key={i} className="h-12 rounded-lg bg-neutral-100 dark:bg-neutral-700" />
-              ))}
+            <div className="p-6">
+              <Skeleton className="w-full h-[300px] rounded-lg bg-neutral-100 dark:bg-neutral-700" />
             </div>
           ) : byCountry.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-              {byCountry.map((c) => {
-                const maxCount = Math.max(...byCountry.map((x) => x.count), 1);
-                const intensity = Math.min(1, c.count / maxCount);
-                const bg = intensity > 0.7 ? 'bg-red-500/80' : intensity > 0.4 ? 'bg-amber-500/70' : intensity > 0.2 ? 'bg-amber-400/50' : 'bg-neutral-200 dark:bg-neutral-600/50';
-                return (
-                  <button
-                    key={c.countryCode}
-                    type="button"
-                    onClick={() => openMapForCountry(c)}
-                    className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600 ${bg} text-black dark:text-white hover:ring-2 hover:ring-neutral-400 dark:hover:ring-neutral-500 transition-all text-left`}
-                  >
-                    <span className="text-xs font-medium truncate">{getCountryName(c.countryCode)}</span>
-                    <span className="text-xs font-semibold tabular-nums shrink-0">{c.count.toLocaleString()}</span>
-                  </button>
-                );
-              })}
-            </div>
+            <>
+              <SecurityWorldMap data={byCountry} />
+              <div className="px-6 pb-5 pt-3 border-t border-neutral-100 dark:border-neutral-700/50">
+                <div className="flex flex-wrap gap-x-5 gap-y-1">
+                  {byCountry.slice(0, 12).map((c) => (
+                    <span key={c.countryCode} className="text-[11px] text-neutral-500 dark:text-neutral-400 tabular-nums">
+                      <span className="font-medium text-neutral-700 dark:text-neutral-300">{getCountryName(c.countryCode)}</span>{' '}
+                      {c.count.toLocaleString()}
+                    </span>
+                  ))}
+                  {byCountry.length > 12 && (
+                    <span className="text-[11px] text-neutral-400 dark:text-neutral-500">+{byCountry.length - 12} more</span>
+                  )}
+                </div>
+              </div>
+            </>
           ) : byCountryError ? (
-            <div className="py-6 text-center space-y-2">
+            <div className="py-10 text-center space-y-2">
               <p className="text-sm text-neutral-500 dark:text-neutral-400">Failed to load country data</p>
               <button type="button" onClick={fetchByCountry} className="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:underline">Retry</button>
             </div>
           ) : (
-            <p className="text-sm text-neutral-400 dark:text-neutral-500 py-6 text-center">No country data available</p>
+            <p className="text-sm text-neutral-400 dark:text-neutral-500 py-10 text-center">No country data available</p>
           )}
         </CardContent>
       </Card>
@@ -171,30 +161,6 @@ const AdminSecurity: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={mapDialogOpen} onOpenChange={setMapDialogOpen}>
-        <DialogContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700 sm:max-w-3xl max-h-[85vh] overflow-hidden rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-black dark:text-white font-serif flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-neutral-500" />
-              {selectedCountry ? `${getCountryName(selectedCountry.countryCode)} (${selectedCountry.count.toLocaleString()} events)` : 'Map'}
-            </DialogTitle>
-          </DialogHeader>
-          {selectedCountry && selectedCountry.lat != null && selectedCountry.lon != null ? (
-            <div className="w-full aspect-video rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-600">
-              <iframe
-                title={`Map: ${getCountryName(selectedCountry.countryCode)}`}
-                src={`https://www.openstreetmap.org/export/embed.html?bbox=${selectedCountry.lon - 2},${selectedCountry.lat - 2},${selectedCountry.lon + 2},${selectedCountry.lat + 2}&layer=mapnik&marker=${selectedCountry.lat}%2C${selectedCountry.lon}`}
-                className="w-full h-full border-0"
-                allowFullScreen
-              />
-            </div>
-          ) : selectedCountry ? (
-            <p className="text-neutral-500 dark:text-neutral-400 py-8 text-center">
-              No coordinates available for {getCountryName(selectedCountry.countryCode)}. Events: {selectedCountry.count.toLocaleString()}.
-            </p>
-          ) : null}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
