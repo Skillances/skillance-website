@@ -4,20 +4,23 @@ import { toast } from 'sonner';
 import PageTemplate from '../components/layout/PageTemplate';
 import { Send, MapPin, Mail, Phone } from 'lucide-react';
 import { post } from '@/lib/api';
+import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 
 const ContactPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const { canSubmit, secondsRemaining, startCooldown, startCooldownFromRetryAfter } = useFormRateLimit(60_000);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!canSubmit) return;
     setIsSending(true);
 
     const form = e.currentTarget;
     const formData = new FormData(form);
 
     try {
-      const [emailResult] = await Promise.allSettled([
+      const [emailResult, contactResult] = await Promise.allSettled([
         emailjs.sendForm(
           import.meta.env.VITE_EMAILJS_SERVICE_ID,
           import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
@@ -29,8 +32,17 @@ const ContactPage = () => {
           email: formData.get('user_email'),
           subject: formData.get('subject'),
           message: formData.get('message'),
-        }).catch(() => {}),
+        }),
       ]);
+
+      const contactErr = contactResult.status === 'rejected' ? contactResult.reason : null;
+      if (contactErr?.statusCode === 429 || contactErr?.retryAfter) {
+        toast.error(contactErr?.message || 'Too many attempts. Please try again later.');
+        if (contactErr?.retryAfter) startCooldownFromRetryAfter(contactErr.retryAfter);
+        else startCooldown();
+        return;
+      }
+      if (contactResult.status === 'rejected') throw contactResult.reason;
 
       if (emailResult.status === 'fulfilled' && emailResult.value.text === 'OK') {
         setIsSubmitted(true);
@@ -39,9 +51,16 @@ const ContactPage = () => {
         setIsSubmitted(true);
         toast.success('Message received!');
       }
-    } catch (error) {
-      console.error('Email error:', error);
-      toast.error('Failed to send message. Please try again.');
+      startCooldown();
+    } catch (error: any) {
+      if (error?.statusCode === 429 || error?.retryAfter) {
+        toast.error(error?.message || 'Too many attempts. Please try again later.');
+        if (error?.retryAfter) startCooldownFromRetryAfter(error.retryAfter);
+        else startCooldown();
+      } else {
+        console.error('Email error:', error);
+        toast.error('Failed to send message. Please try again.');
+      }
     } finally {
       setIsSending(false);
     }
@@ -105,10 +124,10 @@ const ContactPage = () => {
 
               <button
                 type="submit"
-                disabled={isSending}
+                disabled={isSending || !canSubmit}
                 className="group flex items-center justify-center gap-4 w-full py-5 bg-black text-white rounded-full text-sm font-semibold hover:bg-neutral-800 transition-all hover:scale-[1.02] shadow-xl shadow-black/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSending ? 'Sending...' : 'Send Message'}
+                {isSending ? 'Sending...' : !canSubmit ? `Try again in ${secondsRemaining}s` : 'Send Message'}
                 <Send className={`w-4 h-4 transition-transform ${!isSending ? 'group-hover:translate-x-1 group-hover:-translate-y-1' : ''}`} />
               </button>
             </form>

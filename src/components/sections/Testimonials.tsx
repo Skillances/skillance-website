@@ -4,22 +4,42 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-import type { Review } from '../../lib/reviews-db';
-import { getReviews } from '../../lib/reviews-db';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  rating: number;
+  comment: string;
+  isAnonymous: boolean;
+  location: string;
+  createdAt: string;
+}
 
 const Testimonials = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    // Only use reviews with high ratings (4 or 5) for the homepage testimonials
-    const allReviews = getReviews();
-    const featuredReviews = allReviews.filter(r => r.rating >= 4);
-    setReviews(featuredReviews);
+    const fetchTestimonials = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/public/testimonials`);
+        const json = await res.json();
+        if (json.success && json.data?.length > 0) {
+          setTestimonials(json.data);
+        }
+      } catch {
+        // silently fail -- section just won't render
+      }
+    };
+    fetchTestimonials();
   }, []);
 
   useEffect(() => {
+    if (testimonials.length === 0) return;
+
     const ctx = gsap.context(() => {
       gsap.fromTo('.testimonials-content',
         { opacity: 0, y: 40 },
@@ -38,9 +58,9 @@ const Testimonials = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [reviews]);
+  }, [testimonials]);
 
-  if (reviews.length === 0) return null;
+  if (testimonials.length === 0) return null;
 
   return (
     <section
@@ -54,10 +74,10 @@ const Testimonials = () => {
             <p className="text-sm uppercase tracking-widest text-neutral-500">
               What the people are saying
             </p>
-            {reviews.length > 1 && (
+            {testimonials.length > 1 && (
               <div className="flex gap-4">
                 <button 
-                  onClick={() => setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length)}
+                  onClick={() => setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
                   className="w-12 h-12 rounded-full border border-neutral-700 flex items-center justify-center hover:border-white transition-colors"
                   aria-label="Previous testimonial"
                 >
@@ -66,7 +86,7 @@ const Testimonials = () => {
                   </svg>
                 </button>
                 <button 
-                  onClick={() => setCurrentIndex((prev) => (prev + 1) % reviews.length)}
+                  onClick={() => setCurrentIndex((prev) => (prev + 1) % testimonials.length)}
                   className="w-12 h-12 rounded-full border border-neutral-700 flex items-center justify-center hover:border-white transition-colors"
                   aria-label="Next testimonial"
                 >
@@ -78,9 +98,8 @@ const Testimonials = () => {
             )}
           </div>
 
-          {/* Testimonial */}
           <div className="relative min-h-[300px]">
-            {reviews.map((testimonial, index) => (
+            {testimonials.map((testimonial, index) => (
               <div
                 key={testimonial.id}
                 className={`transition-all duration-700 ${
@@ -89,15 +108,12 @@ const Testimonials = () => {
                     : 'opacity-0 translate-y-4 absolute inset-0 pointer-events-none'
                 }`}
               >
-                {/* Quote Mark */}
                 <div className="text-6xl text-neutral-700 font-serif mb-6">"</div>
                 
-                {/* Quote */}
                 <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl text-white leading-relaxed mb-10">
                   {testimonial.comment}
                 </blockquote>
 
-                {/* Author */}
                 <div className="flex items-center gap-4">
                   <div>
                     <p className="font-medium text-white">{testimonial.isAnonymous ? 'Anonymous' : testimonial.name}</p>
@@ -110,10 +126,9 @@ const Testimonials = () => {
             ))}
           </div>
 
-          {/* Navigation Dots */}
-          {reviews.length > 1 && (
+          {testimonials.length > 1 && (
             <div className="flex gap-3 mt-12">
-              {reviews.map((_, index) => (
+              {testimonials.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}

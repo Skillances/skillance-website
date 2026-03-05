@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { Shield, UserPlus, FileCheck, LogIn, AlertTriangle, type LucideIcon } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface Activity {
@@ -17,18 +17,15 @@ interface ActivityItemProps {
   index: number;
 }
 
-const ActivityItem: React.FC<ActivityItemProps> = ({ activity, index }) => {
-  const getIcon = (type: string): { icon: LucideIcon; color: string; bg: string } => {
-    switch (type) {
-      case 'security': return { icon: Shield, color: '#ef4444', bg: '#fef2f2' };
-      case 'user_signup': return { icon: UserPlus, color: '#3b82f6', bg: '#eff6ff' };
-      case 'verification': return { icon: FileCheck, color: '#10b981', bg: '#ecfdf5' };
-      case 'login': return { icon: LogIn, color: '#8b5cf6', bg: '#f5f3ff' };
-      default: return { icon: AlertTriangle, color: '#f59e0b', bg: '#fffbeb' };
-    }
-  };
+const dotColor: Record<string, string> = {
+  security: 'bg-red-400',
+  user_signup: 'bg-blue-400',
+  verification: 'bg-emerald-400',
+  login: 'bg-violet-400',
+};
 
-  const { icon: Icon, color, bg } = getIcon(activity.type);
+const ActivityItem: React.FC<ActivityItemProps> = ({ activity, index }) => {
+  const dot = dotColor[activity.type] || 'bg-neutral-300 dark:bg-neutral-600';
 
   return (
     <motion.div 
@@ -36,25 +33,20 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, index }) => {
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="flex gap-3 items-start relative pb-6 last:pb-0"
+      className="flex gap-3 items-start relative pb-5 last:pb-0"
     >
-      <div className="absolute left-[15px] top-9 bottom-0 w-[1px] bg-neutral-100 dark:bg-neutral-700 last:hidden" />
-      
-      <div 
-        className="w-[30px] h-[30px] rounded-lg flex items-center justify-center shrink-0 z-10"
-        style={{ backgroundColor: bg, color: color }}
-      >
-        <Icon size={14} />
-      </div>
-      
-      <div className="flex-1 min-w-0 pt-0.5">
+      <div className="absolute left-[4px] top-5 bottom-0 w-[1px] bg-neutral-100 dark:bg-neutral-700/50 last:hidden" />
+
+      <div className={`w-[9px] h-[9px] rounded-full shrink-0 z-10 mt-[5px] ${dot}`} />
+
+      <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start gap-2">
-          <p className="text-sm text-black dark:text-white line-clamp-1">{activity.title}</p>
-          <span className="text-[10px] text-neutral-400 dark:text-neutral-500 whitespace-nowrap shrink-0">
+          <p className="text-[13px] font-medium text-black dark:text-white line-clamp-1 leading-snug">{activity.title}</p>
+          <span className="text-[10px] text-neutral-400 dark:text-neutral-500 whitespace-nowrap shrink-0 pt-px">
             {activity.timestamp ? formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true }) : 'Just now'}
           </span>
         </div>
-        <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-0.5 line-clamp-2 leading-relaxed">{activity.description}</p>
+        <p className="text-[11px] text-neutral-400 dark:text-neutral-500 mt-0.5 line-clamp-2 leading-relaxed">{activity.description}</p>
       </div>
     </motion.div>
   );

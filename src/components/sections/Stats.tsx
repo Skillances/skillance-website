@@ -107,13 +107,13 @@ const Stats = () => {
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
           {/* Left - Header */}
           <div className="stats-header">
-            <p className="text-sm uppercase tracking-widest text-neutral-500 mb-6">
-              By The Numbers
-            </p>
             <h2 className="font-serif text-4xl sm:text-5xl text-black leading-[1.1]">
               Skillance{' '}
-              <span className="italic">by the numbers.</span>
+              <span className="italic">by the numbers</span>
             </h2>
+            <p className="text-neutral-500 text-lg mt-4 max-w-md">
+              Trusted metrics from our platform
+            </p>
           </div>
 
           {/* Right - Stats */}

@@ -54,11 +54,13 @@ const AdminAnalytics: React.FC = () => {
     <div className="space-y-10">
       <PageHeader title="Analytics" description="Platform analytics and insights">
         <Select value={interval} onValueChange={setInterval}>
-          <SelectTrigger className="w-[140px] bg-white border-neutral-200 text-neutral-600 rounded-full hover:border-neutral-300"><SelectValue /></SelectTrigger>
-          <SelectContent className="bg-white border-neutral-200 rounded-xl shadow-soft">
-            <SelectItem value="daily" className="text-neutral-600 focus:bg-neutral-50 focus:text-black rounded-lg">Daily</SelectItem>
-            <SelectItem value="weekly" className="text-neutral-600 focus:bg-neutral-50 focus:text-black rounded-lg">Weekly</SelectItem>
-            <SelectItem value="monthly" className="text-neutral-600 focus:bg-neutral-50 focus:text-black rounded-lg">Monthly</SelectItem>
+          <SelectTrigger className="w-[140px] bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 text-neutral-600 dark:text-neutral-200 rounded-full hover:border-neutral-300 dark:hover:border-neutral-500">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 rounded-xl shadow-soft">
+            <SelectItem value="daily" className="text-neutral-600 dark:text-neutral-300 focus:bg-neutral-50 dark:focus:bg-neutral-700 focus:text-black dark:focus:text-white rounded-lg">Daily</SelectItem>
+            <SelectItem value="weekly" className="text-neutral-600 dark:text-neutral-300 focus:bg-neutral-50 dark:focus:bg-neutral-700 focus:text-black dark:focus:text-white rounded-lg">Weekly</SelectItem>
+            <SelectItem value="monthly" className="text-neutral-600 dark:text-neutral-300 focus:bg-neutral-50 dark:focus:bg-neutral-700 focus:text-black dark:focus:text-white rounded-lg">Monthly</SelectItem>
           </SelectContent>
         </Select>
       </PageHeader>

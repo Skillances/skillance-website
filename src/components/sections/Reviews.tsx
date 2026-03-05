@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { get, post } from '@/lib/api';
+import { useFormRateLimit } from '@/hooks/useFormRateLimit';
+import { toast } from 'sonner';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -29,6 +31,7 @@ const Reviews = () => {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { canSubmit, secondsRemaining, startCooldown, startCooldownFromRetryAfter } = useFormRateLimit(60_000);
 
   useEffect(() => {
     get('/public/reviews')
@@ -63,7 +66,7 @@ const Reviews = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (rating > 0 && comment && location) {
+    if (rating > 0 && comment && location && canSubmit) {
       setIsSubmitting(true);
       try {
         await post('/public/reviews', {
@@ -76,6 +79,7 @@ const Reviews = () => {
         });
 
         setIsSubmitted(true);
+        startCooldown();
 
         setTimeout(() => {
           setIsSubmitted(false);
@@ -85,8 +89,12 @@ const Reviews = () => {
           setComment('');
           setIsAnonymous(false);
         }, 3000);
-      } catch {
-        // Silently fail -- the review will still be pending in the DB
+      } catch (err: any) {
+        if (err?.statusCode === 429 || err?.retryAfter) {
+          toast.error(err?.message || 'Too many attempts. Please try again later.');
+          if (err?.retryAfter) startCooldownFromRetryAfter(err.retryAfter);
+          else startCooldown();
+        }
       } finally {
         setIsSubmitting(false);
       }
@@ -248,10 +256,10 @@ const Reviews = () => {
                   {/* Submit */}
                   <button
                     type="submit"
-                    disabled={rating === 0 || comment === '' || location === '' || isSubmitting}
+                    disabled={rating === 0 || comment === '' || location === '' || isSubmitting || !canSubmit}
                     className="w-full bg-black text-white py-4 rounded-full text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isSubmitting ? 'Submitting...' : 'Submit Review'}
+                    {isSubmitting ? 'Submitting...' : !canSubmit ? `Try again in ${secondsRemaining}s` : 'Submit Review'}
                   </button>
                 </form>
               )}

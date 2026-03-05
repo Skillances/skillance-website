@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Lock, Mail, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
+import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,6 +17,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { canSubmit, secondsRemaining, startCooldownFromRetryAfter } = useFormRateLimit(600_000);
 
   useEffect(() => {
     if (error) {
@@ -57,11 +59,13 @@ const LoginPage: React.FC = () => {
       return;
     }
 
+    if (!canSubmit) return;
+
     setIsLoading(true);
-    
+
     try {
       const result = await login(email, password);
-      
+
       if (result.success) {
         if (result.user?.isAdmin === true) {
           navigate('/admin/dashboard', { replace: true });
@@ -71,7 +75,12 @@ const LoginPage: React.FC = () => {
         }
       }
     } catch (err: any) {
-      setError(err.message || 'Invalid email or password.');
+      if (err?.retryAfter) {
+        setError(err.message || 'Too many login attempts. Please try again later.');
+        startCooldownFromRetryAfter(err.retryAfter);
+      } else {
+        setError(err.message || 'Invalid email or password.');
+      }
       setIsLoading(false);
     }
   };
@@ -124,7 +133,7 @@ const LoginPage: React.FC = () => {
                     placeholder="name@company.com"
                     value={email}
                     onChange={handleEmailChange}
-                    disabled={isLoading}
+                    disabled={isLoading || !canSubmit}
                     className="pl-10 bg-neutral-800/50 border-neutral-700 text-white placeholder:text-neutral-600 focus:ring-blue-500/20"
                   />
                 </div>
@@ -140,7 +149,7 @@ const LoginPage: React.FC = () => {
                     placeholder="••••••••"
                     value={password}
                     onChange={handlePasswordChange}
-                    disabled={isLoading}
+                    disabled={isLoading || !canSubmit}
                     className="pl-10 pr-10 bg-neutral-800/50 border-neutral-700 text-white placeholder:text-neutral-600 focus:ring-blue-500/20"
                   />
                   <button
@@ -156,10 +165,12 @@ const LoginPage: React.FC = () => {
               <Button 
                 type="submit" 
                 className="w-full bg-white text-black hover:bg-neutral-200 h-11 text-base font-medium transition-all"
-                disabled={isLoading}
+                disabled={isLoading || !canSubmit}
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                ) : !canSubmit ? (
+                  `Try again in ${secondsRemaining}s`
                 ) : (
                   'Sign In'
                 )}

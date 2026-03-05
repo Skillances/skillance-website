@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { post } from '@/lib/api';
+import { useFormRateLimit } from '@/hooks/useFormRateLimit';
+import { toast } from 'sonner';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -9,8 +11,10 @@ const CTA = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [alreadyOnWaitlist, setAlreadyOnWaitlist] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const { canSubmit, secondsRemaining, startCooldown, startCooldownFromRetryAfter } = useFormRateLimit(60_000);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -35,16 +39,31 @@ const CTA = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !canSubmit) return;
 
     setIsLoading(true);
     setError('');
+    setAlreadyOnWaitlist(false);
 
     try {
-      await post('/public/notify', { email });
-      setIsSubmitted(true);
-    } catch {
-      setError('Something went wrong. Please try again.');
+      const res = await post('/public/notify', { email });
+      if (res?.data?.alreadySubscribed) {
+        setAlreadyOnWaitlist(true);
+        setError('This email is already on the waitlist.');
+      } else {
+        setIsSubmitted(true);
+      }
+      startCooldown();
+    } catch (err: any) {
+      if (err?.statusCode === 429 || err?.retryAfter) {
+        const msg = err?.message || 'Too many attempts. Please try again later.';
+        setError(msg);
+        toast.error(msg);
+        if (err?.retryAfter) startCooldownFromRetryAfter(err.retryAfter);
+        else startCooldown();
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -81,22 +100,24 @@ const CTA = () => {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); setError(''); setAlreadyOnWaitlist(false); }}
                   placeholder="Enter your email"
                   className="flex-1 px-6 py-4 bg-white rounded-full text-black placeholder-neutral-400 border border-neutral-200 focus:border-black focus:outline-none transition-colors"
                   required
-                  disabled={isLoading}
+                  disabled={isLoading || !canSubmit}
                 />
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || !canSubmit}
                   className="px-8 py-4 bg-black text-white rounded-full text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLoading ? 'Sending...' : 'Notify Me'}
+                  {isLoading ? 'Sending...' : !canSubmit ? `Try again in ${secondsRemaining}s` : 'Notify Me'}
                 </button>
               </form>
               {error && (
-                <p className="text-sm text-red-500 mt-3 text-center">{error}</p>
+                <p className={`text-sm mt-3 text-center ${alreadyOnWaitlist ? 'text-amber-600' : 'text-red-500'}`}>
+                  {error}
+                </p>
               )}
             </div>
           ) : (

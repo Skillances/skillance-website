@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { get, put, del } from '@/lib/api';
-import { Star, CheckCircle, XCircle, Trash2, Clock } from 'lucide-react';
+import { Star, CheckCircle, XCircle, Trash2, Clock, Quote } from 'lucide-react';
 import PageHeader from '@/components/admin/PageHeader';
 import SearchFilter, { type FilterConfig } from '@/components/admin/SearchFilter';
 import DataTable, { type Column } from '@/components/admin/DataTable';
@@ -16,6 +16,7 @@ interface WebsiteReview {
   rating: number;
   comment: string;
   isAnonymous: boolean;
+  isFeatured: boolean;
   location: string;
   status: string;
   createdAt: string;
@@ -84,6 +85,16 @@ const AdminWebsiteReviews: React.FC = () => {
     }
   };
 
+  const handleToggleFeatured = async (id: string, currentlyFeatured: boolean) => {
+    try {
+      await put(`/admin/website-reviews/${id}`, { isFeatured: !currentlyFeatured });
+      toast.success(currentlyFeatured ? 'Removed from testimonials' : 'Added to testimonials');
+      fetchReviews();
+    } catch {
+      toast.error('Failed to update');
+    }
+  };
+
   const renderStars = (rating: number) => (
     <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((s) => (
@@ -114,7 +125,16 @@ const AdminWebsiteReviews: React.FC = () => {
     {
       key: 'status',
       header: 'Status',
-      render: (r) => <StatusBadge status={r.status as any} label={r.status} />,
+      render: (r) => (
+        <div className="flex flex-col gap-1">
+          <StatusBadge status={r.status as any} label={r.status} />
+          {r.isFeatured && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-600 dark:text-amber-400">
+              <Quote className="h-2.5 w-2.5" /> Testimonial
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       key: 'name',
@@ -182,6 +202,18 @@ const AdminWebsiteReviews: React.FC = () => {
               </Button>
             </>
           )}
+          {r.status === 'approved' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-7 px-2 text-xs gap-1 ${r.isFeatured ? 'text-amber-500 hover:text-amber-700' : 'text-neutral-400 hover:text-amber-500'}`}
+              onClick={(e) => { e.stopPropagation(); handleToggleFeatured(r.id, r.isFeatured); }}
+              title={r.isFeatured ? 'Remove from testimonials' : 'Feature as testimonial'}
+            >
+              <Quote className="h-3.5 w-3.5" />
+              {r.isFeatured ? 'Unfeature' : 'Feature'}
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
@@ -198,18 +230,20 @@ const AdminWebsiteReviews: React.FC = () => {
 
   const pendingCount = reviews.filter((r) => r.status === 'pending').length;
   const approvedCount = reviews.filter((r) => r.status === 'approved').length;
+  const featuredCount = reviews.filter((r) => r.isFeatured).length;
 
   return (
     <div>
       <PageHeader
         title={<>Website <span className="italic">Reviews</span></>}
-        description="Manage reviews submitted through the public website"
+        description="Manage reviews submitted through the public website. Feature approved reviews to show them in the testimonials section."
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
         <StatsCard title="Total Reviews" value={total} icon={Star} />
         <StatsCard title="Pending Approval" value={pendingCount} icon={Clock} />
         <StatsCard title="Approved" value={approvedCount} icon={CheckCircle} />
+        <StatsCard title="Testimonials" value={featuredCount} icon={Quote} />
       </div>
 
       <SearchFilter
