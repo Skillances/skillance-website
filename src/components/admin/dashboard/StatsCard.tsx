@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { ArrowUpRight, ArrowDownRight, Minus, type LucideIcon } from "lucide-react";
@@ -45,62 +46,49 @@ const StatsCard: React.FC<StatsCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
     >
-      <Card className="overflow-hidden border-neutral-800 bg-neutral-900/50 backdrop-blur-xl group relative">
-        <div
-          className="absolute top-0 right-0 w-32 h-32 opacity-[0.03] rounded-full -mr-10 -mt-10 transition-transform duration-700 group-hover:scale-150"
-          style={{ backgroundColor: color }}
-        />
-
-        <CardContent className="p-6">
+      <Card className="overflow-hidden border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 group relative rounded-2xl hover:shadow-soft dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)] dark:hover:shadow-[0_2px_8px_rgba(0,0,0,0.3)] transition-all duration-500">
+        <CardContent className="p-5">
           <div className="flex justify-between items-start mb-4">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-2xl transition-all duration-300 group-hover:rotate-6 group-hover:scale-110"
-              style={{
-                background: `linear-gradient(135deg, ${color}, ${color}aa)`,
-                boxShadow: `0 8px 16px -4px ${color}33`,
-              }}
-            >
-              <Icon size={24} />
+            <div className="flex items-center justify-center text-neutral-500 dark:text-neutral-400">
+              <Icon size={20} strokeWidth={1.5} />
             </div>
 
             {change && (
               <div
                 className={cn(
-                  "flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border transition-colors",
+                  "flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase",
                   isPositive
-                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                    ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400"
                     : isNegative
-                      ? "bg-red-500/10 text-red-400 border-red-500/20"
-                      : "bg-neutral-500/10 text-neutral-400 border-neutral-500/20"
+                      ? "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400"
+                      : "bg-neutral-50 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
                 )}
               >
-                {isPositive && <ArrowUpRight size={12} className="mr-1" />}
-                {isNegative && <ArrowDownRight size={12} className="mr-1" />}
-                {isNeutral && <Minus size={12} className="mr-1" />}
+                {isPositive && <ArrowUpRight size={11} className="mr-0.5" />}
+                {isNegative && <ArrowDownRight size={11} className="mr-0.5" />}
+                {isNeutral && <Minus size={11} className="mr-0.5" />}
                 {change}
               </div>
             )}
           </div>
 
-          <div className="space-y-1 relative z-10">
-            <p className="text-xs font-medium text-neutral-500 tracking-widest uppercase">
+          <div className="space-y-0.5 relative z-10">
+            <p className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500 tracking-[0.2em] uppercase">
               {title}
             </p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-bold text-white tracking-tight">
-                {prefix}{value}
-              </span>
-            </div>
+            <span className="text-2xl font-semibold text-black dark:text-white tracking-tight tabular-nums block">
+              {prefix}{value}
+            </span>
           </div>
 
-          <div className="h-14 mt-6 -mx-6 opacity-30 group-hover:opacity-60 transition-opacity duration-500">
+          <div className="h-12 mt-4 -mx-5 opacity-40 group-hover:opacity-70 transition-opacity duration-500">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
-                  <linearGradient id={`gradient-${index}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={color} stopOpacity={0.5} />
+                  <linearGradient id={`gradient-${title}-${index}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity={0.3} />
                     <stop offset="100%" stopColor={color} stopOpacity={0} />
                   </linearGradient>
                 </defs>
@@ -108,8 +96,8 @@ const StatsCard: React.FC<StatsCardProps> = ({
                   type="monotone"
                   dataKey="value"
                   stroke={color}
-                  fill={`url(#gradient-${index})`}
-                  strokeWidth={2}
+                  fill={`url(#gradient-${title}-${index})`}
+                  strokeWidth={1.5}
                   dot={false}
                 />
               </AreaChart>
@@ -122,5 +110,3 @@ const StatsCard: React.FC<StatsCardProps> = ({
 };
 
 export default StatsCard;
-
-import { cn } from "@/lib/utils";

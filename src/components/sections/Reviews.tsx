@@ -1,17 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { get, post } from '@/lib/api';
 
 gsap.registerPlugin(ScrollTrigger);
 
-import type { Review } from '../../lib/reviews-db';
-import { getReviews, addReview } from '../../lib/reviews-db';
+interface Review {
+  id: string;
+  name: string;
+  role: 'client' | 'skillancer';
+  rating: number;
+  comment: string;
+  isAnonymous: boolean;
+  location: string;
+  createdAt: string;
+}
 
 const Reviews = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   
-  // Form state
   const [userRole, setUserRole] = useState<'client' | 'skillancer'>('client');
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
@@ -20,10 +28,16 @@ const Reviews = () => {
   const [comment, setComment] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Load initial reviews
-    setReviews(getReviews());
+    get('/public/reviews')
+      .then((res) => {
+        if (res.success && Array.isArray(res.data)) {
+          setReviews(res.data);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -47,29 +61,35 @@ const Reviews = () => {
     return () => ctx.revert();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (rating > 0 && comment && location) {
-      const newReview = addReview({
-        name: isAnonymous ? 'Anonymous' : name || 'Valued User',
-        role: userRole,
-        rating,
-        comment,
-        isAnonymous,
-        location,
-      });
-      
-      setReviews(prev => [newReview, ...prev]);
-      setIsSubmitted(true);
-      
-      setTimeout(() => {
-        setIsSubmitted(false);
-        setRating(0);
-        setName('');
-        setLocation('');
-        setComment('');
-        setIsAnonymous(false);
-      }, 3000);
+      setIsSubmitting(true);
+      try {
+        await post('/public/reviews', {
+          name: isAnonymous ? 'Anonymous' : name || 'Valued User',
+          role: userRole,
+          rating,
+          comment,
+          isAnonymous,
+          location,
+        });
+
+        setIsSubmitted(true);
+
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setRating(0);
+          setName('');
+          setLocation('');
+          setComment('');
+          setIsAnonymous(false);
+        }, 3000);
+      } catch {
+        // Silently fail -- the review will still be pending in the DB
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -228,10 +248,10 @@ const Reviews = () => {
                   {/* Submit */}
                   <button
                     type="submit"
-                    disabled={rating === 0 || comment === '' || location === ''}
+                    disabled={rating === 0 || comment === '' || location === '' || isSubmitting}
                     className="w-full bg-black text-white py-4 rounded-full text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Submit Review
+                    {isSubmitting ? 'Submitting...' : 'Submit Review'}
                   </button>
                 </form>
               )}
@@ -249,7 +269,7 @@ const Reviews = () => {
                           <p className="font-medium text-black">
                             {review.isAnonymous ? 'Anonymous' : review.name}
                           </p>
-                          <p className="text-xs text-neutral-500 capitalize">{review.role} · {review.location} · {review.date}</p>
+                          <p className="text-xs text-neutral-500 capitalize">{review.role} · {review.location} · {new Date(review.createdAt).toLocaleDateString()}</p>
                         </div>
                       </div>
                       

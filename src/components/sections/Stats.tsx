@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { get } from '@/lib/api';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,7 +11,7 @@ interface Stat {
   label: string;
 }
 
-const stats: Stat[] = [
+const defaultStats: Stat[] = [
   { value: 100, suffix: '%', label: 'of professionals are verified before joining' },
   { value: 1, suffix: 'K+', label: 'successful service bookings completed' },
   { value: 4.8, suffix: '', label: 'average rating from satisfied customers' },
@@ -18,12 +19,34 @@ const stats: Stat[] = [
 
 const Stats = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [animatedValues, setAnimatedValues] = useState<number[]>(stats.map(() => 0));
+  const [stats, setStats] = useState<Stat[]>(defaultStats);
+  const [animatedValues, setAnimatedValues] = useState<number[]>(defaultStats.map(() => 0));
   const hasAnimated = useRef(false);
+  const statsReady = useRef(false);
+
+  useEffect(() => {
+    get('/public/stats')
+      .then((res) => {
+        if (res.success && res.data) {
+          const { verifiedPercent, bookingsCount, avgRating } = res.data;
+          const bookingsDisplay = bookingsCount >= 1000 ? bookingsCount / 1000 : bookingsCount;
+          const bookingsSuffix = bookingsCount >= 1000 ? 'K+' : '+';
+
+          setStats([
+            { value: verifiedPercent, suffix: '%', label: 'of professionals are verified before joining' },
+            { value: bookingsDisplay, suffix: bookingsSuffix, label: 'successful service bookings completed' },
+            { value: avgRating, suffix: '', label: 'average rating from satisfied customers' },
+          ]);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        statsReady.current = true;
+      });
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Header animation
       gsap.fromTo('.stats-header',
         { opacity: 0, y: 40 },
         {
@@ -39,7 +62,6 @@ const Stats = () => {
         }
       );
 
-      // Stats animation - Refactored for better sync and state updates
       const animationObj = { 
         val0: 0, 
         val1: 0, 
@@ -73,7 +95,7 @@ const Stats = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [stats]);
 
   return (
     <section

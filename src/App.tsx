@@ -18,9 +18,24 @@ import ContactPage from './pages/ContactPage';
 import CategoryPage from './pages/CategoryPage';
 import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminUserDetail from './pages/admin/AdminUserDetail';
+import AdminFreelancers from './pages/admin/AdminFreelancers';
+import AdminFreelancerDetail from './pages/admin/AdminFreelancerDetail';
+import AdminCustomers from './pages/admin/AdminCustomers';
+import AdminCustomerDetail from './pages/admin/AdminCustomerDetail';
+import AdminVerifications from './pages/admin/AdminVerifications';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
+import AdminSecurity from './pages/admin/AdminSecurity';
+import AdminCategories from './pages/admin/AdminCategories';
+import AdminSystem from './pages/admin/AdminSystem';
+import AdminContactMessages from './pages/admin/AdminContactMessages';
+import AdminNotifySubscribers from './pages/admin/AdminNotifySubscribers';
+import AdminWebsiteReviews from './pages/admin/AdminWebsiteReviews';
 import AdminLayout from './components/layout/AdminLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
+import { AdminThemeProvider } from './context/AdminThemeContext';
 import CookieConsent from './components/layout/CookieConsent';
 import LaunchCountdown from './components/layout/LaunchCountdown';
 import ScrollIndicator from './components/layout/ScrollIndicator';
@@ -108,13 +123,28 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
             path="/admin/*" 
             element={
               <ProtectedRoute requireAdmin>
-                <AdminLayout>
-                  <Routes>
+                <AdminThemeProvider>
+                  <AdminLayout>
+                    <Routes>
                     <Route path="dashboard" element={<AdminDashboard />} />
-                    {/* Add other admin routes here as they are ported */}
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="users/:userId" element={<AdminUserDetail />} />
+                    <Route path="freelancers" element={<AdminFreelancers />} />
+                    <Route path="freelancers/:freelancerId" element={<AdminFreelancerDetail />} />
+                    <Route path="customers" element={<AdminCustomers />} />
+                    <Route path="customers/:customerId" element={<AdminCustomerDetail />} />
+                    <Route path="verifications" element={<AdminVerifications />} />
+                    <Route path="analytics" element={<AdminAnalytics />} />
+                    <Route path="security" element={<AdminSecurity />} />
+                    <Route path="categories" element={<AdminCategories />} />
+                    <Route path="contact-messages" element={<AdminContactMessages />} />
+                    <Route path="notify-subscribers" element={<AdminNotifySubscribers />} />
+                    <Route path="website-reviews" element={<AdminWebsiteReviews />} />
+                    <Route path="system" element={<AdminSystem />} />
                     <Route path="*" element={<AdminDashboard />} />
-                  </Routes>
-                </AdminLayout>
+                    </Routes>
+                  </AdminLayout>
+                </AdminThemeProvider>
               </ProtectedRoute>
             } 
           />

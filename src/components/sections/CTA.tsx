@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { post } from '@/lib/api';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -8,6 +9,8 @@ const CTA = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -30,10 +33,20 @@ const CTA = () => {
     return () => ctx.revert();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
+    if (!email) return;
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      await post('/public/notify', { email });
       setIsSubmitted(true);
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,25 +73,32 @@ const CTA = () => {
           </p>
 
           {!isSubmitted ? (
-            <form
-              onSubmit={handleSubmit}
-              className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto mb-12"
-            >
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="flex-1 px-6 py-4 bg-white rounded-full text-black placeholder-neutral-400 border border-neutral-200 focus:border-black focus:outline-none transition-colors"
-                required
-              />
-              <button
-                type="submit"
-                className="px-8 py-4 bg-black text-white rounded-full text-sm font-medium hover:bg-neutral-800 transition-colors"
+            <div className="max-w-md mx-auto mb-12">
+              <form
+                onSubmit={handleSubmit}
+                className="flex flex-col sm:flex-row gap-4"
               >
-                Notify Me
-              </button>
-            </form>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="flex-1 px-6 py-4 bg-white rounded-full text-black placeholder-neutral-400 border border-neutral-200 focus:border-black focus:outline-none transition-colors"
+                  required
+                  disabled={isLoading}
+                />
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="px-8 py-4 bg-black text-white rounded-full text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? 'Sending...' : 'Notify Me'}
+                </button>
+              </form>
+              {error && (
+                <p className="text-sm text-red-500 mt-3 text-center">{error}</p>
+              )}
+            </div>
           ) : (
             <div className="max-w-md mx-auto mb-12 py-4">
               <p className="text-lg text-neutral-600">

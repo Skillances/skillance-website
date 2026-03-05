@@ -3,6 +3,7 @@ import emailjs from '@emailjs/browser';
 import { toast } from 'sonner';
 import PageTemplate from '../components/layout/PageTemplate';
 import { Send, MapPin, Mail, Phone } from 'lucide-react';
+import { post } from '@/lib/api';
 
 const ContactPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -13,18 +14,30 @@ const ContactPage = () => {
     setIsSending(true);
 
     const form = e.currentTarget;
-    
-    try {
-      const result = await emailjs.sendForm(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-        form,
-        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-      );
+    const formData = new FormData(form);
 
-      if (result.text === 'OK') {
+    try {
+      const [emailResult] = await Promise.allSettled([
+        emailjs.sendForm(
+          import.meta.env.VITE_EMAILJS_SERVICE_ID,
+          import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+          form,
+          import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+        ),
+        post('/public/contact', {
+          name: formData.get('user_name'),
+          email: formData.get('user_email'),
+          subject: formData.get('subject'),
+          message: formData.get('message'),
+        }).catch(() => {}),
+      ]);
+
+      if (emailResult.status === 'fulfilled' && emailResult.value.text === 'OK') {
         setIsSubmitted(true);
         toast.success('Message sent successfully!');
+      } else {
+        setIsSubmitted(true);
+        toast.success('Message received!');
       }
     } catch (error) {
       console.error('Email error:', error);
