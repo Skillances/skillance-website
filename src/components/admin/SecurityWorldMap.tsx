@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import {
   ComposableMap,
+  createCoordinates,
   Geographies,
   Geography,
   Marker,
   ZoomableGroup,
-} from 'react-simple-maps';
+} from '@vnedyalk0v/react19-simple-maps';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 
@@ -50,7 +51,7 @@ const SecurityWorldMap: React.FC<SecurityWorldMapProps> = ({ data }) => {
     <div className="relative w-full">
       <ComposableMap
         projection="geoMercator"
-        projectionConfig={{ scale: 130, center: [10, 20] }}
+        projectionConfig={{ scale: 130, center: createCoordinates(10, 20) }}
         width={800}
         height={420}
         style={{ width: '100%', height: 'auto' }}
@@ -83,7 +84,7 @@ const SecurityWorldMap: React.FC<SecurityWorldMapProps> = ({ data }) => {
             return (
               <Marker
                 key={d.countryCode}
-                coordinates={[d.lon!, d.lat!]}
+                coordinates={createCoordinates(d.lon!, d.lat!)}
                 onMouseEnter={(e: React.MouseEvent) => {
                   const rect = (e.currentTarget as SVGElement).closest('svg')?.getBoundingClientRect();
                   if (rect) {

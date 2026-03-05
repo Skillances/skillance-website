@@ -3,7 +3,7 @@
   "short_name": "Skillance",
   "description": "Professional mobile and web development services in Centurion, Gauteng. Connect with verified freelancers across South Africa.",
   "start_url": "/",
-  "display": "standalone",
+  "display": "minimal-ui",
   "background_color": "#ffffff",
   "theme_color": "#2563EB",
   "icons": [
