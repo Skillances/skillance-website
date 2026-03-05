@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
 interface Testimonial {
   id: string;
@@ -72,7 +72,7 @@ const Testimonials = () => {
         <div className="testimonials-content">
           <div className="flex items-center justify-between mb-12">
             <p className="text-sm uppercase tracking-widest text-neutral-500">
-              What the people are saying
+              What people are saying
             </p>
             {testimonials.length > 1 && (
               <div className="flex gap-4">
