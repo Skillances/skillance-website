@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { get, put, post, del } from '@/lib/api';
-import { ArrowLeft, CheckCircle, XCircle, User, IdCard, FileCheck, BadgeCheck, Shield, ZoomIn, ZoomOut, RotateCw, Minimize2, Trash2, ImageIcon } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, User, IdCard, FileCheck, BadgeCheck, Shield, ZoomIn, ZoomOut, RotateCw, Minimize2, Trash2, ImageIcon, Tag, CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import PageHeader from '@/components/admin/PageHeader';
@@ -12,6 +12,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+
+const bookingStatusMap: Record<string, string> = {
+  pending: 'warning',
+  confirmed: 'info',
+  inProgress: 'info',
+  completed: 'success',
+  cancelled: 'error',
+  rejected: 'rejected',
+};
 
 const AdminFreelancerDetail: React.FC = () => {
   const { freelancerId } = useParams<{ freelancerId: string }>();
@@ -37,6 +46,43 @@ const AdminFreelancerDetail: React.FC = () => {
   const [verifyClearanceOpen, setVerifyClearanceOpen] = useState(false);
   const [clearanceAction, setClearanceAction] = useState<'verified' | 'rejected'>('verified');
   const [clearanceLoading, setClearanceLoading] = useState(false);
+
+  const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookingsTotal, setBookingsTotal] = useState(0);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
+  const [bookingsOffset, setBookingsOffset] = useState(0);
+  const [expandedBooking, setExpandedBooking] = useState<string | null>(null);
+  const BOOKINGS_PAGE = 5;
+
+  useEffect(() => {
+    get('/admin/categories?includeInactive=true&limit=500')
+      .then((res) => {
+        if (res.success && Array.isArray(res.data?.categories)) {
+          const map: Record<string, string> = {};
+          for (const c of res.data.categories) map[c.id] = c.name;
+          setCategoryMap(map);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const fetchBookings = useCallback(async (offset: number, append = false) => {
+    if (!freelancerId) return;
+    try {
+      setBookingsLoading(true);
+      const res = await get(`/admin/freelancers/${freelancerId}/bookings?limit=${BOOKINGS_PAGE}&offset=${offset}`);
+      if (res.success) {
+        setBookings((prev) => append ? [...prev, ...res.data.bookings] : res.data.bookings);
+        setBookingsTotal(res.data.total);
+        setBookingsOffset(offset);
+      }
+    } catch { /* silent */ } finally {
+      setBookingsLoading(false);
+    }
+  }, [freelancerId]);
+
+  useEffect(() => { if (freelancerId) fetchBookings(0); }, [freelancerId, fetchBookings]);
 
   const openPreview = (url: string, title: string) => {
     setPreviewUrl(url);
@@ -256,6 +302,138 @@ const AdminFreelancerDetail: React.FC = () => {
         <DetailCard title="Verification Status" fields={verificationFields} />
         <DetailCard title="System Details" fields={systemFields} className="lg:col-span-2" />
       </div>
+
+      {/* Registered Categories */}
+      <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)] overflow-hidden">
+        <CardHeader className="border-b border-neutral-100 dark:border-neutral-700/80 py-5 px-6">
+          <CardTitle className="text-lg font-semibold text-black dark:text-white tracking-tight flex items-center gap-3">
+            <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-neutral-100 dark:bg-neutral-700">
+              <Tag className="h-5 w-5 text-neutral-600 dark:text-neutral-300" />
+            </span>
+            Registered Categories
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6">
+          {freelancer.categoryRates && freelancer.categoryRates.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {freelancer.categoryRates.map((cr: any) => (
+                <div key={cr.id} className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-neutral-100 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
+                  <span className="text-sm font-medium text-black dark:text-white truncate">{categoryMap[cr.categoryId] || cr.categoryId}</span>
+                  <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-300 tabular-nums shrink-0">R{Number(cr.hourlyRate).toFixed(0)}/hr</span>
+                </div>
+              ))}
+            </div>
+          ) : freelancer.categoryIds && freelancer.categoryIds.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {freelancer.categoryIds.map((id: string) => (
+                <span key={id} className="px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-700 text-black dark:text-white">{categoryMap[id] || id}</span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-neutral-400 dark:text-neutral-500 text-center py-4">No categories registered</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Booking History */}
+      <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)] overflow-hidden">
+        <CardHeader className="border-b border-neutral-100 dark:border-neutral-700/80 py-5 px-6">
+          <CardTitle className="text-lg font-semibold text-black dark:text-white tracking-tight flex items-center gap-3">
+            <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-neutral-100 dark:bg-neutral-700">
+              <CalendarDays className="h-5 w-5 text-neutral-600 dark:text-neutral-300" />
+            </span>
+            Booking History
+            {bookingsTotal > 0 && <span className="text-xs font-normal text-neutral-400 dark:text-neutral-500 ml-1">({bookingsTotal})</span>}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {bookingsLoading && bookings.length === 0 ? (
+            <div className="p-6 space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 rounded-lg bg-neutral-100 dark:bg-neutral-700" />)}</div>
+          ) : bookings.length === 0 ? (
+            <p className="text-sm text-neutral-400 dark:text-neutral-500 text-center py-8">No bookings yet</p>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-neutral-100 dark:border-neutral-700">
+                      <th className="text-left text-xs font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider px-6 py-3">Date</th>
+                      <th className="text-left text-xs font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider px-4 py-3">Customer</th>
+                      <th className="text-left text-xs font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider px-4 py-3">Category</th>
+                      <th className="text-left text-xs font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider px-4 py-3">Status</th>
+                      <th className="text-right text-xs font-medium text-neutral-400 dark:text-neutral-500 uppercase tracking-wider px-6 py-3">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bookings.map((b: any) => {
+                      const isExpanded = expandedBooking === b.id;
+                      return (
+                        <React.Fragment key={b.id}>
+                          <tr
+                            className="border-b border-neutral-50 dark:border-neutral-700/50 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer transition-colors"
+                            onClick={() => setExpandedBooking(isExpanded ? null : b.id)}
+                          >
+                            <td className="px-6 py-3 whitespace-nowrap">
+                              <div className="flex items-center gap-2">
+                                {isExpanded ? <ChevronDown className="h-3.5 w-3.5 text-neutral-400 shrink-0" /> : <ChevronRight className="h-3.5 w-3.5 text-neutral-400 shrink-0" />}
+                                <span className="text-neutral-600 dark:text-neutral-300">{new Date(b.scheduledDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-2">
+                                {b.customer?.profilePhotoUrl ? (
+                                  <img src={b.customer.profilePhotoUrl} alt="" className="w-6 h-6 rounded-full object-cover shrink-0" />
+                                ) : (
+                                  <div className="w-6 h-6 rounded-full bg-neutral-200 dark:bg-neutral-600 flex items-center justify-center text-[10px] font-semibold text-black dark:text-white shrink-0">{b.customer?.fullName?.charAt(0) || '?'}</div>
+                                )}
+                                <span className="text-black dark:text-white font-medium truncate">{b.customer?.fullName || 'Unknown'}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{categoryMap[b.category] || b.category}</td>
+                            <td className="px-4 py-3"><StatusBadge status={(bookingStatusMap[b.status] || b.status) as any} label={b.status} /></td>
+                            <td className="px-6 py-3 text-right font-medium text-black dark:text-white tabular-nums">R{Number(b.totalPrice).toFixed(0)}</td>
+                          </tr>
+                          {isExpanded && (
+                            <tr className="bg-neutral-50/80 dark:bg-neutral-800/30">
+                              <td colSpan={5} className="px-6 py-4">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                                  <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Time</span><span className="text-black dark:text-white">{b.scheduledTime || '--'}</span></div>
+                                  <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Duration</span><span className="text-black dark:text-white">{b.durationMinutes ? `${b.durationMinutes} min` : '--'}</span></div>
+                                  <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Address</span><span className="text-black dark:text-white truncate block">{b.address || '--'}</span></div>
+                                  <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Payment</span><span className="text-black dark:text-white">{b.paymentStatus || '--'}</span></div>
+                                  {b.notes && <div className="col-span-2 md:col-span-4"><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Notes</span><span className="text-black dark:text-white">{b.notes}</span></div>}
+                                  {b.confirmedAt && <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Confirmed</span><span className="text-black dark:text-white">{new Date(b.confirmedAt).toLocaleString()}</span></div>}
+                                  {b.startedAt && <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Started</span><span className="text-black dark:text-white">{new Date(b.startedAt).toLocaleString()}</span></div>}
+                                  {b.completedAt && <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Completed</span><span className="text-black dark:text-white">{new Date(b.completedAt).toLocaleString()}</span></div>}
+                                  {b.cancelledAt && <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Cancelled</span><span className="text-black dark:text-white">{new Date(b.cancelledAt).toLocaleString()}{b.cancelledBy ? ` (by ${b.cancelledBy})` : ''}</span></div>}
+                                  {b.cancellationReason && <div className="col-span-2 md:col-span-4"><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Cancellation Reason</span><span className="text-black dark:text-white">{b.cancellationReason}</span></div>}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              {bookings.length < bookingsTotal && (
+                <div className="p-4 text-center border-t border-neutral-100 dark:border-neutral-700">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-neutral-200 dark:border-neutral-600 text-neutral-600 dark:text-neutral-300 hover:text-black dark:hover:text-white"
+                    onClick={() => fetchBookings(bookingsOffset + BOOKINGS_PAGE, true)}
+                    disabled={bookingsLoading}
+                  >
+                    {bookingsLoading ? 'Loading...' : `Show more (${bookingsTotal - bookings.length} remaining)`}
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       <Dialog
         open={previewOpen}
