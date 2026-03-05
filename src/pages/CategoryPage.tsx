@@ -39,7 +39,7 @@ const CategoryPage = () => {
   return (
     <PageTemplate title={category.name}>
       <div className="space-y-16" ref={containerRef}>
-        {/* Header */}
+        {/* Back button and description */}
         <div className="pb-12 border-b border-neutral-100">
           <button 
             onClick={() => navigate('/services')}
@@ -49,14 +49,9 @@ const CategoryPage = () => {
             <span className="text-xs uppercase tracking-widest font-semibold">All Categories</span>
           </button>
           
-          <div className="max-w-3xl">
-            <h2 className="font-serif text-5xl lg:text-7xl text-black mb-6">
-              {category.name}
-            </h2>
-            <p className="text-xl text-neutral-500 font-light leading-relaxed">
-              {category.description}
-            </p>
-          </div>
+          <p className="text-xl text-neutral-500 font-light leading-relaxed max-w-3xl">
+            {category.description}
+          </p>
         </div>
 
         {/* Subcategories List */}

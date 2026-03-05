@@ -1,6 +1,6 @@
 # Skillance South Africa - Main Website v1.0.0
 
-Professional software development services and freelancer marketplace platform platform connecting customers with verified freelancers across South Africa.
+Africa's premier freelancer marketplace platform connecting customers with verified skilled professionals and freelancers across South Africa.
 
 ## 🚀 Overview
 

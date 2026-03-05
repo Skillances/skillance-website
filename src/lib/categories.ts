@@ -43,7 +43,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'education',
     name: 'Education',
     animation: '/animations/education.json',
-    description: 'Tutoring and educational services',
+    description: 'Tutoring, lessons, courses, and test prep',
     subcategories: [
       {
         id: 'tutors',
@@ -143,7 +143,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'cleaning',
     name: 'Cleaning',
     animation: '/animations/cleaning.json',
-    description: 'Professional cleaning services',
+    description: 'House cleaning, office cleaning, and specialized services',
     subcategories: [
       { id: 'house-cleaning', name: 'House Cleaning' },
       { id: 'deep-cleaning', name: 'Deep Cleaning' },
@@ -163,7 +163,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'petcare',
     name: 'Pet Care',
     animation: '/animations/petcare.json',
-    description: 'Pet services and care',
+    description: 'Dog walking, grooming, sitting, and training',
     subcategories: [
       { id: 'dog-walking', name: 'Dog Walking' },
       { id: 'pet-sitting', name: 'Pet Sitting' },
@@ -182,7 +182,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'fitness',
     name: 'Fitness',
     animation: '/animations/fitness.json',
-    description: 'Personal training and wellness',
+    description: 'Personal trainers, coaching, wellness, and rehabilitation',
     subcategories: [
       { id: 'personal-trainers', name: 'Personal Trainers' },
       {
@@ -217,7 +217,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'automotive',
     name: 'Automotive',
     animation: '/animations/automotive.json',
-    description: 'Vehicle repair and maintenance',
+    description: 'Mechanics, detailing, repairs, and maintenance',
     subcategories: [
       { id: 'mobile-mechanic', name: 'Mobile Mechanic' },
       { id: 'car-detailing', name: 'Car Detailing' },
@@ -237,7 +237,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'gardening',
     name: 'Gardening & Landscaping',
     animation: '/animations/gardening.json',
-    description: 'Garden and landscape services',
+    description: 'Maintenance, design, and landscape installation',
     subcategories: [
       { id: 'gardening', name: 'Gardening' },
       { id: 'landscaping', name: 'Landscaping' },
@@ -257,7 +257,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'personalservices',
     name: 'Personal Services',
     animation: '/animations/personalservices.json',
-    description: 'Personal assistance and care',
+    description: 'Errands, babysitting, event planning, and concierge',
     subcategories: [
       { id: 'errands', name: 'Errands' },
       { id: 'shopping', name: 'Shopping' },
@@ -277,7 +277,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'computer',
     name: 'Technology & IT',
     animation: '/animations/computer.json',
-    description: 'IT and technology services',
+    description: 'Web development, app development, design, and consulting',
     subcategories: [
       { id: 'it-support', name: 'IT Support' },
       { id: 'web-development', name: 'Web Development' },
@@ -296,7 +296,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'professionalservices',
     name: 'Professional Services',
     animation: '/animations/professionalservices.json',
-    description: 'Business and professional services',
+    description: 'Accounting, legal, consulting, and business solutions',
     subcategories: [
       { id: 'accounting', name: 'Accounting' },
       { id: 'legal', name: 'Legal Services' },
@@ -316,7 +316,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'influencer',
     name: 'Influencing',
     animation: '/animations/influencer.json',
-    description: 'Social media and influencer services',
+    description: 'Social media management, content creation, and personal branding',
     subcategories: [
       { id: 'social-media-management', name: 'Social Media Management' },
       { id: 'content-creation', name: 'Content Creation' },
@@ -332,7 +332,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'photography',
     name: 'Photography',
     animation: '/animations/photography.json',
-    description: 'Professional photography services',
+    description: 'Portraits, weddings, events, product shoots, and more',
     subcategories: [
       { id: 'portrait', name: 'Portrait' },
       { id: 'event', name: 'Event' },
@@ -352,7 +352,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'videography',
     name: 'Videography',
     animation: '/animations/videography.json',
-    description: 'Professional videography services',
+    description: 'Weddings, corporate videos, editing, and live streaming',
     subcategories: [
       { id: 'wedding', name: 'Wedding' },
       { id: 'corporate', name: 'Corporate' },
@@ -371,7 +371,7 @@ export const CATEGORY_HIERARCHY: Record<string, Category> = {
     id: 'music',
     name: 'Music',
     animation: '/animations/music.json',
-    description: 'Music and audio services',
+    description: 'Lessons, production, DJing, and audio services',
     subcategories: [
       { id: 'music-production', name: 'Music Production' },
       { id: 'music-lessons', name: 'Music Lessons' },

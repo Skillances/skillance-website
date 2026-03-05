@@ -7,6 +7,7 @@ import { FLAT_CATEGORIES, CATEGORY_HIERARCHY } from '@/lib/categories';
 
 const ServicesPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasAnimated = useRef(false);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -34,12 +35,17 @@ const ServicesPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const ctx = gsap.context(() => {
-      gsap.fromTo('.back-link', { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 1, delay: 0.2, ease: 'power4.out' });
-      gsap.fromTo('.service-item', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.05, ease: 'power3.out', delay: 0.4 });
-    }, containerRef);
-    return () => ctx.revert();
-  }, [filteredCategories]); // Re-animate when filtered
+    
+    // Only animate on initial page load, not on search filters
+    if (!hasAnimated.current) {
+      const ctx = gsap.context(() => {
+        gsap.fromTo('.back-link', { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 1, delay: 0.2, ease: 'power4.out' });
+        gsap.fromTo('.service-item', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.05, ease: 'power3.out', delay: 0.4 });
+      }, containerRef);
+      hasAnimated.current = true;
+      return () => ctx.revert();
+    }
+  }, []);
 
   const getCategoryImage = (id: string) => {
     const images: Record<string, string> = {
@@ -78,7 +84,7 @@ const ServicesPage = () => {
             <h2 className="font-serif text-4xl lg:text-5xl text-black">Find your <span className="italic">expertise</span></h2>
           </div>
 
-          <div className="relative w-full md:w-96">
+          <div className="relative w-full md:w-96" style={{ contain: 'layout style' }}>
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
             <input 
               type="text" 
@@ -98,7 +104,13 @@ const ServicesPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+        <div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8"
+          style={{
+            contain: 'layout style paint',
+            willChange: 'contents'
+          }}
+        >
           {filteredCategories.map((category) => (
             <div 
               key={category.id}
@@ -124,13 +136,13 @@ const ServicesPage = () => {
                   {category.description}
                 </p>
                 
-                <div className="flex items-center justify-between gap-2 pt-4 border-t border-neutral-200/50 flex-shrink-0">
-                  <span className="text-[8px] uppercase tracking-[0.15em] text-neutral-400 font-bold flex-shrink-0">
+                <div className="flex flex-col gap-4 pt-4 border-t border-neutral-200/50 flex-shrink-0">
+                  <span className="text-[8px] uppercase tracking-[0.15em] text-neutral-400 font-bold">
                     {category.subcategoryCount} Specializations
                   </span>
                   <button 
                     onClick={() => navigate(`/category/${category.id}`)}
-                    className="text-[10px] font-semibold hover:text-black transition-colors flex items-center gap-1 group/btn flex-shrink-0 ml-auto"
+                    className="text-[10px] font-semibold hover:text-black transition-colors flex items-center justify-center gap-1 group/btn w-full py-2"
                   >
                     <span>Explore</span>
                     <ArrowUpRight className="w-2.5 h-2.5 transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
