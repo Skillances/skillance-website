@@ -133,7 +133,6 @@ const ServicesPage = () => {
       
       // Automotive
       'auto': ['automotive', 'car', 'mechanic', 'vehicle'],
-      'mechanic': ['automotive', 'repair', 'car'],
       
       // Events & Planning
       'event': ['planning', 'coordination', 'organization'],
