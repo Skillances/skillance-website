@@ -12,25 +12,194 @@ const ServicesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredCategories = useMemo(() => {
-    if (!searchQuery.trim()) return FLAT_CATEGORIES;
+    if (!searchQuery.trim()) {
+      return FLAT_CATEGORIES.map(cat => ({
+        ...cat,
+        matchedSpecializations: [] as string[]
+      }));
+    }
     
     const query = searchQuery.toLowerCase().trim();
+    const queryWords = query.split(/\s+/); // Split into individual words
     
-    return FLAT_CATEGORIES.filter(cat => {
-      // Search in category name
-      if (cat.name.toLowerCase().includes(query)) return true;
+    // Comprehensive keyword synonyms for smarter search
+    const synonyms: Record<string, string[]> = {
+      // Home & Repairs
+      'fix': ['repair', 'maintenance', 'handyman', 'electrician', 'plumber', 'broken', 'damaged'],
+      'repair': ['fix', 'maintenance', 'handyman', 'restoration'],
+      'broken': ['repair', 'fix', 'damage'],
+      'home': ['handyman', 'electrician', 'plumber', 'carpenter', 'renovation', 'house'],
+      'renovation': ['remodeling', 'construction', 'handyman', 'carpenter'],
+      'house': ['home', 'property', 'domestic', 'handyman', 'cleaning'],
+      'yard': ['garden', 'landscaping', 'outdoor', 'lawn'],
+      'maintenance': ['repair', 'fix', 'upkeep'],
       
-      // Search in subcategories
-      const subcats = CATEGORY_HIERARCHY[cat.id]?.subcategories || [];
-      return subcats.some(sub => {
-        if (sub.name.toLowerCase().includes(query)) return true;
-        
-        // Search in nested subcategories
-        return sub.subcategories?.some(nested => 
-          nested.name.toLowerCase().includes(query)
-        );
+      // Learning & Education
+      'teach': ['tutor', 'education', 'lessons', 'learning', 'school', 'class', 'course'],
+      'learn': ['education', 'tutor', 'lessons', 'course', 'class', 'school'],
+      'class': ['education', 'tutor', 'learning', 'course'],
+      'course': ['education', 'learning', 'tutorial', 'online courses'],
+      'training': ['lessons', 'coaching', 'teaching', 'education', 'fitness'],
+      'coach': ['training', 'fitness', 'personal trainer', 'teaching'],
+      
+      // Fitness & Wellness
+      'exercise': ['fitness', 'personal trainer', 'gym', 'workout', 'training'],
+      'health': ['fitness', 'wellness', 'therapy', 'massage', 'medical'],
+      'wellness': ['fitness', 'health', 'therapy', 'meditation', 'massage'],
+      'gym': ['fitness', 'personal trainer', 'exercise'],
+      'body': ['fitness', 'personal trainer', 'wellness'],
+      'workout': ['fitness', 'exercise', 'training'],
+      
+      // Care & Assistance
+      'care': ['babysitting', 'elderly', 'pet', 'personal services', 'assistance'],
+      'help': ['assistant', 'support', 'service', 'consulting'],
+      'babysit': ['babysitting', 'childcare', 'elderly care', 'personal services'],
+      'pet': ['dog', 'cat', 'animal', 'pet care', 'grooming'],
+      'dog': ['pet', 'pet care', 'walking', 'grooming'],
+      'cat': ['pet', 'pet care', 'grooming'],
+      'elderly': ['care', 'personal services', 'assistance'],
+      
+      // Cleaning
+      'clean': ['cleaning', 'cleaner', 'housekeeping', 'janitor'],
+      'dirty': ['cleaning', 'cleaner'],
+      'tidy': ['cleaning', 'organization'],
+      'sweep': ['cleaning', 'service'],
+      
+      // Media & Content
+      'social': ['influencer', 'instagram', 'tiktok', 'youtube', 'content', 'marketing'],
+      'instagram': ['influencer', 'social media', 'content creation'],
+      'tiktok': ['influencer', 'social media', 'content'],
+      'youtube': ['influencer', 'content creation', 'video'],
+      'content': ['influencer', 'writing', 'creation', 'marketing', 'production'],
+      'marketing': ['content', 'influencer', 'brand strategy', 'advertising'],
+      'brand': ['marketing', 'consulting', 'branding'],
+      'advertise': ['marketing', 'influencer', 'brand strategy'],
+      
+      // Design & Creative
+      'design': ['graphic', 'web', 'ui', 'ux', 'creative', 'app development'],
+      'graphic': ['design', 'creative', 'visual'],
+      'web': ['design', 'development', 'code', 'tech'],
+      'creative': ['design', 'art', 'production'],
+      'art': ['creative', 'design', 'photography'],
+      'visual': ['design', 'graphic', 'photography'],
+      
+      // Video & Photography
+      'video': ['videography', 'filming', 'production', 'editing', 'youtube'],
+      'photo': ['photography', 'photographer', 'pictures', 'portrait'],
+      'picture': ['photography', 'image', 'visual'],
+      'film': ['videography', 'production', 'movie'],
+      'movie': ['videography', 'production', 'filming'],
+      'production': ['videography', 'music', 'film', 'content'],
+      'edit': ['video editing', 'editing', 'production'],
+      
+      // Technology & IT
+      'code': ['programming', 'development', 'tech', 'it', 'web', 'app'],
+      'tech': ['technology', 'it support', 'development', 'web'],
+      'website': ['web development', 'design', 'tech'],
+      'app': ['app development', 'tech', 'development'],
+      'digital': ['web', 'technology', 'apps', 'online'],
+      'computer': ['tech', 'it support', 'technology', 'development'],
+      'online': ['web', 'digital', 'internet', 'tech'],
+      'cyber': ['cybersecurity', 'security', 'it'],
+      
+      // Music & Audio
+      'music': ['lessons', 'production', 'dj', 'performance', 'audio'],
+      'song': ['music', 'production', 'composition'],
+      'instrument': ['music', 'lessons', 'repair'],
+      'dj': ['music', 'performance', 'entertainment'],
+      'audio': ['music', 'sound design', 'podcast'],
+      
+      // Business & Professional
+      'business': ['consulting', 'professional', 'corporate', 'accounting', 'legal'],
+      'money': ['financial', 'accounting', 'bookkeeping', 'financial planning'],
+      'financial': ['money', 'accounting', 'consulting'],
+      'accounting': ['financial', 'bookkeeping', 'professional'],
+      'legal': ['law', 'professional', 'consulting'],
+      'law': ['legal', 'professional services'],
+      'consulting': ['business', 'professional', 'expert', 'advice'],
+      'corporate': ['business', 'professional', 'consulting'],
+      'office': ['professional', 'business', 'corporate'],
+      'professional': ['business', 'consulting', 'expert', 'corporate'],
+      'company': ['business', 'corporate', 'professional'],
+      
+      // Transportation & Moving
+      'move': ['moving', 'relocation', 'transportation', 'delivery'],
+      'delivery': ['moving', 'transportation', 'shipping'],
+      'transport': ['moving', 'delivery', 'driving', 'car'],
+      'car': ['automotive', 'mechanic', 'vehicle', 'driving'],
+      'vehicle': ['automotive', 'car', 'mechanic'],
+      'mechanic': ['automotive', 'repair', 'vehicle'],
+      'drive': ['transportation', 'driving', 'car'],
+      
+      // Automotive
+      'auto': ['automotive', 'car', 'mechanic', 'vehicle'],
+      'mechanic': ['automotive', 'repair', 'car'],
+      
+      // Events & Planning
+      'event': ['planning', 'coordination', 'organization'],
+      'party': ['event planning', 'entertainment'],
+      'wedding': ['event planning', 'photography', 'videography'],
+      'plan': ['event planning', 'organization'],
+      
+      // General Service Terms
+      'service': ['help', 'professional', 'consulting', 'support'],
+      'job': ['work', 'task', 'project', 'service'],
+      'work': ['job', 'freelancer', 'professional'],
+      'task': ['job', 'service', 'help'],
+      'project': ['freelancer', 'consulting', 'development'],
+      'freelancer': ['work', 'professional', 'expert'],
+      'expert': ['professional', 'specialist', 'consultant'],
+      'specialist': ['expert', 'professional', 'consultant'],
+      'talent': ['freelancer', 'expert', 'specialist'],
+      'pro': ['professional', 'expert', 'specialist'],
+    };
+    
+    return FLAT_CATEGORIES.map(cat => {
+      const categoryData = CATEGORY_HIERARCHY[cat.id];
+      if (!categoryData) return { ...cat, matchedSpecializations: [] as string[] };
+      
+      // Get all searchable text
+      const categoryName = cat.name.toLowerCase();
+      const categoryDesc = cat.description.toLowerCase();
+      const allText = `${categoryName} ${categoryDesc}`;
+      
+      // Check if category matches
+      const categoryMatches = queryWords.some(word => {
+        if (allText.includes(word)) return true;
+        const relatedWords = synonyms[word] || [];
+        return relatedWords.some(synonym => allText.includes(synonym));
       });
-    });
+      
+      // Find matching specializations
+      const matchedSpecializations: string[] = [];
+      if (categoryMatches) {
+        // If category matches, show all specializations (limit to 3)
+        matchedSpecializations.push(...categoryData.subcategories.slice(0, 3).map(s => s.name));
+      } else {
+        // Otherwise, find specific matching specializations
+        categoryData.subcategories.forEach(sub => {
+          const subName = sub.name.toLowerCase();
+          const matches = queryWords.some(word => {
+            if (subName.includes(word)) return true;
+            const relatedWords = synonyms[word] || [];
+            return relatedWords.some(synonym => subName.includes(synonym));
+          });
+          if (matches) {
+            matchedSpecializations.push(sub.name);
+          }
+        });
+      }
+      
+      return {
+        ...cat,
+        matchedSpecializations: matchedSpecializations.slice(0, 3) // Limit to 3
+      };
+    }).filter(cat => cat.matchedSpecializations.length > 0 || queryWords.some(word => {
+      const catText = `${cat.name.toLowerCase()} ${cat.description.toLowerCase()}`;
+      if (catText.includes(word)) return true;
+      const synonymsList = synonyms[word] || [];
+      return synonymsList.some(syn => catText.includes(syn));
+    }));
   }, [searchQuery]);
 
   useEffect(() => {
@@ -135,6 +304,20 @@ const ServicesPage = () => {
                 <p className="text-neutral-500 text-xs font-light mb-4 leading-relaxed line-clamp-3 flex-1 min-h-[2.5rem]">
                   {category.description}
                 </p>
+
+                {/* Show matched specializations if searching */}
+                {category.matchedSpecializations && category.matchedSpecializations.length > 0 && (
+                  <div className="mb-3 pb-3 border-b border-neutral-100">
+                    <p className="text-[9px] uppercase tracking-[0.1em] text-neutral-400 font-semibold mb-1">Matched:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {category.matchedSpecializations.map((spec) => (
+                        <span key={spec} className="text-[9px] bg-black text-white px-2 py-0.5 rounded-full">
+                          {spec}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 <div className="flex flex-col gap-4 pt-4 border-t border-neutral-200/50 flex-shrink-0">
                   <span className="text-[8px] uppercase tracking-[0.15em] text-neutral-400 font-bold">
