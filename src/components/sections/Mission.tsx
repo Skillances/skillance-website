@@ -57,7 +57,7 @@ const Mission = () => {
           <div className="space-y-8 lg:pt-16">
             <p className="scroll-reveal text-lg text-neutral-600 leading-relaxed uw:text-4xl uw:max-w-3xl">
               The freelance marketplace industry suffers from low trust, inconsistent 
-              quality, and race-to-the-bottom pricing. Businesses struggle to find 
+              quality, and unsustainable pricing pressure. Businesses struggle to find 
               reliable partners. Professionals struggle to build stable income.
             </p>
             <p className="scroll-reveal text-lg text-neutral-600 leading-relaxed uw:text-4xl uw:max-w-3xl">

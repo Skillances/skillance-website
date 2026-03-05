@@ -1,87 +1,65 @@
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
+import { useEffect, useState, useRef } from 'react';
 
 const ScrollIndicator = () => {
-  const indicatorRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<number | null>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isIdle, setIsIdle] = useState(false);
+  const idleTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      // Don't show on hero section (first screen)
-      const isAtHeroSection = window.scrollY < window.innerHeight * 0.8;
+      // Calculate scroll progress
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight - windowHeight;
+      const scrolled = window.scrollY;
+      const scrollProgress = documentHeight > 0 ? (scrolled / documentHeight) * 100 : 0;
       
-      if (isAtHeroSection) {
-        if (indicatorRef.current) {
-          gsap.to(indicatorRef.current, {
-            opacity: 0,
-            y: 20,
-            duration: 0.2,
-            ease: 'power3.in'
-          });
-        }
-        return;
-      }
-      
-      // Hide indicator on scroll
-      if (indicatorRef.current) {
-        gsap.to(indicatorRef.current, {
-          opacity: 0,
-          y: 20,
-          duration: 0.2,
-          ease: 'power3.in'
-        });
-      }
-      
+      setScrollProgress(scrollProgress);
+      setIsIdle(false);
+
       // Clear existing timeout
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (idleTimeoutRef.current) {
+        clearTimeout(idleTimeoutRef.current);
       }
-      
-      // Show indicator after idle period (faster - 2 seconds instead of 3)
-      timeoutRef.current = setTimeout(showIndicator, 2000);
+
+      // Set idle state after 2 seconds of no scrolling
+      idleTimeoutRef.current = window.setTimeout(() => {
+        setIsIdle(true);
+      }, 2000);
     };
 
-    const showIndicator = () => {
-      const isAtBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100;
-      
-      // Don't show on hero section
-      const isAtHeroSection = window.scrollY < window.innerHeight * 0.8;
-      
-      if (!isAtBottom && !isAtHeroSection && indicatorRef.current) {
-        gsap.to(indicatorRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          ease: 'power3.out'
-        });
-      }
-    };
-
-    // Initial setup
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll);
-    
-    // Show indicator after initial load (but not on hero)
-    timeoutRef.current = setTimeout(showIndicator, 3000);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (idleTimeoutRef.current) {
+        clearTimeout(idleTimeoutRef.current);
       }
     };
   }, []);
 
+  // Calculate opacity - hidden at start and end, visible in between
+  const opacity = (scrollProgress > 5 && scrollProgress < 95) ? 0.5 : 0;
+
   return (
     <div 
-      ref={indicatorRef} 
-      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 opacity-0 transform translate-y-5 pointer-events-none"
+      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-opacity duration-500"
+      style={{ opacity }}
     >
       <div className="flex flex-col items-center gap-2">
-        <span className="text-xs uppercase tracking-widest text-neutral-500">Scroll</span>
-        <div className="w-px h-12 bg-neutral-300 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-4 bg-neutral-500 animate-bounce" />
+        <span className="text-xs uppercase tracking-widest text-neutral-400">Scroll</span>
+        <div className="w-px h-12 bg-neutral-400 relative overflow-hidden">
+          <div 
+            className={`absolute left-0 w-full h-4 bg-black opacity-70 ${isIdle ? 'animate-bounce' : ''}`}
+            style={{
+              top: `calc(${scrollProgress}% * (100% - 33.33%))`,
+              transition: isIdle ? 'none' : 'top 0.3s ease-out'
+            }}
+          />
+        </div>
+        <div className="text-xs text-neutral-500 mt-1">
+          {Math.round(scrollProgress)}%
         </div>
       </div>
     </div>

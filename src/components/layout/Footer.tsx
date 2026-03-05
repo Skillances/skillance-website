@@ -60,8 +60,12 @@ const Footer = () => {
         <div className="grid lg:grid-cols-2 gap-16 mb-16">
           {/* Brand */}
           <div>
-            <Link to="/" className="font-serif text-3xl font-medium mb-4 block">
-              Skillance
+            <Link to="/" className="mb-4 block">
+              <img 
+                src="/skillance-tiny-logo-white.png" 
+                alt="Skillance" 
+                className="h-8 w-auto"
+              />
             </Link>
             <p className="text-neutral-400 max-w-md leading-relaxed">
               Connecting communities with trusted experts. Find verified professionals 

@@ -17,6 +17,7 @@ import ServicesPage from './pages/ServicesPage';
 import ContactPage from './pages/ContactPage';
 import CategoryPage from './pages/CategoryPage';
 import LoginPage from './pages/LoginPage';
+import ComingSoonPage from './pages/ComingSoonPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminLayout from './components/layout/AdminLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -101,6 +102,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/category/:id" element={<CategoryPage />} />
+          <Route path="/coming-soon" element={<ComingSoonPage />} />
           <Route path="/login" element={<LoginPage />} />
 
           {/* Admin Routes */}
