@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { get, post } from '@/lib/api';
-import { Wrench, Database, Clock, Loader2 } from 'lucide-react';
+import { Wrench, Database, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import PageHeader from '@/components/admin/PageHeader';

@@ -30,7 +30,7 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme, isDark } = useAdminTheme();
+  const { toggleTheme, isDark } = useAdminTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

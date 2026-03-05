@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { get } from '@/lib/api';
-import { Shield, AlertTriangle, Ban, Eye, Globe } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Shield, AlertTriangle, Ban, Globe } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import PageHeader from '@/components/admin/PageHeader';
 import SearchFilter, { type FilterConfig } from '@/components/admin/SearchFilter';

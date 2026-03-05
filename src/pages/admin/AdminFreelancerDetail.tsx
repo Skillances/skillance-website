@@ -58,7 +58,7 @@ const AdminFreelancerDetail: React.FC = () => {
     if (!previewOpen) return;
     const handler = (e: WheelEvent) => {
       const target = e.target as Node;
-      const inContainer = previewZoomContainerRef.current?.contains(target) ?? (e.target as Element).closest?.('[data-preview-zoom-container]');
+      const inContainer = previewZoomContainerRef.current?.contains(target) || (e.target as Element).closest?.('[data-preview-zoom-container]');
       if (inContainer) {
         e.preventDefault();
         e.stopPropagation();

@@ -10,7 +10,7 @@ interface StatsCardProps {
   value: string | number;
   change?: string;
   icon: LucideIcon;
-  color: string;
+  color?: string;
   data?: { value: number }[];
   prefix?: string;
   index?: number;
@@ -21,7 +21,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
   value,
   change,
   icon: Icon,
-  color,
+  color = '#737373',
   data = [],
   prefix = "",
   index = 0,
