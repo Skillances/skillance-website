@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { MenuToggleIcon } from '../ui/menu-toggle-icon';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import ComingSoonPopup from '../ui/ComingSoonPopup';
 
 interface NavigationProps {
   isLoaded: boolean;
@@ -14,7 +13,6 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
   const [isPastHero, setIsPastHero] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -79,18 +77,6 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
     handleScroll(); // Initial check
     return () => window.removeEventListener('scroll', handleScroll);
   }, [location.pathname]);
-
-  useEffect(() => {
-    // Show Coming Soon popup after 30 seconds of visit
-    const hasShownPrompt = sessionStorage.getItem('hasShownWaitlistPrompt');
-    if (!hasShownPrompt) {
-      const timer = setTimeout(() => {
-        setIsComingSoonOpen(true);
-        sessionStorage.setItem('hasShownWaitlistPrompt', 'true');
-      }, 30000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
 
   const navLinks = [
     { name: 'Mission', href: '/#mission' },
@@ -216,12 +202,6 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                   <span className={`absolute -bottom-1 left-0 w-0 h-px transition-all duration-300 group-hover:w-full ${underlineColor}`} />
                 </button>
               ))}
-              <button
-                onClick={() => setIsComingSoonOpen(true)}
-                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${buttonBg}`}
-              >
-                Get the App
-              </button>
             </div>
 
             <button
@@ -286,23 +266,9 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                setIsComingSoonOpen(true);
-              }}
-              className="w-full mt-10 bg-black text-white px-6 py-4 rounded-full text-sm font-medium hover:bg-neutral-800 transition-colors shadow-lg shadow-black/10"
-            >
-              Get the App
-            </button>
-          </div>
+            </div>
         </div>
       </div>
-
-      <ComingSoonPopup 
-        isOpen={false} 
-        onClose={() => setIsComingSoonOpen(false)} 
-      />
     </>
   );
 };
