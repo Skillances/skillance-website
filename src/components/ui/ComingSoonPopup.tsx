@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Smartphone } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface ComingSoonPopupProps {
   isOpen: boolean;
@@ -9,10 +9,26 @@ interface ComingSoonPopupProps {
 
 const ComingSoonPopup = ({ isOpen, onClose }: ComingSoonPopupProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleClick = () => {
     onClose();
-    navigate('/coming-soon');
+    if (location.pathname === '/') {
+      // On home page, scroll to CTA section
+      const ctaSection = document.getElementById('cta');
+      if (ctaSection) {
+        ctaSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // On other pages, navigate to home and scroll to CTA
+      navigate('/');
+      setTimeout(() => {
+        const ctaSection = document.getElementById('cta');
+        if (ctaSection) {
+          ctaSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 200);
+    }
   };
 
   return (

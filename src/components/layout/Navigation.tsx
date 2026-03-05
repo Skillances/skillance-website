@@ -300,7 +300,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
       </div>
 
       <ComingSoonPopup 
-        isOpen={isComingSoonOpen} 
+        isOpen={false} 
         onClose={() => setIsComingSoonOpen(false)} 
       />
     </>
