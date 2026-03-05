@@ -127,9 +127,6 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
   const textColorMuted = isDarkSection ? 'text-white/70' : 'text-neutral-600';
   const hoverColor = isDarkSection ? 'hover:text-white' : 'hover:text-black';
   const underlineColor = isDarkSection ? 'bg-white' : 'bg-black';
-  const buttonBg = isDarkSection 
-    ? 'bg-white/10 text-white backdrop-blur-sm border border-white/30 hover:bg-white/20' 
-    : 'bg-black text-white hover:bg-neutral-800';
 
   return (
     <>
