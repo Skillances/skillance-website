@@ -55,7 +55,7 @@ const ServicesPage = () => {
       professionalservices: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2074',
       influencer: 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&q=80&w=2070',
       photography: 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&q=80&w=2074',
-      videography: 'https://images.unsplash.com/photo-1574717024453-35405624cae3?auto=format&fit=crop&q=80&w=2070',
+      videography: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2070',
       music: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=2070',
     };
     return images[id] || images.handyman;
@@ -102,9 +102,9 @@ const ServicesPage = () => {
           {filteredCategories.map((category) => (
             <div 
               key={category.id}
-              className="service-item group relative bg-neutral-50 rounded-[2.5rem] overflow-hidden hover:bg-neutral-100 transition-colors duration-500"
+              className="service-item group relative bg-neutral-50 rounded-[2.5rem] overflow-hidden hover:bg-neutral-100 transition-colors duration-500 h-full flex flex-col"
             >
-              <div className="aspect-[16/10] overflow-hidden">
+              <div className="aspect-[16/10] overflow-hidden flex-shrink-0">
                 <img 
                   src={getCategoryImage(category.id)} 
                   alt={category.name}
@@ -112,25 +112,25 @@ const ServicesPage = () => {
                 />
               </div>
               
-              <div className="p-5 lg:p-7">
-                <div className="flex items-start justify-between w-full mb-2">
-                  <h3 className="font-serif text-lg lg:text-xl text-black line-clamp-1">
+              <div className="p-5 lg:p-7 flex-1 flex flex-col">
+                <div className="flex items-start justify-between w-full mb-3 flex-shrink-0">
+                  <h3 className="font-serif text-lg lg:text-xl text-black leading-tight pr-2 flex-1 min-w-0">
                     {category.name}
                   </h3>
                   <ArrowUpRight className="w-4 h-4 text-neutral-300 group-hover:text-black transition-colors transform group-hover:translate-x-1 group-hover:-translate-y-1 duration-300 flex-shrink-0" />
                 </div>
                 
-                <p className="text-neutral-500 text-xs font-light mb-4 leading-relaxed line-clamp-2 h-8">
+                <p className="text-neutral-500 text-xs font-light mb-4 leading-relaxed line-clamp-3 flex-1 min-h-[2.5rem]">
                   {category.description}
                 </p>
                 
-                <div className="flex items-center justify-between gap-2 pt-4 border-t border-neutral-200/50">
-                  <span className="text-[8px] uppercase tracking-[0.15em] text-neutral-400 font-bold whitespace-nowrap">
+                <div className="flex items-center justify-between gap-2 pt-4 border-t border-neutral-200/50 flex-shrink-0">
+                  <span className="text-[8px] uppercase tracking-[0.15em] text-neutral-400 font-bold flex-shrink-0">
                     {category.subcategoryCount} Specializations
                   </span>
                   <button 
                     onClick={() => navigate(`/category/${category.id}`)}
-                    className="text-[10px] font-semibold hover:text-black transition-colors flex items-center gap-1 group/btn whitespace-nowrap"
+                    className="text-[10px] font-semibold hover:text-black transition-colors flex items-center gap-1 group/btn flex-shrink-0 ml-auto"
                   >
                     <span>Explore</span>
                     <ArrowUpRight className="w-2.5 h-2.5 transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />

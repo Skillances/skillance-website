@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Mail, Smartphone, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+// Coming Soon Page Component
 const ComingSoonPage = () => {
   const [email, setEmail] = useState('');
   const navigate = useNavigate();

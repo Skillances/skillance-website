@@ -21,10 +21,10 @@ const ScrollIndicator = () => {
         clearTimeout(idleTimeoutRef.current);
       }
 
-      // Set idle state after 2 seconds of no scrolling
+      // Set idle state after 5 seconds of no scrolling
       idleTimeoutRef.current = window.setTimeout(() => {
         setIsIdle(true);
-      }, 2000);
+      }, 5000);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });

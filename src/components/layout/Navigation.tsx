@@ -101,23 +101,35 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
     { name: 'Trust', href: '/#trust-safety' },
   ];
 
-  const handleLinkClick = (href: string) => {
+  const handleLinkClick = (href: string, event?: React.MouseEvent) => {
+    if (event) {
+      event.preventDefault();
+    }
     setIsMobileMenuOpen(false);
     if (href.startsWith('/#')) {
       const sectionId = href.substring(2);
       if (location.pathname === '/') {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      } else {
-        navigate('/');
+        // Small delay to ensure any ongoing animations complete
         setTimeout(() => {
           const element = document.getElementById(sectionId);
           if (element) {
             element.scrollIntoView({ behavior: 'smooth' });
           }
-        }, 100);
+        }, 50);
+      } else {
+        navigate('/');
+        // Wait longer for page to load, then check multiple times
+        let attempts = 0;
+        const checkElement = () => {
+          attempts++;
+          const element = document.getElementById(sectionId);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          } else if (attempts < 10) { // Try up to 10 times
+            setTimeout(checkElement, 100);
+          }
+        };
+        setTimeout(checkElement, 200);
       }
     }
   };
@@ -170,7 +182,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
               {navLinks.slice(0, 3).map((link) => (
                 <button
                   key={link.name}
-                  onClick={() => link.href.startsWith('/#') ? handleLinkClick(link.href) : navigate(link.href)}
+                  onClick={(e) => link.href.startsWith('/#') ? handleLinkClick(link.href, e) : navigate(link.href)}
                   className={`text-sm font-medium transition-colors duration-300 relative group ${textColorMuted} ${hoverColor}`}
                 >
                   {link.name}
@@ -197,7 +209,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
               {navLinks.slice(3).map((link) => (
                 <button
                   key={link.name}
-                  onClick={() => link.href.startsWith('/#') ? handleLinkClick(link.href) : navigate(link.href)}
+                  onClick={(e) => link.href.startsWith('/#') ? handleLinkClick(link.href, e) : navigate(link.href)}
                   className={`text-sm font-medium transition-colors duration-300 relative group ${textColorMuted} ${hoverColor}`}
                 >
                   {link.name}
@@ -267,7 +279,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
               {navLinks.map((link) => (
                 <button
                   key={link.name}
-                  onClick={() => link.href.startsWith('/#') ? handleLinkClick(link.href) : (setIsMobileMenuOpen(false), navigate(link.href))}
+                  onClick={(e) => link.href.startsWith('/#') ? handleLinkClick(link.href, e) : (setIsMobileMenuOpen(false), navigate(link.href))}
                   className="text-lg font-medium text-neutral-800 hover:text-black transition-colors py-4 border-b border-neutral-100 text-left"
                 >
                   {link.name}

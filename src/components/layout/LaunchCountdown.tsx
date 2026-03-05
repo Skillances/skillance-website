@@ -9,7 +9,6 @@ const LaunchCountdown = () => {
     days: number;
     hours: number;
     minutes: number;
-    seconds: number;
   } | null>(null);
 
   useEffect(() => {
@@ -38,7 +37,6 @@ const LaunchCountdown = () => {
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
           hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
           minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
         });
       } else {
         setTimeLeft(null);
@@ -80,8 +78,6 @@ const LaunchCountdown = () => {
             <span>{timeLeft.hours.toString().padStart(2, '0')}H</span>
             <span className="opacity-20">/</span>
             <span>{timeLeft.minutes.toString().padStart(2, '0')}M</span>
-            <span className="hidden sm:inline opacity-20">/</span>
-            <span className="hidden sm:inline">{timeLeft.seconds.toString().padStart(2, '0')}S</span>
           </div>
           <span className="hidden lg:inline opacity-40 lowercase italic tracking-normal border-l border-white/20 pl-6">Coming Soon to South Africa</span>
         </div>
