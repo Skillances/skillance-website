@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   ComposableMap,
   createCoordinates,
@@ -39,6 +39,14 @@ function interpolateColor(t: number): string {
 
 const SecurityWorldMap: React.FC<SecurityWorldMapProps> = ({ data }) => {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; name: string; count: number } | null>(null);
+  const [geoData, setGeoData] = useState<any>(null);
+
+  useEffect(() => {
+    fetch(GEO_URL)
+      .then((res) => res.json())
+      .then((json) => setGeoData(json))
+      .catch((err) => console.error('Failed to load map data:', err));
+  }, []);
 
   const maxCount = useMemo(() => Math.max(...data.map((d) => d.count), 1), [data]);
 
@@ -46,6 +54,8 @@ const SecurityWorldMap: React.FC<SecurityWorldMapProps> = ({ data }) => {
     () => data.filter((d) => d.lat != null && d.lon != null && d.countryCode !== 'XX'),
     [data],
   );
+
+  if (!geoData) return null;
 
   return (
     <div className="relative w-full">
@@ -57,7 +67,7 @@ const SecurityWorldMap: React.FC<SecurityWorldMapProps> = ({ data }) => {
         style={{ width: '100%', height: 'auto' }}
       >
         <ZoomableGroup>
-          <Geographies geography={GEO_URL}>
+          <Geographies geography={geoData}>
             {({ geographies }) =>
               geographies.map((geo) => (
                 <Geography

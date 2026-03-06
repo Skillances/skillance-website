@@ -112,7 +112,7 @@ const HowItWorks = () => {
           <p className="text-sm uppercase tracking-[0.3em] text-neutral-400 mb-8 font-medium">
             The Skillance Process
           </p>
-          <h2 className="font-serif text-4xl sm:text-6xl text-black leading-[1.1] mb-12 text-center max-w-4xl">
+          <h2 className="font-serif text-3xl sm:text-6xl text-black leading-[1.1] mb-12 text-center max-w-4xl">
             Simple steps to{' '}
             <span className="italic">get things done.</span>
           </h2>
@@ -155,7 +155,7 @@ const HowItWorks = () => {
               {activeSteps.map((step) => (
                 <div
                   key={step.number + activeTab}
-                  className="step-item border-b border-neutral-100 py-16 lg:py-24 group hover:bg-neutral-50/50 transition-colors duration-500 rounded-3xl -mx-4 px-4"
+                  className="step-item border-b border-neutral-100 py-12 sm:py-16 lg:py-24 group hover:bg-neutral-50/50 transition-colors duration-500 rounded-3xl -mx-4 px-4"
                 >
                   <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-start">
                     {/* Number */}
@@ -174,7 +174,7 @@ const HowItWorks = () => {
 
                     {/* Description */}
                     <div className="lg:col-span-6 lg:pt-4">
-                      <p className="text-xl text-neutral-500 leading-relaxed font-light max-w-xl group-hover:text-neutral-600 transition-colors duration-500">
+                      <p className="text-lg sm:text-xl text-neutral-500 leading-relaxed font-light max-w-xl group-hover:text-neutral-600 transition-colors duration-500">
                         {step.description}
                       </p>
                     </div>

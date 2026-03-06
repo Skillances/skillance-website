@@ -120,7 +120,7 @@ const Stats = () => {
           <div className="stats-container space-y-12">
             {stats.map((stat, index) => (
               <div key={index} className="flex items-baseline gap-4">
-                <span className="font-serif text-6xl sm:text-7xl lg:text-8xl text-black tabular-nums">
+                <span className="font-serif text-5xl sm:text-7xl lg:text-8xl text-black tabular-nums">
                   {animatedValues[index]}{stat.suffix}
                 </span>
                 <span className="text-neutral-500 text-lg max-w-[200px]">
