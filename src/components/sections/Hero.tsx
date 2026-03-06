@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Custom inline word rotate
+// Custom inline word rotates
 const InlineWordRotate = ({ words }: { words: string[] }) => {
   const [index, setIndex] = useState(0);
   
