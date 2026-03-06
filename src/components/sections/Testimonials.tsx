@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { apiRequest } from '@/lib/api';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
 interface Testimonial {
   id: string;
@@ -25,8 +24,7 @@ const Testimonials = () => {
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const res = await fetch(`${API_BASE}/public/testimonials`);
-        const json = await res.json();
+        const json = await apiRequest('/public/testimonials');
         if (json.success && json.data?.length > 0) {
           setTestimonials(json.data);
         }

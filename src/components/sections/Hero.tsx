@@ -19,14 +19,13 @@ const InlineWordRotate = ({ words }: { words: string[] }) => {
   
   return (
     <AnimatePresence mode="wait">
-      <motion.span
+        <motion.span
         key={words[index]}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
-        className="italic"
-        style={{ width: '100%', display: 'inline-block' }}
+        className="italic text-center w-full block"
       >
         {words[index]}
       </motion.span>
@@ -101,9 +100,9 @@ const Hero = () => {
         className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6"
       >
         <h1 className="font-serif text-[2.5rem] sm:text-6xl lg:text-7xl xl:text-8xl text-white leading-[1.1] max-w-4xl flex flex-col items-center">
-          <div className="flex flex-col sm:flex-row items-center sm:items-baseline sm:gap-4">
-            <span>The</span>
-            <span style={{ width: '11ch' }}>
+          <div className="flex flex-col items-center sm:flex-row sm:items-baseline sm:justify-center sm:gap-3">
+            <span className="mb-2 sm:mb-0">The</span>
+            <span className="relative flex items-center justify-center min-w-[11ch] h-[1.2em] sm:h-auto">
               <InlineWordRotate words={['marketplace', 'platform', 'community', 'network', 'ecosystem']} />
             </span>
           </div>
