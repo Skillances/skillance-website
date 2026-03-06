@@ -100,10 +100,10 @@ const Hero = () => {
         ref={textRef}
         className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6"
       >
-        <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl xl:text-8xl text-white leading-[1.1] max-w-4xl flex flex-col items-center">
-          <div className="flex items-baseline">
+        <h1 className="font-serif text-[2.5rem] sm:text-6xl lg:text-7xl xl:text-8xl text-white leading-[1.1] max-w-4xl flex flex-col items-center">
+          <div className="flex flex-col sm:flex-row items-center sm:items-baseline sm:gap-4">
             <span>The</span>
-            <span style={{ width: '9ch' }}>
+            <span style={{ width: '11ch' }}>
               <InlineWordRotate words={['marketplace', 'platform', 'community', 'network', 'ecosystem']} />
             </span>
           </div>

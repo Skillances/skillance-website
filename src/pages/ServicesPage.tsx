@@ -238,7 +238,7 @@ const ServicesPage = () => {
   return (
     <PageTemplate title="Current Services">
       <div className="space-y-16 lg:space-y-24" ref={containerRef}>
-        <div className="flex flex-col md:flex-row gap-8 justify-between items-end back-link">
+        <div className="flex flex-col md:flex-row gap-8 justify-between items-start md:items-end back-link">
           <div>
             <button 
               onClick={() => navigate('/#services')}

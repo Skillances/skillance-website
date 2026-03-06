@@ -176,67 +176,60 @@ const Services = () => {
 
       {/* Enhanced Modal */}
       {selectedCategory && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+        <div className="fixed inset-0 z-[100] flex flex-col sm:items-center sm:justify-center bg-white sm:bg-transparent">
+          {/* Backdrop for Desktop */}
           <div 
-            className="absolute inset-0 bg-black/40 backdrop-blur-xl transition-opacity duration-700"
+            className="absolute inset-0 bg-black/40 backdrop-blur-xl transition-opacity duration-700 hidden sm:block"
             onClick={() => setSelectedCategory(null)}
           />
           
-          <div className="relative bg-white w-full max-w-4xl max-h-[92vh] lg:max-h-[90vh] overflow-hidden rounded-t-[2.5rem] lg:rounded-[3rem] shadow-2xl flex flex-col lg:flex-row transition-all duration-500 animate-slide-up">
-            {/* Modal Image Section */}
-            <div className="lg:w-1/2 relative h-[200px] sm:h-[250px] lg:h-auto min-h-0">
+          <div className="relative bg-white w-full sm:max-w-4xl h-full sm:h-auto sm:max-h-[92dvh] overflow-hidden sm:rounded-[3rem] shadow-2xl flex flex-col sm:flex-row transition-all duration-500 animate-slide-up">
+            {/* Modal Image Section - Hidden on mobile for better space usage */}
+            <div className="hidden sm:block sm:w-1/2 relative min-h-0 shrink-0 sm:shrink overflow-hidden">
               <img 
                 src={selectedCategory.image} 
                 className="absolute inset-0 w-full h-full object-cover"
                 alt=""
               />
               <div className="absolute inset-0 bg-black/20" />
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className="absolute top-6 left-6 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white lg:hidden"
-              >
-                <X className="w-5 h-5" />
-              </button>
             </div>
 
             {/* Modal Content Section */}
-            <div className="lg:w-1/2 flex flex-col bg-white overflow-hidden flex-1">
-              <div className="p-6 sm:p-8 lg:p-16 flex-1 overflow-y-auto custom-scrollbar">
-                <div className="mb-8">
-                  <button
-                    onClick={() => setSelectedCategory(null)}
-                    className="absolute top-8 right-8 w-12 h-12 rounded-full bg-neutral-50 hover:bg-neutral-100 flex items-center justify-center text-black hidden lg:flex transition-colors"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
+            <div className="flex-1 flex flex-col min-h-0 bg-white sm:w-1/2">
+              {/* Close Button - Universal position */}
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className="absolute top-4 right-4 sm:top-8 sm:right-8 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-neutral-100 sm:bg-neutral-50 hover:bg-neutral-200 sm:hover:bg-neutral-100 flex items-center justify-center text-black transition-colors z-[110]"
+              >
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
 
-                  <div className="flex items-center gap-4 mb-4">
-                    <selectedCategory.icon className="w-8 h-8 text-black" />
-                    <span className="text-sm uppercase tracking-widest text-neutral-400 font-medium font-sans">Professional Services</span>
-                  </div>
-                  
-                  <h3 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-black mb-6">{selectedCategory.name}</h3>
-                  <p className="text-base sm:text-lg text-neutral-500 leading-relaxed font-light mb-10">
-                    {selectedCategory.longDescription}
-                  </p>
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-8 lg:p-16">
+                <div className="flex items-center gap-4 mb-4 mt-6 sm:mt-0">
+                  <span className="text-[10px] sm:text-xs uppercase tracking-widest text-neutral-400 font-medium font-sans">Professional Services</span>
+                </div>
+                
+                <h3 className="font-serif text-3xl sm:text-4xl text-black mb-4 sm:mb-6">{selectedCategory.name}</h3>
+                <p className="text-sm sm:text-base text-neutral-500 leading-relaxed font-light mb-8 sm:mb-10">
+                  {selectedCategory.longDescription}
+                </p>
 
-                  <div className="space-y-4">
-                    <p className="text-xs uppercase tracking-[0.2em] text-neutral-400 font-bold mb-6 font-sans">Available Specializations</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
-                      {selectedCategory.subcategories.map(sub => (
-                        <div key={sub} className="flex items-center gap-3 group/item cursor-default">
-                          <div className="w-1.5 h-1.5 bg-neutral-300 rounded-full group-hover/item:bg-black group-hover/item:scale-125 transition-all" />
-                          <span className="text-neutral-600 group-hover/item:text-black transition-colors">{sub}</span>
-                        </div>
-                      ))}
-                    </div>
+                <div className="space-y-4 pb-8">
+                  <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-neutral-400 font-bold mb-4 sm:mb-6 font-sans">Available Specializations</p>
+                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-x-8 gap-y-3 sm:gap-y-4">
+                    {selectedCategory.subcategories.map(sub => (
+                      <div key={sub} className="flex items-center gap-3 group/item cursor-default">
+                        <div className="w-1.5 h-1.5 bg-neutral-300 rounded-full group-hover/item:bg-black group-hover/item:scale-125 transition-all" />
+                        <span className="text-sm sm:text-base text-neutral-600 group-hover/item:text-black transition-colors">{sub}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
 
-              {/* Fixed Footer for Mobile Visibility */}
-              <div className="p-6 sm:p-8 lg:p-16 pt-0 lg:pt-0 bg-white border-t lg:border-t-0 border-neutral-100 lg:bg-transparent">
-                <button className="w-full bg-black text-white py-5 sm:py-6 rounded-full text-sm font-semibold hover:bg-neutral-800 transition-all transform hover:scale-[1.02] shadow-xl shadow-black/10">
+              {/* Fixed Footer */}
+              <div className="p-6 sm:p-8 lg:p-16 pt-4 sm:pt-0 bg-white border-t sm:border-t-0 border-neutral-100 shrink-0">
+                <button className="w-full bg-black text-white py-4 sm:py-6 rounded-full text-sm font-semibold hover:bg-neutral-800 transition-all transform hover:scale-[1.02] shadow-xl shadow-black/10">
                   Book a {selectedCategory.name} Expert
                 </button>
               </div>
