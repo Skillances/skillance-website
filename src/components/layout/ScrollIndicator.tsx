@@ -3,7 +3,10 @@ import { useEffect, useState, useRef } from 'react';
 const ScrollIndicator = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isIdle, setIsIdle] = useState(false);
+  const [isScrollingLong, setIsScrollingLong] = useState(false);
   const idleTimeoutRef = useRef<number | null>(null);
+  const scrollSessionTimeoutRef = useRef<number | null>(null);
+  const stopDetectionTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -11,20 +14,33 @@ const ScrollIndicator = () => {
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight - windowHeight;
       const scrolled = window.scrollY;
-      const scrollProgress = documentHeight > 0 ? (scrolled / documentHeight) * 100 : 0;
+      const progress = documentHeight > 0 ? (scrolled / documentHeight) * 100 : 0;
       
-      setScrollProgress(scrollProgress);
+      setScrollProgress(progress);
       setIsIdle(false);
 
-      // Clear existing timeout
-      if (idleTimeoutRef.current) {
-        clearTimeout(idleTimeoutRef.current);
-      }
-
-      // Set idle state after 5 seconds of no scrolling
+      // 1. Idle detection (show bounce after 5s)
+      if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
       idleTimeoutRef.current = window.setTimeout(() => {
         setIsIdle(true);
       }, 5000);
+
+      // 2. Active scrolling duration detection (hide after 1s)
+      if (!scrollSessionTimeoutRef.current) {
+        scrollSessionTimeoutRef.current = window.setTimeout(() => {
+          setIsScrollingLong(true);
+        }, 1000);
+      }
+
+      // 3. Stop detection (reset flags when scrolling stops)
+      if (stopDetectionTimeoutRef.current) clearTimeout(stopDetectionTimeoutRef.current);
+      stopDetectionTimeoutRef.current = window.setTimeout(() => {
+        setIsScrollingLong(false);
+        if (scrollSessionTimeoutRef.current) {
+          clearTimeout(scrollSessionTimeoutRef.current);
+          scrollSessionTimeoutRef.current = null;
+        }
+      }, 150);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -33,14 +49,15 @@ const ScrollIndicator = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
-      if (idleTimeoutRef.current) {
-        clearTimeout(idleTimeoutRef.current);
-      }
+      if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
+      if (scrollSessionTimeoutRef.current) clearTimeout(scrollSessionTimeoutRef.current);
+      if (stopDetectionTimeoutRef.current) clearTimeout(stopDetectionTimeoutRef.current);
     };
   }, []);
 
-  // Calculate opacity - hidden at start and end, visible in between
-  const opacity = (scrollProgress > 5 && scrollProgress < 95) ? 0.5 : 0;
+  // Calculate opacity - hidden at start/end, AND when scrolling for too long
+  const isVisibleRange = scrollProgress > 5 && scrollProgress < 95;
+  const opacity = (isVisibleRange && !isScrollingLong) ? 0.5 : 0;
 
   return (
     <div 
