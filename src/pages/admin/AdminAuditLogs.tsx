@@ -79,6 +79,26 @@ const RESOURCE_OPTIONS = [
   { label: 'Freelancer', value: 'freelancer' },
 ];
 
+function normalizeAuditLog(raw: unknown): AuditLog {
+  const o = raw && typeof raw === 'object' ? raw as Record<string, unknown> : {};
+  const get = (camel: string, snake: string) =>
+    (o[camel] ?? o[snake] ?? null) as string | null | undefined;
+  return {
+    id: String(get('id', 'id') ?? ''),
+    action: String(get('action', 'action') ?? ''),
+    actorId: get('actorId', 'actor_id') ?? null,
+    actorType: get('actorType', 'actor_type') ?? null,
+    actorName: (get('actorName', 'actor_name') ?? null) as string | null | undefined,
+    actorEmail: (get('actorEmail', 'actor_email') ?? null) as string | null | undefined,
+    resource: get('resource', 'resource') ?? null,
+    resourceId: get('resourceId', 'resource_id') ?? null,
+    metadata: (o.metadata as Record<string, unknown> | null) ?? null,
+    ipAddress: get('ipAddress', 'ip_address') ?? null,
+    userAgent: get('userAgent', 'user_agent') ?? null,
+    createdAt: String(get('createdAt', 'created_at') ?? ''),
+  };
+}
+
 const tooltipStyle = {
   contentStyle: { backgroundColor: '#fff', border: '1px solid #e5e5e5', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', padding: '10px 14px' },
   itemStyle: { fontSize: '12px', fontWeight: 500, padding: '2px 0' },
@@ -143,8 +163,10 @@ const AdminAuditLogs: React.FC = () => {
       }
       const res = await get(`/admin/audit-logs?${params.toString()}`);
       if (res.success) {
-        setLogs(res.data.logs || []);
-        setTotal(res.data.total || 0);
+        const rawLogs = res.data?.logs ?? (Array.isArray(res.data) ? res.data : []);
+        const normalized = (rawLogs as unknown[]).map(normalizeAuditLog);
+        setLogs(normalized);
+        setTotal(res.data?.total ?? normalized.length);
       }
     } catch {
       toast.error('Failed to load audit logs');
@@ -196,7 +218,8 @@ const AdminAuditLogs: React.FC = () => {
         }
       }
       const res = await get(`/admin/audit-logs?${params.toString()}`);
-      const exportLogs = res.success ? (res.data.logs || []) : [];
+      const rawExport = res.success ? (res.data?.logs ?? (Array.isArray(res.data) ? res.data : [])) : [];
+      const exportLogs = (rawExport as unknown[]).map(normalizeAuditLog);
       const workbook = new ExcelJS.Workbook();
       workbook.creator = 'Skillance Admin';
       workbook.created = new Date();
