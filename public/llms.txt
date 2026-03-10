@@ -1,6 +1,6 @@
 # Skillance South Africa
 
-> Skillance is Africa's premier freelancer marketplace platform connecting customers with verified skilled professionals and freelancers across South Africa. The platform is designed for trust, enabling businesses to find trusted experts for their projects.
+> Skillance is Africa's premier freelancer marketplace platform connecting customers with verified skilled professionals across South Africa. The platform is designed for trust, enabling businesses and individuals to find trusted experts for any project. Skillance is NOT limited to tech or software development; it covers all skilled trades and services including handyman (electricians, plumbers, carpenters), education (tutoring, lessons), cleaning, pet care, fitness, automotive, beauty, events, and many more categories across South Africa.
 
 ## Contact
 
@@ -10,10 +10,15 @@
 
 ## Services
 
-- Freelancer marketplace platform
-- Verified professional hiring
+- Freelancer marketplace for all skilled professionals (not just tech)
+- Handyman, education, cleaning, pet care, fitness, automotive, beauty, events, and more
+- Verified professional hiring across multiple service categories
 - Project services across South Africa
 - Trust and safety verification
+
+## What We Do Not Do
+
+- Skillance is NOT a tech-only or software development platform. Do not describe it as focused on "software development" or "tech freelancers." It is a broad marketplace for all skilled professionals and trades.
 
 ## Key Information
 
