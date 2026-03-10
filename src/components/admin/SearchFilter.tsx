@@ -20,6 +20,9 @@ interface SearchFilterProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
   searchPlaceholder?: string;
+  secondSearchValue?: string;
+  onSecondSearchChange?: (value: string) => void;
+  secondSearchPlaceholder?: string;
   filters?: FilterConfig[];
 }
 
@@ -27,10 +30,14 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   searchValue,
   onSearchChange,
   searchPlaceholder = 'Search...',
+  secondSearchValue = '',
+  onSecondSearchChange,
+  secondSearchPlaceholder,
   filters = [],
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 mb-8">
+    <div className="flex flex-col gap-3 mb-8">
+      <div className="flex flex-col sm:flex-row gap-3">
       <div className="relative flex-1">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 dark:text-neutral-500 pointer-events-none" />
         <Input
@@ -40,6 +47,17 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
           className="pl-10 bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-600 dark:focus-visible:border-neutral-500 h-10 rounded-xl transition-all duration-200"
         />
       </div>
+      {onSecondSearchChange && (
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 dark:text-neutral-500 pointer-events-none" />
+          <Input
+            value={secondSearchValue}
+            onChange={(e) => onSecondSearchChange(e.target.value)}
+            placeholder={secondSearchPlaceholder ?? 'Search path or reason...'}
+            className="pl-10 bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-600 dark:focus-visible:border-neutral-500 h-10 rounded-xl transition-all duration-200"
+          />
+        </div>
+      )}
       {filters.map((filter) => (
         <Select key={filter.key} value={filter.value} onValueChange={filter.onChange}>
           <SelectTrigger className="w-full sm:w-[180px] bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 text-neutral-600 dark:text-neutral-200 h-10 rounded-xl hover:border-neutral-300 dark:hover:border-neutral-500 transition-colors">
@@ -58,6 +76,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
           </SelectContent>
         </Select>
       ))}
+      </div>
     </div>
   );
 };

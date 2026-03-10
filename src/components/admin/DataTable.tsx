@@ -28,6 +28,7 @@ interface DataTableProps<T> {
   emptyTitle?: string;
   emptyDescription?: string;
   onRowClick?: (item: T) => void;
+  getRowClassName?: (item: T) => string | undefined;
   sortKey?: string;
   sortDirection?: 'asc' | 'desc';
   onSort?: (key: string) => void;
@@ -44,6 +45,7 @@ function DataTable<T>({
   emptyTitle = 'No data found',
   emptyDescription,
   onRowClick,
+  getRowClassName,
   sortKey,
   sortDirection,
   onSort,
@@ -137,7 +139,7 @@ function DataTable<T>({
             {data.map((item, index) => (
               <TableRow
                 key={index}
-                className={bodyRowClass}
+                className={cn(bodyRowClass, getRowClassName?.(item))}
                 onClick={onRowClick ? () => onRowClick(item) : undefined}
               >
                 {columns.map((col) => (
