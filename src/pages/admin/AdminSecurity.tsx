@@ -75,7 +75,7 @@ const AdminSecurity: React.FC = () => {
   const columns: Column<SecurityEvent>[] = [
     { key: 'createdAt', header: 'Time', render: (e) => <span className="text-neutral-400 dark:text-neutral-500 text-xs">{new Date(e.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span> },
     { key: 'eventType', header: 'Type', render: (e) => <StatusBadge status={(eventTypeColors[e.eventType] || 'info') as any} label={e.eventType.replace(/_/g, ' ')} /> },
-    { key: 'ipAddress', header: 'IP Address', render: (e) => <button onClick={(ev) => { ev.stopPropagation(); viewIpHistory(e.ipAddress); }} className="text-black dark:text-white underline hover:text-neutral-600 dark:hover:text-neutral-300 font-mono text-xs transition-colors">{e.ipAddress}</button> },
+    { key: 'ipAddress', header: 'IP Address', render: (e) => <button onClick={(ev) => { ev.stopPropagation(); viewIpHistory(e.ipAddress); }} className="text-black dark:text-white underline hover:text-neutral-600 dark:hover:text-neutral-300 font-mono text-xs transition-colors" aria-label={`View history for ${e.ipAddress}`}>{e.ipAddress}</button> },
     { key: 'method', header: 'Method', render: (e) => <span className="text-neutral-600 dark:text-neutral-400 font-mono text-xs">{e.method}</span> },
     { key: 'path', header: 'Path', render: (e) => <span className="text-neutral-500 dark:text-neutral-400 text-xs truncate max-w-[200px] block">{e.path}</span> },
     { key: 'reason', header: 'Reason', render: (e) => <span className="text-neutral-500 dark:text-neutral-400 text-xs truncate max-w-[250px] block">{e.reason}</span> },
@@ -125,7 +125,7 @@ const AdminSecurity: React.FC = () => {
           ) : byCountryError ? (
             <div className="py-10 text-center space-y-2">
               <p className="text-sm text-neutral-500 dark:text-neutral-400">Failed to load country data</p>
-              <button type="button" onClick={fetchByCountry} className="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:underline">Retry</button>
+              <button type="button" onClick={fetchByCountry} className="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:underline" aria-label="Retry loading map">Retry</button>
             </div>
           ) : (
             <p className="text-sm text-neutral-400 dark:text-neutral-500 py-10 text-center">No country data available</p>

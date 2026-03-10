@@ -109,7 +109,7 @@ const HowItWorks = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
         <div className="how-header flex flex-col items-center mb-24">
-          <p className="text-sm uppercase tracking-[0.3em] text-neutral-400 mb-8 font-medium">
+          <p className="text-sm uppercase tracking-[0.3em] text-neutral-500 mb-8 font-medium">
             The Skillance Process
           </p>
           <h2 className="font-serif text-3xl sm:text-6xl text-black leading-[1.1] mb-12 text-center max-w-4xl">

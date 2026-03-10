@@ -80,13 +80,24 @@ const Hero = () => {
         className="absolute inset-0 w-full h-[120%] -top-[10%]"
       >
         <picture className="w-full h-full block">
-          <source 
-            media="(max-width: 1023px)" 
-            srcSet="/hero-image-portrait.jpg" 
+          <source
+            media="(max-width: 1023px)"
+            type="image/webp"
+            srcSet="/hero-image-portrait.webp"
+          />
+          <source
+            media="(max-width: 1023px)"
+            srcSet="/hero-image-portrait.jpg"
+          />
+          <source
+            type="image/webp"
+            srcSet="/hero-image.webp"
           />
           <img
             src="/hero-image.jpg"
             alt="Skillance"
+            width={1920}
+            height={1080}
             className="w-full h-full object-cover"
           />
         </picture>

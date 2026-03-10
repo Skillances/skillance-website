@@ -113,7 +113,7 @@ const Services = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
         <div className="services-header max-w-3xl mb-24">
-          <p className="text-sm uppercase tracking-[0.4em] text-neutral-400 mb-8 font-medium">
+          <p className="text-sm uppercase tracking-[0.4em] text-neutral-500 mb-8 font-medium">
             Core Expertise
           </p>
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-7xl text-black leading-[1.05] mb-8">
@@ -138,6 +138,8 @@ const Services = () => {
                 <img 
                   src={category.image} 
                   alt={category.name}
+                  width={800}
+                  height={1000}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110 grayscale-[0.5] group-hover:grayscale-0"
                 />
                 
@@ -163,7 +165,7 @@ const Services = () => {
 
         {/* Explore More CTA */}
         <div className="flex flex-col items-center gap-8 pt-12 border-t border-neutral-100">
-          <p className="text-neutral-400 font-serif text-2xl italic">and many more...</p>
+          <p className="text-neutral-500 font-serif text-2xl italic">and many more...</p>
           <button 
             onClick={() => window.location.href = '/services'}
             className="group flex items-center gap-4 px-10 py-5 bg-black text-white rounded-full text-sm font-semibold hover:bg-neutral-800 transition-all hover:scale-[1.05]"
@@ -188,8 +190,10 @@ const Services = () => {
             <div className="hidden sm:block sm:w-1/2 relative min-h-0 shrink-0 sm:shrink overflow-hidden">
               <img 
                 src={selectedCategory.image} 
+                width={800}
+                height={1000}
                 className="absolute inset-0 w-full h-full object-cover"
-                alt=""
+                alt={`${selectedCategory.name} service`}
               />
               <div className="absolute inset-0 bg-black/20" />
             </div>
@@ -200,13 +204,14 @@ const Services = () => {
               <button
                 onClick={() => setSelectedCategory(null)}
                 className="absolute top-4 right-4 sm:top-8 sm:right-8 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-neutral-100 sm:bg-neutral-50 hover:bg-neutral-200 sm:hover:bg-neutral-100 flex items-center justify-center text-black transition-colors z-[110]"
+                aria-label="Close"
               >
                 <X className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
 
               <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-8 lg:p-16">
                 <div className="flex items-center gap-4 mb-4 mt-6 sm:mt-0">
-                  <span className="text-[10px] sm:text-xs uppercase tracking-widest text-neutral-400 font-medium font-sans">Professional Services</span>
+                  <span className="text-[10px] sm:text-xs uppercase tracking-widest text-neutral-500 font-medium font-sans">Professional Services</span>
                 </div>
                 
                 <h3 className="font-serif text-3xl sm:text-4xl text-black mb-4 sm:mb-6">{selectedCategory.name}</h3>
@@ -215,7 +220,7 @@ const Services = () => {
                 </p>
 
                 <div className="space-y-4 pb-8">
-                  <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-neutral-400 font-bold mb-4 sm:mb-6 font-sans">Available Specializations</p>
+                  <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-neutral-500 font-bold mb-4 sm:mb-6 font-sans">Available Specializations</p>
                   <div className="grid grid-cols-1 xs:grid-cols-2 gap-x-8 gap-y-3 sm:gap-y-4">
                     {selectedCategory.subcategories.map(sub => (
                       <div key={sub} className="flex items-center gap-3 group/item cursor-default">

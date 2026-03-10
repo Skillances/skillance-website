@@ -133,6 +133,7 @@ const Testimonials = () => {
                   className={`h-1 rounded-full transition-all duration-500 ${
                     index === currentIndex ? 'w-12 bg-white' : 'w-6 bg-neutral-700 hover:bg-neutral-600'
                   }`}
+                  aria-label={`Go to testimonial ${index + 1}`}
                 />
               ))}
             </div>

@@ -128,7 +128,7 @@ const AdminUserDetail: React.FC = () => {
             </div>
             <div className="flex items-center gap-3">
               <label className="text-xs text-neutral-400 uppercase tracking-widest font-medium">Admin Access</label>
-              <button onClick={() => setEditForm((f) => ({ ...f, isAdmin: !f.isAdmin }))} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${editForm.isAdmin ? 'bg-black' : 'bg-neutral-200'}`}>
+              <button onClick={() => setEditForm((f) => ({ ...f, isAdmin: !f.isAdmin }))} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${editForm.isAdmin ? 'bg-black' : 'bg-neutral-200'}`} aria-label={editForm.isAdmin ? 'Admin (on)' : 'Admin (off)'}>
                 <span className={`inline-block h-4 w-4 transform rounded-full transition-transform duration-200 ${editForm.isAdmin ? 'translate-x-6 bg-white' : 'translate-x-1 bg-neutral-400'}`} />
               </button>
             </div>

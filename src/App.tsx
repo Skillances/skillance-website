@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -17,23 +17,35 @@ import ServicesPage from './pages/ServicesPage';
 import ContactPage from './pages/ContactPage';
 import CategoryPage from './pages/CategoryPage';
 import LoginPage from './pages/LoginPage';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminUsers from './pages/admin/AdminUsers';
-import AdminUserDetail from './pages/admin/AdminUserDetail';
-import AdminFreelancers from './pages/admin/AdminFreelancers';
-import AdminFreelancerDetail from './pages/admin/AdminFreelancerDetail';
-import AdminCustomers from './pages/admin/AdminCustomers';
-import AdminCustomerDetail from './pages/admin/AdminCustomerDetail';
-import AdminVerifications from './pages/admin/AdminVerifications';
-import AdminAnalytics from './pages/admin/AdminAnalytics';
-import AdminSecurity from './pages/admin/AdminSecurity';
-import AdminCategories from './pages/admin/AdminCategories';
-import AdminSystem from './pages/admin/AdminSystem';
-import AdminContactMessages from './pages/admin/AdminContactMessages';
-import AdminNotifySubscribers from './pages/admin/AdminNotifySubscribers';
-import AdminWebsiteReviews from './pages/admin/AdminWebsiteReviews';
 import AdminLayout from './components/layout/AdminLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
+
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminUserDetail = lazy(() => import('./pages/admin/AdminUserDetail'));
+const AdminFreelancers = lazy(() => import('./pages/admin/AdminFreelancers'));
+const AdminFreelancerDetail = lazy(() => import('./pages/admin/AdminFreelancerDetail'));
+const AdminCustomers = lazy(() => import('./pages/admin/AdminCustomers'));
+const AdminCustomerDetail = lazy(() => import('./pages/admin/AdminCustomerDetail'));
+const AdminVerifications = lazy(() => import('./pages/admin/AdminVerifications'));
+const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
+const AdminSecurity = lazy(() => import('./pages/admin/AdminSecurity'));
+const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
+const AdminSystem = lazy(() => import('./pages/admin/AdminSystem'));
+const AdminContactMessages = lazy(() => import('./pages/admin/AdminContactMessages'));
+const AdminNotifySubscribers = lazy(() => import('./pages/admin/AdminNotifySubscribers'));
+const AdminWebsiteReviews = lazy(() => import('./pages/admin/AdminWebsiteReviews'));
+
+function AdminLoadingFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-neutral-500">Loading...</p>
+      </div>
+    </div>
+  );
+}
 import { AuthProvider } from './context/AuthContext';
 import { AdminThemeProvider } from './context/AdminThemeContext';
 import CookieConsent from './components/layout/CookieConsent';
@@ -123,28 +135,30 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
             path="/admin/*" 
             element={
               <ProtectedRoute requireAdmin>
-                <AdminThemeProvider>
-                  <AdminLayout>
-                    <Routes>
-                    <Route path="dashboard" element={<AdminDashboard />} />
-                    <Route path="users" element={<AdminUsers />} />
-                    <Route path="users/:userId" element={<AdminUserDetail />} />
-                    <Route path="freelancers" element={<AdminFreelancers />} />
-                    <Route path="freelancers/:freelancerId" element={<AdminFreelancerDetail />} />
-                    <Route path="customers" element={<AdminCustomers />} />
-                    <Route path="customers/:customerId" element={<AdminCustomerDetail />} />
-                    <Route path="verifications" element={<AdminVerifications />} />
-                    <Route path="analytics" element={<AdminAnalytics />} />
-                    <Route path="security" element={<AdminSecurity />} />
-                    <Route path="categories" element={<AdminCategories />} />
-                    <Route path="contact-messages" element={<AdminContactMessages />} />
-                    <Route path="notify-subscribers" element={<AdminNotifySubscribers />} />
-                    <Route path="website-reviews" element={<AdminWebsiteReviews />} />
-                    <Route path="system" element={<AdminSystem />} />
-                    <Route path="*" element={<AdminDashboard />} />
-                    </Routes>
-                  </AdminLayout>
-                </AdminThemeProvider>
+                <Suspense fallback={<AdminLoadingFallback />}>
+                  <AdminThemeProvider>
+                    <AdminLayout>
+                      <Routes>
+                        <Route path="dashboard" element={<AdminDashboard />} />
+                        <Route path="users" element={<AdminUsers />} />
+                        <Route path="users/:userId" element={<AdminUserDetail />} />
+                        <Route path="freelancers" element={<AdminFreelancers />} />
+                        <Route path="freelancers/:freelancerId" element={<AdminFreelancerDetail />} />
+                        <Route path="customers" element={<AdminCustomers />} />
+                        <Route path="customers/:customerId" element={<AdminCustomerDetail />} />
+                        <Route path="verifications" element={<AdminVerifications />} />
+                        <Route path="analytics" element={<AdminAnalytics />} />
+                        <Route path="security" element={<AdminSecurity />} />
+                        <Route path="categories" element={<AdminCategories />} />
+                        <Route path="contact-messages" element={<AdminContactMessages />} />
+                        <Route path="notify-subscribers" element={<AdminNotifySubscribers />} />
+                        <Route path="website-reviews" element={<AdminWebsiteReviews />} />
+                        <Route path="system" element={<AdminSystem />} />
+                        <Route path="*" element={<AdminDashboard />} />
+                      </Routes>
+                    </AdminLayout>
+                  </AdminThemeProvider>
+                </Suspense>
               </ProtectedRoute>
             } 
           />

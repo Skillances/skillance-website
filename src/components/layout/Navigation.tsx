@@ -179,11 +179,26 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
               to="/"
               className={`flex items-center gap-3 font-serif text-2xl font-medium tracking-tight transition-colors duration-300 ${textColor}`}
             >
-              <img 
-                src={isDarkSection ? "/skillance-tiny-logo-white.png" : "/skillance-tiny-logo-black.png"}
-                alt="Skillance" 
-                className="h-6 w-auto transition-opacity duration-300"
-              />
+              {isDarkSection ? (
+                <picture>
+                  <source type="image/webp" srcSet="/skillance-tiny-logo-white.webp" />
+                  <img
+                    src="/skillance-tiny-logo-white.png"
+                    alt="Skillance"
+                    width={120}
+                    height={24}
+                    className="h-6 w-auto transition-opacity duration-300"
+                  />
+                </picture>
+              ) : (
+                <img
+                  src="/skillance-tiny-logo-black.png"
+                  alt="Skillance"
+                  width={120}
+                  height={24}
+                  className="h-6 w-auto transition-opacity duration-300"
+                />
+              )}
               Skillance
             </Link>
 
@@ -235,11 +250,26 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
           {/* Mobile Header - Aligned with main nav */}
           <div className="flex items-center justify-between px-6 py-[22px] border-b border-neutral-100">
             <div className="flex items-center gap-3">
-              <img 
-                src={isDarkSection ? "/skillance-tiny-logo-white.png" : "/skillance-tiny-logo-black.png"}
-                alt="Skillance" 
-                className="h-6 w-auto transition-opacity duration-300"
-              />
+              {isDarkSection ? (
+                <picture>
+                  <source type="image/webp" srcSet="/skillance-tiny-logo-white.webp" />
+                  <img
+                    src="/skillance-tiny-logo-white.png"
+                    alt="Skillance"
+                    width={120}
+                    height={24}
+                    className="h-6 w-auto transition-opacity duration-300"
+                  />
+                </picture>
+              ) : (
+                <img
+                  src="/skillance-tiny-logo-black.png"
+                  alt="Skillance"
+                  width={120}
+                  height={24}
+                  className="h-6 w-auto transition-opacity duration-300"
+                />
+              )}
               <span className="font-serif text-2xl font-medium">Skillance</span>
             </div>
             <button

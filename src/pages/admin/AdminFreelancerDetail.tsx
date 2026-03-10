@@ -250,7 +250,7 @@ const AdminFreelancerDetail: React.FC = () => {
             <div className="relative rounded-xl border border-neutral-200 dark:border-neutral-600 overflow-hidden bg-neutral-50 dark:bg-neutral-800 aspect-[3/1] min-h-[120px] max-h-[200px]">
               {freelancer.coverPhotoUrl ? (
                 <>
-                  <button type="button" onClick={() => openPreview(freelancer.coverPhotoUrl, 'Profile banner')} className="block w-full h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500 focus-visible:ring-offset-2 cursor-pointer">
+                  <button type="button" onClick={() => openPreview(freelancer.coverPhotoUrl, 'Profile banner')} className="block w-full h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500 focus-visible:ring-offset-2 cursor-pointer" aria-label="View profile banner">
                     <img src={freelancer.coverPhotoUrl} alt="Profile banner" className="w-full h-full object-cover" />
                   </button>
                   <Button variant="destructive" size="sm" className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full opacity-90 hover:opacity-100" onClick={(e) => { e.stopPropagation(); handleDeletePhoto('profileBanner'); }} disabled={deletePhotoLoading === 'profileBanner'}>
@@ -278,7 +278,7 @@ const AdminFreelancerDetail: React.FC = () => {
                 <div className="relative w-44 h-44 shrink-0">
                   {url ? (
                     <>
-                      <button type="button" onClick={() => openPreview(url, label)} className="w-full h-full rounded-xl border border-neutral-200 dark:border-neutral-600 overflow-hidden bg-neutral-50 dark:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500 focus-visible:ring-offset-2 cursor-pointer block">
+                      <button type="button" onClick={() => openPreview(url, label)} className="w-full h-full rounded-xl border border-neutral-200 dark:border-neutral-600 overflow-hidden bg-neutral-50 dark:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500 focus-visible:ring-offset-2 cursor-pointer block" aria-label={`View ${label}`}>
                         <img src={url} alt={label} className="w-full h-full object-cover" />
                       </button>
                       <Button variant="destructive" size="sm" className="absolute top-1 right-1 h-7 w-7 p-0 rounded-full opacity-90 hover:opacity-100" onClick={(e) => { e.stopPropagation(); handleDeletePhoto(key); }} disabled={deletePhotoLoading === key}>
@@ -382,7 +382,7 @@ const AdminFreelancerDetail: React.FC = () => {
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
                                 {b.customer?.profilePhotoUrl ? (
-                                  <img src={b.customer.profilePhotoUrl} alt="" className="w-6 h-6 rounded-full object-cover shrink-0" />
+                                  <img src={b.customer.profilePhotoUrl} alt={b.customer?.fullName ? `Photo of ${b.customer.fullName}` : 'Customer photo'} className="w-6 h-6 rounded-full object-cover shrink-0" />
                                 ) : (
                                   <div className="w-6 h-6 rounded-full bg-neutral-200 dark:bg-neutral-600 flex items-center justify-center text-[10px] font-semibold text-black dark:text-white shrink-0">{b.customer?.fullName?.charAt(0) || '?'}</div>
                                 )}

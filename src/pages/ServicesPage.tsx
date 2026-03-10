@@ -288,6 +288,8 @@ const ServicesPage = () => {
                 <img 
                   src={getCategoryImage(category.id)} 
                   alt={category.name}
+                  width={1600}
+                  height={1000}
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[0.3] group-hover:grayscale-0"
                 />
               </div>

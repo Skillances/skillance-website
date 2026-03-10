@@ -79,11 +79,11 @@ const AdminCategories: React.FC = () => {
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium">Active</label>
-                <button onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${form.isActive ? 'bg-black dark:bg-white' : 'bg-neutral-200 dark:bg-neutral-700'}`}><span className={`inline-block h-4 w-4 transform rounded-full transition-transform duration-200 ${form.isActive ? 'translate-x-6 bg-white dark:bg-black' : 'translate-x-1 bg-neutral-400'}`} /></button>
+                <button onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${form.isActive ? 'bg-black dark:bg-white' : 'bg-neutral-200 dark:bg-neutral-700'}`} aria-label={form.isActive ? 'Active (on)' : 'Active (off)'}><span className={`inline-block h-4 w-4 transform rounded-full transition-transform duration-200 ${form.isActive ? 'translate-x-6 bg-white dark:bg-black' : 'translate-x-1 bg-neutral-400'}`} /></button>
               </div>
               <div className="flex items-center gap-2">
                 <label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium">Proximity Based</label>
-                <button onClick={() => setForm((f) => ({ ...f, isProximityBased: !f.isProximityBased }))} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${form.isProximityBased ? 'bg-black dark:bg-white' : 'bg-neutral-200 dark:bg-neutral-700'}`}><span className={`inline-block h-4 w-4 transform rounded-full transition-transform duration-200 ${form.isProximityBased ? 'translate-x-6 bg-white dark:bg-black' : 'translate-x-1 bg-neutral-400'}`} /></button>
+                <button onClick={() => setForm((f) => ({ ...f, isProximityBased: !f.isProximityBased }))} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${form.isProximityBased ? 'bg-black dark:bg-white' : 'bg-neutral-200 dark:bg-neutral-700'}`} aria-label={form.isProximityBased ? 'Proximity-based (on)' : 'Proximity-based (off)'}><span className={`inline-block h-4 w-4 transform rounded-full transition-transform duration-200 ${form.isProximityBased ? 'translate-x-6 bg-white dark:bg-black' : 'translate-x-1 bg-neutral-400'}`} /></button>
               </div>
             </div>
           </div>

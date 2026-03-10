@@ -27,7 +27,7 @@ const AdminCustomers: React.FC = () => {
     { key: 'fullName', header: 'Name', render: (c) => (
       <div className="flex items-center gap-3">
         {c.profilePhotoUrl ? (
-          <img src={c.profilePhotoUrl} alt="" className="w-8 h-8 rounded-full object-cover shrink-0 bg-neutral-100 dark:bg-neutral-700" />
+          <img src={c.profilePhotoUrl} alt={c.fullName ? `Photo of ${c.fullName}` : 'Profile photo'} className="w-8 h-8 rounded-full object-cover shrink-0 bg-neutral-100 dark:bg-neutral-700" />
         ) : (
           <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-xs font-semibold text-black dark:text-white shrink-0">{c.fullName?.charAt(0) || '?'}</div>
         )}

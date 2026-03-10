@@ -61,13 +61,18 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <Link to="/" className="mb-4 block">
-              <img 
-                src="/skillance-tiny-logo-white.png" 
-                alt="Skillance" 
-                className="h-8 w-auto"
-              />
+              <picture>
+                <source type="image/webp" srcSet="/skillance-tiny-logo-white.webp" />
+                <img
+                  src="/skillance-tiny-logo-white.png"
+                  alt="Skillance"
+                  width={120}
+                  height={24}
+                  className="h-8 w-auto"
+                />
+              </picture>
             </Link>
-            <p className="text-neutral-400 max-w-md leading-relaxed">
+            <p className="text-neutral-300 max-w-md leading-relaxed">
               Connecting communities with trusted experts. Find verified professionals 
               for all your service needs.
             </p>

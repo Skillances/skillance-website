@@ -128,7 +128,7 @@ const CTA = () => {
             </div>
           )}
 
-          <p className="text-sm text-neutral-400 mb-8">
+          <p className="text-sm text-neutral-500 mb-8">
             Available for iOS and Android soon
           </p>
 

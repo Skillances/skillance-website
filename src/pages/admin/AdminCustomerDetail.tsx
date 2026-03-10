@@ -130,7 +130,7 @@ const AdminCustomerDetail: React.FC = () => {
                       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors"
                     >
                       {fl.photo ? (
-                        <img src={fl.photo} alt="" className="w-5 h-5 rounded-full object-cover shrink-0" />
+                        <img src={fl.photo} alt={fl.name ? `Photo of ${fl.name}` : 'Freelancer photo'} className="w-5 h-5 rounded-full object-cover shrink-0" />
                       ) : (
                         <div className="w-5 h-5 rounded-full bg-neutral-300 dark:bg-neutral-600 flex items-center justify-center text-[9px] font-bold text-black dark:text-white shrink-0">{fl.name.charAt(0)}</div>
                       )}
@@ -180,7 +180,7 @@ const AdminCustomerDetail: React.FC = () => {
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
                                 {flPhoto ? (
-                                  <img src={flPhoto} alt="" className="w-6 h-6 rounded-full object-cover shrink-0" />
+                                  <img src={flPhoto} alt={flName ? `Photo of ${flName}` : 'Freelancer photo'} className="w-6 h-6 rounded-full object-cover shrink-0" />
                                 ) : (
                                   <div className="w-6 h-6 rounded-full bg-neutral-200 dark:bg-neutral-600 flex items-center justify-center text-[10px] font-semibold text-black dark:text-white shrink-0">{flName.charAt(0)}</div>
                                 )}

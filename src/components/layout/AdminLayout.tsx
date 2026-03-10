@@ -74,11 +74,26 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       {/* Logo - same height as header (h-14) so they align */}
       <div className="shrink-0 h-14 flex items-center px-5 border-b border-neutral-100 dark:border-neutral-800">
         <Link to="/" className="flex items-center gap-2.5">
-          <img
-            src={isDark ? "/skillance-tiny-logo-white.png" : "/skillance-tiny-logo-black.png"}
-            alt="Skillance"
-            className="h-7 w-auto shrink-0"
-          />
+          {isDark ? (
+            <picture>
+              <source type="image/webp" srcSet="/skillance-tiny-logo-white.webp" />
+              <img
+                src="/skillance-tiny-logo-white.png"
+                alt="Skillance"
+                width={120}
+                height={24}
+                className="h-7 w-auto shrink-0"
+              />
+            </picture>
+          ) : (
+            <img
+              src="/skillance-tiny-logo-black.png"
+              alt="Skillance"
+              width={120}
+              height={24}
+              className="h-7 w-auto shrink-0"
+            />
+          )}
           <span className="font-serif text-lg tracking-tight text-black dark:text-white">Skillance</span>
         </Link>
       </div>
@@ -159,7 +174,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             className="fixed inset-y-0 left-0 z-50 w-[260px] bg-white dark:bg-neutral-950 border-r border-neutral-100 dark:border-neutral-800 flex flex-col lg:hidden shadow-2xl"
           >
             <div className="absolute top-4 right-4 z-10">
-              <button onClick={() => setIsMobileMenuOpen(false)} className="p-1.5 text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white">
+              <button onClick={() => setIsMobileMenuOpen(false)} className="p-1.5 text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white" aria-label="Close menu">
                 <X size={18} />
               </button>
             </div>
@@ -176,6 +191,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <button
               onClick={() => setIsMobileMenuOpen(true)}
               className="lg:hidden p-1.5 text-neutral-400 dark:text-neutral-500 hover:text-black dark:hover:text-white transition-colors"
+              aria-label="Open menu"
             >
               <Menu size={20} />
             </button>
