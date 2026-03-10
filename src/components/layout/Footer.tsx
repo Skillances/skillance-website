@@ -80,7 +80,7 @@ const Footer = () => {
 
           {/* Social Links */}
           <div className="lg:text-right">
-            <p className="text-sm text-neutral-500 mb-4 font-medium uppercase tracking-widest">Follow us</p>
+            <p className="text-sm text-neutral-400 mb-4 font-medium uppercase tracking-widest">Follow us</p>
             <div className="flex gap-4 lg:justify-end">
               {socialLinks.map((social) => (
                 <a
@@ -104,7 +104,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-10 mb-16">
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
-              <h3 className="text-sm text-neutral-500 mb-6 font-medium uppercase tracking-widest">
+              <h3 className="text-sm text-neutral-400 mb-6 font-medium uppercase tracking-widest">
                 {category}
               </h3>
               <ul className="space-y-4">
@@ -137,11 +137,11 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-neutral-400">
             © {new Date().getFullYear()} Skillance. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <span className="text-sm text-neutral-500">
+            <span className="text-sm text-neutral-400">
               Made with care in South Africa
             </span>
           </div>

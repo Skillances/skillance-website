@@ -110,14 +110,12 @@ const Hero = () => {
         ref={textRef}
         className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6"
       >
-        <h1 className="font-serif text-[2.5rem] sm:text-6xl lg:text-7xl xl:text-8xl text-white leading-[1.1] max-w-4xl flex flex-col items-center">
-          <div className="flex flex-col items-center sm:flex-row sm:items-baseline sm:justify-center sm:gap-3">
-            <span className="mb-2 sm:mb-0">The</span>
-            <span className="relative flex items-center justify-center min-w-[11ch] h-[1.2em] sm:h-auto">
-              <InlineWordRotate words={['marketplace', 'platform', 'community', 'network', 'ecosystem']} />
-            </span>
-          </div>
-          <span className="italic mt-4">designed for trust.</span>
+        <h1 className="font-serif text-[2.5rem] sm:text-6xl lg:text-7xl xl:text-8xl text-white leading-[1.1] max-w-4xl flex flex-col items-center gap-2 sm:gap-3">
+          <span>The</span>
+          <span className="relative flex items-center justify-center min-w-[11ch] h-[1.2em]">
+            <InlineWordRotate words={['marketplace', 'platform', 'community', 'network', 'ecosystem']} />
+          </span>
+          <span className="italic">designed for trust.</span>
         </h1>
       </div>
     </section>

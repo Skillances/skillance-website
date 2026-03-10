@@ -215,7 +215,11 @@ const ServicesPage = () => {
     }
   }, []);
 
-  const getCategoryImage = (id: string) => {
+  function getUnsplashUrl(url: string, width: number): string {
+  return url.replace(/w=\d+/, `w=${width}`);
+}
+
+const getCategoryImage = (id: string) => {
     const images: Record<string, string> = {
       handyman: 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&q=80&w=2070',
       education: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=2070',
@@ -286,7 +290,9 @@ const ServicesPage = () => {
             >
               <div className="aspect-[16/10] overflow-hidden flex-shrink-0">
                 <img 
-                  src={getCategoryImage(category.id)} 
+                  src={getUnsplashUrl(getCategoryImage(category.id), 800)} 
+                  srcSet={`${getUnsplashUrl(getCategoryImage(category.id), 400)} 400w, ${getUnsplashUrl(getCategoryImage(category.id), 800)} 800w, ${getUnsplashUrl(getCategoryImage(category.id), 1200)} 1200w`}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   alt={category.name}
                   width={1600}
                   height={1000}

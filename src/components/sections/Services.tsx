@@ -5,6 +5,10 @@ import { X, ArrowUpRight, Hammer, GraduationCap, Sparkles, Dog, Dumbbell, Car } 
 
 gsap.registerPlugin(ScrollTrigger);
 
+function getUnsplashUrl(url: string, width: number): string {
+  return url.replace(/w=\d+/, `w=${width}`);
+}
+
 interface ServiceCategory {
   name: string;
   description: string;
@@ -136,7 +140,9 @@ const Services = () => {
               >
                 {/* Background Image */}
                 <img 
-                  src={category.image} 
+                  src={getUnsplashUrl(category.image, 800)} 
+                  srcSet={`${getUnsplashUrl(category.image, 400)} 400w, ${getUnsplashUrl(category.image, 800)} 800w, ${getUnsplashUrl(category.image, 1200)} 1200w`}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   alt={category.name}
                   width={800}
                   height={1000}
@@ -189,7 +195,9 @@ const Services = () => {
             {/* Modal Image Section - Hidden on mobile for better space usage */}
             <div className="hidden sm:block sm:w-1/2 relative min-h-0 shrink-0 sm:shrink overflow-hidden">
               <img 
-                src={selectedCategory.image} 
+                src={getUnsplashUrl(selectedCategory.image, 800)} 
+                srcSet={`${getUnsplashUrl(selectedCategory.image, 400)} 400w, ${getUnsplashUrl(selectedCategory.image, 800)} 800w`}
+                sizes="(max-width: 640px) 100vw, 50vw"
                 width={800}
                 height={1000}
                 className="absolute inset-0 w-full h-full object-cover"

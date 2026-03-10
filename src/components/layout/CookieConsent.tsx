@@ -42,6 +42,7 @@ const CookieConsent = () => {
                   <button 
                     onClick={() => setIsVisible(false)}
                     className="text-neutral-400 hover:text-black transition-colors"
+                    aria-label="Close"
                   >
                     <X className="w-5 h-5" />
                   </button>

@@ -160,7 +160,7 @@ const HowItWorks = () => {
                   <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-start">
                     {/* Number */}
                     <div className="lg:col-span-2">
-                      <span className="font-serif text-5xl lg:text-7xl text-neutral-300 block group-hover:text-black transition-colors duration-500 opacity-80 group-hover:opacity-100">
+                      <span className="font-serif text-5xl lg:text-7xl text-neutral-500 block group-hover:text-black transition-colors duration-500 opacity-80 group-hover:opacity-100">
                         {step.number}
                       </span>
                     </div>
