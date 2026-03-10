@@ -60,14 +60,14 @@ function HandWrittenTitle({
                 </motion.svg>
             </div>
             <div className="relative text-center z-10 flex flex-col items-center justify-center">
-                <motion.h1
-                    className="text-8xl md:text-[9rem] text-black tracking-tight font-serif"
+                <motion.span
+                    className="text-8xl md:text-[9rem] text-black tracking-tight font-serif block"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
                 >
                     Skillance
-                </motion.h1>
+                </motion.span>
                 <motion.p
                     className="text-xs uppercase tracking-[0.4em] text-neutral-400 font-medium mt-2"
                     initial={{ opacity: 0, letterSpacing: "0.1em" }}
