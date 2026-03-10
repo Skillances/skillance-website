@@ -250,24 +250,40 @@ const AdminAuditLogs: React.FC = () => {
   ];
 
   const columns: Column<AuditLog>[] = [
-    { key: 'createdAt', header: 'Time', sortable: true, render: (e) => <span className="text-neutral-400 dark:text-neutral-500 text-xs">{new Date(e.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span> },
-    { key: 'action', header: 'Action', sortable: true, render: (e) => <span className="text-neutral-700 dark:text-neutral-200 text-sm font-medium">{e.action.replace(/_/g, ' ')}</span> },
+    { key: 'createdAt', header: 'Time', sortable: true, render: (e) => <span className="text-neutral-400 dark:text-neutral-500 text-xs">{e.createdAt ? new Date(e.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</span> },
+    { key: 'action', header: 'Action', sortable: true, render: (e) => <span className="text-neutral-700 dark:text-neutral-200 text-sm font-medium">{(e.action ?? '').replace(/_/g, ' ') || '-'}</span> },
     { key: 'actorId', header: 'Actor ID', sortable: true, render: (e) => <span className="font-mono text-xs text-neutral-600 dark:text-neutral-400 truncate max-w-[140px] block">{e.actorId ?? '-'}</span> },
     { key: 'resource', header: 'Resource', render: (e) => <span className="text-neutral-500 dark:text-neutral-400 text-xs">{e.resource ?? '-'}</span> },
     { key: 'resourceId', header: 'Resource ID', render: (e) => <span className="font-mono text-xs text-neutral-500 dark:text-neutral-400 truncate max-w-[140px] block">{e.resourceId ?? '-'}</span> },
     { key: 'ipAddress', header: 'IP', render: (e) => <span className="font-mono text-xs text-neutral-400 dark:text-neutral-500">{e.ipAddress ?? '-'}</span> },
-    { key: 'metadata', header: 'Details', render: (e) => <span className="text-xs text-neutral-400 dark:text-neutral-500 truncate max-w-[120px] block">{e.metadata ? JSON.stringify(e.metadata).slice(0, 50) + (JSON.stringify(e.metadata).length > 50 ? '...' : '') : '-'}</span> },
+    { key: 'metadata', header: 'Details', render: (e) => {
+      if (!e.metadata || typeof e.metadata !== 'object') return <span className="text-xs text-neutral-400 dark:text-neutral-500">-</span>;
+      try {
+        const s = JSON.stringify(e.metadata);
+        return <span className="text-xs text-neutral-400 dark:text-neutral-500 truncate max-w-[120px] block">{s.length > 50 ? s.slice(0, 50) + '...' : s}</span>;
+      } catch {
+        return <span className="text-xs text-neutral-400 dark:text-neutral-500">-</span>;
+      }
+    } },
   ];
 
   const statsCards = stats
     ? [
         { title: 'Total Events', value: stats.total.toLocaleString(), icon: ClipboardList, color: '#171717' },
-        { title: 'Top Action', value: stats.byAction[0]?.action?.replace(/_/g, ' ') ?? '-', icon: ClipboardList, color: '#8b5cf6' },
+        { title: 'Top Action', value: (stats.byAction[0]?.action && String(stats.byAction[0].action).replace(/_/g, ' ')) || '-', icon: ClipboardList, color: '#8b5cf6' },
         { title: 'Actions Tracked', value: String(stats.byAction.length), icon: ClipboardList, color: '#10b981' },
       ]
     : [];
 
-  const chartData = stats?.byDay?.map((d) => ({ name: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), count: d.count })) ?? [];
+  const chartData = (stats?.byDay ?? [])
+    .filter((d): d is { date: string; count: number } => Boolean(d?.date))
+    .map((d) => {
+      const dateStr = typeof d.date === 'string' ? d.date : String(d.date);
+      const parsed = new Date(dateStr);
+      const name = !Number.isNaN(parsed.getTime()) ? parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '-';
+      return { name, count: Number(d.count) || 0 };
+    })
+    .filter((d) => d.name !== '-');
 
   return (
     <div className="space-y-10">
