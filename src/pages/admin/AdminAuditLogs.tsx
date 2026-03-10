@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import DataTable, { type Column } from '@/components/admin/DataTable';
 import StatsCard from '@/components/admin/dashboard/StatsCard';
 import { toast } from 'sonner';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface AuditLog {
   id: string;
@@ -414,13 +414,23 @@ const AdminAuditLogs: React.FC = () => {
           <CardContent className="p-6">
             <div className="h-[260px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f5f5f5" />
-                  <XAxis dataKey="name" stroke="#d4d4d4" fontSize={10} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#d4d4d4" fontSize={10} tickLine={false} axisLine={false} />
+                <LineChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" className="dark:stroke-neutral-600" />
+                  <XAxis dataKey="name" stroke="#a3a3a3" fontSize={11} tickLine={false} axisLine={false} tickMargin={8} />
+                  <YAxis stroke="#a3a3a3" fontSize={11} tickLine={false} axisLine={false} tickMargin={8} domain={[0, 'auto']} />
                   <Tooltip {...tooltipStyle} />
-                  <Bar dataKey="count" name="Events" fill="#171717" radius={[4, 4, 0, 0]} />
-                </BarChart>
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    name="Events"
+                    stroke="#171717"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    dot={{ fill: '#171717', strokeWidth: 0, r: 4 }}
+                    activeDot={{ r: 6, fill: '#171717', stroke: '#fff', strokeWidth: 2 }}
+                  />
+                </LineChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
