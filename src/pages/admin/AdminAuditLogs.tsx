@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { get } from '@/lib/api';
 import { ClipboardList, RefreshCw, Download, Calendar as CalendarIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +24,8 @@ interface AuditLog {
   action: string;
   actorId: string | null;
   actorType: string | null;
+  actorName?: string | null;
+  actorEmail?: string | null;
   resource: string | null;
   resourceId: string | null;
   metadata: Record<string, unknown> | null;
@@ -131,7 +134,13 @@ const AdminAuditLogs: React.FC = () => {
       params.set('endDate', endDate.toISOString());
       if (actionFilter !== 'all') params.set('action', actionFilter);
       if (resourceFilter !== 'all') params.set('resource', resourceFilter);
-      if (actorSearchDebounced) params.set('actorId', actorSearchDebounced);
+      if (actorSearchDebounced) {
+        if (actorSearchDebounced.includes('@')) {
+          params.set('actorEmail', actorSearchDebounced);
+        } else {
+          params.set('actorId', actorSearchDebounced);
+        }
+      }
       const res = await get(`/admin/audit-logs?${params.toString()}`);
       if (res.success) {
         setLogs(res.data.logs || []);
@@ -179,7 +188,13 @@ const AdminAuditLogs: React.FC = () => {
       params.set('endDate', endDate.toISOString());
       if (actionFilter !== 'all') params.set('action', actionFilter);
       if (resourceFilter !== 'all') params.set('resource', resourceFilter);
-      if (actorSearchDebounced) params.set('actorId', actorSearchDebounced);
+      if (actorSearchDebounced) {
+        if (actorSearchDebounced.includes('@')) {
+          params.set('actorEmail', actorSearchDebounced);
+        } else {
+          params.set('actorId', actorSearchDebounced);
+        }
+      }
       const res = await get(`/admin/audit-logs?${params.toString()}`);
       const exportLogs = res.success ? (res.data.logs || []) : [];
       const workbook = new ExcelJS.Workbook();
@@ -189,6 +204,8 @@ const AdminAuditLogs: React.FC = () => {
       sheet.columns = [
         { key: 'createdAt', width: 20, header: 'Time' },
         { key: 'action', width: 24, header: 'Action' },
+        { key: 'actorName', width: 24, header: 'User' },
+        { key: 'actorEmail', width: 32, header: 'Email' },
         { key: 'actorId', width: 38, header: 'Actor ID' },
         { key: 'resource', width: 14, header: 'Resource' },
         { key: 'resourceId', width: 38, header: 'Resource ID' },
@@ -200,15 +217,17 @@ const AdminAuditLogs: React.FC = () => {
       });
       exportLogs.forEach((e: AuditLog) => {
         sheet.addRow({
-          createdAt: new Date(e.createdAt).toLocaleString(),
+          createdAt: new Date(String(e.createdAt).replace(' ', 'T')).toLocaleString(),
           action: e.action,
+          actorName: e.actorName ?? '',
+          actorEmail: e.actorEmail ?? '',
           actorId: e.actorId ?? '',
           resource: e.resource ?? '',
           resourceId: e.resourceId ?? '',
           ipAddress: e.ipAddress ?? '',
         });
       });
-      sheet.autoFilter = { from: 'A1', to: `F${exportLogs.length + 1}` };
+      sheet.autoFilter = { from: 'A1', to: `H${exportLogs.length + 1}` };
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = URL.createObjectURL(blob);
@@ -249,10 +268,27 @@ const AdminAuditLogs: React.FC = () => {
     },
   ];
 
+  const formatTime = (val: string | null | undefined) => {
+    if (!val) return '-';
+    const s = String(val).replace(' ', 'T');
+    const d = new Date(s);
+    return !Number.isNaN(d.getTime()) ? d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
+  };
+
   const columns: Column<AuditLog>[] = [
-    { key: 'createdAt', header: 'Time', sortable: true, render: (e) => <span className="text-neutral-400 dark:text-neutral-500 text-xs">{e.createdAt ? new Date(e.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</span> },
+    { key: 'createdAt', header: 'Time', sortable: true, render: (e) => <span className="text-neutral-400 dark:text-neutral-500 text-xs">{formatTime(e.createdAt)}</span> },
     { key: 'action', header: 'Action', sortable: true, render: (e) => <span className="text-neutral-700 dark:text-neutral-200 text-sm font-medium">{(e.action ?? '').replace(/_/g, ' ') || '-'}</span> },
-    { key: 'actorId', header: 'Actor ID', sortable: true, render: (e) => <span className="font-mono text-xs text-neutral-600 dark:text-neutral-400 truncate max-w-[140px] block">{e.actorId ?? '-'}</span> },
+    { key: 'actor', header: 'User', sortable: true, render: (e) => {
+      const label = e.actorName ?? e.actorEmail ?? (e.actorId ? `ID: ${e.actorId.slice(0, 8)}...` : '-');
+      if (e.actorId) {
+        return (
+          <Link to={`/admin/users/${e.actorId}`} className="text-xs font-medium text-neutral-700 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-white truncate max-w-[180px] block underline hover:no-underline" title={e.actorEmail ?? undefined}>
+            {label}
+          </Link>
+        );
+      }
+      return <span className="text-xs text-neutral-500 dark:text-neutral-400 truncate max-w-[180px] block" title={e.actorEmail ?? undefined}>{label}</span>;
+    } },
     { key: 'resource', header: 'Resource', render: (e) => <span className="text-neutral-500 dark:text-neutral-400 text-xs">{e.resource ?? '-'}</span> },
     { key: 'resourceId', header: 'Resource ID', render: (e) => <span className="font-mono text-xs text-neutral-500 dark:text-neutral-400 truncate max-w-[140px] block">{e.resourceId ?? '-'}</span> },
     { key: 'ipAddress', header: 'IP', render: (e) => <span className="font-mono text-xs text-neutral-400 dark:text-neutral-500">{e.ipAddress ?? '-'}</span> },
@@ -371,7 +407,7 @@ const AdminAuditLogs: React.FC = () => {
       <SearchFilter
         searchValue={actorSearch}
         onSearchChange={setActorSearch}
-        searchPlaceholder="Search by Actor ID"
+        searchPlaceholder="Search by user ID or email"
         filters={filters}
       />
 
