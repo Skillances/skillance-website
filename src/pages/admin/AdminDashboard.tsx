@@ -1,14 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { Button } from '@/components/ui/button';
-import { Users, Briefcase, ShieldCheck, Download, Calendar, TrendingUp, MessageSquare, Bell, Star } from 'lucide-react';
+import { Users, Briefcase, ShieldCheck, Download, Calendar, TrendingUp, MessageSquare, Bell, Star, ChevronDown } from 'lucide-react';
 import { get } from '@/lib/api';
 import StatsCard from '@/components/admin/dashboard/StatsCard';
 import ActivityFeed from '@/components/admin/dashboard/ActivityFeed';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
+
+type TimeframeKey = '24h' | '7d' | '30d' | '90d';
+
+const TIMEFRAME_OPTIONS: { key: TimeframeKey; label: string }[] = [
+  { key: '24h', label: 'Last 24 hours' },
+  { key: '7d', label: 'Last 7 days' },
+  { key: '30d', label: 'Last 30 days' },
+  { key: '90d', label: 'Last 90 days' },
+];
+
+function formatDateLabel(dateStr: string): string {
+  if (!dateStr) return '';
+  const weekMatch = dateStr.match(/^(\d{4})-W(\d{2})$/);
+  if (weekMatch) return `W${weekMatch[2]}`;
+  if (/^\d{4}-\d{2}$/.test(dateStr)) {
+    const d = new Date(dateStr + '-01');
+    return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  }
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function getTimeframeParams(key: TimeframeKey): { startDate: string; endDate: string; interval: 'daily' | 'weekly' | 'monthly' } {
+  const now = new Date();
+  const endDate = now.toISOString().slice(0, 10);
+  let startDate: string;
+  let interval: 'daily' | 'weekly' | 'monthly' = 'daily';
+  if (key === '24h') {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 1);
+    startDate = d.toISOString().slice(0, 10);
+  } else if (key === '7d') {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 7);
+    startDate = d.toISOString().slice(0, 10);
+  } else if (key === '30d') {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 30);
+    startDate = d.toISOString().slice(0, 10);
+  } else {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 90);
+    startDate = d.toISOString().slice(0, 10);
+    interval = 'weekly';
+  }
+  return { startDate, endDate, interval };
+}
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -18,15 +72,17 @@ const AdminDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activities, setActivities] = useState<any[]>([]);
   const [websiteMetrics, setWebsiteMetrics] = useState({ unreadMessages: 0, subscribers: 0, pendingReviews: 0 });
+  const [timeframe, setTimeframe] = useState<TimeframeKey>('30d');
 
-  useEffect(() => {
-    const fetchAllData = async () => {
-      try {
-        setIsLoading(true);
-        const [dashboardRes, userGrowthRes, freelancerGrowthRes, securityRes, messagesRes, subscribersRes, reviewsRes] = await Promise.all([
-          get('/admin/dashboard'),
-          get('/admin/analytics/user-growth?interval=daily'),
-          get('/admin/analytics/freelancer-growth?interval=daily'),
+  const fetchAllData = useCallback(async () => {
+    const { startDate, endDate, interval } = getTimeframeParams(timeframe);
+    const query = `startDate=${startDate}&endDate=${endDate}&interval=${interval}`;
+    try {
+      setIsLoading(true);
+      const [dashboardRes, userGrowthRes, freelancerGrowthRes, securityRes, messagesRes, subscribersRes, reviewsRes] = await Promise.all([
+        get('/admin/dashboard'),
+        get(`/admin/analytics/user-growth?${query}`),
+        get(`/admin/analytics/freelancer-growth?${query}`),
           get('/admin/security/events?limit=10&orderBy=createdAt&orderDirection=desc').catch(() => null),
           get('/admin/contact-messages?status=new&limit=1').catch(() => null),
           get('/admin/notify-subscribers?limit=1').catch(() => null),
@@ -43,19 +99,25 @@ const AdminDashboard: React.FC = () => {
           const dateMap = new Map();
           
           userSeries.forEach((item: any) => {
-            const dateStr = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            if (!dateMap.has(item.date)) dateMap.set(item.date, { name: dateStr, date: item.date, users: 0, freelancers: 0 });
-            dateMap.get(item.date).users = item.cumulative;
+            const name = formatDateLabel(item.date);
+            if (!dateMap.has(item.date)) dateMap.set(item.date, { name, date: item.date, users: 0, freelancers: 0 });
+            dateMap.get(item.date)!.users = item.cumulative;
           });
 
           freelancerSeries.forEach((item: any) => {
-            const dateStr = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            if (!dateMap.has(item.date)) dateMap.set(item.date, { name: dateStr, date: item.date, users: 0, freelancers: 0 });
-            dateMap.get(item.date).freelancers = item.cumulative;
+            const name = formatDateLabel(item.date);
+            if (!dateMap.has(item.date)) dateMap.set(item.date, { name, date: item.date, users: 0, freelancers: 0 });
+            dateMap.get(item.date)!.freelancers = item.cumulative;
           });
 
+          const sortKey = (d: { date: string }) => {
+            const m = d.date.match(/^(\d{4})-W(\d{2})$/);
+            if (m) return parseInt(m[1], 10) * 100 + parseInt(m[2], 10);
+            const t = new Date(d.date).getTime();
+            return isNaN(t) ? 0 : t;
+          };
           const sortedData = Array.from(dateMap.values())
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .sort((a, b) => sortKey(a) - sortKey(b))
             .slice(-30);
 
           if (sortedData.length === 0) {
@@ -92,10 +154,11 @@ const AdminDashboard: React.FC = () => {
       } finally {
         setIsLoading(false);
       }
-    };
+  }, [timeframe]);
 
+  useEffect(() => {
     fetchAllData();
-  }, []);
+  }, [fetchAllData]);
 
   const metrics = dashboardData ? [
     {
@@ -120,9 +183,81 @@ const AdminDashboard: React.FC = () => {
       change: dashboardData.pendingVerifications.count > 0 ? 'Needs attention' : 'All clear',
       icon: ShieldCheck,
       color: '#f59e0b',
-      data: Array.from({ length: 15 }, () => ({ value: Math.max(0, dashboardData.pendingVerifications.count + (Math.random() * 2 - 1)) }))
+      data: Array.from({ length: 15 }, () => ({ value: dashboardData.pendingVerifications.count }))
     }
   ] : [];
+
+  const handleExport = async () => {
+    try {
+      const ExcelJS = (await import('exceljs')).default;
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = 'Skillance Admin';
+      workbook.created = new Date();
+
+      const summarySheet = workbook.addWorksheet('Summary', { views: [{ state: 'frozen', ySplit: 1 }] });
+      summarySheet.columns = [{ width: 28 }, { width: 16 }];
+      summarySheet.addRow(['Skillance Admin Dashboard', '']);
+      summarySheet.mergeCells('A1:B1');
+      summarySheet.getCell('A1').font = { bold: true, size: 14 };
+      summarySheet.addRow(['Exported', new Date().toLocaleString()]);
+      summarySheet.addRow([]);
+      summarySheet.addRow(['Metric', 'Value']).eachCell((c) => { c.font = { bold: true }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE5E5E5' } }; });
+      if (dashboardData) {
+        summarySheet.addRow(['Total Users', dashboardData.users?.total ?? 0]);
+        summarySheet.addRow(['New Users This Month', dashboardData.users?.newThisMonth ?? 0]);
+        summarySheet.addRow(['Freelancers', dashboardData.freelancers?.total ?? 0]);
+        summarySheet.addRow(['Verified Freelancers', dashboardData.freelancers?.verified ?? 0]);
+        summarySheet.addRow(['Verification Rate', `${((dashboardData.freelancers?.verified ?? 0) / ((dashboardData.freelancers?.total ?? 1) || 1) * 100).toFixed(1)}%`]);
+        summarySheet.addRow(['Pending Verifications', dashboardData.pendingVerifications?.count ?? 0]);
+      }
+      summarySheet.addRow(['Unread Messages', websiteMetrics.unreadMessages]);
+      summarySheet.addRow(['Notify Subscribers', websiteMetrics.subscribers]);
+      summarySheet.addRow(['Pending Reviews', websiteMetrics.pendingReviews]);
+
+      const rawSheet = workbook.addWorksheet('Raw Growth Data', { views: [{ state: 'frozen', ySplit: 1 }] });
+      rawSheet.columns = [
+        { key: 'period', width: 14, header: 'Period' },
+        { key: 'users', width: 12, header: 'Users' },
+        { key: 'freelancers', width: 14, header: 'Freelancers' },
+      ];
+      rawSheet.getRow(1).eachCell((c) => {
+        c.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF171717' } };
+      });
+      growthData.forEach((d) => rawSheet.addRow({ period: d.name ?? d.date ?? '', users: d.users ?? 0, freelancers: d.freelancers ?? 0 }));
+      rawSheet.autoFilter = { from: 'A1', to: `C${growthData.length + 1}` };
+
+      const pivotSheet = workbook.addWorksheet('Pivot Overview', { views: [{ state: 'frozen', ySplit: 1 }] });
+      pivotSheet.columns = [{ width: 22 }, { width: 14 }];
+      pivotSheet.addRow(['Growth Summary', '']);
+      pivotSheet.mergeCells('A1:B1');
+      pivotSheet.getCell('A1').font = { bold: true, size: 12 };
+      pivotSheet.addRow([]);
+      pivotSheet.addRow(['Metric', 'Value']).eachCell((c) => { c.font = { bold: true }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE5E5E5' } }; });
+      const totalUsers = growthData.length ? growthData[growthData.length - 1]?.users ?? 0 : 0;
+      const totalFreelancers = growthData.length ? growthData[growthData.length - 1]?.freelancers ?? 0 : 0;
+      const avgUsers = growthData.length ? growthData.reduce((s, d) => s + (d.users ?? 0), 0) / growthData.length : 0;
+      const avgFreelancers = growthData.length ? growthData.reduce((s, d) => s + (d.freelancers ?? 0), 0) / growthData.length : 0;
+      pivotSheet.addRow(['Periods in range', growthData.length]);
+      pivotSheet.addRow(['Cumulative users (end)', totalUsers]);
+      pivotSheet.addRow(['Cumulative freelancers (end)', totalFreelancers]);
+      pivotSheet.addRow(['Avg users per period', Math.round(avgUsers * 10) / 10]);
+      pivotSheet.addRow(['Avg freelancers per period', Math.round(avgFreelancers * 10) / 10]);
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `skillance-dashboard-${new Date().toISOString().slice(0, 10)}.xlsx`;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success('Excel exported');
+    } catch (err) {
+      console.error('Export failed:', err);
+      toast.error('Export failed');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -149,15 +284,33 @@ const AdminDashboard: React.FC = () => {
             Dashboard
           </h1>
           <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-2 font-light">
-            Welcome, <span className="text-black dark:text-white font-medium">{user?.fullName || 'Administrator'}</span>. Latest 24hr data.
+            Welcome, <span className="text-black dark:text-white font-medium">{user?.fullName || 'Administrator'}</span>. {TIMEFRAME_OPTIONS.find((o) => o.key === timeframe)?.label ?? 'Latest data'}.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white hover:border-neutral-300 dark:hover:border-neutral-600 rounded-full bg-transparent dark:bg-transparent">
-            <Calendar className="mr-2 h-4 w-4" />
-            Timeframe
-          </Button>
-          <Button className="bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 rounded-full shadow-xs">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white hover:border-neutral-300 dark:hover:border-neutral-600 rounded-full bg-transparent dark:bg-transparent">
+                <Calendar className="mr-2 h-4 w-4" />
+                {TIMEFRAME_OPTIONS.find((o) => o.key === timeframe)?.label ?? 'Timeframe'}
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[160px]">
+              {TIMEFRAME_OPTIONS.map((opt) => (
+                <DropdownMenuItem
+                  key={opt.key}
+                  onClick={() => setTimeframe(opt.key)}
+                >
+                  {opt.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button
+            className="bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-200 rounded-full shadow-xs"
+            onClick={handleExport}
+          >
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
@@ -173,9 +326,24 @@ const AdminDashboard: React.FC = () => {
 
       {/* Website Engagement */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatsCard title="Unread Messages" value={websiteMetrics.unreadMessages} icon={MessageSquare} />
-        <StatsCard title="Notify Subscribers" value={websiteMetrics.subscribers} icon={Bell} />
-        <StatsCard title="Pending Reviews" value={websiteMetrics.pendingReviews} icon={Star} />
+        <StatsCard
+          title="Unread Messages"
+          value={websiteMetrics.unreadMessages}
+          icon={MessageSquare}
+          data={Array.from({ length: 15 }, () => ({ value: websiteMetrics.unreadMessages }))}
+        />
+        <StatsCard
+          title="Notify Subscribers"
+          value={websiteMetrics.subscribers}
+          icon={Bell}
+          data={Array.from({ length: 15 }, () => ({ value: websiteMetrics.subscribers }))}
+        />
+        <StatsCard
+          title="Pending Reviews"
+          value={websiteMetrics.pendingReviews}
+          icon={Star}
+          data={Array.from({ length: 15 }, () => ({ value: websiteMetrics.pendingReviews }))}
+        />
       </div>
 
       {/* Charts */}

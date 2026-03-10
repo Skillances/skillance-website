@@ -199,8 +199,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               {adminMenuItems.find(item => isActive(item.path))?.name || 'Admin'}
             </span>
           </div>
-          <div className="flex items-center gap-3">
-            <button
+          <button
               type="button"
               onClick={toggleTheme}
               className="p-2 rounded-xl text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-colors"
@@ -208,10 +207,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             >
               {isDark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <div className="w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-xs font-semibold text-black dark:text-white">
-              {user?.fullName?.charAt(0) || 'A'}
-            </div>
-          </div>
         </header>
 
         {/* Page Content */}
