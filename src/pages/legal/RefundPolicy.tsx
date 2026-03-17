@@ -2,7 +2,7 @@ import PageTemplate from '../../components/layout/PageTemplate';
 
 const RefundPolicy = () => {
   return (
-    <PageTemplate title="Refund Policy">
+    <PageTemplate title="Refund Policy" animateSections>
       <div className="space-y-8 text-neutral-600">
         <p className="text-xl leading-relaxed italic">Last updated: 27 February 2025</p>
 

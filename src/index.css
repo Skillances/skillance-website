@@ -169,6 +169,14 @@
   opacity: 1;
 }
 
+/* Legal pages: link hover motion */
+.legal-prose a {
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+.legal-prose a:hover {
+  opacity: 0.8;
+}
+
 /* Loader */
 .loader-container {
   will-change: opacity;

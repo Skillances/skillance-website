@@ -3,7 +3,7 @@ import PageTemplate from '../../components/layout/PageTemplate';
 
 const Terms = () => {
   return (
-    <PageTemplate title="Terms of Service">
+    <PageTemplate title="Terms of Service" animateSections>
       <div className="space-y-8 text-neutral-600">
         <p className="text-xl leading-relaxed italic">Last updated: 27 February 2025</p>
 

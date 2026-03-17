@@ -2,7 +2,7 @@ import PageTemplate from '../../components/layout/PageTemplate';
 
 const CookiePolicy = () => {
   return (
-    <PageTemplate title="Cookie Policy">
+    <PageTemplate title="Cookie Policy" animateSections>
       <div className="space-y-8 text-neutral-600">
         <p className="text-xl leading-relaxed italic">Last updated: March 2024</p>
         
