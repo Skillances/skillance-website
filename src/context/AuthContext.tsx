@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { post, clearTokens, storeTokens } from '@/lib/api';
+import { post, get, clearTokens, storeTokens } from '@/lib/api';
 
 interface User {
   id: string;
@@ -34,28 +34,50 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadAuthState = () => {
-      try {
-        const storedUser = localStorage.getItem('user');
-        const storedToken = localStorage.getItem('accessToken');
+    let cancelled = false;
 
-        if (storedUser && storedToken) {
-          const userData = JSON.parse(storedUser);
-          setUser(userData);
+    const loadAuthState = async () => {
+      const storedToken = localStorage.getItem('accessToken');
+
+      if (!storedToken) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await get('/users/me');
+        if (cancelled) return;
+
+        if (response?.success && response?.data?.user) {
+          const { user: userData } = response.data;
+          const authUser: User = {
+            id: userData.id,
+            fullName: userData.fullName ?? '',
+            email: userData.email ?? '',
+            isAdmin: userData.isAdmin === true,
+          };
+          setUser(authUser);
           setIsAuthenticated(true);
-          setIsAdmin(userData.isAdmin === true);
+          setIsAdmin(authUser.isAdmin);
+          localStorage.setItem('user', JSON.stringify(authUser));
         }
       } catch (error) {
-        console.error('Error loading auth state:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        if (cancelled) return;
+        clearTokens();
+        setUser(null);
+        setIsAuthenticated(false);
+        setIsAdmin(false);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadAuthState();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
