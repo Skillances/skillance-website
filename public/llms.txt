@@ -28,5 +28,6 @@
 - [Help Center](https://skillance.co.za/help-center): Support and guidance
 - [FAQ](https://skillance.co.za/faq): Frequently asked questions
 - [Trust & Safety](https://skillance.co.za/trust-safety): Verification and safety information
-- [Privacy Policy](https://skillance.co.za/privacy): Privacy policy
+- [Privacy Policy](https://skillance.co.za/privacy-policy): Privacy policy
 - [Terms of Service](https://skillance.co.za/terms): Terms of service
+- [Refund Policy](https://skillance.co.za/refund-policy): Refund and cancellation policy

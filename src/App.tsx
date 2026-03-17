@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
@@ -11,6 +11,7 @@ import HelpCenter from './pages/help/HelpCenter';
 import Privacy from './pages/legal/Privacy';
 import Terms from './pages/legal/Terms';
 import CookiePolicy from './pages/legal/CookiePolicy';
+import RefundPolicy from './pages/legal/RefundPolicy';
 import FAQPage from './pages/help/FAQPage';
 import TrustSafetyPage from './pages/help/TrustSafetyPage';
 import ServicesPage from './pages/ServicesPage';
@@ -121,8 +122,10 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/help-center" element={<HelpCenter />} />
-          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/privacy-policy" element={<Privacy />} />
+          <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/trust-safety" element={<TrustSafetyPage />} />

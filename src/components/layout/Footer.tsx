@@ -21,8 +21,9 @@ const Footer = () => {
       { name: 'Admin', href: '/admin' },
     ],
     Legal: [
-      { name: 'Privacy', href: '/privacy' },
-      { name: 'Terms', href: '/terms' },
+      { name: 'Privacy Policy', href: '/privacy-policy' },
+      { name: 'Terms of Service', href: '/terms' },
+      { name: 'Refund Policy', href: '/refund-policy' },
       { name: 'Cookie Policy', href: '/cookie-policy' },
     ],
   };
