@@ -44,6 +44,18 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Material+Icons';
+    link.id = 'admin-material-icons';
+    document.head.appendChild(link);
+    return () => {
+      const el = document.getElementById('admin-material-icons');
+      if (el) el.remove();
+    };
+  }, []);
+
   const handleLogout = () => {
     logout();
     navigate('/login');
