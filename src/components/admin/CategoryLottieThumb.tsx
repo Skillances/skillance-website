@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import Lottie from 'lottie-react';
 import { cn } from '@/lib/utils';
-import { getAccessToken } from '@/lib/api';
-import { resolveLottieJsonFetchUrl, lottieJsonFetchRequiresAuth } from '@/lib/s3CategoryLottie';
+import { fetchCategoryLottieJsonCached, getCategoryLottieFromCache } from '@/lib/lottieBrowserCache';
 
 /**
  * True when a category image URL points to Lottie JSON (S3 uses .json for lottie uploads).
@@ -41,26 +40,24 @@ interface CategoryLottieThumbProps {
  * Fetches Lottie JSON from a URL and renders a small looping preview (admin table, etc.).
  */
 export function CategoryLottieThumb({ src, size = 32, className }: CategoryLottieThumbProps) {
-  const [data, setData] = useState<unknown | null>(null);
+  const [data, setData] = useState<unknown | null>(() => getCategoryLottieFromCache(src));
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    setData(null);
     setFailed(false);
 
-    const resolved = resolveLottieJsonFetchUrl(src);
-    const init: RequestInit = { credentials: 'include' };
-    if (lottieJsonFetchRequiresAuth(resolved)) {
-      const token = getAccessToken();
-      init.headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const cached = getCategoryLottieFromCache(src);
+    if (cached !== null) {
+      setData(cached);
+      return () => {
+        cancelled = true;
+      };
     }
 
-    fetch(resolved, init)
-      .then((r) => {
-        if (!r.ok) throw new Error(String(r.status));
-        return r.json();
-      })
+    setData(null);
+
+    fetchCategoryLottieJsonCached(src)
       .then((json) => {
         if (!cancelled) setData(json);
       })
