@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { get, post, put, del } from '@/lib/api';
 import { Plus, Edit, Trash2, FolderOpen, Loader2, Upload, ImageIcon, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,9 @@ import DataTable, { type Column } from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import StatsCard from '@/components/admin/dashboard/StatsCard';
+import { CategoryLottieThumb, CategoryLottieInline, isLottieImageUrl } from '@/components/admin/CategoryLottieThumb';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 type ImageType = 'lottie' | 'svg' | 'png' | 'jpg';
 
@@ -78,6 +80,7 @@ const AdminCategories: React.FC = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [imageDropActive, setImageDropActive] = useState(false);
 
   const fetchCategories = useCallback(async () => { try { setIsLoading(true); const res = await get(`/admin/categories?includeInactive=true&page=${page}&limit=${pageSize}`); if (res.success) { setCategories(res.data.categories || []); setTotal(res.data.total || 0); } } catch { toast.error('Failed to load categories'); } finally { setIsLoading(false); } }, [page, pageSize]);
   const fetchStats = useCallback(async () => { try { const res = await get('/admin/categories/stats'); if (res.success) setStats(res.data); } catch {} }, []);
@@ -85,6 +88,28 @@ const AdminCategories: React.FC = () => {
   useEffect(() => { fetchCategories(); }, [fetchCategories]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageDropDepthRef = useRef(0);
+
+  useEffect(() => {
+    if (!formOpen) {
+      imageDropDepthRef.current = 0;
+      setImageDropActive(false);
+    }
+  }, [formOpen]);
+
+  const processCategoryImageFile = useCallback(async (file: File) => {
+    const imageType = detectImageType(file.name);
+    if (!imageType) {
+      toast.error('Unsupported file type. Use .lottie, .json, .svg, .png, or .jpg');
+      return;
+    }
+    try {
+      const base64 = await fileToBase64(file);
+      setForm((f) => ({ ...f, imageBase64: base64, imageType }));
+    } catch {
+      toast.error('Failed to read file');
+    }
+  }, []);
 
   const openCreate = () => {
     setEditId(null);
@@ -115,18 +140,41 @@ const AdminCategories: React.FC = () => {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const imageType = detectImageType(file.name);
-    if (!imageType) {
-      toast.error('Unsupported file type. Use .lottie, .json, .svg, .png, or .jpg');
-      return;
-    }
-    try {
-      const base64 = await fileToBase64(file);
-      setForm((f) => ({ ...f, imageBase64: base64, imageType }));
-    } catch {
-      toast.error('Failed to read file');
-    }
+    await processCategoryImageFile(file);
     e.target.value = '';
+  };
+
+  const handleImageDropZoneDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    imageDropDepthRef.current += 1;
+    if (imageDropDepthRef.current === 1) setImageDropActive(true);
+  };
+
+  const handleImageDropZoneDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    imageDropDepthRef.current -= 1;
+    if (imageDropDepthRef.current <= 0) {
+      imageDropDepthRef.current = 0;
+      setImageDropActive(false);
+    }
+  };
+
+  const handleImageDropZoneDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleImageDropZoneDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    imageDropDepthRef.current = 0;
+    setImageDropActive(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    await processCategoryImageFile(file);
   };
 
   const clearImage = () => setForm((f) => ({ ...f, imageBase64: null, imageType: null }));
@@ -175,12 +223,20 @@ const AdminCategories: React.FC = () => {
   };
   const handleDelete = async () => { if (!deleteId) return; try { setDeleting(true); await del(`/admin/categories/${deleteId}`); toast.success('Category deactivated'); setDeleteOpen(false); setDeleteId(null); fetchCategories(); fetchStats(); } catch (err: any) { toast.error(err?.message || 'Failed to delete category'); } finally { setDeleting(false); } };
 
+  const pendingLottiePreviewData = useMemo(() => {
+    if (form.imageType !== 'lottie' || !form.imageBase64) return null;
+    try {
+      const text = atob(form.imageBase64);
+      return JSON.parse(text) as unknown;
+    } catch {
+      return null;
+    }
+  }, [form.imageType, form.imageBase64]);
+
   const CategoryIconPreview: React.FC<{ c: CategoryItem }> = ({ c }) => {
     if (c.imageUrl) {
-      const ext = c.imageUrl.split('.').pop()?.toLowerCase();
-      const isLottie = ext === 'json' || c.imageUrl.includes('.json');
-      if (isLottie) {
-        return <div className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] text-neutral-500">Lottie</div>;
+      if (isLottieImageUrl(c.imageUrl)) {
+        return <CategoryLottieThumb key={c.imageUrl} src={c.imageUrl} size={32} />;
       }
       return (
         <img src={c.imageUrl} alt="" className="w-8 h-8 rounded-lg object-cover border border-neutral-200 dark:border-neutral-700" />
@@ -277,12 +333,16 @@ const AdminCategories: React.FC = () => {
 
             <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4">
               <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-2 block">Category image</Label>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">Upload lottie (.json), SVG, PNG, or JPG. Overrides icon if both are set.</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">Upload lottie (.json), SVG, PNG, or JPG. Drag and drop a file here or click to browse. Overrides icon if both are set.</p>
               <input ref={fileInputRef} type="file" accept=".json,.lottie,.svg,.png,.jpg,.jpeg" className="hidden" onChange={handleFileChange} />
               {form.imageBase64 && form.imageType ? (
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
                   {form.imageType === 'lottie' ? (
-                    <div className="w-12 h-12 rounded-lg bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-xs text-neutral-600 dark:text-neutral-400">Lottie</div>
+                    pendingLottiePreviewData ? (
+                      <CategoryLottieInline animationData={pendingLottiePreviewData} size={48} />
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-xs text-neutral-600 dark:text-neutral-400">Invalid JSON</div>
+                    )
                   ) : form.imageType === 'svg' ? (
                     <div className="w-12 h-12 rounded-lg bg-white dark:bg-neutral-900 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 overflow-hidden">
                       <img src={`data:image/svg+xml;base64,${form.imageBase64}`} alt="" className="max-w-full max-h-full object-contain" />
@@ -297,10 +357,35 @@ const AdminCategories: React.FC = () => {
                   <Button type="button" size="sm" variant="outline" onClick={clearImage} className="shrink-0 border-neutral-300 dark:border-neutral-600">Remove</Button>
                 </div>
               ) : (
-                <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="w-full justify-center border-dashed border-neutral-300 dark:border-neutral-600 py-6 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Choose file (.lottie, .svg, .png, .jpg)
-                </Button>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => fileInputRef.current?.click()}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                  onDragEnter={handleImageDropZoneDragEnter}
+                  onDragLeave={handleImageDropZoneDragLeave}
+                  onDragOver={handleImageDropZoneDragOver}
+                  onDrop={handleImageDropZoneDrop}
+                  className={cn(
+                    'w-full flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl py-8 px-4 cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-900',
+                    imageDropActive
+                      ? 'border-black dark:border-white bg-neutral-100 dark:bg-neutral-800'
+                      : 'border-neutral-300 dark:border-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-800/80',
+                  )}
+                >
+                  <Upload className="h-5 w-5 text-neutral-500 dark:text-neutral-400" aria-hidden />
+                  <span className="text-sm font-medium text-black dark:text-white text-center">
+                    {imageDropActive ? 'Drop file here' : 'Choose file or drag and drop'}
+                  </span>
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
+                    .lottie, .json, .svg, .png, .jpg
+                  </span>
+                </div>
               )}
             </div>
 
