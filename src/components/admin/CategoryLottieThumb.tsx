@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import Lottie from 'lottie-react';
 import { cn } from '@/lib/utils';
-import { resolveLottieJsonFetchUrl } from '@/lib/s3CategoryLottie';
+import { getAccessToken } from '@/lib/api';
+import { resolveLottieJsonFetchUrl, lottieJsonFetchRequiresAuth } from '@/lib/s3CategoryLottie';
 
 /**
  * True when a category image URL points to Lottie JSON (S3 uses .json for lottie uploads).
@@ -48,7 +49,14 @@ export function CategoryLottieThumb({ src, size = 32, className }: CategoryLotti
     setData(null);
     setFailed(false);
 
-    fetch(resolveLottieJsonFetchUrl(src))
+    const resolved = resolveLottieJsonFetchUrl(src);
+    const init: RequestInit = { credentials: 'include' };
+    if (lottieJsonFetchRequiresAuth(resolved)) {
+      const token = getAccessToken();
+      init.headers = token ? { Authorization: `Bearer ${token}` } : {};
+    }
+
+    fetch(resolved, init)
       .then((r) => {
         if (!r.ok) throw new Error(String(r.status));
         return r.json();
