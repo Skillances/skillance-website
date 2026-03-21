@@ -9,6 +9,7 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import AdminBookingChatPanel from '@/components/admin/AdminBookingChatPanel';
 
 const bookingStatusMap: Record<string, string> = {
   pending: 'warning',
@@ -205,6 +206,11 @@ const AdminCustomerDetail: React.FC = () => {
                                   {b.completedAt && <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Completed</span><span className="text-black dark:text-white">{new Date(b.completedAt).toLocaleString()}</span></div>}
                                   {b.cancelledAt && <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Cancelled</span><span className="text-black dark:text-white">{new Date(b.cancelledAt).toLocaleString()}{b.cancelledBy ? ` (by ${b.cancelledBy})` : ''}</span></div>}
                                   {b.cancellationReason && <div className="col-span-2 md:col-span-4"><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Cancellation Reason</span><span className="text-black dark:text-white">{b.cancellationReason}</span></div>}
+                                  <AdminBookingChatPanel
+                                    bookingId={b.id}
+                                    customerUserId={b.customerId ?? customer.id}
+                                    freelancerUserId={b.freelancer?.user?.id}
+                                  />
                                 </div>
                               </td>
                             </tr>

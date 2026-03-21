@@ -20,6 +20,7 @@ import {
   Bell,
   Star,
   ClipboardList,
+  MessagesSquare,
 } from 'lucide-react';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -69,6 +70,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { name: 'Verifications', path: '/admin/verifications', icon: ShieldCheck },
     { name: 'Categories', path: '/admin/categories', icon: FolderOpen },
     { name: 'Messages', path: '/admin/contact-messages', icon: MessageSquare },
+    { name: 'Chat logs', path: '/admin/chat-logs', icon: MessagesSquare },
     { name: 'Subscribers', path: '/admin/notify-subscribers', icon: Bell },
     { name: 'Reviews', path: '/admin/website-reviews', icon: Star },
     { name: 'Analytics', path: '/admin/analytics', icon: BarChart3 },

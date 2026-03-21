@@ -37,6 +37,7 @@ const AdminSystem = lazy(() => import('./pages/admin/AdminSystem'));
 const AdminContactMessages = lazy(() => import('./pages/admin/AdminContactMessages'));
 const AdminNotifySubscribers = lazy(() => import('./pages/admin/AdminNotifySubscribers'));
 const AdminWebsiteReviews = lazy(() => import('./pages/admin/AdminWebsiteReviews'));
+const AdminChatLogs = lazy(() => import('./pages/admin/AdminChatLogs'));
 
 function AdminLoadingFallback() {
   return (
@@ -156,6 +157,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                         <Route path="audit-logs" element={<AdminAuditLogs />} />
                         <Route path="categories" element={<AdminCategories />} />
                         <Route path="contact-messages" element={<AdminContactMessages />} />
+                        <Route path="chat-logs" element={<AdminChatLogs />} />
                         <Route path="notify-subscribers" element={<AdminNotifySubscribers />} />
                         <Route path="website-reviews" element={<AdminWebsiteReviews />} />
                         <Route path="system" element={<AdminSystem />} />

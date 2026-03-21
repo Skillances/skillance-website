@@ -10,6 +10,7 @@ import DataTable, { type Column } from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import { toast } from 'sonner';
+import { consumeAdminVerificationSse } from '@/lib/adminVerificationSse';
 
 interface PendingFreelancer { id: string; idNumber?: string | null; idVerificationStatus: string; policeClearanceStatus?: string | null; policeClearancePhotoUrl?: string | null; createdAt: string; fullName?: string; email?: string; user?: { id: string; email: string; fullName: string; tag: string; }; }
 
@@ -29,6 +30,36 @@ const AdminVerifications: React.FC = () => {
   const fetchPendingId = useCallback(async () => { try { setIsLoadingId(true); const res = await get('/admin/freelancers/pending-verification?status=pending&limit=100'); if (res.success) setPendingId(res.data.freelancers || []); } catch { toast.error('Failed to load pending ID verifications'); } finally { setIsLoadingId(false); } }, []);
   const fetchPendingClearance = useCallback(async () => { try { setIsLoadingClearance(true); const res = await get('/admin/freelancers?idVerificationStatus=all&limit=100'); if (res.success) { setPendingClearance((res.data.freelancers || []).filter((f: any) => f.policeClearanceStatus === 'pending' && f.policeClearancePhotoUrl)); } } catch { toast.error('Failed to load pending clearances'); } finally { setIsLoadingClearance(false); } }, []);
   useEffect(() => { fetchPendingId(); fetchPendingClearance(); }, [fetchPendingId, fetchPendingClearance]);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    let cancelled = false;
+    const run = async () => {
+      try {
+        await consumeAdminVerificationSse(
+          (data) => {
+            if (cancelled) return;
+            const t = data.type;
+            if (t === 'id' || t === 'police_clearance') {
+              void fetchPendingId();
+              void fetchPendingClearance();
+            }
+          },
+          ac.signal,
+        );
+      } catch (e: unknown) {
+        if (cancelled || ac.signal.aborted) return;
+        const msg = e instanceof Error ? e.message : String(e);
+        if (msg.includes('abort') || msg.includes('Abort')) return;
+        toast.error('Live verification updates disconnected');
+      }
+    };
+    void run();
+    return () => {
+      cancelled = true;
+      ac.abort();
+    };
+  }, [fetchPendingId, fetchPendingClearance]);
 
   const openAction = (freelancer: PendingFreelancer, type: 'id' | 'clearance', status: 'verified' | 'rejected') => { setActionFreelancer(freelancer); setActionType(type); setActionStatus(status); setRejectionReason(''); setDialogOpen(true); };
   const handleAction = async () => { if (!actionFreelancer) return; try { setActionLoading(true); if (actionType === 'id') { const body: any = { status: actionStatus }; if (actionStatus === 'rejected' && rejectionReason) body.rejectionReason = rejectionReason; await put(`/admin/freelancers/${actionFreelancer.id}/verify-id`, body); } else { await post(`/admin/freelancers/${actionFreelancer.id}/police-clearance/verify`, { status: actionStatus }); } toast.success(`${actionType === 'id' ? 'ID' : 'Police clearance'} ${actionStatus === 'verified' ? 'approved' : 'rejected'}`); setDialogOpen(false); fetchPendingId(); fetchPendingClearance(); } catch (err: any) { toast.error(err?.message || 'Action failed'); } finally { setActionLoading(false); } };
