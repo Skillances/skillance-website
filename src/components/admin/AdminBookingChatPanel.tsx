@@ -7,9 +7,24 @@ interface ChatMessage {
   id: string;
   senderId: string;
   content: string;
+  originalContent?: string;
+  contentDetected?: boolean;
+  detectedTypes?: string[];
   type: string;
   createdAt: string;
-  contentDetected?: boolean;
+}
+
+function adminVisibleText(m: ChatMessage): { primary: string; shownToUsers?: string; moderated: boolean; types?: string[] } {
+  const orig = m.originalContent?.trim();
+  if (m.contentDetected && orig) {
+    return {
+      primary: orig,
+      shownToUsers: m.content !== orig ? m.content : undefined,
+      moderated: true,
+      types: m.detectedTypes?.length ? m.detectedTypes : undefined,
+    };
+  }
+  return { primary: m.content, moderated: !!m.contentDetected, types: m.detectedTypes?.length ? m.detectedTypes : undefined };
 }
 
 interface AdminBookingChatPanelProps {
@@ -29,6 +44,10 @@ const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [chatSource, setChatSource] = useState<'live' | 'archived' | null>(null);
   const [migrationReason, setMigrationReason] = useState<string | null>(null);
+  const [customerName, setCustomerName] = useState<string>('Customer');
+  const [freelancerName, setFreelancerName] = useState<string>('Freelancer');
+  const [resolvedCustomerUserId, setResolvedCustomerUserId] = useState<string | null>(null);
+  const [resolvedFreelancerUserId, setResolvedFreelancerUserId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -37,6 +56,10 @@ const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
       setNoChat(false);
       setChatSource(null);
       setMigrationReason(null);
+      setCustomerName('Customer');
+      setFreelancerName('Freelancer');
+      setResolvedCustomerUserId(null);
+      setResolvedFreelancerUserId(null);
       const response = await apiRequest(`/admin/bookings/${bookingId}/chat`, { method: 'GET' });
       if (response.status === 404) {
         setNoChat(true);
@@ -57,8 +80,26 @@ const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
           src === 'archived' && typeof c?.migrationReason === 'string' ? c.migrationReason : null,
         );
       }
+      const booking = res.data?.booking as
+        | {
+            customer?: { id?: string; fullName?: string | null };
+            freelancer?: { user?: { id?: string; fullName?: string | null } };
+          }
+        | undefined;
+      const cn = booking?.customer?.fullName?.trim();
+      const fn = booking?.freelancer?.user?.fullName?.trim();
+      if (cn) setCustomerName(cn);
+      if (fn) setFreelancerName(fn);
+      const custUid =
+        (typeof c?.customerId === 'string' ? c.customerId : null) ||
+        booking?.customer?.id ||
+        customerUserId;
+      const flUid = booking?.freelancer?.user?.id || freelancerUserId;
+      setResolvedCustomerUserId(custUid || null);
+      setResolvedFreelancerUserId(flUid || null);
+
       if (res.success && Array.isArray(res.data?.messages)) {
-        setMessages(res.data.messages);
+        setMessages(res.data.messages as ChatMessage[]);
       } else {
         setMessages([]);
       }
@@ -68,15 +109,17 @@ const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [bookingId]);
+  }, [bookingId, customerUserId, freelancerUserId]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
   const senderLabel = (senderId: string) => {
-    if (senderId === customerUserId) return 'Customer';
-    if (freelancerUserId && senderId === freelancerUserId) return 'Freelancer';
+    if (resolvedCustomerUserId && senderId === resolvedCustomerUserId) return customerName;
+    if (resolvedFreelancerUserId && senderId === resolvedFreelancerUserId) return freelancerName;
+    if (senderId === customerUserId) return customerName;
+    if (freelancerUserId && senderId === freelancerUserId) return freelancerName;
     return 'User';
   };
 
@@ -123,20 +166,33 @@ const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
       )}
       {messages.length > 0 && (
         <ul className="space-y-2 max-h-64 overflow-y-auto rounded-xl border border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-900/40 p-3">
-          {messages.map((m) => (
-            <li key={m.id} className="text-xs">
-              <span className="font-semibold text-neutral-600 dark:text-neutral-300">
-                {senderLabel(m.senderId)}
-              </span>
-              <span className="text-neutral-400 dark:text-neutral-500 mx-1.5">
-                {new Date(m.createdAt).toLocaleString()}
-              </span>
-              {m.contentDetected && (
-                <span className="text-amber-600 dark:text-amber-400 text-[10px] ml-1">filtered</span>
-              )}
-              <p className="text-black dark:text-white mt-0.5 whitespace-pre-wrap break-words">{m.content}</p>
-            </li>
-          ))}
+          {messages.map((m) => {
+            const { primary, shownToUsers, moderated, types } = adminVisibleText(m);
+            return (
+              <li key={m.id} className="text-xs">
+                <span className="font-semibold text-neutral-600 dark:text-neutral-300">
+                  {senderLabel(m.senderId)}
+                </span>
+                <span className="text-neutral-400 dark:text-neutral-500 mx-1.5">
+                  {new Date(m.createdAt).toLocaleString()}
+                </span>
+                {moderated && (
+                  <span className="text-amber-700 dark:text-amber-300 text-[10px] font-medium ml-1">Moderated</span>
+                )}
+                {types && (
+                  <span className="text-neutral-400 dark:text-neutral-500 text-[10px] ml-1" title={types.join(', ')}>
+                    ({types.join(', ')})
+                  </span>
+                )}
+                <p className="text-black dark:text-white mt-0.5 whitespace-pre-wrap break-words">{primary}</p>
+                {shownToUsers ? (
+                  <p className="text-neutral-400 dark:text-neutral-500 mt-0.5 text-[10px] whitespace-pre-wrap break-words">
+                    Shown to users: {shownToUsers}
+                  </p>
+                ) : null}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

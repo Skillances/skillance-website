@@ -162,6 +162,12 @@ const AdminChatLogs: React.FC = () => {
         isLoading={loading}
         emptyTitle="No booking chats"
         emptyDescription="Live chats appear after bookings are accepted. Completed bookings may show as archived history."
+        onRowClick={(row) => {
+          const customerUserId = row.booking?.customer?.id;
+          if (customerUserId) {
+            navigate(`/admin/customers/${customerUserId}?expandBooking=${row.bookingId}`);
+          }
+        }}
       />
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 pt-2">

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { get } from '@/lib/api';
 import { ArrowLeft, CalendarDays, Users, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,12 @@ const bookingStatusMap: Record<string, string> = {
 const AdminCustomerDetail: React.FC = () => {
   const { customerId } = useParams<{ customerId: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const processedExpandBookingRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    processedExpandBookingRef.current = null;
+  }, [customerId]);
   const [customer, setCustomer] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -64,6 +70,47 @@ const AdminCustomerDetail: React.FC = () => {
   }, [customerId]);
 
   useEffect(() => { if (customerId) fetchBookings(0); }, [customerId, fetchBookings]);
+
+  const expandBookingId = searchParams.get('expandBooking');
+  useEffect(() => {
+    if (!expandBookingId || bookingsLoading) return;
+    if (processedExpandBookingRef.current === expandBookingId) return;
+
+    const clearExpandParam = () => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete('expandBooking');
+          return next;
+        },
+        { replace: true },
+      );
+    };
+
+    const found = bookings.some((b: { id: string }) => b.id === expandBookingId);
+    if (found) {
+      processedExpandBookingRef.current = expandBookingId;
+      setExpandedBooking(expandBookingId);
+      const t = window.setTimeout(() => {
+        document.getElementById(`admin-booking-row-${expandBookingId}`)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }, 100);
+      clearExpandParam();
+      return () => window.clearTimeout(t);
+    }
+
+    processedExpandBookingRef.current = expandBookingId;
+    clearExpandParam();
+    if (bookings.length > 0 || bookingsTotal === 0) {
+      toast.info(
+        bookingsTotal > bookings.length
+          ? 'That booking is not on the first page. Use Show more in Booking History, then open the row.'
+          : 'Could not find that booking for this customer.',
+      );
+    }
+  }, [expandBookingId, bookings, bookingsLoading, bookingsTotal, setSearchParams]);
 
   const hiredFreelancers = useMemo(() => {
     const map = new Map<string, { id: string; name: string; photo: string | null; count: number }>();
@@ -169,6 +216,7 @@ const AdminCustomerDetail: React.FC = () => {
                       return (
                         <React.Fragment key={b.id}>
                           <tr
+                            id={`admin-booking-row-${b.id}`}
                             className="border-b border-neutral-50 dark:border-neutral-700/50 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 cursor-pointer transition-colors"
                             onClick={() => setExpandedBooking(isExpanded ? null : b.id)}
                           >
