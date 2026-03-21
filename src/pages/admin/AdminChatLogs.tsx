@@ -11,6 +11,8 @@ interface ChatRow {
   id: string;
   bookingId: string;
   updatedAt: string;
+  source?: 'live' | 'archived';
+  migrationReason?: string | null;
   booking?: {
     id: string;
     scheduledDate: string;
@@ -59,6 +61,21 @@ const AdminChatLogs: React.FC = () => {
           {new Date(row.updatedAt).toLocaleString()}
         </span>
       ),
+    },
+    {
+      key: 'source',
+      header: 'Source',
+      render: (row) =>
+        row.source === 'archived' ? (
+          <span
+            className="inline-flex text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-100"
+            title={row.migrationReason || undefined}
+          >
+            Archived
+          </span>
+        ) : (
+          <span className="text-xs text-neutral-400 dark:text-neutral-500">Live</span>
+        ),
     },
     {
       key: 'booking',
@@ -139,7 +156,13 @@ const AdminChatLogs: React.FC = () => {
         <MessageSquare className="h-4 w-4" />
         {total} chat{total !== 1 ? 's' : ''} total
       </div>
-      <DataTable columns={columns} data={chats} isLoading={loading} emptyTitle="No booking chats" emptyDescription="Chats appear after bookings are accepted" />
+      <DataTable
+        columns={columns}
+        data={chats}
+        isLoading={loading}
+        emptyTitle="No booking chats"
+        emptyDescription="Live chats appear after bookings are accepted. Completed bookings may show as archived history."
+      />
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 pt-2">
           <Button

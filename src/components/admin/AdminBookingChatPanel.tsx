@@ -27,12 +27,16 @@ const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [noChat, setNoChat] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [chatSource, setChatSource] = useState<'live' | 'archived' | null>(null);
+  const [migrationReason, setMigrationReason] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       setNoChat(false);
+      setChatSource(null);
+      setMigrationReason(null);
       const response = await apiRequest(`/admin/bookings/${bookingId}/chat`, { method: 'GET' });
       if (response.status === 404) {
         setNoChat(true);
@@ -45,7 +49,15 @@ const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
         return;
       }
       const res = await response.json();
-      if (res.success && res.data?.messages) {
+      const c = res.data?.chat;
+      const src = c?.source as 'live' | 'archived' | undefined;
+      if (src === 'live' || src === 'archived') {
+        setChatSource(src);
+        setMigrationReason(
+          src === 'archived' && typeof c?.migrationReason === 'string' ? c.migrationReason : null,
+        );
+      }
+      if (res.success && Array.isArray(res.data?.messages)) {
         setMessages(res.data.messages);
       } else {
         setMessages([]);
@@ -71,9 +83,21 @@ const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
   return (
     <div className="col-span-2 md:col-span-4 mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-600/80">
       <div className="flex items-center justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2 text-black dark:text-white font-medium text-sm">
-          <MessageSquare className="h-4 w-4 text-neutral-400" />
-          Booking chat
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <div className="flex items-center gap-2 text-black dark:text-white font-medium text-sm flex-wrap">
+            <MessageSquare className="h-4 w-4 shrink-0 text-neutral-400" />
+            Booking chat
+            {chatSource === 'archived' && (
+              <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-100">
+                Archived
+              </span>
+            )}
+          </div>
+          {migrationReason ? (
+            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 pl-6" title={migrationReason}>
+              {migrationReason}
+            </p>
+          ) : null}
         </div>
         <Button
           type="button"
