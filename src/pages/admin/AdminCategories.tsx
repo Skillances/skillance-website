@@ -223,7 +223,10 @@ const CategoryRow: React.FC<{
                   {node.name}
                 </span>
                 {node.isFeatured && (
-                  <Star className="h-3 w-3 text-amber-500 fill-amber-500 shrink-0" />
+                  <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-300">
+                    <Star className="h-2.5 w-2.5 fill-current" />
+                    Featured
+                  </span>
                 )}
               </div>
               <span className="text-[11px] text-neutral-400 dark:text-neutral-500 truncate block">{node.slug}</span>
