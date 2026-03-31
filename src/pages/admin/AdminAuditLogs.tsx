@@ -120,7 +120,7 @@ const AdminAuditLogs: React.FC = () => {
   const [orderDirection, setOrderDirection] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const pageSize = 50;
+  const pageSize = 20;
 
   useEffect(() => {
     const t = setTimeout(() => setActorSearchDebounced(actorSearch.trim()), 300);

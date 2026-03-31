@@ -109,7 +109,7 @@ const AdminUsers: React.FC = () => {
             {u.fullName?.charAt(0) || '?'}
           </div>
           <div className="min-w-0">
-            <p className="text-black font-medium text-sm truncate">{u.fullName}</p>
+            <p className="text-black dark:text-white font-medium text-sm truncate">{u.fullName}</p>
             <p className="text-neutral-400 text-xs truncate">@{u.tag}</p>
           </div>
         </div>

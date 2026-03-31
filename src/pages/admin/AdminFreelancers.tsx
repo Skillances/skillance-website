@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { get } from '@/lib/api';
 import { Briefcase, CheckCircle, Clock, XCircle, BadgeCheck, Shield } from 'lucide-react';
 import PageHeader from '@/components/admin/PageHeader';
@@ -14,6 +14,8 @@ interface FreelancerStats { total: number; verified: number; pending: number; re
 
 const AdminFreelancers: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const categoryIdFilter = searchParams.get('categoryId')?.trim() || '';
   const [freelancers, setFreelancers] = useState<FreelancerItem[]>([]);
   const [stats, setStats] = useState<FreelancerStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,6 +37,7 @@ const AdminFreelancers: React.FC = () => {
       params.set('sortOrder', sortDirection);
       if (verificationFilter !== 'all') params.set('idVerificationStatus', verificationFilter);
       if (search.trim()) params.set('search', search.trim());
+      if (categoryIdFilter) params.set('categoryId', categoryIdFilter);
       const res = await get(`/admin/freelancers?${params.toString()}`);
       if (res.success) {
         setFreelancers(res.data.freelancers);
@@ -45,7 +48,7 @@ const AdminFreelancers: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, pageSize, sortKey, sortDirection, verificationFilter, search]);
+  }, [page, pageSize, sortKey, sortDirection, verificationFilter, search, categoryIdFilter]);
 
   const fetchStats = useCallback(async () => { try { const res = await get('/admin/freelancers/stats'); if (res.success) setStats(res.data); } catch {} }, []);
   useEffect(() => { fetchStats(); }, [fetchStats]);
@@ -95,6 +98,11 @@ const AdminFreelancers: React.FC = () => {
   return (
     <div className="space-y-10">
       <PageHeader title="Freelancers" description="Manage all freelancer profiles and verifications" />
+      {categoryIdFilter && (
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          Filtered by category: <span className="font-mono">{categoryIdFilter}</span>
+        </p>
+      )}
       {stats && <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">{statsCards.map((s, i) => <StatsCard key={s.title} {...s} index={i} />)}</div>}
       <SearchFilter searchValue={search} onSearchChange={(v) => { setSearch(v); setPage(1); }} searchPlaceholder="Search freelancers..." filters={filters} />
       <DataTable columns={columns} data={freelancers} isLoading={isLoading} emptyTitle="No freelancers found" emptyDescription="Try adjusting your filters" onRowClick={(f) => navigate(`/admin/freelancers/${f.id}`)} sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} page={page} pageSize={pageSize} total={total} onPageChange={setPage} />

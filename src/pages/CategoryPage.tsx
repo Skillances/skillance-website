@@ -1,16 +1,85 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageTemplate from '../components/layout/PageTemplate';
 import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import gsap from 'gsap';
-import { CATEGORY_HIERARCHY } from '@/lib/categories';
+import { get } from '@/lib/api';
+
+interface CategoryNode {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  children?: CategoryNode[];
+}
 
 const CategoryPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
-  
-  const category = id ? CATEGORY_HIERARCHY[id.toLowerCase()] : null;
+  const [category, setCategory] = useState<CategoryNode | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadCategory = async () => {
+      if (!id) {
+        if (mounted) {
+          setCategory(null);
+          setNotFound(true);
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setNotFound(false);
+        const res = await get('/categories');
+        const data = Array.isArray(res) ? res : (res?.data ?? []);
+        if (!mounted) return;
+
+        const categories = Array.isArray(data) ? (data as CategoryNode[]) : [];
+        const normalizedSlug = id.toLowerCase();
+        const found = categories.find((c) => c.slug?.toLowerCase() === normalizedSlug) || null;
+
+        if (found) {
+          setCategory(found);
+          setNotFound(false);
+        } else {
+          setCategory(null);
+          setNotFound(true);
+        }
+      } catch {
+        if (!mounted) return;
+        setCategory(null);
+        setNotFound(true);
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+
+    loadCategory();
+    return () => {
+      mounted = false;
+    };
+  }, [id]);
+
+  const flattenChildren = (nodes?: CategoryNode[]): Array<{ id: string; slug: string; name: string; depth: number }> => {
+    if (!nodes || nodes.length === 0) return [];
+    const out: Array<{ id: string; slug: string; name: string; depth: number }> = [];
+    const walk = (list: CategoryNode[], depth: number) => {
+      list.forEach((n) => {
+        out.push({ id: n.id, slug: n.slug, name: n.name, depth });
+        if (n.children?.length) walk(n.children, depth + 1);
+      });
+    };
+    walk(nodes, 0);
+    return out;
+  };
+
+  const subcategories = flattenChildren(category?.children);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -21,9 +90,19 @@ const CategoryPage = () => {
       );
     }, containerRef);
     return () => ctx.revert();
-  }, [id]);
+  }, [id, category?.id]);
 
-  if (!category) {
+  if (isLoading) {
+    return (
+      <PageTemplate title="Loading Category">
+        <div className="py-32 text-center">
+          <p className="text-neutral-500">Loading category...</p>
+        </div>
+      </PageTemplate>
+    );
+  }
+
+  if (notFound || !category) {
     return (
       <PageTemplate title="Category Not Found">
         <div className="py-32 text-center">
@@ -56,34 +135,17 @@ const CategoryPage = () => {
 
         {/* Subcategories List */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-4">
-          {category.subcategories.map((sub) => (
+          {subcategories.map((sub) => (
             <div 
               key={sub.id}
               className="subcategory-item group flex items-center justify-between py-6 border-b border-neutral-50 hover:border-black transition-colors cursor-pointer"
-              onClick={() => navigate(`/contact?interest=${sub.id}`)}
+              onClick={() => navigate(`/contact?interest=${encodeURIComponent(sub.slug)}`)}
             >
               <div className="flex flex-col">
                 <h4 className="text-lg lg:text-xl font-medium text-neutral-800 group-hover:text-black transition-colors">
                   {sub.name}
                 </h4>
-                {sub.grades && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {sub.grades.map(grade => (
-                      <span key={grade} className="text-[10px] uppercase tracking-wider text-neutral-400 bg-neutral-50 px-2 py-0.5 rounded">
-                        {grade}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                {sub.subcategories && (
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-                    {sub.subcategories.map(nested => (
-                      <span key={nested.id} className="text-xs text-neutral-400 italic">
-                        • {nested.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                {sub.depth > 0 && <p className="text-xs text-neutral-400 mt-1">Level {sub.depth + 1}</p>}
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-xs uppercase tracking-widest text-neutral-300 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">

@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { X, ArrowUpRight, Hammer, GraduationCap, Sparkles, Dog, Dumbbell, Car } from 'lucide-react';
+import { X, ArrowUpRight } from 'lucide-react';
+import { fetchServiceCategories, type ServiceCategoryItem } from '@/lib/serviceCategories';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,68 +13,22 @@ function getUnsplashUrl(url: string, width: number, height?: number): string {
   return result;
 }
 
-interface ServiceCategory {
-  name: string;
-  description: string;
-  longDescription: string;
-  image: string;
-  icon: React.ElementType;
-  subcategories: string[];
-}
+type ServiceCategory = ServiceCategoryItem;
+const HOME_SERVICES_VISIBLE_COUNT = 6;
+const HOME_SERVICES_ROTATE_DAYS = 1;
 
-const serviceCategories: ServiceCategory[] = [
-  {
-    name: 'Handyman',
-    description: 'Precision in every repair.',
-    longDescription: 'From intricate repairs to full installations, our expert handymen bring precision and reliability to every corner of your home. We handle the hard work so you can enjoy your space.',
-    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=85&w=1200&h=1500',
-    icon: Hammer,
-    subcategories: ['General Repairs', 'Furniture Assembly', 'TV Mounting', 'Electrical', 'Plumbing', 'Painting', 'Carpentry', 'Appliance Install'],
-  },
-  {
-    name: 'Education',
-    description: 'Expand your horizons.',
-    longDescription: 'Unlock your potential with personalized learning. Our expert tutors provide the support and guidance needed to master any subject and reach your academic or professional goals.',
-    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=85&w=1200&h=1500',
-    icon: GraduationCap,
-    subcategories: ['Math Tutoring', 'Science Tutoring', 'Language Lessons', 'Music Lessons', 'Career Development', 'Digital Skills', 'Art & Design', 'Test Prep'],
-  },
-  {
-    name: 'Cleaning',
-    description: 'Spotless spaces, total peace.',
-    longDescription: 'Experience the luxury of a pristine environment. Our professional cleaning teams deliver meticulous care for homes and offices, using safe and effective methods for a healthier space.',
-    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=85&w=1200&h=1500',
-    icon: Sparkles,
-    subcategories: ['House Cleaning', 'Deep Cleaning', 'Office Cleaning', 'End of Tenancy', 'Window Cleaning', 'Carpet Cleaning', 'Laundry Service', 'Organization'],
-  },
-  {
-    name: 'Pet Care',
-    description: 'Your pets, our priority.',
-    longDescription: "Give your furry friends the very best. From energetic walks to gentle grooming and trusted sitting, we provide the love and attention your pets deserve when you can't be there.",
-    image: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&q=85&w=1200&h=1500',
-    icon: Dog,
-    subcategories: ['Dog Walking', 'Pet Sitting', 'Grooming', 'Training', 'Vet Visits', 'Daycare', 'Pet Taxi', 'Nutrition Care'],
-  },
-  {
-    name: 'Fitness',
-    description: 'Achieve your peak self.',
-    longDescription: "Transform your lifestyle with expert guidance. Whether it's high-intensity training or mindfulness through yoga, our wellness professionals help you achieve your health goals.",
-    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=85&w=1200&h=1500',
-    icon: Dumbbell,
-    subcategories: ['Personal Training', 'Yoga', 'Pilates', 'Nutrition Planning', 'Sports Coaching', 'Stretching & Recovery', 'Group Classes', 'Health Coaching'],
-  },
-  {
-    name: 'Automotive',
-    description: 'Driving excellence always.',
-    longDescription: 'Reliable care for the road ahead. Our automotive experts provide everything from routine maintenance to detailed care, ensuring your vehicle remains in peak performance.',
-    image: 'https://images.unsplash.com/photo-1625047509168-a7026f36de04?auto=format&fit=crop&q=85&w=1200&h=1500',
-    icon: Car,
-    subcategories: ['Car Wash', 'Full Detailing', 'Mechanic Services', 'Oil & Filter', 'Battery Service', 'Tire Rotation', 'Pre-purchase Check', 'Diagnostic'],
-  },
-];
+function pickRotatingCategories(items: ServiceCategory[], count: number): ServiceCategory[] {
+  if (items.length <= count) return items;
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const rotationBucket = Math.floor(Date.now() / (msPerDay * HOME_SERVICES_ROTATE_DAYS));
+  const start = rotationBucket % items.length;
+  const rotated = items.slice(start).concat(items.slice(0, start));
+  return rotated.slice(0, count);
+}
 
 const Services = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const [serviceCategories, setServiceCategories] = useState<ServiceCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null);
 
   useEffect(() => {
@@ -119,6 +74,20 @@ const Services = () => {
       document.body.style.overflow = prevOverflow;
     };
   }, [selectedCategory]);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchServiceCategories()
+      .then((items) => {
+        if (mounted) setServiceCategories(pickRotatingCategories(items, HOME_SERVICES_VISIBLE_COUNT));
+      })
+      .catch(() => {
+        // Keep section stable if API fails.
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <section 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { get, post, put, del } from '@/lib/api';
 import {
   Plus, Edit, Trash2, FolderOpen, Loader2, Upload, ImageIcon, Star,
@@ -156,9 +157,10 @@ const CategoryRow: React.FC<{
   depth: number;
   expanded: Set<string>;
   onToggle: (id: string) => void;
+  onOpenFreelancers: (categoryFilter: string) => void;
   onEdit: (c: CategoryItem) => void;
   onDelete: (id: string) => void;
-}> = ({ node, depth, expanded, onToggle, onEdit, onDelete }) => {
+}> = ({ node, depth, expanded, onToggle, onOpenFreelancers, onEdit, onDelete }) => {
   const hasChildren = node.children.length > 0;
   const isExpanded = expanded.has(node.id);
   const indent = depth * 20;
@@ -179,7 +181,7 @@ const CategoryRow: React.FC<{
               <button
                 type="button"
                 onClick={() => onToggle(node.id)}
-                className="p-0.5 rounded text-neutral-400 hover:text-black dark:hover:text-white transition-colors shrink-0"
+                className="p-0.5 rounded text-neutral-500 dark:text-neutral-300 hover:text-black dark:hover:text-white transition-colors shrink-0"
                 aria-label={isExpanded ? 'Collapse' : 'Expand'}
               >
                 {isExpanded
@@ -243,7 +245,13 @@ const CategoryRow: React.FC<{
 
         {/* Freelancers */}
         <td className="px-4 py-2.5 text-xs text-neutral-600 dark:text-neutral-300 tabular-nums">
-          {node.freelancerCount ?? 0}
+          <button
+            type="button"
+            onClick={() => onOpenFreelancers(node.slug)}
+            className="font-medium underline-offset-2 hover:underline text-neutral-700 dark:text-violet-300 dark:hover:text-violet-200"
+          >
+            {node.freelancerCount ?? 0}
+          </button>
         </td>
 
         {/* Status */}
@@ -289,6 +297,7 @@ const CategoryRow: React.FC<{
           depth={depth + 1}
           expanded={expanded}
           onToggle={onToggle}
+          onOpenFreelancers={onOpenFreelancers}
           onEdit={onEdit}
           onDelete={onDelete}
         />
@@ -299,6 +308,7 @@ const CategoryRow: React.FC<{
 
 // ─── Main component ───────────────────────────────────────────────────────────
 const AdminCategories: React.FC = () => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [stats, setStats] = useState<CategoryStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -323,8 +333,8 @@ const AdminCategories: React.FC = () => {
         const cats: CategoryItem[] = res.data.categories || [];
         setCategories(cats);
         setTotal(res.data.total || 0);
-        // Auto-expand all root nodes on first load
-        setExpanded(new Set(cats.filter((c) => c.parentId === null).map((c) => c.id)));
+        // Default collapsed view keeps the table compact.
+        setExpanded(new Set());
       }
     } catch {
       toast.error('Failed to load categories');
@@ -454,6 +464,11 @@ const AdminCategories: React.FC = () => {
 
   const tree = useMemo(() => buildTree(categories), [categories]);
 
+  useEffect(() => {
+    // Keep category tree collapsed by default after data loads/refreshes.
+    setExpanded(new Set());
+  }, [categories.length]);
+
   const pendingLottiePreviewData = useMemo(() => {
     if (form.imageType !== 'lottie' || !form.imageBase64) return null;
     try { return JSON.parse(atob(form.imageBase64)) as unknown; } catch { return null; }
@@ -523,6 +538,7 @@ const AdminCategories: React.FC = () => {
                   depth={0}
                   expanded={expanded}
                   onToggle={toggleExpand}
+                  onOpenFreelancers={(categoryFilter) => navigate(`/admin/freelancers?categoryId=${encodeURIComponent(categoryFilter)}`)}
                   onEdit={openEdit}
                   onDelete={(id) => { setDeleteId(id); setDeleteOpen(true); }}
                 />

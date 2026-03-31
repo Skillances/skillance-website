@@ -19,6 +19,7 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import StatsCard from '@/components/admin/dashboard/StatsCard';
 import SecurityWorldMap from '@/components/admin/SecurityWorldMap';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
 interface SecurityEvent { id: string; eventType: string; ipAddress: string; path: string; method: string; userAgent: string | null; reason: string; action: string | null; blockDuration: number | null; createdAt: string; }
@@ -46,6 +47,23 @@ const eventTypeColors: Record<string, string> = {
 const isCriticalEvent = (eventType: string) => eventType === 'exploit_attempt' || eventType === 'honeypot';
 
 type DateRange = '24h' | '7d' | '30d' | 'custom';
+type BlockedIpScope = 'all' | 'public' | 'private' | 'ipv6';
+
+function isIpv6(ip: string): boolean {
+  return ip.includes(':');
+}
+
+function isPrivateIpv4(ip: string): boolean {
+  const match = ip.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (!match) return false;
+  const a = Number(match[1]);
+  const b = Number(match[2]);
+  if (a === 10) return true;
+  if (a === 172 && b >= 16 && b <= 31) return true;
+  if (a === 192 && b === 168) return true;
+  if (a === 127) return true;
+  return false;
+}
 
 function getDateRange(range: DateRange, customStart?: Date, customEnd?: Date): { start: Date; end: Date } {
   if (range === 'custom' && customStart && customEnd) {
@@ -91,6 +109,8 @@ const AdminSecurity: React.FC = () => {
   const [byCountryError, setByCountryError] = useState(false);
   const [blockedIps, setBlockedIps] = useState<string[]>([]);
   const [blockedIpsLoading, setBlockedIpsLoading] = useState(false);
+  const [blockedIpSearch, setBlockedIpSearch] = useState('');
+  const [blockedIpScope, setBlockedIpScope] = useState<BlockedIpScope>('all');
 
   useEffect(() => {
     const t = setTimeout(() => setSearchDebounced(searchValue.trim()), 300);
@@ -217,6 +237,19 @@ const AdminSecurity: React.FC = () => {
   useEffect(() => {
     fetchCriticalStats();
   }, [fetchCriticalStats]);
+
+  const filteredBlockedIps = useMemo(() => {
+    const search = blockedIpSearch.trim().toLowerCase();
+    return blockedIps.filter((ip) => {
+      const normalized = ip.toLowerCase();
+      if (search && !normalized.includes(search)) return false;
+      if (blockedIpScope === 'all') return true;
+      if (blockedIpScope === 'ipv6') return isIpv6(ip);
+      if (blockedIpScope === 'private') return !isIpv6(ip) && isPrivateIpv4(ip);
+      if (blockedIpScope === 'public') return !isIpv6(ip) && !isPrivateIpv4(ip);
+      return true;
+    });
+  }, [blockedIps, blockedIpSearch, blockedIpScope]);
 
   const viewIpHistory = async (ip: string) => {
     setIpAddress(ip);
@@ -555,30 +588,60 @@ const AdminSecurity: React.FC = () => {
           ) : blockedIps.length === 0 ? (
             <p className="text-sm text-neutral-400 dark:text-neutral-500 py-10 text-center">No IPs currently blocked</p>
           ) : (
-            <div className="space-y-2">
-              {blockedIps.map((ip) => (
-                <div
-                  key={ip}
-                  className="flex items-center justify-between gap-4 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-700"
-                >
-                  <button
-                    type="button"
-                    onClick={() => viewIpHistory(ip)}
-                    className="font-mono text-sm text-black dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300 underline hover:no-underline transition-colors"
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <Input
+                  value={blockedIpSearch}
+                  onChange={(e) => setBlockedIpSearch(e.target.value)}
+                  placeholder="Search blocked IP"
+                  className="h-9 w-full sm:w-[260px] rounded-xl border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-800"
+                />
+                <Select value={blockedIpScope} onValueChange={(v) => setBlockedIpScope(v as BlockedIpScope)}>
+                  <SelectTrigger className="h-9 w-[150px] rounded-xl border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-800">
+                    <SelectValue placeholder="Scope" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="public">Public IPv4</SelectItem>
+                    <SelectItem value="private">Private IPv4</SelectItem>
+                    <SelectItem value="ipv6">IPv6</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className="text-xs text-neutral-400 dark:text-neutral-500 ml-auto">
+                  {filteredBlockedIps.length} of {blockedIps.length}
+                </span>
+              </div>
+
+              <div className="max-h-[420px] overflow-y-auto pr-1 space-y-2">
+                {filteredBlockedIps.map((ip) => (
+                  <div
+                    key={ip}
+                    className="flex items-center justify-between gap-4 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-700"
                   >
-                    {ip}
-                  </button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleUnblockFromList(ip)}
-                    className="rounded-lg shrink-0 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50"
-                  >
-                    <ShieldOff className="h-4 w-4 mr-1.5" />
-                    Unblock
-                  </Button>
-                </div>
-              ))}
+                    <button
+                      type="button"
+                      onClick={() => viewIpHistory(ip)}
+                      className="font-mono text-sm text-black dark:text-white hover:text-neutral-600 dark:hover:text-neutral-300 underline hover:no-underline transition-colors"
+                    >
+                      {ip}
+                    </button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleUnblockFromList(ip)}
+                      className="rounded-lg shrink-0 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50"
+                    >
+                      <ShieldOff className="h-4 w-4 mr-1.5" />
+                      Unblock
+                    </Button>
+                  </div>
+                ))}
+                {filteredBlockedIps.length === 0 && (
+                  <p className="text-sm text-neutral-400 dark:text-neutral-500 py-8 text-center">
+                    No blocked IPs match these filters
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </CardContent>

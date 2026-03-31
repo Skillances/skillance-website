@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Lottie from 'lottie-react';
 import { cn } from '@/lib/utils';
 import { fetchCategoryLottieJsonCached, getCategoryLottieFromCache } from '@/lib/lottieBrowserCache';
@@ -42,6 +42,7 @@ interface CategoryLottieThumbProps {
 export function CategoryLottieThumb({ src, size = 32, className }: CategoryLottieThumbProps) {
   const [data, setData] = useState<unknown | null>(() => getCategoryLottieFromCache(src));
   const [failed, setFailed] = useState(false);
+  const lottieRef = useRef<any>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,6 +71,13 @@ export function CategoryLottieThumb({ src, size = 32, className }: CategoryLotti
     };
   }, [src]);
 
+  useEffect(() => {
+    if (!data || failed) return;
+    // Ensure playback starts even after recycled table rows/remounts.
+    lottieRef.current?.goToAndPlay?.(0, true);
+    lottieRef.current?.setSpeed?.(1);
+  }, [data, failed]);
+
   if (failed) {
     return <FallbackBox size={size} className={className} label="Lottie" />;
   }
@@ -91,7 +99,13 @@ export function CategoryLottieThumb({ src, size = 32, className }: CategoryLotti
       )}
       style={{ width: size, height: size }}
     >
-      <Lottie animationData={data} loop autoplay style={{ width: size, height: size }} />
+      <Lottie
+        lottieRef={lottieRef}
+        animationData={data}
+        loop
+        autoplay
+        style={{ width: size, height: size }}
+      />
     </div>
   );
 }

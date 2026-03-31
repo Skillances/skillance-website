@@ -98,6 +98,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isLoginPage = location.pathname === '/login';
+  const routeAnimationKey = isAdminRoute ? '/admin' : location.pathname;
 
   useEffect(() => {
     if (isLoaded) {
@@ -151,7 +152,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
       {!isAdminRoute && !isLoginPage && <Navigation isLoaded={isLoaded} />}
       <main>
         <AnimatePresence mode="wait" initial={false}>
-          <Routes location={location} key={location.pathname}>
+          <Routes location={location} key={routeAnimationKey}>
             {/* Public Routes */}
             <Route path="/" element={<PageTransition routeKey="/"><Home /></PageTransition>} />
             <Route path="/help-center" element={<PageTransition routeKey="/help-center"><HelpCenter /></PageTransition>} />
@@ -216,18 +217,37 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   );
 }
 
-function App() {
+function AppShell() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isLoginPage = location.pathname === '/login';
+  const shouldShowLoader = !isAdminRoute && !isLoginPage;
+
   const [isLoaded, setIsLoaded] = useState(false);
 
   const handleLoaderComplete = () => {
     setIsLoaded(true);
   };
 
+  useEffect(() => {
+    if (!shouldShowLoader) {
+      setIsLoaded(true);
+    }
+  }, [shouldShowLoader]);
+
+  return (
+    <>
+      {shouldShowLoader && <PageLoader onComplete={handleLoaderComplete} />}
+      <MainContent isLoaded={isLoaded} />
+    </>
+  );
+}
+
+function App() {
   return (
     <AuthProvider>
       <Router>
-        <PageLoader onComplete={handleLoaderComplete} />
-        <MainContent isLoaded={isLoaded} />
+        <AppShell />
       </Router>
     </AuthProvider>
   );

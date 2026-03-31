@@ -3,7 +3,7 @@ import PageTemplate from '../components/layout/PageTemplate';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight, Search, X, ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
-import { FLAT_CATEGORIES, CATEGORY_HIERARCHY } from '@/lib/categories';
+import { fetchServiceCategories, type ServiceCategoryItem } from '@/lib/serviceCategories';
 
 const ServicesPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -11,6 +11,7 @@ const ServicesPage = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [allCategories, setAllCategories] = useState<ServiceCategoryItem[]>([]);
 
   const toggleExpand = (id: string) => {
     setExpandedIds((prev) => {
@@ -23,7 +24,7 @@ const ServicesPage = () => {
 
   const filteredCategories = useMemo(() => {
     if (!searchQuery.trim()) {
-      return FLAT_CATEGORIES.map(cat => ({
+      return allCategories.map(cat => ({
         ...cat,
         matchedSpecializations: [] as string[]
       }));
@@ -133,10 +134,7 @@ const ServicesPage = () => {
       'pro': ['professional', 'expert', 'specialist'],
     };
 
-    return FLAT_CATEGORIES.map(cat => {
-      const categoryData = CATEGORY_HIERARCHY[cat.id];
-      if (!categoryData) return { ...cat, matchedSpecializations: [] as string[] };
-
+    return allCategories.map(cat => {
       const categoryName = cat.name.toLowerCase();
       const categoryDesc = cat.description.toLowerCase();
       const allText = `${categoryName} ${categoryDesc}`;
@@ -149,17 +147,17 @@ const ServicesPage = () => {
 
       const matchedSpecializations: string[] = [];
       if (categoryMatches) {
-        matchedSpecializations.push(...categoryData.subcategories.slice(0, 3).map(s => s.name));
+        matchedSpecializations.push(...cat.subcategories.slice(0, 3));
       } else {
-        categoryData.subcategories.forEach(sub => {
-          const subName = sub.name.toLowerCase();
+        cat.subcategories.forEach(sub => {
+          const subName = sub.toLowerCase();
           const matches = queryWords.some(word => {
             if (subName.includes(word)) return true;
             const relatedWords = synonyms[word] || [];
             return relatedWords.some(synonym => subName.includes(synonym));
           });
           if (matches) {
-            matchedSpecializations.push(sub.name);
+            matchedSpecializations.push(sub);
           }
         });
       }
@@ -174,7 +172,7 @@ const ServicesPage = () => {
       const synonymsList = synonyms[word] || [];
       return synonymsList.some(syn => catText.includes(syn));
     }));
-  }, [searchQuery]);
+  }, [searchQuery, allCategories]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -189,29 +187,23 @@ const ServicesPage = () => {
     }
   }, []);
 
+  useEffect(() => {
+    let mounted = true;
+    fetchServiceCategories()
+      .then((items) => {
+        if (mounted) setAllCategories(items);
+      })
+      .catch(() => {
+        // Keep page usable if categories API is unavailable.
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   function getUnsplashUrl(url: string, width: number): string {
     return url.replace(/w=\d+/, `w=${width}`);
   }
-
-  const getCategoryImage = (id: string) => {
-    const images: Record<string, string> = {
-      handyman: 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&q=80&w=2070',
-      education: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=2070',
-      cleaning: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=2070',
-      petcare: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&q=80&w=2042',
-      fitness: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=2070',
-      automotive: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&q=80&w=2070',
-      personalservices: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=2084',
-      gardening: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=2070',
-      computer: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2072',
-      professionalservices: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2074',
-      influencer: 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&q=80&w=2070',
-      photography: 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&q=80&w=2074',
-      videography: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2070',
-      music: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=2070',
-    };
-    return images[id] || images.handyman;
-  };
 
   const isSearching = searchQuery.trim().length > 0;
 
@@ -266,8 +258,8 @@ const ServicesPage = () => {
               >
                 <div className="aspect-[16/10] overflow-hidden flex-shrink-0">
                   <img
-                    src={getUnsplashUrl(getCategoryImage(category.id), 800)}
-                    srcSet={`${getUnsplashUrl(getCategoryImage(category.id), 400)} 400w, ${getUnsplashUrl(getCategoryImage(category.id), 800)} 800w, ${getUnsplashUrl(getCategoryImage(category.id), 1200)} 1200w`}
+                    src={getUnsplashUrl(category.image, 800)}
+                    srcSet={`${getUnsplashUrl(category.image, 400)} 400w, ${getUnsplashUrl(category.image, 800)} 800w, ${getUnsplashUrl(category.image, 1200)} 1200w`}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     alt={category.name}
                     width={1600}
@@ -308,7 +300,7 @@ const ServicesPage = () => {
                       {category.subcategoryCount} Specializations
                     </span>
                     <button
-                      onClick={() => navigate(`/category/${category.id}`)}
+                      onClick={() => navigate(`/category/${category.slug}`)}
                       className="text-[10px] font-semibold hover:text-black transition-colors flex items-center justify-center gap-1 group/btn w-full py-2"
                     >
                       <span>Explore</span>
@@ -340,9 +332,8 @@ const ServicesPage = () => {
         {/* Default view — accordion list */}
         {!isSearching && (
           <div className="space-y-3">
-            {FLAT_CATEGORIES.map((category) => {
-              const categoryData = CATEGORY_HIERARCHY[category.id];
-              const subcategories = categoryData?.subcategories ?? [];
+            {allCategories.map((category) => {
+              const subcategories = category.subcategories;
               const isExpanded = expandedIds.has(category.id);
 
               return (
@@ -359,7 +350,7 @@ const ServicesPage = () => {
                     {/* Image — fixed size, no flex-grow */}
                     <div className="w-24 h-20 sm:w-32 sm:h-24 shrink-0 overflow-hidden rounded-l-[1.75rem]">
                       <img
-                        src={getUnsplashUrl(getCategoryImage(category.id), 256)}
+                        src={getUnsplashUrl(category.image, 256)}
                         alt={category.name}
                         width={256}
                         height={192}
@@ -382,7 +373,7 @@ const ServicesPage = () => {
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
                           <span className="hidden sm:block text-[10px] uppercase tracking-widest text-neutral-400 font-medium">
-                            {subcategories.length} specializations
+                            {category.subcategoryCount} specializations
                           </span>
                           <div className={`w-8 h-8 rounded-full border border-neutral-200 flex items-center justify-center transition-all duration-300 group-hover:border-black group-hover:bg-black group-hover:text-white ${isExpanded ? 'bg-black border-black text-white' : 'text-neutral-400'}`}>
                             <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
@@ -400,16 +391,16 @@ const ServicesPage = () => {
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-5">
                         {subcategories.map((sub) => (
                           <div
-                            key={sub.id}
+                            key={sub}
                             className="flex items-center gap-2 py-2 px-3 rounded-xl bg-neutral-50 hover:bg-neutral-100 transition-colors"
                           >
                             <span className="w-1.5 h-1.5 rounded-full bg-neutral-300 shrink-0" />
-                            <span className="text-xs text-neutral-600 leading-tight">{sub.name}</span>
+                            <span className="text-xs text-neutral-600 leading-tight">{sub}</span>
                           </div>
                         ))}
                       </div>
                       <button
-                        onClick={() => navigate(`/category/${category.id}`)}
+                        onClick={() => navigate(`/category/${category.slug}`)}
                         className="group/btn flex items-center gap-2 text-sm font-semibold text-black hover:text-neutral-600 transition-colors"
                       >
                         Explore {category.name}

@@ -18,7 +18,7 @@ import {
   Moon,
   Mail,
   BellRing,
-  StarHalf,
+  Star,
   ScrollText,
   MessageCircle,
   ChevronDown,
@@ -57,7 +57,7 @@ const adminMenuGroups = [
       { name: 'Messages', path: '/admin/contact-messages', icon: Mail },
       { name: 'Chat Logs', path: '/admin/chat-logs', icon: MessageCircle },
       { name: 'Subscribers', path: '/admin/notify-subscribers', icon: BellRing },
-      { name: 'Reviews', path: '/admin/website-reviews', icon: StarHalf },
+      { name: 'Reviews', path: '/admin/website-reviews', icon: Star },
     ],
   },
   {
