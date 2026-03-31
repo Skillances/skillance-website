@@ -1,7 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Bash(head:)"
+      "Bash(head:)",
+      "Bash(find 'C:/Users/Markus/Desktop/Skillance Web_Backend/Skillance Website/src/components/admin' -type f -name *.tsx -o -name *.ts -o -name *.jsx -o -name *.js)",
+      "Bash(grep -r \"AdminSidebar\\\\|AdminNav\\\\|admin.*sidebar\\\\|admin.*nav\" 'C:/Users/Markus/Desktop/Skillance Web_Backend/Skillance Website/src' --include=*.tsx --include=*.ts -l)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "Bash(grep -n w-[ C:/Users/Markus/Desktop/Skillance Web_Backend/Skillance Website/src/pages/admin/*.tsx)",
+      "Bash(grep -n min-w-[[0-9] C:/Users/Markus/Desktop/Skillance Web_Backend/Skillance Website/src/pages/admin/*.tsx)",
+      "Bash(grep -n \"w-\\\\[3\\\\|w-\\\\[5\\\\|w-\\\\[6\\\\|w-\\\\[9\\\\|w-\\\\[10\\\\|w-\\\\[11\\\\|w-\\\\[12\\\\|w-\\\\[13\\\\|w-\\\\[15\\\\|w-\\\\[17\\\\|w-\\\\[19\\\\|w-\\\\[20\\\\|w-\\\\[22\\\\|w-\\\\[24\" C:/Users/Markus/Desktop/Skillance Web_Backend/Skillance Website/src/pages/admin/*.tsx)",
+      "Bash(npm run:*)",
+      "Bash(find 'C:/Users/Markus/Desktop/Skillance Web_Backend/' -name *.ts -not -path */node_modules/*)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -E \"\\\\.\\(png|jpg|webp|svg|ico\\)$\")"
     ]
   }
 }

@@ -12,6 +12,32 @@ const DEFAULT_S3_CATEGORY_BASE =
  */
 function devS3PublicJsonProxy(allowedPrefix: string): Plugin {
   const normalized = allowedPrefix.replace(/\/+$/, "")
+  const allowedBaseUrl = new URL(normalized)
+
+  const isAllowedUrl = (candidate: string): boolean => {
+    let parsed: URL
+    try {
+      parsed = new URL(candidate)
+    } catch {
+      return false
+    }
+
+    // Only allow HTTPS public object URLs.
+    if (parsed.protocol !== "https:") return false
+    if (parsed.username || parsed.password) return false
+
+    // Restrict host + optional port to the configured S3 base.
+    if (parsed.host !== allowedBaseUrl.host) return false
+
+    const normalizedPath = parsed.pathname.replace(/\/+$/, "")
+    const allowedPath = allowedBaseUrl.pathname.replace(/\/+$/, "")
+    if (!(normalizedPath === allowedPath || normalizedPath.startsWith(`${allowedPath}/`))) {
+      return false
+    }
+
+    return true
+  }
+
   return {
     name: "dev-s3-public-json-proxy",
     configureServer(server) {
@@ -23,26 +49,43 @@ function devS3PublicJsonProxy(allowedPrefix: string): Plugin {
         }
         try {
           const reqUrl = new URL(req.url || "", "http://localhost")
-          const target = reqUrl.searchParams.get("url")
-          if (!target) {
+          const key = reqUrl.searchParams.get("key")
+          if (key == null) {
             res.statusCode = 400
-            res.end("Missing url")
+            res.end("Missing key")
             return
           }
-          let decoded: string
+          if (key.includes("..") || key.includes("\\")) {
+            res.statusCode = 400
+            res.end("Bad key")
+            return
+          }
+
+          let decodedKey: string
           try {
-            decoded = decodeURIComponent(target)
+            decodedKey = decodeURIComponent(key)
           } catch {
             res.statusCode = 400
-            res.end("Bad url")
+            res.end("Bad key")
             return
           }
-          if (!decoded.startsWith(`${normalized}/`) && decoded !== normalized) {
+
+          // Disallow absolute URLs and protocol-relative values.
+          if (/^([a-z]+:)?\/\//i.test(decodedKey)) {
+            res.statusCode = 400
+            res.end("Bad key")
+            return
+          }
+
+          const normalizedKey = decodedKey.replace(/^\/+/, "")
+          const upstreamUrl = normalizedKey ? `${normalized}/${normalizedKey}` : normalized
+
+          if (!isAllowedUrl(upstreamUrl)) {
             res.statusCode = 403
             res.end("URL not allowed")
             return
           }
-          const upstream = await fetch(decoded, { headers: { Accept: "application/json,*/*" } })
+          const upstream = await fetch(upstreamUrl, { headers: { Accept: "application/json,*/*" } })
           if (!upstream.ok) {
             res.statusCode = upstream.status
             res.end()

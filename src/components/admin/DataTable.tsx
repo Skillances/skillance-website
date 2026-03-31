@@ -57,7 +57,7 @@ function DataTable<T>({
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const showPagination = total > pageSize;
 
-  const tableWrapperClass = "border border-neutral-100 dark:border-neutral-700 rounded-2xl overflow-hidden bg-white dark:bg-neutral-800/80 shadow-sm dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)]";
+  const tableWrapperClass = "border border-neutral-100 dark:border-neutral-700 rounded-2xl overflow-x-auto bg-white dark:bg-neutral-800/80 shadow-sm dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)]";
   const headerRowClass = "border-neutral-100 dark:border-neutral-700 hover:bg-transparent";
   const headCellClass = "text-neutral-400 dark:text-neutral-500 text-[10px] uppercase tracking-[0.2em] font-medium h-11 px-4";
   const bodyRowClass = cn(

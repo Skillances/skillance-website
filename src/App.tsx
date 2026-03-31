@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import PageTransition from './components/layout/PageTransition';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
@@ -20,6 +22,11 @@ import CategoryPage from './pages/CategoryPage';
 import LoginPage from './pages/LoginPage';
 import AdminLayout from './components/layout/AdminLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
+import { AdminThemeProvider, useAdminTheme } from './context/AdminThemeContext';
+import CookieConsent from './components/layout/CookieConsent';
+import LaunchCountdown from './components/layout/LaunchCountdown';
+import ScrollIndicator from './components/layout/ScrollIndicator';
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
@@ -39,33 +46,51 @@ const AdminNotifySubscribers = lazy(() => import('./pages/admin/AdminNotifySubsc
 const AdminWebsiteReviews = lazy(() => import('./pages/admin/AdminWebsiteReviews'));
 const AdminChatLogs = lazy(() => import('./pages/admin/AdminChatLogs'));
 
+gsap.registerPlugin(ScrollTrigger);
+
+// Scroll to top component on route change — skips when a section scroll target is pending
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    // Don't scroll to top when navigating to a section anchor on home.
+    if (hash.startsWith('#')) return;
+    // Backward compatibility for legacy cross-route section jumps.
+    if (sessionStorage.getItem('skillance_scroll_to')) return;
+    window.scrollTo(0, 0);
+  }, [pathname, hash]);
+
+  return null;
+}
+
 function AdminLoadingFallback() {
+  const { isDark } = useAdminTheme();
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-neutral-500">Loading...</p>
+    <div className={`min-h-screen flex ${isDark ? 'bg-neutral-950' : 'bg-neutral-50/50'}`}>
+      {/* Sidebar skeleton */}
+      <div className={`hidden lg:flex w-[220px] xl:w-[240px] shrink-0 h-screen border-r flex-col p-4 gap-3 ${
+        isDark ? 'bg-neutral-950 border-neutral-800' : 'bg-white border-neutral-100'
+      }`}>
+        <div className="h-14 flex items-center px-1 mb-2">
+          <div className={`h-7 w-28 rounded-lg animate-pulse ${isDark ? 'bg-neutral-800' : 'bg-neutral-100'}`} />
+        </div>
+        {[44, 36, 36, 36, 44, 36, 36, 36, 36].map((w, i) => (
+          <div key={i} className={`h-8 rounded-xl animate-pulse ${isDark ? 'bg-neutral-800' : 'bg-neutral-100'}`} style={{ width: `${w * 2}px`, animationDelay: `${i * 60}ms` }} />
+        ))}
+      </div>
+      {/* Content skeleton */}
+      <div className="flex-1 p-6 lg:p-10 space-y-6">
+        <div className={`h-9 w-48 rounded-xl animate-pulse ${isDark ? 'bg-neutral-800' : 'bg-neutral-100'}`} />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className={`h-28 border rounded-2xl animate-pulse ${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-100'}`} style={{ animationDelay: `${i * 80}ms` }} />
+          ))}
+        </div>
+        <div className={`h-64 border rounded-2xl animate-pulse ${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-100'}`} />
       </div>
     </div>
   );
-}
-import { AuthProvider } from './context/AuthContext';
-import { AdminThemeProvider } from './context/AdminThemeContext';
-import CookieConsent from './components/layout/CookieConsent';
-import LaunchCountdown from './components/layout/LaunchCountdown';
-import ScrollIndicator from './components/layout/ScrollIndicator';
-
-gsap.registerPlugin(ScrollTrigger);
-
-// Scroll to top component on route change
-function ScrollToTop() {
-  const { pathname } = useLocation();
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
-
-  return null;
 }
 
 function MainContent({ isLoaded }: { isLoaded: boolean }) {
@@ -82,6 +107,10 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         autoRaf: false,
       });
+
+      // Expose on window so Navigation can use lenis.scrollTo (avoids scrollIntoView conflict)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).__lenis = lenis;
 
       // Keep ScrollTrigger in sync with Lenis scroll position
       lenis.on('scroll', () => {
@@ -104,6 +133,8 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
       return () => {
         clearTimeout(refreshTimeout);
         cancelAnimationFrame(rafId);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        delete (window as any).__lenis;
         lenis.destroy();
       };
     }
@@ -112,64 +143,66 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   return (
     <div 
       ref={mainRef} 
-      className={`relative min-h-screen bg-white transition-opacity duration-1000 ${
-        isLoaded ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden pointer-events-none'
+      className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : 'bg-white'} transition-opacity duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[opacity] ${
+        isLoaded ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
       <ScrollToTop />
       {!isAdminRoute && !isLoginPage && <Navigation isLoaded={isLoaded} />}
       <main>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/help-center" element={<HelpCenter />} />
-          <Route path="/privacy-policy" element={<Privacy />} />
-          <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/refund-policy" element={<RefundPolicy />} />
-          <Route path="/cookie-policy" element={<CookiePolicy />} />
-          <Route path="/faq" element={<FAQPage />} />
-          <Route path="/trust-safety" element={<TrustSafetyPage />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/category/:id" element={<CategoryPage />} />
-          <Route path="/login" element={<LoginPage />} />
+        <AnimatePresence mode="wait" initial={false}>
+          <Routes location={location} key={location.pathname}>
+            {/* Public Routes */}
+            <Route path="/" element={<PageTransition routeKey="/"><Home /></PageTransition>} />
+            <Route path="/help-center" element={<PageTransition routeKey="/help-center"><HelpCenter /></PageTransition>} />
+            <Route path="/privacy-policy" element={<PageTransition routeKey="/privacy-policy"><Privacy /></PageTransition>} />
+            <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
+            <Route path="/terms" element={<PageTransition routeKey="/terms"><Terms /></PageTransition>} />
+            <Route path="/refund-policy" element={<PageTransition routeKey="/refund-policy"><RefundPolicy /></PageTransition>} />
+            <Route path="/cookie-policy" element={<PageTransition routeKey="/cookie-policy"><CookiePolicy /></PageTransition>} />
+            <Route path="/faq" element={<PageTransition routeKey="/faq"><FAQPage /></PageTransition>} />
+            <Route path="/trust-safety" element={<PageTransition routeKey="/trust-safety"><TrustSafetyPage /></PageTransition>} />
+            <Route path="/services" element={<PageTransition routeKey="/services"><ServicesPage /></PageTransition>} />
+            <Route path="/contact" element={<PageTransition routeKey="/contact"><ContactPage /></PageTransition>} />
+            <Route path="/category/:id" element={<PageTransition routeKey={location.pathname}><CategoryPage /></PageTransition>} />
+            <Route path="/login" element={<PageTransition routeKey="/login"><LoginPage /></PageTransition>} />
 
-          {/* Admin Routes */}
-          <Route 
-            path="/admin/*" 
-            element={
-              <ProtectedRoute requireAdmin>
-                <Suspense fallback={<AdminLoadingFallback />}>
+            {/* Admin Routes — no transition wrapper (has its own layout) */}
+            <Route
+              path="/admin/*"
+              element={
+                <ProtectedRoute requireAdmin>
                   <AdminThemeProvider>
-                    <AdminLayout>
-                      <Routes>
-                        <Route path="dashboard" element={<AdminDashboard />} />
-                        <Route path="users" element={<AdminUsers />} />
-                        <Route path="users/:userId" element={<AdminUserDetail />} />
-                        <Route path="freelancers" element={<AdminFreelancers />} />
-                        <Route path="freelancers/:freelancerId" element={<AdminFreelancerDetail />} />
-                        <Route path="customers" element={<AdminCustomers />} />
-                        <Route path="customers/:customerId" element={<AdminCustomerDetail />} />
-                        <Route path="verifications" element={<AdminVerifications />} />
-                        <Route path="analytics" element={<AdminAnalytics />} />
-                        <Route path="security" element={<AdminSecurity />} />
-                        <Route path="audit-logs" element={<AdminAuditLogs />} />
-                        <Route path="categories" element={<AdminCategories />} />
-                        <Route path="contact-messages" element={<AdminContactMessages />} />
-                        <Route path="chat-logs" element={<AdminChatLogs />} />
-                        <Route path="notify-subscribers" element={<AdminNotifySubscribers />} />
-                        <Route path="website-reviews" element={<AdminWebsiteReviews />} />
-                        <Route path="system" element={<AdminSystem />} />
-                        <Route path="*" element={<AdminDashboard />} />
-                      </Routes>
-                    </AdminLayout>
+                    <Suspense fallback={<AdminLoadingFallback />}>
+                      <AdminLayout>
+                        <Routes>
+                          <Route path="dashboard" element={<AdminDashboard />} />
+                          <Route path="users" element={<AdminUsers />} />
+                          <Route path="users/:userId" element={<AdminUserDetail />} />
+                          <Route path="freelancers" element={<AdminFreelancers />} />
+                          <Route path="freelancers/:freelancerId" element={<AdminFreelancerDetail />} />
+                          <Route path="customers" element={<AdminCustomers />} />
+                          <Route path="customers/:customerId" element={<AdminCustomerDetail />} />
+                          <Route path="verifications" element={<AdminVerifications />} />
+                          <Route path="analytics" element={<AdminAnalytics />} />
+                          <Route path="security" element={<AdminSecurity />} />
+                          <Route path="audit-logs" element={<AdminAuditLogs />} />
+                          <Route path="categories" element={<AdminCategories />} />
+                          <Route path="contact-messages" element={<AdminContactMessages />} />
+                          <Route path="chat-logs" element={<AdminChatLogs />} />
+                          <Route path="notify-subscribers" element={<AdminNotifySubscribers />} />
+                          <Route path="website-reviews" element={<AdminWebsiteReviews />} />
+                          <Route path="system" element={<AdminSystem />} />
+                          <Route path="*" element={<AdminDashboard />} />
+                        </Routes>
+                      </AdminLayout>
+                    </Suspense>
                   </AdminThemeProvider>
-                </Suspense>
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </AnimatePresence>
       </main>
       {!isAdminRoute && !isLoginPage && <Footer />}
       {isLoaded && !isAdminRoute && !isLoginPage && (

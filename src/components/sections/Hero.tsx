@@ -101,8 +101,12 @@ const Hero = () => {
             className="w-full h-full object-cover"
           />
         </picture>
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/40" />
+        {/* Multi-layer overlay for depth and text legibility */}
+        <div className="absolute inset-0 bg-black/35" />
+        {/* Bottom vignette — makes text pop */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+        {/* Subtle radial vignette at edges */}
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 120% 100% at 50% 50%, transparent 50%, rgba(0,0,0,0.35) 100%)' }} />
       </div>
 
       {/* Content - Minimal like Hinge */}

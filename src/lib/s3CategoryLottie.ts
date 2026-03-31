@@ -19,8 +19,11 @@ export function resolveLottieJsonFetchUrl(src: string): string {
   const useProxy = src.startsWith(`${base}/`) || src === base;
   if (!useProxy) return src;
 
+  const key = src === base ? '' : src.slice(base.length + 1);
+  const encodedKey = encodeURIComponent(key);
+
   if (import.meta.env.DEV) {
-    return `/__dev/s3-public-json?url=${encodeURIComponent(src)}`;
+    return `/__dev/s3-public-json?key=${encodedKey}`;
   }
 
   return `${API_BASE}/admin/category-images/proxy?url=${encodeURIComponent(src)}`;

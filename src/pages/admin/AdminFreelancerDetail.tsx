@@ -23,6 +23,17 @@ const bookingStatusMap: Record<string, string> = {
   rejected: 'rejected',
 };
 
+function sanitizeHttpImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null;
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
 const AdminFreelancerDetail: React.FC = () => {
   const { freelancerId } = useParams<{ freelancerId: string }>();
   const navigate = useNavigate();
@@ -86,7 +97,12 @@ const AdminFreelancerDetail: React.FC = () => {
   useEffect(() => { if (freelancerId) fetchBookings(0); }, [freelancerId, fetchBookings]);
 
   const openPreview = (url: string, title: string) => {
-    setPreviewUrl(url);
+    const safeUrl = sanitizeHttpImageUrl(url);
+    if (!safeUrl) {
+      toast.error('Invalid image URL');
+      return;
+    }
+    setPreviewUrl(safeUrl);
     setPreviewTitle(title);
     setPreviewZoom(1);
     setPreviewRotate(0);
@@ -102,7 +118,7 @@ const AdminFreelancerDetail: React.FC = () => {
       else if (ratio < 0.85) setImageOrientation('portrait');
       else setImageOrientation('square');
     };
-    img.src = url;
+    img.src = safeUrl;
   };
 
   const resetPreviewTransform = useCallback(() => {
@@ -249,10 +265,10 @@ const AdminFreelancerDetail: React.FC = () => {
           <div className="mb-6">
             <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-2">Profile banner</p>
             <div className="relative rounded-xl border border-neutral-200 dark:border-neutral-600 overflow-hidden bg-neutral-50 dark:bg-neutral-800 aspect-[3/1] min-h-[120px] max-h-[200px]">
-              {freelancer.coverPhotoUrl ? (
+              {sanitizeHttpImageUrl(freelancer.coverPhotoUrl) ? (
                 <>
-                  <button type="button" onClick={() => openPreview(freelancer.coverPhotoUrl, 'Profile banner')} className="block w-full h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500 focus-visible:ring-offset-2 cursor-pointer" aria-label="View profile banner">
-                    <img src={freelancer.coverPhotoUrl} alt="Profile banner" className="w-full h-full object-cover" />
+                  <button type="button" onClick={() => openPreview(sanitizeHttpImageUrl(freelancer.coverPhotoUrl) || '', 'Profile banner')} className="block w-full h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500 focus-visible:ring-offset-2 cursor-pointer" aria-label="View profile banner">
+                    <img src={sanitizeHttpImageUrl(freelancer.coverPhotoUrl) || undefined} alt="Profile banner" className="w-full h-full object-cover" />
                   </button>
                   <Button variant="destructive" size="sm" className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full opacity-90 hover:opacity-100" onClick={(e) => { e.stopPropagation(); handleDeletePhoto('profileBanner'); }} disabled={deletePhotoLoading === 'profileBanner'}>
                     <Trash2 className="h-4 w-4" />
@@ -273,14 +289,16 @@ const AdminFreelancerDetail: React.FC = () => {
               { key: 'idBack', label: 'ID (back)', url: freelancer.idBackPhotoUrl, icon: IdCard },
               { key: 'selfie', label: 'Selfie', url: freelancer.selfiePhotoUrl, icon: User },
               { key: 'policeClearance', label: 'Police clearance', url: freelancer.policeClearancePhotoUrl, icon: FileCheck },
-            ].map(({ key, label, url, icon: Icon }) => (
+            ].map(({ key, label, url, icon: Icon }) => {
+              const safeUrl = sanitizeHttpImageUrl(url);
+              return (
               <div key={key}>
                 <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-2">{label}</p>
-                <div className="relative w-44 h-44 shrink-0">
-                  {url ? (
+                <div className="relative w-full aspect-square max-w-[176px]">
+                  {safeUrl ? (
                     <>
-                      <button type="button" onClick={() => openPreview(url, label)} className="w-full h-full rounded-xl border border-neutral-200 dark:border-neutral-600 overflow-hidden bg-neutral-50 dark:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500 focus-visible:ring-offset-2 cursor-pointer block" aria-label={`View ${label}`}>
-                        <img src={url} alt={label} className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => openPreview(safeUrl, label)} className="w-full h-full rounded-xl border border-neutral-200 dark:border-neutral-600 overflow-hidden bg-neutral-50 dark:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 dark:focus-visible:ring-neutral-500 focus-visible:ring-offset-2 cursor-pointer block" aria-label={`View ${label}`}>
+                        <img src={safeUrl} alt={label} className="w-full h-full object-cover" />
                       </button>
                       <Button variant="destructive" size="sm" className="absolute top-1 right-1 h-7 w-7 p-0 rounded-full opacity-90 hover:opacity-100" onClick={(e) => { e.stopPropagation(); handleDeletePhoto(key); }} disabled={deletePhotoLoading === key}>
                         <Trash2 className="h-3.5 w-3.5" />
@@ -293,7 +311,8 @@ const AdminFreelancerDetail: React.FC = () => {
                   )}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>

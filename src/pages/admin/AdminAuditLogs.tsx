@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { get } from '@/lib/api';
+import { useAdminTheme } from '@/context/AdminThemeContext';
 import { ClipboardList, RefreshCw, Download, Calendar as CalendarIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -99,13 +100,8 @@ function normalizeAuditLog(raw: unknown): AuditLog {
   };
 }
 
-const tooltipStyle = {
-  contentStyle: { backgroundColor: '#fff', border: '1px solid #e5e5e5', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', padding: '10px 14px' },
-  itemStyle: { fontSize: '12px', fontWeight: 500, padding: '2px 0' },
-  labelStyle: { marginBottom: '6px', color: '#a3a3a3', fontSize: '10px', textTransform: 'uppercase' as const, letterSpacing: '0.1em' },
-};
-
 const AdminAuditLogs: React.FC = () => {
+  const { isDark } = useAdminTheme();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [stats, setStats] = useState<AuditStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -344,6 +340,12 @@ const AdminAuditLogs: React.FC = () => {
     })
     .filter((d) => d.name !== '-');
 
+  const tooltipStyle = {
+    contentStyle: { backgroundColor: isDark ? '#262626' : '#fff', border: isDark ? '1px solid #404040' : '1px solid #e5e5e5', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', padding: '10px 14px', color: isDark ? '#fff' : undefined },
+    itemStyle: { fontSize: '12px', fontWeight: 500, padding: '2px 0', color: isDark ? '#f5f5f5' : undefined },
+    labelStyle: { marginBottom: '6px', color: '#a3a3a3', fontSize: '10px', textTransform: 'uppercase' as const, letterSpacing: '0.1em' },
+  };
+
   return (
     <div className="space-y-10">
       <PageHeader title="Audit Logs" description="Track user actions across the app">
@@ -415,20 +417,20 @@ const AdminAuditLogs: React.FC = () => {
             <div className="h-[260px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" className="dark:stroke-neutral-600" />
-                  <XAxis dataKey="name" stroke="#a3a3a3" fontSize={11} tickLine={false} axisLine={false} tickMargin={8} />
-                  <YAxis stroke="#a3a3a3" fontSize={11} tickLine={false} axisLine={false} tickMargin={8} domain={[0, 'auto']} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#404040' : '#e5e5e5'} />
+                  <XAxis dataKey="name" stroke={isDark ? '#737373' : '#a3a3a3'} fontSize={11} tickLine={false} axisLine={false} tickMargin={8} />
+                  <YAxis stroke={isDark ? '#737373' : '#a3a3a3'} fontSize={11} tickLine={false} axisLine={false} tickMargin={8} domain={[0, 'auto']} />
                   <Tooltip {...tooltipStyle} />
                   <Line
                     type="monotone"
                     dataKey="count"
                     name="Events"
-                    stroke="#171717"
+                    stroke={isDark ? '#e5e5e5' : '#171717'}
                     strokeWidth={2}
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    dot={{ fill: '#171717', strokeWidth: 0, r: 4 }}
-                    activeDot={{ r: 6, fill: '#171717', stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ fill: isDark ? '#e5e5e5' : '#171717', strokeWidth: 0, r: 4 }}
+                    activeDot={{ r: 6, fill: isDark ? '#e5e5e5' : '#171717', stroke: isDark ? '#171717' : '#fff', strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>

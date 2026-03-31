@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -74,113 +73,148 @@ const LoginPage: React.FC = () => {
           setIsLoading(false);
         }
       }
-    } catch (err: any) {
-      if (err?.retryAfter) {
-        setError(err.message || 'Too many login attempts. Please try again later.');
-        startCooldownFromRetryAfter(err.retryAfter);
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'retryAfter' in err) {
+        const r = err as { retryAfter?: number; message?: string };
+        setError(r.message || 'Too many login attempts. Please try again later.');
+        if (r.retryAfter != null) startCooldownFromRetryAfter(r.retryAfter);
       } else {
-        setError(err.message || 'Invalid email or password.');
+        const message =
+          err instanceof Error ? err.message : 'Invalid email or password.';
+        setError(message);
       }
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950 px-6 py-12">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-blue-500/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-purple-500/10 blur-[120px] rounded-full" />
+    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[#070707] px-5 py-14 sm:px-8">
+      {/* Ambient layers — depth without clutter */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(255,255,255,0.07),transparent_55%)]" />
+        <div className="absolute bottom-0 left-1/2 h-[min(55vh,520px)] w-[min(140vw,900px)] -translate-x-1/2 rounded-[100%] bg-[radial-gradient(closest-side,rgba(255,255,255,0.04),transparent_100%)] blur-2xl" />
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)`,
+            backgroundSize: '48px 48px',
+          }}
+        />
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md relative z-10"
+        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 w-full max-w-[420px]"
       >
-        <div className="text-center mb-10">
-          <h1 className="font-serif text-4xl text-white mb-3">Skillance</h1>
-          <p className="text-neutral-400">Admin Authentication</p>
-        </div>
+        <header className="mb-10 text-center">
+          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.35em] text-neutral-500">
+            Admin
+          </p>
+          <h1 className="font-serif text-[2.35rem] leading-[1.08] tracking-tight text-white sm:text-5xl">
+            Skillance
+          </h1>
+          <p className="mt-4 text-sm leading-relaxed text-neutral-400">
+            Sign in to manage the marketplace and keep operations running smoothly.
+          </p>
+        </header>
 
-        <Card className="bg-neutral-900/50 border-neutral-800 backdrop-blur-xl">
-          <CardHeader>
-            <CardTitle className="text-xl text-white">Login</CardTitle>
-            <CardDescription className="text-neutral-400">
-              Enter your credentials to access the admin portal
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="rounded-2xl border border-white/[0.08] bg-neutral-900/40 p-px shadow-[0_24px_80px_-20px_rgba(0,0,0,0.85)] backdrop-blur-xl">
+          <div className="rounded-[calc(1rem-1px)] bg-neutral-950/75 px-6 py-8 sm:px-8 sm:py-9">
+            <div className="mb-8 border-b border-white/[0.06] pb-6">
+              <h2 className="text-lg font-medium tracking-tight text-white">Secure login</h2>
+              <p className="mt-1.5 text-sm text-neutral-500">
+                Use your administrator credentials. Sessions are protected end-to-end.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
               {error && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex items-start gap-3"
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                  role="alert"
+                  className="rounded-xl border border-red-500/25 bg-red-500/[0.08] p-3.5 flex gap-3"
                 >
-                  <AlertCircle className="text-red-500 w-5 h-5 shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-400">{error}</p>
+                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-400" aria-hidden="true" />
+                  <p className="text-sm leading-snug text-red-200/95">{error}</p>
                 </motion.div>
               )}
-              
+
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-neutral-300">Email Address</Label>
+                <Label htmlFor="email" className="text-sm text-neutral-300">
+                  Email address
+                </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 w-5 h-5" />
+                  <Mail
+                    className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-neutral-500"
+                    aria-hidden="true"
+                  />
                   <Input
                     id="email"
                     type="email"
+                    autoComplete="email"
                     placeholder="name@company.com"
                     value={email}
                     onChange={handleEmailChange}
                     disabled={isLoading || !canSubmit}
-                    className="pl-10 bg-neutral-800/50 border-neutral-700 text-white placeholder:text-neutral-600 focus:ring-blue-500/20"
+                    className="h-11 rounded-xl border-neutral-800 bg-neutral-900/80 pl-11 text-[15px] text-white placeholder:text-neutral-600 focus-visible:border-neutral-500 focus-visible:ring-white/15"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-neutral-300">Password</Label>
+                <Label htmlFor="password" className="text-sm text-neutral-300">
+                  Password
+                </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 w-5 h-5" />
+                  <Lock
+                    className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-neutral-500"
+                    aria-hidden="true"
+                  />
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
                     value={password}
                     onChange={handlePasswordChange}
                     disabled={isLoading || !canSubmit}
-                    className="pl-10 pr-10 bg-neutral-800/50 border-neutral-700 text-white placeholder:text-neutral-600 focus:ring-blue-500/20"
+                    className="h-11 rounded-xl border-neutral-800 bg-neutral-900/80 pl-11 pr-11 text-[15px] text-white placeholder:text-neutral-600 focus-visible:border-neutral-500 focus-visible:ring-white/15"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-neutral-500 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950"
+                    aria-pressed={showPassword}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full bg-white text-black hover:bg-neutral-200 h-11 text-base font-medium transition-all"
+              <Button
+                type="submit"
+                className="h-12 w-full rounded-xl bg-white text-[15px] font-semibold text-neutral-950 shadow-[0_1px_0_rgba(255,255,255,0.12)_inset] transition-[transform,background-color,box-shadow] hover:bg-neutral-100 focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 disabled:opacity-60"
                 disabled={isLoading || !canSubmit}
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                  <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-900" />
                 ) : !canSubmit ? (
                   `Try again in ${secondsRemaining}s`
                 ) : (
-                  'Sign In'
+                  'Sign in'
                 )}
               </Button>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <p className="text-center mt-8 text-sm text-neutral-500">
-          © {new Date().getFullYear()} Skillance South Africa. All rights reserved.
+        <p className="mt-10 text-center text-xs leading-relaxed text-neutral-600">
+          &copy; {new Date().getFullYear()} Skillance South Africa. All rights reserved.
         </p>
       </motion.div>
     </div>

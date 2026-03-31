@@ -477,7 +477,11 @@ const AdminSecurity: React.FC = () => {
             type="button"
             onClick={() => {
               setEventTypeFilter('exploit_attempt');
+              setDateRange('24h');
               setPage(1);
+              setTimeout(() => {
+                document.getElementById('security-events-table')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }, 100);
             }}
             className="shrink-0 text-sm font-medium text-red-700 dark:text-red-300 hover:underline"
           >
@@ -629,21 +633,23 @@ const AdminSecurity: React.FC = () => {
           </>
         )}
       </div>
-      <DataTable
-        columns={columns}
-        data={events}
-        isLoading={isLoading}
-        emptyTitle="No security events"
-        emptyDescription="No events matching your filters"
-        page={page}
-        pageSize={pageSize}
-        total={total}
-        onPageChange={setPage}
-        sortKey={orderBy}
-        sortDirection={orderDirection}
-        onSort={handleSort}
-        getRowClassName={(e) => (isCriticalEvent(e.eventType) ? 'bg-red-50/80 dark:bg-red-950/30 border-l-4 border-l-red-400 dark:border-l-red-600' : undefined)}
-      />
+      <div id="security-events-table">
+        <DataTable
+          columns={columns}
+          data={events}
+          isLoading={isLoading}
+          emptyTitle="No security events"
+          emptyDescription="No events matching your filters"
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={setPage}
+          sortKey={orderBy}
+          sortDirection={orderDirection}
+          onSort={handleSort}
+          getRowClassName={(e) => (isCriticalEvent(e.eventType) ? 'bg-red-50/80 dark:bg-red-950/30 border-l-4 border-l-red-400 dark:border-l-red-600' : undefined)}
+        />
+      </div>
 
       <Dialog open={ipDialogOpen} onOpenChange={setIpDialogOpen}>
         <DialogContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700 text-black dark:text-white sm:max-w-2xl max-h-[70vh] overflow-y-auto rounded-2xl shadow-soft-lg">

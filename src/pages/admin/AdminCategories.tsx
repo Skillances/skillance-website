@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { get, post, put, del } from '@/lib/api';
-import { Plus, Edit, Trash2, FolderOpen, Loader2, Upload, ImageIcon, Star } from 'lucide-react';
+import {
+  Plus, Edit, Trash2, FolderOpen, Loader2, Upload, ImageIcon, Star,
+  ChevronRight, ChevronDown,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,7 +11,6 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import PageHeader from '@/components/admin/PageHeader';
-import DataTable, { type Column } from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import StatsCard from '@/components/admin/dashboard/StatsCard';
@@ -20,6 +22,8 @@ type ImageType = 'lottie' | 'svg' | 'png' | 'jpg';
 
 interface CategoryItem {
   id: string;
+  parentId: string | null;
+  level: number;
   name: string;
   slug: string;
   description: string | null;
@@ -31,17 +35,29 @@ interface CategoryItem {
   iconCodePoint: number | null;
   iconFontFamily: string | null;
   imageUrl: string | null;
+  websiteImageUrl: string | null;
   isFeatured: boolean;
   supportsRecurring?: boolean;
 }
 
-interface CategoryStats { total: number; active: number; inactive: number; withFreelancers: number; mostPopular: any[]; }
+interface CategoryNode extends CategoryItem {
+  children: CategoryNode[];
+}
+
+interface CategoryStats {
+  total: number;
+  active: number;
+  inactive: number;
+  withFreelancers: number;
+  mostPopular: unknown[];
+}
 
 const emptyForm = {
   name: '', slug: '', description: '', color: '', isActive: true, displayOrder: 0,
   isProximityBased: false, isFeatured: false, supportsRecurring: false,
   iconCodePoint: '' as string | number, iconFontFamily: 'MaterialIcons',
   imageBase64: null as string | null, imageType: null as ImageType | null,
+  websiteImageUrl: '',
 };
 
 function detectImageType(filename: string): ImageType | null {
@@ -66,13 +82,229 @@ function fileToBase64(file: File): Promise<string> {
   });
 }
 
+function sanitizeHttpImageUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null;
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
+function toSafeDataImageUri(imageType: Exclude<ImageType, 'lottie'>, base64: string): string | null {
+  // Strictly allow base64 alphabet to prevent scriptable payloads in data URIs.
+  if (!/^[A-Za-z0-9+/=]+$/.test(base64)) return null;
+  return `data:image/${imageType};base64,${base64}`;
+}
+
+function buildTree(flat: CategoryItem[]): CategoryNode[] {
+  const map = new Map<string, CategoryNode>();
+  flat.forEach((c) => map.set(c.id, { ...c, children: [] }));
+  const roots: CategoryNode[] = [];
+  flat.forEach((c) => {
+    const node = map.get(c.id)!;
+    if (c.parentId && map.has(c.parentId)) {
+      map.get(c.parentId)!.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+  return roots;
+}
+
+// ─── Category icon preview ────────────────────────────────────────────────────
+const CategoryIconPreview: React.FC<{ c: CategoryItem; size?: number }> = ({ c, size = 32 }) => {
+  const px = size;
+  if (c.imageUrl) {
+    if (isLottieImageUrl(c.imageUrl)) {
+      return <CategoryLottieThumb key={c.imageUrl} src={c.imageUrl} size={px} />;
+    }
+    return (
+      <img
+        src={c.imageUrl}
+        alt=""
+        style={{ width: px, height: px }}
+        className="rounded-lg object-cover border border-neutral-200 dark:border-neutral-700 shrink-0"
+      />
+    );
+  }
+  if (c.iconCodePoint != null) {
+    return (
+      <div
+        style={{ width: px, height: px, fontFamily: 'Material Icons', fontSize: px * 0.65 }}
+        className="rounded-lg flex items-center justify-center bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 shrink-0"
+        title={`Icon code: ${c.iconCodePoint}`}
+      >
+        {String.fromCodePoint(c.iconCodePoint)}
+      </div>
+    );
+  }
+  return (
+    <div
+      style={{ width: px, height: px }}
+      className="rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center shrink-0"
+    >
+      <ImageIcon className="text-neutral-400" style={{ width: px * 0.45, height: px * 0.45 }} />
+    </div>
+  );
+};
+
+// ─── Single category row ──────────────────────────────────────────────────────
+const CategoryRow: React.FC<{
+  node: CategoryNode;
+  depth: number;
+  expanded: Set<string>;
+  onToggle: (id: string) => void;
+  onEdit: (c: CategoryItem) => void;
+  onDelete: (id: string) => void;
+}> = ({ node, depth, expanded, onToggle, onEdit, onDelete }) => {
+  const hasChildren = node.children.length > 0;
+  const isExpanded = expanded.has(node.id);
+  const indent = depth * 20;
+
+  return (
+    <>
+      <tr
+        className={cn(
+          'border-b border-neutral-50 dark:border-neutral-700/50 transition-colors',
+          !node.isActive && 'opacity-50',
+        )}
+      >
+        {/* Name cell */}
+        <td className="px-4 py-2.5">
+          <div className="flex items-center gap-2.5" style={{ paddingLeft: indent }}>
+            {/* Expand / collapse toggle */}
+            {hasChildren ? (
+              <button
+                type="button"
+                onClick={() => onToggle(node.id)}
+                className="p-0.5 rounded text-neutral-400 hover:text-black dark:hover:text-white transition-colors shrink-0"
+                aria-label={isExpanded ? 'Collapse' : 'Expand'}
+              >
+                {isExpanded
+                  ? <ChevronDown size={14} />
+                  : <ChevronRight size={14} />}
+              </button>
+            ) : (
+              <span style={{ width: 19 }} className="shrink-0" />
+            )}
+
+            {/* Icon */}
+            <CategoryIconPreview c={node} size={depth === 0 ? 32 : 24} />
+
+            {/* Color dot */}
+            {node.color && (
+              <span
+                className="w-2.5 h-2.5 rounded-full shrink-0 border border-white/50 dark:border-black/30"
+                style={{ backgroundColor: node.color }}
+              />
+            )}
+
+            {/* Website image thumbnail */}
+            {node.websiteImageUrl && depth === 0 && (
+              <img
+                src={node.websiteImageUrl}
+                alt="Website"
+                title="Website image"
+                className="w-8 h-8 rounded-md object-cover border border-neutral-200 dark:border-neutral-700 shrink-0 hidden sm:block"
+              />
+            )}
+
+            {/* Text */}
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className={cn(
+                  'font-medium text-black dark:text-white truncate',
+                  depth === 0 ? 'text-sm' : 'text-xs',
+                )}>
+                  {node.name}
+                </span>
+                {node.isFeatured && (
+                  <Star className="h-3 w-3 text-amber-500 fill-amber-500 shrink-0" />
+                )}
+              </div>
+              <span className="text-[11px] text-neutral-400 dark:text-neutral-500 truncate block">{node.slug}</span>
+            </div>
+          </div>
+        </td>
+
+        {/* Subcategories count */}
+        <td className="px-4 py-2.5 text-xs text-neutral-500 dark:text-neutral-400 tabular-nums">
+          {hasChildren ? (
+            <span className="inline-flex items-center gap-1">
+              <FolderOpen size={12} className="text-neutral-400" />
+              {node.children.length}
+            </span>
+          ) : (
+            <span className="text-neutral-300 dark:text-neutral-600">—</span>
+          )}
+        </td>
+
+        {/* Freelancers */}
+        <td className="px-4 py-2.5 text-xs text-neutral-600 dark:text-neutral-300 tabular-nums">
+          {node.freelancerCount ?? 0}
+        </td>
+
+        {/* Status */}
+        <td className="px-4 py-2.5">
+          <StatusBadge status={node.isActive ? 'active' : 'suspended'} label={node.isActive ? 'Active' : 'Inactive'} />
+        </td>
+
+        {/* Order */}
+        <td className="px-4 py-2.5 text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
+          {node.displayOrder}
+        </td>
+
+        {/* Actions */}
+        <td className="px-4 py-2.5">
+          <div className="flex items-center gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 w-7 p-0 text-neutral-400 hover:text-black dark:hover:text-white"
+              onClick={(e) => { e.stopPropagation(); onEdit(node); }}
+              aria-label={`Edit ${node.name}`}
+            >
+              <Edit className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 w-7 p-0 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"
+              onClick={(e) => { e.stopPropagation(); onDelete(node.id); }}
+              aria-label={`Delete ${node.name}`}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </td>
+      </tr>
+
+      {/* Children */}
+      {hasChildren && isExpanded && node.children.map((child) => (
+        <CategoryRow
+          key={child.id}
+          node={child}
+          depth={depth + 1}
+          expanded={expanded}
+          onToggle={onToggle}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      ))}
+    </>
+  );
+};
+
+// ─── Main component ───────────────────────────────────────────────────────────
 const AdminCategories: React.FC = () => {
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [stats, setStats] = useState<CategoryStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const pageSize = 50;
+  const page = 1;
+  const pageSize = 100; // backend max; enough for all categories
   const [formOpen, setFormOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
@@ -81,9 +313,33 @@ const AdminCategories: React.FC = () => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [imageDropActive, setImageDropActive] = useState(false);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
-  const fetchCategories = useCallback(async () => { try { setIsLoading(true); const res = await get(`/admin/categories?includeInactive=true&page=${page}&limit=${pageSize}`); if (res.success) { setCategories(res.data.categories || []); setTotal(res.data.total || 0); } } catch { toast.error('Failed to load categories'); } finally { setIsLoading(false); } }, [page, pageSize]);
-  const fetchStats = useCallback(async () => { try { const res = await get('/admin/categories/stats'); if (res.success) setStats(res.data); } catch {} }, []);
+  const fetchCategories = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const res = await get(`/admin/categories?includeInactive=true&page=${page}&limit=${pageSize}`);
+      if (res.success) {
+        const cats: CategoryItem[] = res.data.categories || [];
+        setCategories(cats);
+        setTotal(res.data.total || 0);
+        // Auto-expand all root nodes on first load
+        setExpanded(new Set(cats.filter((c) => c.parentId === null).map((c) => c.id)));
+      }
+    } catch {
+      toast.error('Failed to load categories');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, pageSize]);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const res = await get('/admin/categories/stats');
+      if (res.success) setStats(res.data);
+    } catch {}
+  }, []);
+
   useEffect(() => { fetchStats(); }, [fetchStats]);
   useEffect(() => { fetchCategories(); }, [fetchCategories]);
 
@@ -111,28 +367,17 @@ const AdminCategories: React.FC = () => {
     }
   }, []);
 
-  const openCreate = () => {
-    setEditId(null);
-    setForm(emptyForm);
-    setFormOpen(true);
-  };
-
+  const openCreate = () => { setEditId(null); setForm(emptyForm); setFormOpen(true); };
   const openEdit = (cat: CategoryItem) => {
     setEditId(cat.id);
     setForm({
-      name: cat.name,
-      slug: cat.slug,
-      description: cat.description || '',
-      color: cat.color || '',
-      isActive: cat.isActive,
-      displayOrder: cat.displayOrder,
-      isProximityBased: cat.isProximityBased,
-      isFeatured: cat.isFeatured,
+      name: cat.name, slug: cat.slug, description: cat.description || '',
+      color: cat.color || '', isActive: cat.isActive, displayOrder: cat.displayOrder,
+      isProximityBased: cat.isProximityBased, isFeatured: cat.isFeatured,
       supportsRecurring: cat.supportsRecurring ?? false,
-      iconCodePoint: cat.iconCodePoint ?? '',
-      iconFontFamily: cat.iconFontFamily || 'MaterialIcons',
-      imageBase64: null,
-      imageType: null,
+      iconCodePoint: cat.iconCodePoint ?? '', iconFontFamily: cat.iconFontFamily || 'MaterialIcons',
+      imageBase64: null, imageType: null,
+      websiteImageUrl: cat.websiteImageUrl || '',
     });
     setFormOpen(true);
   };
@@ -144,73 +389,31 @@ const AdminCategories: React.FC = () => {
     e.target.value = '';
   };
 
-  const handleImageDropZoneDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    imageDropDepthRef.current += 1;
-    if (imageDropDepthRef.current === 1) setImageDropActive(true);
-  };
-
-  const handleImageDropZoneDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    imageDropDepthRef.current -= 1;
-    if (imageDropDepthRef.current <= 0) {
-      imageDropDepthRef.current = 0;
-      setImageDropActive(false);
-    }
-  };
-
-  const handleImageDropZoneDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.dataTransfer.dropEffect = 'copy';
-  };
-
-  const handleImageDropZoneDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    imageDropDepthRef.current = 0;
-    setImageDropActive(false);
-    const file = e.dataTransfer.files?.[0];
-    if (!file) return;
-    await processCategoryImageFile(file);
-  };
-
+  const handleImageDropZoneDragEnter = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); imageDropDepthRef.current += 1; if (imageDropDepthRef.current === 1) setImageDropActive(true); };
+  const handleImageDropZoneDragLeave = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); imageDropDepthRef.current -= 1; if (imageDropDepthRef.current <= 0) { imageDropDepthRef.current = 0; setImageDropActive(false); } };
+  const handleImageDropZoneDragOver = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = 'copy'; };
+  const handleImageDropZoneDrop = async (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); imageDropDepthRef.current = 0; setImageDropActive(false); const file = e.dataTransfer.files?.[0]; if (!file) return; await processCategoryImageFile(file); };
   const clearImage = () => setForm((f) => ({ ...f, imageBase64: null, imageType: null }));
 
   const handleSave = async () => {
-    if (!form.name.trim()) {
-      toast.error('Name is required');
-      return;
-    }
+    if (!form.name.trim()) { toast.error('Name is required'); return; }
     try {
       setSaving(true);
       const payload: Record<string, unknown> = {
-        name: form.name,
-        description: form.description || undefined,
-        color: form.color || undefined,
-        isActive: form.isActive,
-        displayOrder: form.displayOrder,
-        isProximityBased: form.isProximityBased,
-        isFeatured: form.isFeatured,
-        supportsRecurring: form.supportsRecurring,
+        name: form.name, description: form.description || undefined,
+        color: form.color || undefined, isActive: form.isActive,
+        displayOrder: form.displayOrder, isProximityBased: form.isProximityBased,
+        isFeatured: form.isFeatured, supportsRecurring: form.supportsRecurring,
         iconFontFamily: form.iconFontFamily || undefined,
       };
       if (form.slug) payload.slug = form.slug;
       const iconCode = typeof form.iconCodePoint === 'number' ? form.iconCodePoint : parseInt(String(form.iconCodePoint), 10);
       if (!isNaN(iconCode)) payload.iconCodePoint = iconCode;
-      if (form.imageBase64 && form.imageType) {
-        payload.image = form.imageBase64;
-        payload.imageType = form.imageType;
-      }
-      if (editId) {
-        await put(`/admin/categories/${editId}`, payload);
-        toast.success('Category updated');
-      } else {
-        await post('/admin/categories', payload);
-        toast.success('Category created');
-      }
+      if (form.imageBase64 && form.imageType) { payload.image = form.imageBase64; payload.imageType = form.imageType; }
+      if (form.websiteImageUrl.trim()) payload.websiteImageUrl = form.websiteImageUrl.trim();
+      else payload.websiteImageUrl = null;
+      if (editId) { await put(`/admin/categories/${editId}`, payload); toast.success('Category updated'); }
+      else { await post('/admin/categories', payload); toast.success('Category created'); }
       setFormOpen(false);
       fetchCategories();
       fetchStats();
@@ -221,77 +424,129 @@ const AdminCategories: React.FC = () => {
       setSaving(false);
     }
   };
-  const handleDelete = async () => { if (!deleteId) return; try { setDeleting(true); await del(`/admin/categories/${deleteId}`); toast.success('Category deactivated'); setDeleteOpen(false); setDeleteId(null); fetchCategories(); fetchStats(); } catch (err: any) { toast.error(err?.message || 'Failed to delete category'); } finally { setDeleting(false); } };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      setDeleting(true);
+      await del(`/admin/categories/${deleteId}`);
+      toast.success('Category deactivated');
+      setDeleteOpen(false);
+      setDeleteId(null);
+      fetchCategories();
+      fetchStats();
+    } catch (err: unknown) {
+      const msg = err && typeof err === 'object' && 'message' in err ? String((err as { message?: string }).message) : 'Failed to delete category';
+      toast.error(msg);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const toggleExpand = (id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const tree = useMemo(() => buildTree(categories), [categories]);
 
   const pendingLottiePreviewData = useMemo(() => {
     if (form.imageType !== 'lottie' || !form.imageBase64) return null;
-    try {
-      const text = atob(form.imageBase64);
-      return JSON.parse(text) as unknown;
-    } catch {
-      return null;
-    }
+    try { return JSON.parse(atob(form.imageBase64)) as unknown; } catch { return null; }
   }, [form.imageType, form.imageBase64]);
 
-  const CategoryIconPreview: React.FC<{ c: CategoryItem }> = ({ c }) => {
-    if (c.imageUrl) {
-      if (isLottieImageUrl(c.imageUrl)) {
-        return <CategoryLottieThumb key={c.imageUrl} src={c.imageUrl} size={32} />;
-      }
-      return (
-        <img src={c.imageUrl} alt="" className="w-8 h-8 rounded-lg object-cover border border-neutral-200 dark:border-neutral-700" />
-      );
-    }
-    if (c.iconCodePoint != null) {
-      return (
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xl" style={{ fontFamily: 'Material Icons' }} title={`Icon code: ${c.iconCodePoint}`}>
-          {String.fromCodePoint(c.iconCodePoint)}
-        </div>
-      );
-    }
-    return <div className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center"><ImageIcon className="h-4 w-4 text-neutral-400" /></div>;
-  };
-
-  const columns: Column<CategoryItem>[] = [
-    { key: 'name', header: 'Name', render: (c) => (
-      <div className="flex items-center gap-3">
-        <CategoryIconPreview c={c} />
-        {c.color && <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: c.color }} />}
-        <div>
-          <p className="text-black dark:text-white font-medium text-sm">{c.name}</p>
-          <p className="text-neutral-400 dark:text-neutral-500 text-xs">{c.slug}</p>
-        </div>
-        {c.isFeatured && <span title="Featured"><Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 shrink-0" /></span>}
-      </div>
-    ) },
-    { key: 'freelancerCount', header: 'Freelancers', render: (c) => <span className="text-neutral-600 dark:text-neutral-300">{c.freelancerCount ?? '--'}</span> },
-    { key: 'isActive', header: 'Status', render: (c) => <StatusBadge status={c.isActive ? 'active' : 'suspended'} label={c.isActive ? 'Active' : 'Inactive'} /> },
-    { key: 'displayOrder', header: 'Order', render: (c) => <span className="text-neutral-500 dark:text-neutral-400">{c.displayOrder}</span> },
-    { key: 'actions', header: 'Actions', render: (c) => (
-      <div className="flex items-center gap-2">
-        <Button size="sm" variant="ghost" className="h-7 px-2 text-neutral-400 hover:text-black dark:hover:text-white" onClick={(e) => { e.stopPropagation(); openEdit(c); }}><Edit className="h-3.5 w-3.5" /></Button>
-        <Button size="sm" variant="ghost" className="h-7 px-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10" onClick={(e) => { e.stopPropagation(); setDeleteId(c.id); setDeleteOpen(true); }}><Trash2 className="h-3.5 w-3.5" /></Button>
-      </div>
-    ) },
-  ];
-
   const statsCards = stats ? [
-    { title: 'Total Categories', value: stats.total.toLocaleString(), icon: FolderOpen, color: '#171717' },
+    { title: 'Total', value: stats.total.toLocaleString(), icon: FolderOpen, color: '#171717' },
     { title: 'Active', value: stats.active.toLocaleString(), icon: FolderOpen, color: '#10b981' },
     { title: 'With Freelancers', value: stats.withFreelancers.toLocaleString(), icon: FolderOpen, color: '#8b5cf6' },
   ] : [];
 
   return (
-    <div className="space-y-10">
-      <PageHeader title="Categories" description="Manage service categories">
-        <Button size="sm" onClick={openCreate} className="bg-black text-white hover:bg-neutral-800 rounded-full"><Plus className="mr-2 h-4 w-4" /> Add Category</Button>
+    <div className="space-y-8">
+      <PageHeader title="Categories" description="Manage service categories and their subcategories">
+        <Button size="sm" onClick={openCreate} className="bg-black text-white hover:bg-neutral-800 rounded-full">
+          <Plus className="mr-2 h-4 w-4" /> Add Category
+        </Button>
       </PageHeader>
-      {stats && <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">{statsCards.map((s, i) => <StatsCard key={s.title} {...s} index={i} />)}</div>}
-      <DataTable columns={columns} data={categories} isLoading={isLoading} emptyTitle="No categories found" page={page} pageSize={pageSize} total={total} onPageChange={setPage} />
 
+      {/* Stats */}
+      {stats && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {statsCards.map((s, i) => <StatsCard key={s.title} {...s} index={i} />)}
+        </div>
+      )}
+
+      {/* Tree table */}
+      <div className="border border-neutral-100 dark:border-neutral-700 rounded-2xl overflow-x-auto bg-white dark:bg-neutral-800/80 shadow-sm dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)]">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16 text-neutral-400 text-sm gap-2">
+            <Loader2 className="h-5 w-5 animate-spin" /> Loading categories…
+          </div>
+        ) : tree.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-neutral-400">
+            <FolderOpen className="h-10 w-10" />
+            <p className="text-sm">No categories found</p>
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-neutral-100 dark:border-neutral-700">
+                <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500">
+                  Category
+                </th>
+                <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500 hidden sm:table-cell">
+                  Sub
+                </th>
+                <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500 hidden sm:table-cell">
+                  Freelancers
+                </th>
+                <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500 hidden md:table-cell">
+                  Order
+                </th>
+                <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500">
+                  {/* actions — no label */}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {tree.map((node) => (
+                <CategoryRow
+                  key={node.id}
+                  node={node}
+                  depth={0}
+                  expanded={expanded}
+                  onToggle={toggleExpand}
+                  onEdit={openEdit}
+                  onDelete={(id) => { setDeleteId(id); setDeleteOpen(true); }}
+                />
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        {/* Footer count */}
+        {!isLoading && tree.length > 0 && (
+          <div className="px-4 py-3 border-t border-neutral-50 dark:border-neutral-700/50 text-xs text-neutral-400 dark:text-neutral-500">
+            {total} categor{total === 1 ? 'y' : 'ies'} total
+          </div>
+        )}
+      </div>
+
+      {/* Create / Edit Dialog */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700 text-black dark:text-white sm:max-w-lg rounded-2xl shadow-soft-lg max-h-[90vh] flex flex-col">
-          <DialogHeader><DialogTitle className="text-black dark:text-white font-serif text-xl">{editId ? 'Edit Category' : 'Create Category'}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle className="text-black dark:text-white font-serif text-xl">
+              {editId ? 'Edit Category' : 'Create Category'}
+            </DialogTitle>
+          </DialogHeader>
           <div className="space-y-5 py-2 overflow-y-auto flex-1 min-h-0 pr-1">
             <div>
               <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-2 block">Name *</Label>
@@ -338,17 +593,21 @@ const AdminCategories: React.FC = () => {
               {form.imageBase64 && form.imageType ? (
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
                   {form.imageType === 'lottie' ? (
-                    pendingLottiePreviewData ? (
-                      <CategoryLottieInline animationData={pendingLottiePreviewData} size={48} />
-                    ) : (
-                      <div className="w-12 h-12 rounded-lg bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-xs text-neutral-600 dark:text-neutral-400">Invalid JSON</div>
-                    )
+                    pendingLottiePreviewData
+                      ? <CategoryLottieInline animationData={pendingLottiePreviewData} size={48} />
+                      : <div className="w-12 h-12 rounded-lg bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-xs text-neutral-600 dark:text-neutral-400">Invalid JSON</div>
                   ) : form.imageType === 'svg' ? (
                     <div className="w-12 h-12 rounded-lg bg-white dark:bg-neutral-900 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 overflow-hidden">
-                      <img src={`data:image/svg+xml;base64,${form.imageBase64}`} alt="" className="max-w-full max-h-full object-contain" />
+                      {toSafeDataImageUri('svg', form.imageBase64) ? (
+                        <img src={toSafeDataImageUri('svg', form.imageBase64) || undefined} alt="" className="max-w-full max-h-full object-contain" />
+                      ) : (
+                        <div className="text-[10px] text-neutral-500">Invalid image</div>
+                      )}
                     </div>
                   ) : (
-                    <img src={`data:image/${form.imageType};base64,${form.imageBase64}`} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                    (toSafeDataImageUri(form.imageType, form.imageBase64)
+                      ? <img src={toSafeDataImageUri(form.imageType, form.imageBase64) || undefined} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                      : <div className="w-12 h-12 rounded-lg bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-[10px] text-neutral-500">Invalid</div>)
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-black dark:text-white truncate">Uploaded ({form.imageType})</p>
@@ -361,12 +620,7 @@ const AdminCategories: React.FC = () => {
                   role="button"
                   tabIndex={0}
                   onClick={() => fileInputRef.current?.click()}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      fileInputRef.current?.click();
-                    }
-                  }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click(); } }}
                   onDragEnter={handleImageDropZoneDragEnter}
                   onDragLeave={handleImageDropZoneDragLeave}
                   onDragOver={handleImageDropZoneDragOver}
@@ -382,9 +636,32 @@ const AdminCategories: React.FC = () => {
                   <span className="text-sm font-medium text-black dark:text-white text-center">
                     {imageDropActive ? 'Drop file here' : 'Choose file or drag and drop'}
                   </span>
-                  <span className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
-                    .lottie, .json, .svg, .png, .jpg
-                  </span>
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400 text-center">.lottie, .json, .svg, .png, .jpg</span>
+                </div>
+              )}
+            </div>
+
+            {/* Website image — separate from app image */}
+            <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4">
+              <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-1 block">Website Image URL</Label>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">
+                This image appears on the public Skillance website (ServicesPage, CategoryPage). It is separate from the app icon/image above.
+              </p>
+              <Input
+                value={form.websiteImageUrl}
+                onChange={(e) => setForm((f) => ({ ...f, websiteImageUrl: e.target.value }))}
+                placeholder="https://images.unsplash.com/..."
+                className="bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-black dark:text-white rounded-xl focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-600"
+              />
+              {form.websiteImageUrl && sanitizeHttpImageUrl(form.websiteImageUrl) && (
+                <div className="mt-2 rounded-xl overflow-hidden aspect-[16/9] bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
+                  <img
+                    src={sanitizeHttpImageUrl(form.websiteImageUrl) || undefined}
+                    alt="Website image preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                    onLoad={(e) => { (e.currentTarget as HTMLImageElement).style.display = ''; }}
+                  />
                 </div>
               )}
             </div>
@@ -400,7 +677,9 @@ const AdminCategories: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Switch id="form-featured" checked={form.isFeatured} onCheckedChange={(v) => setForm((f) => ({ ...f, isFeatured: v }))} />
-                <Label htmlFor="form-featured" className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium flex items-center gap-1">Featured <Star className="h-3 w-3 text-amber-500 fill-amber-500" /></Label>
+                <Label htmlFor="form-featured" className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium flex items-center gap-1">
+                  Featured <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+                </Label>
               </div>
               <div className="flex items-center gap-2">
                 <Switch id="form-recurring" checked={form.supportsRecurring} onCheckedChange={(v) => setForm((f) => ({ ...f, supportsRecurring: v }))} />
@@ -410,11 +689,24 @@ const AdminCategories: React.FC = () => {
           </div>
           <DialogFooter className="gap-2 sm:gap-2 pt-2">
             <Button variant="outline" onClick={() => setFormOpen(false)} className="border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white rounded-full">Cancel</Button>
-            <Button onClick={handleSave} disabled={saving} className="bg-black text-white hover:bg-neutral-800 rounded-full">{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{editId ? 'Update' : 'Create'}</Button>
+            <Button onClick={handleSave} disabled={saving} className="bg-black text-white hover:bg-neutral-800 rounded-full">
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {editId ? 'Update' : 'Create'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <ConfirmDialog open={deleteOpen} onOpenChange={setDeleteOpen} title="Deactivate Category" description="This will deactivate the category. It can be reactivated later." confirmLabel="Deactivate" variant="destructive" isLoading={deleting} onConfirm={handleDelete} />
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Deactivate Category"
+        description="This will deactivate the category. It can be reactivated later."
+        confirmLabel="Deactivate"
+        variant="destructive"
+        isLoading={deleting}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 };

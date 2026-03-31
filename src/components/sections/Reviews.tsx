@@ -106,6 +106,7 @@ const Reviews = () => {
       id="reviews"
       ref={sectionRef}
       className="py-32 lg:py-40 bg-white"
+      style={{ scrollMarginTop: '152px' }}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="reviews-content">

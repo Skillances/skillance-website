@@ -187,6 +187,11 @@ const AdminDashboard: React.FC = () => {
     }
   ] : [];
 
+  const axisColor = isDark ? '#a3a3a3' : '#a3a3a3';
+  const gridColor = isDark ? '#404040' : '#f0f0f0';
+  const usersStroke = isDark ? '#e5e5e5' : '#171717';
+  const usersGradientTop = isDark ? '#e5e5e5' : '#171717';
+
   const handleExport = async () => {
     try {
       const ExcelJS = (await import('exceljs')).default;
@@ -277,13 +282,13 @@ const AdminDashboard: React.FC = () => {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-col md:flex-row md:items-end justify-between gap-6"
+        className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8"
       >
-        <div>
-          <h1 className="font-serif text-4xl lg:text-5xl text-black dark:text-white leading-tight tracking-tight">
+        <div className="min-w-0">
+          <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-black dark:text-white leading-tight tracking-tight">
             Dashboard
           </h1>
-          <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-2 font-light">
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1.5 leading-relaxed max-w-lg font-light">
             Welcome, <span className="text-black dark:text-white font-medium">{user?.fullName || 'Administrator'}</span>. {TIMEFRAME_OPTIONS.find((o) => o.key === timeframe)?.label ?? 'Latest data'}.
           </p>
         </div>
@@ -361,23 +366,23 @@ const AdminDashboard: React.FC = () => {
                 <AreaChart data={growthData}>
                   <defs>
                     <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#171717" stopOpacity={0.08}/>
-                      <stop offset="95%" stopColor="#171717" stopOpacity={0}/>
+                      <stop offset="5%" stopColor={usersGradientTop} stopOpacity={0.14}/>
+                      <stop offset="95%" stopColor={usersGradientTop} stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="colorFreelancers" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.08}/>
                       <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#404040' : '#f5f5f5'} />
-                  <XAxis dataKey="name" stroke={isDark ? '#737373' : '#d4d4d4'} fontSize={10} tickLine={false} axisLine={false} dy={10} />
-                  <YAxis stroke={isDark ? '#737373' : '#d4d4d4'} fontSize={10} tickLine={false} axisLine={false} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(1)}k` : val} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
+                  <XAxis dataKey="name" stroke={axisColor} fontSize={10} tickLine={false} axisLine={false} dy={10} />
+                  <YAxis stroke={axisColor} fontSize={10} tickLine={false} axisLine={false} tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(1)}k` : val} />
                   <Tooltip 
                     contentStyle={{ backgroundColor: isDark ? '#262626' : '#fff', border: isDark ? '1px solid #404040' : '1px solid #e5e5e5', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', padding: '10px 14px', color: isDark ? '#fff' : undefined }}
                     itemStyle={{ fontSize: '12px', fontWeight: 500, padding: '2px 0' }}
                     labelStyle={{ marginBottom: '6px', color: isDark ? '#a3a3a3' : '#737373', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}
                   />
-                  <Area type="monotone" dataKey="users" name="Total Users" stroke="#171717" strokeWidth={2} fillOpacity={1} fill="url(#colorUsers)" />
+                  <Area type="monotone" dataKey="users" name="Total Users" stroke={usersStroke} strokeWidth={2} fillOpacity={1} fill="url(#colorUsers)" />
                   <Area type="monotone" dataKey="freelancers" name="Freelancers" stroke="#8b5cf6" strokeWidth={2} fillOpacity={1} fill="url(#colorFreelancers)" />
                 </AreaChart>
               </ResponsiveContainer>

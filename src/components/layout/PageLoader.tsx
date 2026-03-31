@@ -27,7 +27,9 @@ const PageLoader = ({ onComplete }: PageLoaderProps) => {
       setIsExiting(true);
     }, 2800);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    }
   }, [onComplete]);
 
   return (
