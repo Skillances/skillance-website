@@ -262,6 +262,18 @@ const CategoryRow: React.FC<{
           <StatusBadge status={node.isActive ? 'active' : 'suspended'} label={node.isActive ? 'Active' : 'Inactive'} />
         </td>
 
+        {/* Featured */}
+        <td className="px-4 py-2.5">
+          {node.isFeatured ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-300">
+              <Star className="h-2.5 w-2.5 fill-current" />
+              Featured
+            </span>
+          ) : (
+            <span className="text-xs text-neutral-300 dark:text-neutral-600">—</span>
+          )}
+        </td>
+
         {/* Order */}
         <td className="px-4 py-2.5 text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
           {node.displayOrder}
@@ -524,6 +536,9 @@ const AdminCategories: React.FC = () => {
                 </th>
                 <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500">
                   Status
+                </th>
+                <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500 hidden md:table-cell">
+                  Featured
                 </th>
                 <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500 hidden md:table-cell">
                   Order
