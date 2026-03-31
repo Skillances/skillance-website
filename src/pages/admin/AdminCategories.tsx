@@ -99,13 +99,37 @@ function toSafeDataImageUri(imageType: Exclude<ImageType, 'lottie'>, base64: str
   return `data:image/${imageType};base64,${base64}`;
 }
 
+/** Walk parentId chain; true if adding nodeId under parentId would create a cycle (or invalid loop). */
+function wouldCreateParentCycle(
+  parentById: Map<string, string | null>,
+  nodeId: string,
+  parentId: string,
+): boolean {
+  let current: string | null = parentId;
+  const seen = new Set<string>();
+  while (current) {
+    if (current === nodeId) return true;
+    if (seen.has(current)) return true;
+    seen.add(current);
+    current = parentById.get(current) ?? null;
+  }
+  return false;
+}
+
 function buildTree(flat: CategoryItem[]): CategoryNode[] {
+  const parentById = new Map<string, string | null>();
+  flat.forEach((c) => parentById.set(c.id, c.parentId));
+
   const map = new Map<string, CategoryNode>();
   flat.forEach((c) => map.set(c.id, { ...c, children: [] }));
   const roots: CategoryNode[] = [];
   flat.forEach((c) => {
     const node = map.get(c.id)!;
-    if (c.parentId && map.has(c.parentId)) {
+    if (
+      c.parentId &&
+      map.has(c.parentId) &&
+      !wouldCreateParentCycle(parentById, c.id, c.parentId)
+    ) {
       map.get(c.parentId)!.children.push(node);
     } else {
       roots.push(node);

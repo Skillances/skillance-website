@@ -40,11 +40,34 @@ interface CategoryLottieThumbProps {
  * Fetches Lottie JSON from a URL and renders a small looping preview (admin table, etc.).
  */
 export function CategoryLottieThumb({ src, size = 32, className }: CategoryLottieThumbProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
   const [data, setData] = useState<unknown | null>(() => getCategoryLottieFromCache(src));
   const [failed, setFailed] = useState(false);
   const lottieRef = useRef<any>(null);
 
   useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    const cached = getCategoryLottieFromCache(src);
+    if (cached !== null) {
+      setInView(true);
+      return;
+    }
+    setInView(false);
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setInView(true);
+      },
+      { rootMargin: '120px', threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [src]);
+
+  useEffect(() => {
+    if (!inView) return;
+
     let cancelled = false;
     setFailed(false);
 
@@ -69,7 +92,7 @@ export function CategoryLottieThumb({ src, size = 32, className }: CategoryLotti
     return () => {
       cancelled = true;
     };
-  }, [src]);
+  }, [src, inView]);
 
   useEffect(() => {
     if (!data || failed) return;
@@ -79,11 +102,16 @@ export function CategoryLottieThumb({ src, size = 32, className }: CategoryLotti
   }, [data, failed]);
 
   if (failed) {
-    return <FallbackBox size={size} className={className} label="Lottie" />;
+    return (
+      <div ref={rootRef}>
+        <FallbackBox size={size} className={className} label="Lottie" />
+      </div>
+    );
   }
   if (data === null) {
     return (
       <div
+        ref={rootRef}
         className={cn('rounded-lg bg-neutral-100 dark:bg-neutral-800 animate-pulse shrink-0', className)}
         style={{ width: size, height: size }}
         aria-hidden
@@ -93,6 +121,7 @@ export function CategoryLottieThumb({ src, size = 32, className }: CategoryLotti
 
   return (
     <div
+      ref={rootRef}
       className={cn(
         'overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700 shrink-0 flex items-center justify-center bg-neutral-50 dark:bg-neutral-900/50',
         className,
