@@ -132,12 +132,30 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
       });
     };
 
+    const onSecurityPolicyViolation = (event: SecurityPolicyViolationEvent) => {
+      sendClientLog({
+        level: 'warn',
+        source: 'window.securitypolicyviolation',
+        message: event.violatedDirective || 'Security policy violation',
+        metadata: {
+          route: location.pathname,
+          blockedURI: event.blockedURI,
+          effectiveDirective: event.effectiveDirective,
+          originalPolicy: event.originalPolicy,
+          sample: event.sample,
+          disposition: event.disposition,
+        },
+      });
+    };
+
     window.addEventListener('error', onError);
     window.addEventListener('unhandledrejection', onUnhandledRejection);
+    window.addEventListener('securitypolicyviolation', onSecurityPolicyViolation);
 
     return () => {
       window.removeEventListener('error', onError);
       window.removeEventListener('unhandledrejection', onUnhandledRejection);
+      window.removeEventListener('securitypolicyviolation', onSecurityPolicyViolation);
     };
   }, [location.pathname]);
 

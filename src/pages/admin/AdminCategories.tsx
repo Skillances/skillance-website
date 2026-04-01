@@ -239,7 +239,7 @@ const CategoryRow: React.FC<{
             )}
 
             {/* Icon */}
-            <CategoryIconPreview c={node} size={depth === 0 ? 32 : 24} />
+            <CategoryIconPreview c={node} size={depth === 0 ? 32 : 24} animated={depth === 0} />
 
             {/* Color dot */}
             {node.color && (
