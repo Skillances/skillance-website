@@ -22,6 +22,8 @@ import CategoryPage from './pages/CategoryPage';
 import LoginPage from './pages/LoginPage';
 import AdminLayout from './components/layout/AdminLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import AdminRouteErrorBoundary from './components/common/AdminRouteErrorBoundary';
+import { sendClientLog } from './lib/clientLog';
 import { AuthProvider } from './context/AuthContext';
 import { AdminThemeProvider, useAdminTheme } from './context/AdminThemeContext';
 import CookieConsent from './components/layout/CookieConsent';
@@ -101,6 +103,45 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   const routeAnimationKey = isAdminRoute ? '/admin' : location.pathname;
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const onError = (event: ErrorEvent) => {
+      sendClientLog({
+        source: 'window.error',
+        message: event.message || 'Unhandled window error',
+        stack: event.error instanceof Error ? event.error.stack : undefined,
+        metadata: {
+          filename: event.filename,
+          lineno: event.lineno,
+          colno: event.colno,
+          route: location.pathname,
+        },
+      });
+    };
+
+    const onUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason;
+      sendClientLog({
+        source: 'window.unhandledrejection',
+        message: reason instanceof Error ? reason.message : String(reason),
+        stack: reason instanceof Error ? reason.stack : undefined,
+        metadata: {
+          route: location.pathname,
+          reasonType: typeof reason,
+        },
+      });
+    };
+
+    window.addEventListener('error', onError);
+    window.addEventListener('unhandledrejection', onUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', onError);
+      window.removeEventListener('unhandledrejection', onUnhandledRejection);
+    };
+  }, [location.pathname]);
+
+  useEffect(() => {
     if (isLoaded) {
       // Initialize Lenis for smooth scrolling
       const lenis = new Lenis({
@@ -175,28 +216,30 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                 <ProtectedRoute requireAdmin>
                   <AdminThemeProvider>
                     <Suspense fallback={<AdminLoadingFallback />}>
-                      <AdminLayout>
-                        <Routes>
-                          <Route path="dashboard" element={<AdminDashboard />} />
-                          <Route path="users" element={<AdminUsers />} />
-                          <Route path="users/:userId" element={<AdminUserDetail />} />
-                          <Route path="freelancers" element={<AdminFreelancers />} />
-                          <Route path="freelancers/:freelancerId" element={<AdminFreelancerDetail />} />
-                          <Route path="customers" element={<AdminCustomers />} />
-                          <Route path="customers/:customerId" element={<AdminCustomerDetail />} />
-                          <Route path="verifications" element={<AdminVerifications />} />
-                          <Route path="analytics" element={<AdminAnalytics />} />
-                          <Route path="security" element={<AdminSecurity />} />
-                          <Route path="audit-logs" element={<AdminAuditLogs />} />
-                          <Route path="categories" element={<AdminCategories />} />
-                          <Route path="contact-messages" element={<AdminContactMessages />} />
-                          <Route path="chat-logs" element={<AdminChatLogs />} />
-                          <Route path="notify-subscribers" element={<AdminNotifySubscribers />} />
-                          <Route path="website-reviews" element={<AdminWebsiteReviews />} />
-                          <Route path="system" element={<AdminSystem />} />
-                          <Route path="*" element={<AdminDashboard />} />
-                        </Routes>
-                      </AdminLayout>
+                      <AdminRouteErrorBoundary key={location.pathname}>
+                        <AdminLayout>
+                          <Routes>
+                            <Route path="dashboard" element={<AdminDashboard />} />
+                            <Route path="users" element={<AdminUsers />} />
+                            <Route path="users/:userId" element={<AdminUserDetail />} />
+                            <Route path="freelancers" element={<AdminFreelancers />} />
+                            <Route path="freelancers/:freelancerId" element={<AdminFreelancerDetail />} />
+                            <Route path="customers" element={<AdminCustomers />} />
+                            <Route path="customers/:customerId" element={<AdminCustomerDetail />} />
+                            <Route path="verifications" element={<AdminVerifications />} />
+                            <Route path="analytics" element={<AdminAnalytics />} />
+                            <Route path="security" element={<AdminSecurity />} />
+                            <Route path="audit-logs" element={<AdminAuditLogs />} />
+                            <Route path="categories" element={<AdminCategories />} />
+                            <Route path="contact-messages" element={<AdminContactMessages />} />
+                            <Route path="chat-logs" element={<AdminChatLogs />} />
+                            <Route path="notify-subscribers" element={<AdminNotifySubscribers />} />
+                            <Route path="website-reviews" element={<AdminWebsiteReviews />} />
+                            <Route path="system" element={<AdminSystem />} />
+                            <Route path="*" element={<AdminDashboard />} />
+                          </Routes>
+                        </AdminLayout>
+                      </AdminRouteErrorBoundary>
                     </Suspense>
                   </AdminThemeProvider>
                 </ProtectedRoute>

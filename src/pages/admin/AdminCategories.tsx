@@ -53,6 +53,14 @@ interface CategoryStats {
   mostPopular: unknown[];
 }
 
+function isValidCodePoint(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 0x10ffff;
+}
+
+function formatCount(value: unknown): string {
+  return typeof value === 'number' && Number.isFinite(value) ? value.toLocaleString() : '0';
+}
+
 const emptyForm = {
   name: '', slug: '', description: '', color: '', isActive: true, displayOrder: 0,
   isProximityBased: false, isFeatured: false, supportsRecurring: false,
@@ -154,7 +162,7 @@ const CategoryIconPreview: React.FC<{ c: CategoryItem; size?: number }> = ({ c, 
       />
     );
   }
-  if (c.iconCodePoint != null) {
+  if (isValidCodePoint(c.iconCodePoint)) {
     return (
       <div
         style={{ width: px, height: px, fontFamily: 'Material Icons', fontSize: px * 0.65 }}
@@ -514,9 +522,9 @@ const AdminCategories: React.FC = () => {
   }, [form.imageType, form.imageBase64]);
 
   const statsCards = stats ? [
-    { title: 'Total', value: stats.total.toLocaleString(), icon: FolderOpen, color: '#171717' },
-    { title: 'Active', value: stats.active.toLocaleString(), icon: FolderOpen, color: '#10b981' },
-    { title: 'With Freelancers', value: stats.withFreelancers.toLocaleString(), icon: FolderOpen, color: '#8b5cf6' },
+    { title: 'Total', value: formatCount(stats.total), icon: FolderOpen, color: '#171717' },
+    { title: 'Active', value: formatCount(stats.active), icon: FolderOpen, color: '#10b981' },
+    { title: 'With Freelancers', value: formatCount(stats.withFreelancers), icon: FolderOpen, color: '#8b5cf6' },
   ] : [];
 
   return (
