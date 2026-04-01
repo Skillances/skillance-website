@@ -66,9 +66,6 @@ async function refreshAccessToken() {
       }
     } catch (error) {
       clearTokens();
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
-      }
       throw error;
     } finally {
       isRefreshing = false;
@@ -83,6 +80,8 @@ export async function apiRequest(endpoint: string, options: any = {}, retryOn401
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = `${API_BASE_URL}${normalizedEndpoint}`;
   const token = getAccessToken();
+  const refreshToken = getRefreshToken();
+  const hasStoredSession = Boolean(token || refreshToken);
 
   const headers: any = {
     'Content-Type': 'application/json',
@@ -104,12 +103,9 @@ export async function apiRequest(endpoint: string, options: any = {}, retryOn401
   try {
     let response = await fetch(url, config);
 
-    if (response.status === 401 && retryOn401) {
+    if (response.status === 401 && retryOn401 && hasStoredSession) {
       if (endpoint === '/auth/refresh') {
         clearTokens();
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
         throw new Error('Authentication required');
       }
 
@@ -123,19 +119,18 @@ export async function apiRequest(endpoint: string, options: any = {}, retryOn401
 
         if (response.status === 401) {
           clearTokens();
-          if (window.location.pathname !== '/login') {
-            window.location.href = '/login';
-          }
           throw new Error('Authentication required');
         }
       } catch (refreshError) {
         throw refreshError;
       }
     } else if (response.status === 401) {
-      clearTokens();
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      // Public pages can call public endpoints without auth state.
+      // Avoid forcing login redirect when there is no stored session.
+      if (!hasStoredSession) {
+        throw new Error('Unauthorized');
       }
+      clearTokens();
       throw new Error('Authentication required');
     }
 
