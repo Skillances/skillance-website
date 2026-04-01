@@ -37,7 +37,7 @@ export function sendClientLog(payload: ClientLogPayload): void {
 
   try {
     if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
-      const blob = new Blob([serialized], { type: 'application/json' });
+      const blob = new Blob([serialized], { type: 'text/plain;charset=UTF-8' });
       navigator.sendBeacon(CLIENT_LOG_ENDPOINT, blob);
       return;
     }
@@ -47,7 +47,7 @@ export function sendClientLog(payload: ClientLogPayload): void {
 
   void fetch(CLIENT_LOG_ENDPOINT, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
     body: serialized,
     keepalive: true,
   }).catch(() => {

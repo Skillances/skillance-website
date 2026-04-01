@@ -5,6 +5,33 @@ function truncate(value) {
   return value.length > MAX_BODY_LENGTH ? `${value.slice(0, MAX_BODY_LENGTH)}…` : value;
 }
 
+function normalizeBody(req) {
+  let rawBody;
+  try {
+    rawBody = req.body;
+  } catch {
+    return {};
+  }
+
+  if (typeof rawBody === 'string') {
+    try {
+      return JSON.parse(rawBody);
+    } catch {
+      return {};
+    }
+  }
+
+  if (Buffer.isBuffer(rawBody)) {
+    try {
+      return JSON.parse(rawBody.toString('utf8'));
+    } catch {
+      return {};
+    }
+  }
+
+  return typeof rawBody === 'object' && rawBody !== null ? rawBody : {};
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -12,7 +39,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const body = typeof req.body === 'object' && req.body !== null ? req.body : {};
+    const body = normalizeBody(req);
+    const userAgentHeader = req.headers['user-agent'];
     const log = {
       level: body.level === 'warn' ? 'warn' : 'error',
       source: truncate(body.source || 'client'),
@@ -22,7 +50,7 @@ export default async function handler(req, res) {
       componentStack: truncate(body.componentStack || ''),
       metadata: body.metadata && typeof body.metadata === 'object' ? body.metadata : {},
       timestamp: new Date().toISOString(),
-      userAgent: truncate(req.headers['user-agent'] || ''),
+      userAgent: truncate(Array.isArray(userAgentHeader) ? userAgentHeader.join(', ') : (userAgentHeader || '')),
       vercelRegion: process.env.VERCEL_REGION || '',
       vercelEnv: process.env.VERCEL_ENV || '',
     };
@@ -36,7 +64,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ ok: true });
   } catch (error) {
-    console.error('[client-log] failed to record log', error);
-    return res.status(500).json({ ok: false });
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[client-log] failed to record log: ${message}`);
+    return res.status(200).json({ ok: false, message });
   }
 }

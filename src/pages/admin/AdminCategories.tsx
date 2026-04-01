@@ -18,6 +18,7 @@ import StatsCard from '@/components/admin/dashboard/StatsCard';
 import { CategoryLottieThumb, CategoryLottieInline, isLottieImageUrl } from '@/components/admin/CategoryLottieThumb';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { sendClientLog } from '@/lib/clientLog';
 
 type ImageType = 'lottie' | 'svg' | 'png' | 'jpg';
 
@@ -147,11 +148,22 @@ function buildTree(flat: CategoryItem[]): CategoryNode[] {
 }
 
 // ─── Category icon preview ────────────────────────────────────────────────────
-const CategoryIconPreview: React.FC<{ c: CategoryItem; size?: number }> = ({ c, size = 32 }) => {
+const CategoryIconPreview: React.FC<{ c: CategoryItem; size?: number; animated?: boolean }> = ({ c, size = 32, animated = false }) => {
   const px = size;
   if (c.imageUrl) {
     if (isLottieImageUrl(c.imageUrl)) {
-      return <CategoryLottieThumb key={c.imageUrl} src={c.imageUrl} size={px} />;
+      if (animated) {
+        return <CategoryLottieThumb key={c.imageUrl} src={c.imageUrl} size={px} />;
+      }
+      return (
+        <div
+          style={{ width: px, height: px }}
+          className="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50 flex items-center justify-center text-[9px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400 shrink-0"
+          title="Lottie image"
+        >
+          Ani
+        </div>
+      );
     }
     return (
       <img
@@ -159,6 +171,8 @@ const CategoryIconPreview: React.FC<{ c: CategoryItem; size?: number }> = ({ c, 
         alt=""
         style={{ width: px, height: px }}
         className="rounded-lg object-cover border border-neutral-200 dark:border-neutral-700 shrink-0"
+        loading="lazy"
+        decoding="async"
       />
     );
   }
@@ -242,6 +256,8 @@ const CategoryRow: React.FC<{
                 alt="Website"
                 title="Website image"
                 className="w-8 h-8 rounded-md object-cover border border-neutral-200 dark:border-neutral-700 shrink-0 hidden sm:block"
+                loading="lazy"
+                decoding="async"
               />
             )}
 
@@ -382,8 +398,23 @@ const AdminCategories: React.FC = () => {
         setTotal(res.data.total || 0);
         // Default collapsed view keeps the table compact.
         setExpanded(new Set());
+        sendClientLog({
+          level: 'warn',
+          source: 'admin-categories.fetchCategories.success',
+          message: 'Loaded categories',
+          metadata: {
+            count: cats.length,
+            total: res.data.total || 0,
+            lottieCount: cats.filter((cat) => typeof cat.imageUrl === 'string' && isLottieImageUrl(cat.imageUrl)).length,
+            topLevelCount: cats.filter((cat) => !cat.parentId).length,
+          },
+        });
       }
     } catch {
+      sendClientLog({
+        source: 'admin-categories.fetchCategories.error',
+        message: 'Failed to load categories',
+      });
       toast.error('Failed to load categories');
     } finally {
       setIsLoading(false);
@@ -394,7 +425,13 @@ const AdminCategories: React.FC = () => {
     try {
       const res = await get('/admin/categories/stats');
       if (res.success) setStats(res.data);
-    } catch {}
+    } catch {
+      sendClientLog({
+        level: 'warn',
+        source: 'admin-categories.fetchStats.error',
+        message: 'Failed to load category stats',
+      });
+    }
   }, []);
 
   useEffect(() => { fetchStats(); }, [fetchStats]);
