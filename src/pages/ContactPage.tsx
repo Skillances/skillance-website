@@ -189,7 +189,15 @@ const ContactPage = () => {
               <div>
                 <h4 className="font-serif text-xl text-black mb-1">Support</h4>
                 <p className="text-neutral-500 font-light">
-                  <a href="tel:+27662203312" className="hover:text-black transition-colors">+27 66 220 3312</a> <br /> 
+                  <a
+                    href="https://wa.me/27648728174"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-black transition-colors"
+                  >
+                    +27 64 872 8174 (WhatsApp)
+                  </a>
+                  <br />
                   (Mon-Fri, 9am - 5pm)
                 </p>
               </div>

@@ -53,6 +53,10 @@ const RefundPolicy = () => {
             contact{' '}
             <a href="mailto:services@skillance.co.za" className="text-black underline hover:no-underline">
               services@skillance.co.za
+            </a>{' '}
+            or{' '}
+            <a href="https://wa.me/27648728174" target="_blank" rel="noopener noreferrer" className="text-black underline hover:no-underline">
+              WhatsApp +27 64 872 8174
             </a>
             . We may offer a partial refund (e.g. 25–75%) or goodwill credit where appropriate. Dispute
             records are kept for our records.
@@ -81,6 +85,10 @@ const RefundPolicy = () => {
             For refund enquiries, contact us at{' '}
             <a href="mailto:services@skillance.co.za" className="text-black underline hover:no-underline">
               services@skillance.co.za
+            </a>{' '}
+            or{' '}
+            <a href="https://wa.me/27648728174" target="_blank" rel="noopener noreferrer" className="text-black underline hover:no-underline">
+              WhatsApp +27 64 872 8174
             </a>{' '}
             or visit{' '}
             <a href="https://skillance.co.za" target="_blank" rel="noopener noreferrer" className="text-black underline hover:no-underline">

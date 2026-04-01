@@ -142,6 +142,14 @@ const Footer = () => {
             © {new Date().getFullYear()} Skillance. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
+            <a
+              href="https://wa.me/27648728174"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-neutral-400 hover:text-white transition-colors"
+            >
+              WhatsApp: +27 64 872 8174
+            </a>
             <span className="text-sm text-neutral-400">
               Made with care in South Africa
             </span>

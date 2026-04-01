@@ -117,6 +117,10 @@ const Privacy = () => {
             <a href="mailto:services@skillance.co.za" className="text-black underline hover:no-underline">
               services@skillance.co.za
             </a>{' '}
+            or{' '}
+            <a href="https://wa.me/27648728174" target="_blank" rel="noopener noreferrer" className="text-black underline hover:no-underline">
+              WhatsApp +27 64 872 8174
+            </a>{' '}
             or visit{' '}
             <a href="https://skillance.co.za" target="_blank" rel="noopener noreferrer" className="text-black underline hover:no-underline">
               https://skillance.co.za

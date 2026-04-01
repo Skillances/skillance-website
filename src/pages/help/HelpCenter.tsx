@@ -36,9 +36,14 @@ const HelpCenter = () => {
         <section className="bg-black text-white p-12 rounded-3xl text-center">
           <h2 className="text-3xl font-serif mb-6 italic text-white">Still need help?</h2>
           <p className="text-neutral-400 text-lg mb-8">Our support team is available 24/7 to assist you with any questions.</p>
-          <button className="px-8 py-4 bg-white text-black font-medium transition-transform hover:scale-105">
-            Contact Support
-          </button>
+          <a
+            href="https://wa.me/27648728174"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex px-8 py-4 bg-white text-black font-medium transition-transform hover:scale-105"
+          >
+            Contact Support on WhatsApp
+          </a>
         </section>
       </div>
     </PageTemplate>

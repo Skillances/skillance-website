@@ -77,6 +77,10 @@ const Terms = () => {
             We encourage users to try to resolve disputes directly first. For mediation assistance, contact{' '}
             <a href="mailto:services@skillance.co.za" className="text-black underline hover:no-underline">
               services@skillance.co.za
+            </a>{' '}
+            or{' '}
+            <a href="https://wa.me/27648728174" target="_blank" rel="noopener noreferrer" className="text-black underline hover:no-underline">
+              WhatsApp +27 64 872 8174
             </a>
             . Skillance may facilitate resolution but is not obliged to do so. Where appropriate, disputes
             may be resolved by arbitration under South African law.
@@ -122,6 +126,10 @@ const Terms = () => {
             For enquiries, contact us at{' '}
             <a href="mailto:services@skillance.co.za" className="text-black underline hover:no-underline">
               services@skillance.co.za
+            </a>{' '}
+            or{' '}
+            <a href="https://wa.me/27648728174" target="_blank" rel="noopener noreferrer" className="text-black underline hover:no-underline">
+              WhatsApp +27 64 872 8174
             </a>{' '}
             or visit{' '}
             <a href="https://skillance.co.za" target="_blank" rel="noopener noreferrer" className="text-black underline hover:no-underline">
