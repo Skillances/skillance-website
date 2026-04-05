@@ -3,6 +3,8 @@ import { sendClientLog } from '@/lib/clientLog';
 
 interface AdminRouteErrorBoundaryProps {
   children: ReactNode;
+  /** When this changes (e.g. admin sub-route), clear error so the next page can render without remounting the layout. */
+  resetPath: string;
 }
 
 interface AdminRouteErrorBoundaryState {
@@ -14,6 +16,12 @@ class AdminRouteErrorBoundary extends Component<AdminRouteErrorBoundaryProps, Ad
 
   static getDerivedStateFromError(): AdminRouteErrorBoundaryState {
     return { hasError: true };
+  }
+
+  componentDidUpdate(prevProps: AdminRouteErrorBoundaryProps) {
+    if (prevProps.resetPath !== this.props.resetPath && this.state.hasError) {
+      this.setState({ hasError: false });
+    }
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {

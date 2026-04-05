@@ -236,7 +236,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                 <ProtectedRoute requireAdmin>
                   <AdminThemeProvider>
                     <Suspense fallback={<AdminLoadingFallback />}>
-                      <AdminRouteErrorBoundary key={location.pathname}>
+                      <AdminRouteErrorBoundary resetPath={location.pathname}>
                         <AdminLayout>
                           <Routes>
                             <Route path="dashboard" element={<AdminDashboard />} />
