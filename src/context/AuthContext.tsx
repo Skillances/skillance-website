@@ -13,7 +13,11 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; user: User }>;
+  login: (
+    email: string,
+    password: string,
+    options?: { rememberMe?: boolean },
+  ) => Promise<{ success: boolean; user: User }>;
   logout: () => Promise<void>;
 }
 
@@ -80,7 +84,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (
+    email: string,
+    password: string,
+    options?: { rememberMe?: boolean },
+  ) => {
     try {
       const sanitizedEmail = email.trim().toLowerCase();
       
@@ -91,6 +99,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const response = await post('/auth/login', {
         email: sanitizedEmail,
         password,
+        rememberMe: options?.rememberMe === true,
       });
 
       if (response.success && response.data) {
