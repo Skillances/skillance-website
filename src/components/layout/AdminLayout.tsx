@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import {
   LayoutDashboard,
+  Activity,
   Users,
   Briefcase,
   CalendarDays,
@@ -65,6 +66,7 @@ const adminMenuGroups = [
   {
     label: 'System',
     items: [
+      { name: 'Observability', path: '/admin/observability', icon: Activity },
       { name: 'Security', path: '/admin/security', icon: ShieldAlert },
       { name: 'Audit Logs', path: '/admin/audit-logs', icon: ScrollText },
       { name: 'System', path: '/admin/system', icon: Settings2 },
