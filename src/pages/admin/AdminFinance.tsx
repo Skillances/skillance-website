@@ -57,6 +57,7 @@ interface AdminFinanceSummary {
   notes: {
     profit: string;
     digitalProducts: string;
+    bookings: string;
   };
 }
 
@@ -417,6 +418,7 @@ const AdminFinance: React.FC = () => {
           <p className="font-medium text-neutral-800 dark:text-neutral-200">Notes</p>
           <p>{summary.notes.profit}</p>
           <p>{summary.notes.digitalProducts}</p>
+          <p>{summary.notes.bookings}</p>
         </div>
       )}
     </div>
