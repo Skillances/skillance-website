@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   TrendingUp,
+  CircleDollarSign,
   UserRound,
   ShieldAlert,
   Tag,
@@ -41,6 +42,7 @@ const adminMenuGroups = [
     items: [
       { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
       { name: 'Analytics', path: '/admin/analytics', icon: TrendingUp },
+      { name: 'Finance', path: '/admin/finance', icon: CircleDollarSign },
     ],
   },
   {

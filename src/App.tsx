@@ -40,6 +40,7 @@ const AdminBookings = lazy(() => import('./pages/admin/AdminBookings'));
 const AdminCustomerDetail = lazy(() => import('./pages/admin/AdminCustomerDetail'));
 const AdminVerifications = lazy(() => import('./pages/admin/AdminVerifications'));
 const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
+const AdminFinance = lazy(() => import('./pages/admin/AdminFinance'));
 const AdminSecurity = lazy(() => import('./pages/admin/AdminSecurity'));
 const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs'));
 const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
@@ -249,6 +250,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                             <Route path="customers/:customerId" element={<AdminCustomerDetail />} />
                             <Route path="verifications" element={<AdminVerifications />} />
                             <Route path="analytics" element={<AdminAnalytics />} />
+                            <Route path="finance" element={<AdminFinance />} />
                             <Route path="security" element={<AdminSecurity />} />
                             <Route path="audit-logs" element={<AdminAuditLogs />} />
                             <Route path="categories" element={<AdminCategories />} />
