@@ -38,7 +38,6 @@ interface CategoryItem {
   iconCodePoint: number | null;
   iconFontFamily: string | null;
   imageUrl: string | null;
-  websiteImageUrl: string | null;
   isFeatured: boolean;
   supportsRecurring?: boolean;
   /** Platform-allowed booking pricing modes for this category (Flutter hourly vs invoice UI). */
@@ -81,7 +80,6 @@ const emptyForm = {
   pricingInvoice: false,
   iconCodePoint: '' as string | number, iconFontFamily: 'MaterialIcons',
   imageBase64: null as string | null, imageType: null as ImageType | null,
-  websiteImageUrl: '',
 };
 
 function detectImageType(filename: string): ImageType | null {
@@ -104,16 +102,6 @@ function fileToBase64(file: File): Promise<string> {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-}
-
-function sanitizeHttpImageUrl(url: string): string | null {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null;
-    return parsed.toString();
-  } catch {
-    return null;
-  }
 }
 
 function toSafeDataImageUri(imageType: Exclude<ImageType, 'lottie'>, base64: string): string | null {
@@ -262,18 +250,6 @@ const CategoryRow: React.FC<{
               <span
                 className="w-2.5 h-2.5 rounded-full shrink-0 border border-white/50 dark:border-black/30"
                 style={{ backgroundColor: node.color }}
-              />
-            )}
-
-            {/* Website image thumbnail */}
-            {node.websiteImageUrl && depth === 0 && (
-              <img
-                src={node.websiteImageUrl}
-                alt="Website"
-                title="Website image"
-                className="w-8 h-8 rounded-md object-cover border border-neutral-200 dark:border-neutral-700 shrink-0 hidden sm:block"
-                loading="lazy"
-                decoding="async"
               />
             )}
 
@@ -519,7 +495,6 @@ const AdminCategories: React.FC = () => {
       pricingInvoice: modes.includes('invoice'),
       iconCodePoint: cat.iconCodePoint ?? '', iconFontFamily: cat.iconFontFamily || 'MaterialIcons',
       imageBase64: null, imageType: null,
-      websiteImageUrl: cat.websiteImageUrl || '',
     });
     setFormOpen(true);
   };
@@ -560,8 +535,6 @@ const AdminCategories: React.FC = () => {
       const iconCode = typeof form.iconCodePoint === 'number' ? form.iconCodePoint : parseInt(String(form.iconCodePoint), 10);
       if (!isNaN(iconCode)) payload.iconCodePoint = iconCode;
       if (form.imageBase64 && form.imageType) { payload.image = form.imageBase64; payload.imageType = form.imageType; }
-      if (form.websiteImageUrl.trim()) payload.websiteImageUrl = form.websiteImageUrl.trim();
-      else payload.websiteImageUrl = null;
       if (editId) { await put(`/admin/categories/${editId}`, payload); toast.success('Category updated'); }
       else { await post('/admin/categories', payload); toast.success('Category created'); }
       setFormOpen(false);
@@ -816,31 +789,6 @@ const AdminCategories: React.FC = () => {
                     {imageDropActive ? 'Drop file here' : 'Choose file or drag and drop'}
                   </span>
                   <span className="text-xs text-neutral-500 dark:text-neutral-400 text-center">.lottie, .json, .svg, .png, .jpg</span>
-                </div>
-              )}
-            </div>
-
-            {/* Website image — separate from app image */}
-            <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4">
-              <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-1 block">Website Image URL</Label>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">
-                This image appears on the public Skillance website (ServicesPage, CategoryPage). It is separate from the app icon/image above.
-              </p>
-              <Input
-                value={form.websiteImageUrl}
-                onChange={(e) => setForm((f) => ({ ...f, websiteImageUrl: e.target.value }))}
-                placeholder="https://images.unsplash.com/..."
-                className="bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-black dark:text-white rounded-xl focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-600"
-              />
-              {form.websiteImageUrl && sanitizeHttpImageUrl(form.websiteImageUrl) && (
-                <div className="mt-2 rounded-xl overflow-hidden aspect-[16/9] bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
-                  <img
-                    src={sanitizeHttpImageUrl(form.websiteImageUrl) || undefined}
-                    alt="Website image preview"
-                    className="w-full h-full object-cover"
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                    onLoad={(e) => { (e.currentTarget as HTMLImageElement).style.display = ''; }}
-                  />
                 </div>
               )}
             </div>
