@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { get, post, put, del } from '@/lib/api';
 import {
   Plus, Edit, Trash2, FolderOpen, Loader2, Upload, ImageIcon, Star,
-  ChevronRight, ChevronDown,
+  ChevronRight, ChevronDown, CheckCircle2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import PageHeader from '@/components/admin/PageHeader';
 import StatusBadge from '@/components/admin/StatusBadge';
@@ -40,6 +41,8 @@ interface CategoryItem {
   websiteImageUrl: string | null;
   isFeatured: boolean;
   supportsRecurring?: boolean;
+  /** Platform-allowed booking pricing modes for this category (Flutter hourly vs invoice UI). */
+  allowedPricingModes?: string[];
 }
 
 interface CategoryNode extends CategoryItem {
@@ -62,9 +65,20 @@ function formatCount(value: unknown): string {
   return typeof value === 'number' && Number.isFinite(value) ? value.toLocaleString() : '0';
 }
 
+function pricingModesSummary(modes: string[] | undefined): string {
+  const list = modes?.length ? modes : ['hourly'];
+  const hourly = list.includes('hourly');
+  const invoice = list.includes('invoice');
+  if (hourly && invoice) return 'Hourly + Invoice';
+  if (invoice) return 'Invoice';
+  return 'Hourly';
+}
+
 const emptyForm = {
   name: '', slug: '', description: '', color: '', isActive: true, displayOrder: 0,
   isProximityBased: false, isFeatured: false, supportsRecurring: false,
+  pricingHourly: true,
+  pricingInvoice: false,
   iconCodePoint: '' as string | number, iconFontFamily: 'MaterialIcons',
   imageBase64: null as string | null, imageType: null as ImageType | null,
   websiteImageUrl: '',
@@ -206,7 +220,9 @@ const CategoryRow: React.FC<{
   onOpenFreelancers: (categoryFilter: string) => void;
   onEdit: (c: CategoryItem) => void;
   onDelete: (id: string) => void;
-}> = ({ node, depth, expanded, onToggle, onOpenFreelancers, onEdit, onDelete }) => {
+  onActivate: (id: string) => void;
+  activatingId: string | null;
+}> = ({ node, depth, expanded, onToggle, onOpenFreelancers, onEdit, onDelete, onActivate, activatingId }) => {
   const hasChildren = node.children.length > 0;
   const isExpanded = expanded.has(node.id);
   const indent = depth * 20;
@@ -322,6 +338,13 @@ const CategoryRow: React.FC<{
           )}
         </td>
 
+        {/* Pricing modes */}
+        <td className="px-4 py-2.5 text-xs text-neutral-500 dark:text-neutral-400 hidden lg:table-cell max-w-[9rem]">
+          <span className="line-clamp-2" title={pricingModesSummary(node.allowedPricingModes)}>
+            {pricingModesSummary(node.allowedPricingModes)}
+          </span>
+        </td>
+
         {/* Order */}
         <td className="px-4 py-2.5 text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
           {node.displayOrder}
@@ -329,7 +352,7 @@ const CategoryRow: React.FC<{
 
         {/* Actions */}
         <td className="px-4 py-2.5">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-wrap justify-end">
             <Button
               size="sm"
               variant="ghost"
@@ -339,15 +362,34 @@ const CategoryRow: React.FC<{
             >
               <Edit className="h-3.5 w-3.5" />
             </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-7 w-7 p-0 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"
-              onClick={(e) => { e.stopPropagation(); onDelete(node.id); }}
-              aria-label={`Delete ${node.name}`}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+            {!node.isActive && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 gap-1 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-500/10"
+                onClick={(e) => { e.stopPropagation(); onActivate(node.id); }}
+                disabled={activatingId === node.id}
+                aria-label={`Activate ${node.name}`}
+              >
+                {activatingId === node.id ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                )}
+                <span className="text-[10px] font-medium uppercase tracking-wide hidden sm:inline">Activate</span>
+              </Button>
+            )}
+            {node.isActive && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"
+                onClick={(e) => { e.stopPropagation(); onDelete(node.id); }}
+                aria-label={`Deactivate ${node.name}`}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
           </div>
         </td>
       </tr>
@@ -363,6 +405,8 @@ const CategoryRow: React.FC<{
           onOpenFreelancers={onOpenFreelancers}
           onEdit={onEdit}
           onDelete={onDelete}
+          onActivate={onActivate}
+          activatingId={activatingId}
         />
       ))}
     </>
@@ -385,6 +429,7 @@ const AdminCategories: React.FC = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [activatingId, setActivatingId] = useState<string | null>(null);
   const [imageDropActive, setImageDropActive] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
@@ -463,12 +508,15 @@ const AdminCategories: React.FC = () => {
 
   const openCreate = () => { setEditId(null); setForm(emptyForm); setFormOpen(true); };
   const openEdit = (cat: CategoryItem) => {
+    const modes = cat.allowedPricingModes?.length ? cat.allowedPricingModes : ['hourly'];
     setEditId(cat.id);
     setForm({
       name: cat.name, slug: cat.slug, description: cat.description || '',
       color: cat.color || '', isActive: cat.isActive, displayOrder: cat.displayOrder,
       isProximityBased: cat.isProximityBased, isFeatured: cat.isFeatured,
       supportsRecurring: cat.supportsRecurring ?? false,
+      pricingHourly: modes.includes('hourly'),
+      pricingInvoice: modes.includes('invoice'),
       iconCodePoint: cat.iconCodePoint ?? '', iconFontFamily: cat.iconFontFamily || 'MaterialIcons',
       imageBase64: null, imageType: null,
       websiteImageUrl: cat.websiteImageUrl || '',
@@ -491,6 +539,13 @@ const AdminCategories: React.FC = () => {
 
   const handleSave = async () => {
     if (!form.name.trim()) { toast.error('Name is required'); return; }
+    const allowedPricingModes: string[] = [];
+    if (form.pricingHourly) allowedPricingModes.push('hourly');
+    if (form.pricingInvoice) allowedPricingModes.push('invoice');
+    if (allowedPricingModes.length === 0) {
+      toast.error('Select at least one pricing mode (Hourly and/or Invoice)');
+      return;
+    }
     try {
       setSaving(true);
       const payload: Record<string, unknown> = {
@@ -498,6 +553,7 @@ const AdminCategories: React.FC = () => {
         color: form.color || undefined, isActive: form.isActive,
         displayOrder: form.displayOrder, isProximityBased: form.isProximityBased,
         isFeatured: form.isFeatured, supportsRecurring: form.supportsRecurring,
+        allowedPricingModes,
         iconFontFamily: form.iconFontFamily || undefined,
       };
       if (form.slug) payload.slug = form.slug;
@@ -534,6 +590,21 @@ const AdminCategories: React.FC = () => {
       toast.error(msg);
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleActivate = async (categoryId: string) => {
+    try {
+      setActivatingId(categoryId);
+      await put(`/admin/categories/${categoryId}`, { isActive: true });
+      toast.success('Category activated');
+      fetchCategories();
+      fetchStats();
+    } catch (err: unknown) {
+      const msg = err && typeof err === 'object' && 'message' in err ? String((err as { message?: string }).message) : 'Failed to activate category';
+      toast.error(msg);
+    } finally {
+      setActivatingId(null);
     }
   };
 
@@ -609,6 +680,9 @@ const AdminCategories: React.FC = () => {
                 <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500 hidden md:table-cell">
                   Featured
                 </th>
+                <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500 hidden lg:table-cell">
+                  Pricing
+                </th>
                 <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500 hidden md:table-cell">
                   Order
                 </th>
@@ -628,6 +702,8 @@ const AdminCategories: React.FC = () => {
                   onOpenFreelancers={(categoryFilter) => navigate(`/admin/freelancers?categoryId=${encodeURIComponent(categoryFilter)}`)}
                   onEdit={openEdit}
                   onDelete={(id) => { setDeleteId(id); setDeleteOpen(true); }}
+                  onActivate={handleActivate}
+                  activatingId={activatingId}
                 />
               ))}
             </tbody>
@@ -769,6 +845,37 @@ const AdminCategories: React.FC = () => {
               )}
             </div>
 
+            <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4">
+              <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-2 block">
+                Allowed pricing modes
+              </Label>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3">
+                Controls whether freelancers see Hourly, Invoice, or both when setting category rates in the app. Apply per child category (e.g. Electrician), not only the parent, if freelancers book under that leaf.
+              </p>
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="form-pricing-hourly"
+                    checked={form.pricingHourly}
+                    onCheckedChange={(v) => setForm((f) => ({ ...f, pricingHourly: v === true }))}
+                  />
+                  <Label htmlFor="form-pricing-hourly" className="text-sm text-neutral-700 dark:text-neutral-200 font-normal cursor-pointer">
+                    Hourly
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="form-pricing-invoice"
+                    checked={form.pricingInvoice}
+                    onCheckedChange={(v) => setForm((f) => ({ ...f, pricingInvoice: v === true }))}
+                  />
+                  <Label htmlFor="form-pricing-invoice" className="text-sm text-neutral-700 dark:text-neutral-200 font-normal cursor-pointer">
+                    Invoice (fixed quote)
+                  </Label>
+                </div>
+              </div>
+            </div>
+
             <div className="flex flex-wrap items-center gap-6 pt-2">
               <div className="flex items-center gap-2">
                 <Switch id="form-active" checked={form.isActive} onCheckedChange={(v) => setForm((f) => ({ ...f, isActive: v }))} />
@@ -804,7 +911,7 @@ const AdminCategories: React.FC = () => {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         title="Deactivate Category"
-        description="This will deactivate the category. It can be reactivated later."
+        description="This hides the category from new freelancer selections. Reactivate anytime with the green Activate button on the row, or open Edit and turn Active on."
         confirmLabel="Deactivate"
         variant="destructive"
         isLoading={deleting}
