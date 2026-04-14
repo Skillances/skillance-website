@@ -28,7 +28,6 @@ interface CategoryItem {
   parentId: string | null;
   level: number;
   name: string;
-  slug: string;
   description: string | null;
   isActive: boolean;
   displayOrder: number;
@@ -74,7 +73,7 @@ function pricingModesSummary(modes: string[] | undefined): string {
 }
 
 const emptyForm = {
-  name: '', slug: '', description: '', color: '', isActive: true, displayOrder: 0,
+  name: '', description: '', color: '', isActive: true, displayOrder: 0,
   isProximityBased: false, isFeatured: false, supportsRecurring: false,
   pricingHourly: true,
   pricingInvoice: false,
@@ -205,15 +204,17 @@ const CategoryRow: React.FC<{
   depth: number;
   expanded: Set<string>;
   onToggle: (id: string) => void;
-  onOpenFreelancers: (categoryFilter: string) => void;
+  onOpenFreelancers: (categoryId: string) => void;
   onEdit: (c: CategoryItem) => void;
+  onAddSubcategory: (c: CategoryItem) => void;
   onDelete: (id: string) => void;
   onActivate: (id: string) => void;
   activatingId: string | null;
-}> = ({ node, depth, expanded, onToggle, onOpenFreelancers, onEdit, onDelete, onActivate, activatingId }) => {
+}> = ({ node, depth, expanded, onToggle, onOpenFreelancers, onEdit, onAddSubcategory, onDelete, onActivate, activatingId }) => {
   const hasChildren = node.children.length > 0;
   const isExpanded = expanded.has(node.id);
   const indent = depth * 20;
+  const canAddSubcategory = node.level < 4;
 
   return (
     <>
@@ -269,7 +270,6 @@ const CategoryRow: React.FC<{
                   </span>
                 )}
               </div>
-              <span className="text-[11px] text-neutral-400 dark:text-neutral-500 truncate block">{node.slug}</span>
             </div>
           </div>
         </td>
@@ -290,7 +290,7 @@ const CategoryRow: React.FC<{
         <td className="px-4 py-2.5 text-xs text-neutral-600 dark:text-neutral-300 tabular-nums">
           <button
             type="button"
-            onClick={() => onOpenFreelancers(node.slug)}
+            onClick={() => onOpenFreelancers(node.id)}
             className="font-medium underline-offset-2 hover:underline text-neutral-700 dark:text-violet-300 dark:hover:text-violet-200"
           >
             {node.freelancerCount ?? 0}
@@ -329,6 +329,18 @@ const CategoryRow: React.FC<{
         {/* Actions */}
         <td className="px-4 py-2.5">
           <div className="flex items-center gap-1 flex-wrap justify-end">
+            {canAddSubcategory && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0 text-neutral-400 hover:text-black dark:hover:text-white"
+                onClick={(e) => { e.stopPropagation(); onAddSubcategory(node); }}
+                aria-label={`Add subcategory under ${node.name}`}
+                title="Add subcategory"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </Button>
+            )}
             <Button
               size="sm"
               variant="ghost"
@@ -380,6 +392,7 @@ const CategoryRow: React.FC<{
           onToggle={onToggle}
           onOpenFreelancers={onOpenFreelancers}
           onEdit={onEdit}
+          onAddSubcategory={onAddSubcategory}
           onDelete={onDelete}
           onActivate={onActivate}
           activatingId={activatingId}
@@ -400,6 +413,8 @@ const AdminCategories: React.FC = () => {
   const pageSize = 100; // backend max; enough for all categories
   const [formOpen, setFormOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  /** When creating, optional parent for a new subcategory (API `parentId`). */
+  const [createParent, setCreateParent] = useState<{ id: string; name: string } | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -482,12 +497,30 @@ const AdminCategories: React.FC = () => {
     }
   }, []);
 
-  const openCreate = () => { setEditId(null); setForm(emptyForm); setFormOpen(true); };
+  const openCreate = () => {
+    setCreateParent(null);
+    setEditId(null);
+    setForm(emptyForm);
+    setFormOpen(true);
+  };
+
+  const openCreateSubcategory = (parent: CategoryItem) => {
+    if (parent.level >= 4) {
+      toast.error('This category is at maximum depth (4 levels). Add a subcategory under a higher-level parent instead.');
+      return;
+    }
+    setCreateParent({ id: parent.id, name: parent.name });
+    setEditId(null);
+    setForm(emptyForm);
+    setFormOpen(true);
+  };
+
   const openEdit = (cat: CategoryItem) => {
     const modes = cat.allowedPricingModes?.length ? cat.allowedPricingModes : ['hourly'];
+    setCreateParent(null);
     setEditId(cat.id);
     setForm({
-      name: cat.name, slug: cat.slug, description: cat.description || '',
+      name: cat.name, description: cat.description || '',
       color: cat.color || '', isActive: cat.isActive, displayOrder: cat.displayOrder,
       isProximityBased: cat.isProximityBased, isFeatured: cat.isFeatured,
       supportsRecurring: cat.supportsRecurring ?? false,
@@ -531,12 +564,13 @@ const AdminCategories: React.FC = () => {
         allowedPricingModes,
         iconFontFamily: form.iconFontFamily || undefined,
       };
-      if (form.slug) payload.slug = form.slug;
+      if (!editId && createParent) payload.parentId = createParent.id;
       const iconCode = typeof form.iconCodePoint === 'number' ? form.iconCodePoint : parseInt(String(form.iconCodePoint), 10);
       if (!isNaN(iconCode)) payload.iconCodePoint = iconCode;
       if (form.imageBase64 && form.imageType) { payload.image = form.imageBase64; payload.imageType = form.imageType; }
       if (editId) { await put(`/admin/categories/${editId}`, payload); toast.success('Category updated'); }
       else { await post('/admin/categories', payload); toast.success('Category created'); }
+      setCreateParent(null);
       setFormOpen(false);
       fetchCategories();
       fetchStats();
@@ -672,8 +706,9 @@ const AdminCategories: React.FC = () => {
                   depth={0}
                   expanded={expanded}
                   onToggle={toggleExpand}
-                  onOpenFreelancers={(categoryFilter) => navigate(`/admin/freelancers?categoryId=${encodeURIComponent(categoryFilter)}`)}
+                  onOpenFreelancers={(categoryId) => navigate(`/admin/freelancers?categoryId=${encodeURIComponent(categoryId)}`)}
                   onEdit={openEdit}
+                  onAddSubcategory={openCreateSubcategory}
                   onDelete={(id) => { setDeleteId(id); setDeleteOpen(true); }}
                   onActivate={handleActivate}
                   activatingId={activatingId}
@@ -692,21 +727,35 @@ const AdminCategories: React.FC = () => {
       </div>
 
       {/* Create / Edit Dialog */}
-      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+      <Dialog
+        open={formOpen}
+        onOpenChange={(open) => {
+          setFormOpen(open);
+          if (!open) setCreateParent(null);
+        }}
+      >
         <DialogContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700 text-black dark:text-white sm:max-w-lg rounded-2xl shadow-soft-lg max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="text-black dark:text-white font-serif text-xl">
-              {editId ? 'Edit Category' : 'Create Category'}
+              {editId ? 'Edit Category' : createParent ? `Create subcategory under ${createParent.name}` : 'Create Category'}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-5 py-2 overflow-y-auto flex-1 min-h-0 pr-1">
+            {editId && (
+              <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-medium mb-1">Category ID</p>
+                <p className="text-xs font-mono text-neutral-800 dark:text-neutral-200 break-all">{editId}</p>
+              </div>
+            )}
+            {!editId && createParent && (
+              <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-medium mb-1">Parent ID</p>
+                <p className="text-xs font-mono text-neutral-800 dark:text-neutral-200 break-all">{createParent.id}</p>
+              </div>
+            )}
             <div>
               <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-2 block">Name *</Label>
               <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-black dark:text-white rounded-xl focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-600" />
-            </div>
-            <div>
-              <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-2 block">Slug</Label>
-              <Input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="auto-generated if empty" className="bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-black dark:text-white rounded-xl focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-600" />
             </div>
             <div>
               <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-2 block">Description</Label>
@@ -846,7 +895,13 @@ const AdminCategories: React.FC = () => {
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-2 pt-2">
-            <Button variant="outline" onClick={() => setFormOpen(false)} className="border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white rounded-full">Cancel</Button>
+            <Button
+              variant="outline"
+              onClick={() => { setFormOpen(false); setCreateParent(null); }}
+              className="border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white rounded-full"
+            >
+              Cancel
+            </Button>
             <Button onClick={handleSave} disabled={saving} className="bg-black text-white hover:bg-neutral-800 rounded-full">
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {editId ? 'Update' : 'Create'}
