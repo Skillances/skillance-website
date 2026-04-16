@@ -169,6 +169,8 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
         duration: 1.2,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         autoRaf: false,
+        // Let wheel/trackpad scroll native overflow regions (Services accordions, modals, etc.).
+        allowNestedScroll: true,
       });
 
       // Expose on window so Navigation can use lenis.scrollTo (avoids scrollIntoView conflict)
