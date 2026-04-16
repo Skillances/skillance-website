@@ -49,6 +49,7 @@ const AdminObservability = lazy(() => import('./pages/admin/AdminObservability')
 const AdminContactMessages = lazy(() => import('./pages/admin/AdminContactMessages'));
 const AdminNotifySubscribers = lazy(() => import('./pages/admin/AdminNotifySubscribers'));
 const AdminWebsiteReviews = lazy(() => import('./pages/admin/AdminWebsiteReviews'));
+const AdminBookingReviews = lazy(() => import('./pages/admin/AdminBookingReviews'));
 const AdminChatLogs = lazy(() => import('./pages/admin/AdminChatLogs'));
 
 gsap.registerPlugin(ScrollTrigger);
@@ -260,6 +261,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                             <Route path="chat-logs" element={<AdminChatLogs />} />
                             <Route path="notify-subscribers" element={<AdminNotifySubscribers />} />
                             <Route path="website-reviews" element={<AdminWebsiteReviews />} />
+                            <Route path="booking-reviews" element={<AdminBookingReviews />} />
                             <Route path="system" element={<AdminSystem />} />
                             <Route path="observability" element={<AdminObservability />} />
                             <Route path="*" element={<AdminDashboard />} />
