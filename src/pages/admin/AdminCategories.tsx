@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import PageHeader from '@/components/admin/PageHeader';
 import StatusBadge from '@/components/admin/StatusBadge';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
@@ -761,6 +761,11 @@ const AdminCategories: React.FC = () => {
             <DialogTitle className="text-black dark:text-white font-serif text-xl">
               {editId ? 'Edit Category' : createParent ? `Create subcategory under ${createParent.name}` : 'Create Category'}
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              {editId
+                ? 'Update category name, description, icon, image, and ordering.'
+                : 'Add a new category or subcategory with optional icon and image.'}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-5 py-2 overflow-y-auto flex-1 min-h-0 pr-1">
             {editId && (

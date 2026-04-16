@@ -89,12 +89,47 @@ export function fetchCategoryLottieJsonCached(src: string): Promise<unknown> {
 
   const promise = (async () => {
     const resolved = resolveLottieJsonFetchUrl(src);
-    const init: RequestInit = { credentials: 'include' };
-    if (lottieJsonFetchRequiresAuth(resolved)) {
+
+    const authHeaders = (): HeadersInit => {
+      if (!lottieJsonFetchRequiresAuth(resolved)) {
+        return { Accept: 'application/json' };
+      }
       const token = getAccessToken();
-      init.headers = token ? { Authorization: `Bearer ${token}` } : {};
+      return token
+        ? { Authorization: `Bearer ${token}`, Accept: 'application/json' }
+        : { Accept: 'application/json' };
+    };
+
+    /** Public bucket objects may be readable cross-origin when CORS allows; use when admin proxy errors (e.g. env hostname mismatch). */
+    const tryDirectPublicUrl = async (): Promise<unknown | null> => {
+      if (!src.startsWith('https://')) return null;
+      try {
+        const r = await fetch(src, {
+          mode: 'cors',
+          credentials: 'omit',
+          cache: 'default',
+          headers: { Accept: 'application/json' },
+        });
+        if (!r.ok) return null;
+        return (await r.json()) as unknown;
+      } catch {
+        return null;
+      }
+    };
+
+    const r = await fetch(resolved, {
+      credentials: 'include',
+      headers: authHeaders(),
+    });
+
+    if (!r.ok && lottieJsonFetchRequiresAuth(resolved)) {
+      const direct = await tryDirectPublicUrl();
+      if (direct !== null) {
+        writeCategoryLottieCache(src, direct);
+        return direct;
+      }
     }
-    const r = await fetch(resolved, init);
+
     if (!r.ok) throw new Error(String(r.status));
     const json: unknown = await r.json();
     writeCategoryLottieCache(src, json);
