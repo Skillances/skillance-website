@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight, Search, X, ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
 import { fetchServiceCategories, type ServiceCategoryItem } from '@/lib/serviceCategories';
+import { SpecializationTreeList } from '@/components/SpecializationTreeList';
 
 const ServicesPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -300,7 +301,7 @@ const ServicesPage = () => {
                       {category.subcategoryCount} Specializations
                     </span>
                     <button
-                      onClick={() => navigate(`/category/${category.slug}`)}
+                      onClick={() => navigate(`/category/${category.id}`)}
                       className="text-[10px] font-semibold hover:text-black transition-colors flex items-center justify-center gap-1 group/btn w-full py-2"
                     >
                       <span>Explore</span>
@@ -334,6 +335,7 @@ const ServicesPage = () => {
           <div className="space-y-3">
             {allCategories.map((category) => {
               const subcategories = category.subcategories;
+              const specTree = category.specializationTree;
               const isExpanded = expandedIds.has(category.id);
 
               return (
@@ -385,22 +387,28 @@ const ServicesPage = () => {
 
                   {/* Accordion body — subcategories */}
                   <div
-                    className={`overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}
+                    className={`overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[min(85vh,2200px)] opacity-100' : 'max-h-0 opacity-0'}`}
                   >
                     <div className="px-5 sm:px-7 pb-5 pt-1 border-t border-neutral-100">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-5">
-                        {subcategories.map((sub) => (
-                          <div
-                            key={sub}
-                            className="flex items-center gap-2 py-2 px-3 rounded-xl bg-neutral-50 hover:bg-neutral-100 transition-colors"
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-neutral-300 shrink-0" />
-                            <span className="text-xs text-neutral-600 leading-tight">{sub}</span>
+                      <div className="mb-5 max-h-[min(60vh,900px)] overflow-y-auto overscroll-contain pr-1">
+                        {specTree.length > 0 ? (
+                          <SpecializationTreeList nodes={specTree} />
+                        ) : (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                            {subcategories.map((sub) => (
+                              <div
+                                key={sub}
+                                className="flex items-center gap-2 py-2 px-3 rounded-xl bg-neutral-50 hover:bg-neutral-100 transition-colors"
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-neutral-300 shrink-0" />
+                                <span className="text-xs text-neutral-600 leading-tight">{sub}</span>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
                       </div>
                       <button
-                        onClick={() => navigate(`/category/${category.slug}`)}
+                        onClick={() => navigate(`/category/${category.id}`)}
                         className="group/btn flex items-center gap-2 text-sm font-semibold text-black hover:text-neutral-600 transition-colors"
                       >
                         Explore {category.name}

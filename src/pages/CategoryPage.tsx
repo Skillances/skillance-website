@@ -13,6 +13,25 @@ interface CategoryNode {
   children?: CategoryNode[];
 }
 
+/** Match route param to a node anywhere in the hierarchy by id only. */
+function findCategoryInTree(roots: CategoryNode[], param: string): CategoryNode | null {
+  const trimmed = param.trim();
+  if (!trimmed) return null;
+
+  const walk = (nodes: CategoryNode[]): CategoryNode | null => {
+    for (const node of nodes) {
+      if (node.id === trimmed) return node;
+      if (node.children?.length) {
+        const nested = walk(node.children);
+        if (nested) return nested;
+      }
+    }
+    return null;
+  };
+
+  return walk(roots);
+}
+
 const CategoryPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -41,8 +60,7 @@ const CategoryPage = () => {
         if (!mounted) return;
 
         const categories = Array.isArray(data) ? (data as CategoryNode[]) : [];
-        const normalizedSlug = id.toLowerCase();
-        const found = categories.find((c) => c.slug?.toLowerCase() === normalizedSlug) || null;
+        const found = findCategoryInTree(categories, id);
 
         if (found) {
           setCategory(found);
