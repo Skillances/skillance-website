@@ -409,8 +409,6 @@ const AdminCategories: React.FC = () => {
   const [stats, setStats] = useState<CategoryStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
-  const page = 1;
-  const pageSize = 100; // backend max; enough for all categories
   const [formOpen, setFormOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   /** When creating, optional parent for a new subcategory (API `parentId`). */
@@ -427,25 +425,49 @@ const AdminCategories: React.FC = () => {
   const fetchCategories = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await get(`/admin/categories?includeInactive=true&page=${page}&limit=${pageSize}`);
-      if (res.success) {
+      const merged: CategoryItem[] = [];
+      let pageNum = 1;
+      const pageLimit = 500;
+      let reportedTotal = 0;
+      let loadedAnyPage = false;
+
+      for (;;) {
+        const res = await get(
+          `/admin/categories?includeInactive=true&page=${pageNum}&limit=${pageLimit}`,
+        );
+        if (!res.success) {
+          if (pageNum === 1) toast.error('Failed to load categories');
+          break;
+        }
+
+        loadedAnyPage = true;
         const cats: CategoryItem[] = res.data.categories || [];
-        setCategories(cats);
-        setTotal(res.data.total || 0);
-        // Default collapsed view keeps the table compact.
-        setExpanded(new Set());
-        sendClientLog({
-          level: 'warn',
-          source: 'admin-categories.fetchCategories.success',
-          message: 'Loaded categories',
-          metadata: {
-            count: cats.length,
-            total: res.data.total || 0,
-            lottieCount: cats.filter((cat) => typeof cat.imageUrl === 'string' && isLottieImageUrl(cat.imageUrl)).length,
-            topLevelCount: cats.filter((cat) => !cat.parentId).length,
-          },
-        });
+        reportedTotal = typeof res.data.total === 'number' ? res.data.total : reportedTotal;
+        merged.push(...cats);
+
+        if (cats.length === 0) break;
+        if (reportedTotal > 0 && merged.length >= reportedTotal) break;
+        if (cats.length < pageLimit) break;
+        pageNum += 1;
       }
+
+      if (!loadedAnyPage) return;
+
+      setCategories(merged);
+      setTotal(reportedTotal > 0 ? reportedTotal : merged.length);
+      setExpanded(new Set());
+      sendClientLog({
+        level: 'warn',
+        source: 'admin-categories.fetchCategories.success',
+        message: 'Loaded categories',
+        metadata: {
+          count: merged.length,
+          total: reportedTotal > 0 ? reportedTotal : merged.length,
+          pages: pageNum,
+          lottieCount: merged.filter((cat) => typeof cat.imageUrl === 'string' && isLottieImageUrl(cat.imageUrl)).length,
+          topLevelCount: merged.filter((cat) => !cat.parentId).length,
+        },
+      });
     } catch {
       sendClientLog({
         source: 'admin-categories.fetchCategories.error',
@@ -455,7 +477,7 @@ const AdminCategories: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, pageSize]);
+  }, []);
 
   const fetchStats = useCallback(async () => {
     try {
