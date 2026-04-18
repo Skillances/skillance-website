@@ -141,18 +141,28 @@ const Footer = () => {
           <p className="text-sm text-neutral-400">
             © {new Date().getFullYear()} Skillance. All rights reserved.
           </p>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col items-center md:items-end gap-3 text-center md:text-right">
             <a
-              href="https://wa.me/27648728174"
+              href="https://bizportal.gov.za/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-neutral-400 hover:text-white transition-colors"
+              className="text-sm text-neutral-400 hover:text-white transition-colors max-w-md"
             >
-              WhatsApp: +27 64 872 8174
+              A product of RIMITSO MANAGEMENT SERVICES (PTY) LTD
             </a>
-            <span className="text-sm text-neutral-400">
-              Made with care in South Africa
-            </span>
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+              <a
+                href="https://wa.me/27648728174"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-neutral-400 hover:text-white transition-colors"
+              >
+                WhatsApp: +27 64 872 8174
+              </a>
+              <span className="text-sm text-neutral-400">
+                Made with care in South Africa
+              </span>
+            </div>
           </div>
         </div>
       </div>
