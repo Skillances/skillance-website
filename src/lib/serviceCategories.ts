@@ -4,15 +4,24 @@ export interface CategoryApiNode {
   id: string;
   parentId: string | null;
   name: string;
-  slug: string;
+  /** Omitted when API no longer returns slug (e.g. post-migration). */
+  slug?: string;
   description: string | null;
   imageUrl: string | null;
   websiteImageUrl?: string | null;
   children?: CategoryApiNode[];
 }
 
+/** Nested specializations as returned from the API (multi-level). */
+export interface ServiceSpecializationNode {
+  id: string;
+  name: string;
+  children: ServiceSpecializationNode[];
+}
+
 export interface ServiceCategoryItem {
   id: string;
+  /** Legacy; may be empty when API omits slug. */
   slug: string;
   name: string;
   description: string;
@@ -20,6 +29,7 @@ export interface ServiceCategoryItem {
   image: string;
   subcategories: string[];
   subcategoryCount: number;
+  specializationTree: ServiceSpecializationNode[];
 }
 
 const CATEGORY_IMAGE_FALLBACKS: Record<string, string> = {
@@ -78,13 +88,21 @@ const CATEGORY_LONG_DESCRIPTIONS: Record<string, string> = {
   automotive: 'Keep your vehicle road-ready with skilled technicians for maintenance, diagnostics, detailing, and repairs.',
 };
 
+function leafNodesFromNames(names: string[]): ServiceSpecializationNode[] {
+  return names.map((name, i) => ({
+    id: `fallback-${i}-${name}`,
+    name,
+    children: [],
+  }));
+}
+
 const FALLBACK_SERVICE_CATEGORIES: ServiceCategoryItem[] = [
-  { id: 'handyman', slug: 'handyman', name: 'Handyman', description: 'Home repair and maintenance services', longDescription: CATEGORY_LONG_DESCRIPTIONS.handyman, image: CATEGORY_IMAGE_FALLBACKS.handyman, subcategories: ['Electrician', 'Plumber', 'Carpenter', 'Painter', 'Tiler', 'Roofer'], subcategoryCount: 6 },
-  { id: 'education', slug: 'education', name: 'Education', description: 'Tutoring, lessons, courses, and test prep', longDescription: CATEGORY_LONG_DESCRIPTIONS.education, image: CATEGORY_IMAGE_FALLBACKS.education, subcategories: ['Tutors', 'Test Prep', 'Language Learning', 'Online Courses'], subcategoryCount: 4 },
-  { id: 'cleaning', slug: 'cleaning', name: 'Cleaning', description: 'House cleaning, office cleaning, and specialized services', longDescription: CATEGORY_LONG_DESCRIPTIONS.cleaning, image: CATEGORY_IMAGE_FALLBACKS.cleaning, subcategories: ['House Cleaning', 'Deep Cleaning', 'Office Cleaning', 'Carpet Cleaning'], subcategoryCount: 4 },
-  { id: 'petcare', slug: 'petcare', name: 'Pet Care', description: 'Dog walking, grooming, sitting, and training', longDescription: CATEGORY_LONG_DESCRIPTIONS.petcare, image: CATEGORY_IMAGE_FALLBACKS.petcare, subcategories: ['Dog Walking', 'Pet Sitting', 'Pet Grooming', 'Pet Training'], subcategoryCount: 4 },
-  { id: 'fitness', slug: 'fitness', name: 'Fitness', description: 'Personal trainers, coaching, wellness, and rehabilitation', longDescription: CATEGORY_LONG_DESCRIPTIONS.fitness, image: CATEGORY_IMAGE_FALLBACKS.fitness, subcategories: ['Personal Trainers', 'Wellness', 'Nutritionist', 'Massage Therapist'], subcategoryCount: 4 },
-  { id: 'automotive', slug: 'automotive', name: 'Automotive', description: 'Mechanics, detailing, repairs, and maintenance', longDescription: CATEGORY_LONG_DESCRIPTIONS.automotive, image: CATEGORY_IMAGE_FALLBACKS.automotive, subcategories: ['Mobile Mechanic', 'Car Detailing', 'Tire Service', 'Battery Service'], subcategoryCount: 4 },
+  { id: 'handyman', slug: 'handyman', name: 'Handyman', description: 'Home repair and maintenance services', longDescription: CATEGORY_LONG_DESCRIPTIONS.handyman, image: CATEGORY_IMAGE_FALLBACKS.handyman, subcategories: ['Electrician', 'Plumber', 'Carpenter', 'Painter', 'Tiler', 'Roofer'], subcategoryCount: 6, specializationTree: leafNodesFromNames(['Electrician', 'Plumber', 'Carpenter', 'Painter', 'Tiler', 'Roofer']) },
+  { id: 'education', slug: 'education', name: 'Education', description: 'Tutoring, lessons, courses, and test prep', longDescription: CATEGORY_LONG_DESCRIPTIONS.education, image: CATEGORY_IMAGE_FALLBACKS.education, subcategories: ['Tutors', 'Test Prep', 'Language Learning', 'Online Courses'], subcategoryCount: 4, specializationTree: leafNodesFromNames(['Tutors', 'Test Prep', 'Language Learning', 'Online Courses']) },
+  { id: 'cleaning', slug: 'cleaning', name: 'Cleaning', description: 'House cleaning, office cleaning, and specialized services', longDescription: CATEGORY_LONG_DESCRIPTIONS.cleaning, image: CATEGORY_IMAGE_FALLBACKS.cleaning, subcategories: ['House Cleaning', 'Deep Cleaning', 'Office Cleaning', 'Carpet Cleaning'], subcategoryCount: 4, specializationTree: leafNodesFromNames(['House Cleaning', 'Deep Cleaning', 'Office Cleaning', 'Carpet Cleaning']) },
+  { id: 'petcare', slug: 'petcare', name: 'Pet Care', description: 'Dog walking, grooming, sitting, and training', longDescription: CATEGORY_LONG_DESCRIPTIONS.petcare, image: CATEGORY_IMAGE_FALLBACKS.petcare, subcategories: ['Dog Walking', 'Pet Sitting', 'Pet Grooming', 'Pet Training'], subcategoryCount: 4, specializationTree: leafNodesFromNames(['Dog Walking', 'Pet Sitting', 'Pet Grooming', 'Pet Training']) },
+  { id: 'fitness', slug: 'fitness', name: 'Fitness', description: 'Personal trainers, coaching, wellness, and rehabilitation', longDescription: CATEGORY_LONG_DESCRIPTIONS.fitness, image: CATEGORY_IMAGE_FALLBACKS.fitness, subcategories: ['Personal Trainers', 'Wellness', 'Nutritionist', 'Massage Therapist'], subcategoryCount: 4, specializationTree: leafNodesFromNames(['Personal Trainers', 'Wellness', 'Nutritionist', 'Massage Therapist']) },
+  { id: 'automotive', slug: 'automotive', name: 'Automotive', description: 'Mechanics, detailing, repairs, and maintenance', longDescription: CATEGORY_LONG_DESCRIPTIONS.automotive, image: CATEGORY_IMAGE_FALLBACKS.automotive, subcategories: ['Mobile Mechanic', 'Car Detailing', 'Tire Service', 'Battery Service'], subcategoryCount: 4, specializationTree: leafNodesFromNames(['Mobile Mechanic', 'Car Detailing', 'Tire Service', 'Battery Service']) },
 ];
 
 function flattenNames(nodes?: CategoryApiNode[]): string[] {
@@ -123,7 +141,7 @@ function normalizeKey(input: string): string {
 }
 
 function resolveFallbackKey(cat: CategoryApiNode): keyof typeof CATEGORY_IMAGE_FALLBACKS {
-  const slug = normalizeKey(cat.slug);
+  const slug = normalizeKey(cat.slug ?? '');
   const name = normalizeKey(cat.name);
 
   const aliasFromSlug = CATEGORY_IMAGE_ALIASES[slug];
@@ -152,6 +170,15 @@ function resolveFallbackKey(cat: CategoryApiNode): keyof typeof CATEGORY_IMAGE_F
   return 'handyman';
 }
 
+function buildSpecializationTree(nodes?: CategoryApiNode[]): ServiceSpecializationNode[] {
+  if (!nodes?.length) return [];
+  return nodes.map((n) => ({
+    id: n.id,
+    name: n.name,
+    children: buildSpecializationTree(n.children),
+  }));
+}
+
 function mapApiCategory(cat: CategoryApiNode): ServiceCategoryItem {
   const fallbackKey = resolveFallbackKey(cat);
   // For known slugs, lock to curated legacy images to avoid poor/unrelated admin image data.
@@ -161,17 +188,19 @@ function mapApiCategory(cat: CategoryApiNode): ServiceCategoryItem {
     : isLikelyRenderablePhoto(cat.websiteImageUrl)
       ? cat.websiteImageUrl
       : fallbackForSlug('handyman');
+  const slugKey = cat.slug ?? '';
   return {
     id: cat.id,
-    slug: cat.slug,
+    slug: slugKey,
     name: cat.name,
     description: cat.description?.trim() || `Trusted ${cat.name.toLowerCase()} services`,
     longDescription:
-      CATEGORY_LONG_DESCRIPTIONS[cat.slug] ||
+      CATEGORY_LONG_DESCRIPTIONS[slugKey] ||
       `Explore verified ${cat.name.toLowerCase()} services through Skillance and connect with professionals suited to your needs.`,
     image,
-    subcategories: flattenNames(cat.children).slice(0, 16),
+    subcategories: flattenNames(cat.children),
     subcategoryCount: countDescendants(cat.children),
+    specializationTree: buildSpecializationTree(cat.children),
   };
 }
 

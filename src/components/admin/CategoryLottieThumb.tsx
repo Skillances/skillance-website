@@ -30,7 +30,7 @@ function FallbackBox({ size, className, label }: { size: number; className?: str
 }
 
 interface CategoryLottieThumbProps {
-  /** Public URL to Lottie JSON (e.g. S3 category-images/slug.json) */
+  /** Public URL to Lottie JSON (e.g. S3 category-images keyed by category id). */
   src: string;
   size?: number;
   className?: string;

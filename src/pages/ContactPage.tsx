@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 import { toast } from 'sonner';
 import PageTemplate from '../components/layout/PageTemplate';
@@ -7,6 +8,17 @@ import { post } from '@/lib/api';
 import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 
 const ContactPage = () => {
+  const [searchParams] = useSearchParams();
+  const prefilled = useMemo(() => {
+    const subject = searchParams.get('subject')?.trim() ?? '';
+    const context = searchParams.get('context')?.trim() ?? '';
+    const message =
+      context.length > 0
+        ? `I'm interested in: ${context}\n\n`
+        : '';
+    return { subject, message };
+  }, [searchParams]);
+
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const { canSubmit, secondsRemaining, startCooldown, startCooldownFromRetryAfter } = useFormRateLimit(60_000);
@@ -72,7 +84,7 @@ const ContactPage = () => {
         {/* Contact Form */}
         <div>
           {!isSubmitted ? (
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form key={searchParams.toString()} onSubmit={handleSubmit} className="space-y-8">
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-4">
                   <label htmlFor="name" className="text-sm uppercase tracking-widest text-neutral-400 font-semibold">Your Name</label>
@@ -106,6 +118,7 @@ const ContactPage = () => {
                   type="text"
                   required
                   placeholder="What is this about?"
+                  defaultValue={prefilled.subject}
                   className="w-full px-4 py-5 bg-neutral-50 rounded-2xl text-black text-sm border border-neutral-100 focus:border-black focus:outline-none transition-colors"
                 />
               </div>
@@ -118,6 +131,7 @@ const ContactPage = () => {
                   required
                   rows={6}
                   placeholder="How can we help you?"
+                  defaultValue={prefilled.message}
                   className="w-full px-4 py-5 bg-neutral-50 rounded-2xl text-black text-sm border border-neutral-100 focus:border-black focus:outline-none transition-colors resize-none"
                 />
               </div>

@@ -1,16 +1,46 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageTemplate from '../components/layout/PageTemplate';
-import { ArrowUpRight, ChevronRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import gsap from 'gsap';
 import { get } from '@/lib/api';
+import { SpecializationTreeList } from '@/components/SpecializationTreeList';
+import type { ServiceSpecializationNode } from '@/lib/serviceCategories';
 
 interface CategoryNode {
   id: string;
-  slug: string;
+  slug?: string;
   name: string;
   description: string | null;
   children?: CategoryNode[];
+}
+
+function toSpecTree(nodes?: CategoryNode[]): ServiceSpecializationNode[] {
+  if (!nodes?.length) return [];
+  return nodes.map((n) => ({
+    id: n.id,
+    name: n.name,
+    children: toSpecTree(n.children),
+  }));
+}
+
+/** Match route param to a node anywhere in the hierarchy by id only. */
+function findCategoryInTree(roots: CategoryNode[], param: string): CategoryNode | null {
+  const trimmed = param.trim();
+  if (!trimmed) return null;
+
+  const walk = (nodes: CategoryNode[]): CategoryNode | null => {
+    for (const node of nodes) {
+      if (node.id === trimmed) return node;
+      if (node.children?.length) {
+        const nested = walk(node.children);
+        if (nested) return nested;
+      }
+    }
+    return null;
+  };
+
+  return walk(roots);
 }
 
 const CategoryPage = () => {
@@ -41,8 +71,7 @@ const CategoryPage = () => {
         if (!mounted) return;
 
         const categories = Array.isArray(data) ? (data as CategoryNode[]) : [];
-        const normalizedSlug = id.toLowerCase();
-        const found = categories.find((c) => c.slug?.toLowerCase() === normalizedSlug) || null;
+        const found = findCategoryInTree(categories, id);
 
         if (found) {
           setCategory(found);
@@ -66,27 +95,15 @@ const CategoryPage = () => {
     };
   }, [id]);
 
-  const flattenChildren = (nodes?: CategoryNode[]): Array<{ id: string; slug: string; name: string; depth: number }> => {
-    if (!nodes || nodes.length === 0) return [];
-    const out: Array<{ id: string; slug: string; name: string; depth: number }> = [];
-    const walk = (list: CategoryNode[], depth: number) => {
-      list.forEach((n) => {
-        out.push({ id: n.id, slug: n.slug, name: n.name, depth });
-        if (n.children?.length) walk(n.children, depth + 1);
-      });
-    };
-    walk(nodes, 0);
-    return out;
-  };
-
-  const subcategories = flattenChildren(category?.children);
+  const specializationTree = toSpecTree(category?.children);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     const ctx = gsap.context(() => {
-      gsap.fromTo('.subcategory-item', 
-        { opacity: 0, x: -20 },
-        { opacity: 1, x: 0, duration: 0.5, stagger: 0.03, ease: 'power2.out', delay: 0.2 }
+      gsap.fromTo(
+        '.specialization-tree-root > *',
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.45, stagger: 0.06, ease: 'power2.out', delay: 0.15 },
       );
     }, containerRef);
     return () => ctx.revert();
@@ -133,30 +150,28 @@ const CategoryPage = () => {
           </p>
         </div>
 
-        {/* Subcategories List */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-4">
-          {subcategories.map((sub) => (
-            <div 
-              key={sub.id}
-              className="subcategory-item group flex items-center justify-between py-6 border-b border-neutral-50 hover:border-black transition-colors cursor-pointer"
-              onClick={() => navigate(`/contact?interest=${encodeURIComponent(sub.slug)}`)}
-            >
-              <div className="flex flex-col">
-                <h4 className="text-lg lg:text-xl font-medium text-neutral-800 group-hover:text-black transition-colors">
-                  {sub.name}
-                </h4>
-                {sub.depth > 0 && <p className="text-xs text-neutral-400 mt-1">Level {sub.depth + 1}</p>}
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-xs uppercase tracking-widest text-neutral-300 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
-                  Enquire Now
-                </span>
-                <div className="w-10 h-10 rounded-full bg-neutral-50 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all">
-                  <ChevronRight className="w-5 h-5" />
-                </div>
-              </div>
+        {/* Specializations — same grouped / collapsible pattern as Services for clear parent/child context */}
+        <div className="max-w-3xl">
+          <h2 className="font-serif text-2xl text-black mb-2">Browse specializations</h2>
+          <p className="text-sm text-neutral-500 mb-6">
+            Open each area to see what sits underneath. Tap a specialization to start an enquiry with that path
+            filled in on the contact form.
+          </p>
+          {specializationTree.length > 0 ? (
+            <div className="specialization-tree-root">
+              <SpecializationTreeList
+                nodes={specializationTree}
+                breadcrumbPrefix={[category.name]}
+                onLeafClick={(_leaf, pathFromRoot) => {
+                  const context = pathFromRoot.join(' > ');
+                  const subject = `Enquiry: ${pathFromRoot.join(' / ')}`;
+                  navigate(`/contact?${new URLSearchParams({ subject, context }).toString()}`);
+                }}
+              />
             </div>
-          ))}
+          ) : (
+            <p className="text-neutral-500 text-sm">No subcategories are listed for this category yet.</p>
+          )}
         </div>
 
         {/* CTA */}

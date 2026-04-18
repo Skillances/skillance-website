@@ -3,14 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { get, post, put, del } from '@/lib/api';
 import {
   Plus, Edit, Trash2, FolderOpen, Loader2, Upload, ImageIcon, Star,
-  ChevronRight, ChevronDown,
+  ChevronRight, ChevronDown, CheckCircle2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import PageHeader from '@/components/admin/PageHeader';
 import StatusBadge from '@/components/admin/StatusBadge';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
@@ -27,7 +28,6 @@ interface CategoryItem {
   parentId: string | null;
   level: number;
   name: string;
-  slug: string;
   description: string | null;
   isActive: boolean;
   displayOrder: number;
@@ -37,9 +37,10 @@ interface CategoryItem {
   iconCodePoint: number | null;
   iconFontFamily: string | null;
   imageUrl: string | null;
-  websiteImageUrl: string | null;
   isFeatured: boolean;
   supportsRecurring?: boolean;
+  /** Platform-allowed booking pricing modes for this category (Flutter hourly vs invoice UI). */
+  allowedPricingModes?: string[];
 }
 
 interface CategoryNode extends CategoryItem {
@@ -62,12 +63,22 @@ function formatCount(value: unknown): string {
   return typeof value === 'number' && Number.isFinite(value) ? value.toLocaleString() : '0';
 }
 
+function pricingModesSummary(modes: string[] | undefined): string {
+  const list = modes?.length ? modes : ['hourly'];
+  const hourly = list.includes('hourly');
+  const invoice = list.includes('invoice');
+  if (hourly && invoice) return 'Hourly + Invoice';
+  if (invoice) return 'Invoice';
+  return 'Hourly';
+}
+
 const emptyForm = {
-  name: '', slug: '', description: '', color: '', isActive: true, displayOrder: 0,
+  name: '', description: '', color: '', isActive: true, displayOrder: 0,
   isProximityBased: false, isFeatured: false, supportsRecurring: false,
+  pricingHourly: true,
+  pricingInvoice: false,
   iconCodePoint: '' as string | number, iconFontFamily: 'MaterialIcons',
   imageBase64: null as string | null, imageType: null as ImageType | null,
-  websiteImageUrl: '',
 };
 
 function detectImageType(filename: string): ImageType | null {
@@ -90,16 +101,6 @@ function fileToBase64(file: File): Promise<string> {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-}
-
-function sanitizeHttpImageUrl(url: string): string | null {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null;
-    return parsed.toString();
-  } catch {
-    return null;
-  }
 }
 
 function toSafeDataImageUri(imageType: Exclude<ImageType, 'lottie'>, base64: string): string | null {
@@ -203,13 +204,17 @@ const CategoryRow: React.FC<{
   depth: number;
   expanded: Set<string>;
   onToggle: (id: string) => void;
-  onOpenFreelancers: (categoryFilter: string) => void;
+  onOpenFreelancers: (categoryId: string) => void;
   onEdit: (c: CategoryItem) => void;
+  onAddSubcategory: (c: CategoryItem) => void;
   onDelete: (id: string) => void;
-}> = ({ node, depth, expanded, onToggle, onOpenFreelancers, onEdit, onDelete }) => {
+  onActivate: (id: string) => void;
+  activatingId: string | null;
+}> = ({ node, depth, expanded, onToggle, onOpenFreelancers, onEdit, onAddSubcategory, onDelete, onActivate, activatingId }) => {
   const hasChildren = node.children.length > 0;
   const isExpanded = expanded.has(node.id);
   const indent = depth * 20;
+  const canAddSubcategory = node.level < 4;
 
   return (
     <>
@@ -249,18 +254,6 @@ const CategoryRow: React.FC<{
               />
             )}
 
-            {/* Website image thumbnail */}
-            {node.websiteImageUrl && depth === 0 && (
-              <img
-                src={node.websiteImageUrl}
-                alt="Website"
-                title="Website image"
-                className="w-8 h-8 rounded-md object-cover border border-neutral-200 dark:border-neutral-700 shrink-0 hidden sm:block"
-                loading="lazy"
-                decoding="async"
-              />
-            )}
-
             {/* Text */}
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -277,7 +270,6 @@ const CategoryRow: React.FC<{
                   </span>
                 )}
               </div>
-              <span className="text-[11px] text-neutral-400 dark:text-neutral-500 truncate block">{node.slug}</span>
             </div>
           </div>
         </td>
@@ -298,7 +290,7 @@ const CategoryRow: React.FC<{
         <td className="px-4 py-2.5 text-xs text-neutral-600 dark:text-neutral-300 tabular-nums">
           <button
             type="button"
-            onClick={() => onOpenFreelancers(node.slug)}
+            onClick={() => onOpenFreelancers(node.id)}
             className="font-medium underline-offset-2 hover:underline text-neutral-700 dark:text-violet-300 dark:hover:text-violet-200"
           >
             {node.freelancerCount ?? 0}
@@ -322,6 +314,13 @@ const CategoryRow: React.FC<{
           )}
         </td>
 
+        {/* Pricing modes */}
+        <td className="px-4 py-2.5 text-xs text-neutral-500 dark:text-neutral-400 hidden lg:table-cell max-w-[9rem]">
+          <span className="line-clamp-2" title={pricingModesSummary(node.allowedPricingModes)}>
+            {pricingModesSummary(node.allowedPricingModes)}
+          </span>
+        </td>
+
         {/* Order */}
         <td className="px-4 py-2.5 text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
           {node.displayOrder}
@@ -329,7 +328,19 @@ const CategoryRow: React.FC<{
 
         {/* Actions */}
         <td className="px-4 py-2.5">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-wrap justify-end">
+            {canAddSubcategory && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0 text-neutral-400 hover:text-black dark:hover:text-white"
+                onClick={(e) => { e.stopPropagation(); onAddSubcategory(node); }}
+                aria-label={`Add subcategory under ${node.name}`}
+                title="Add subcategory"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </Button>
+            )}
             <Button
               size="sm"
               variant="ghost"
@@ -339,15 +350,34 @@ const CategoryRow: React.FC<{
             >
               <Edit className="h-3.5 w-3.5" />
             </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-7 w-7 p-0 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"
-              onClick={(e) => { e.stopPropagation(); onDelete(node.id); }}
-              aria-label={`Delete ${node.name}`}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+            {!node.isActive && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 gap-1 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-500/10"
+                onClick={(e) => { e.stopPropagation(); onActivate(node.id); }}
+                disabled={activatingId === node.id}
+                aria-label={`Activate ${node.name}`}
+              >
+                {activatingId === node.id ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                )}
+                <span className="text-[10px] font-medium uppercase tracking-wide hidden sm:inline">Activate</span>
+              </Button>
+            )}
+            {node.isActive && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"
+                onClick={(e) => { e.stopPropagation(); onDelete(node.id); }}
+                aria-label={`Deactivate ${node.name}`}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
           </div>
         </td>
       </tr>
@@ -362,7 +392,10 @@ const CategoryRow: React.FC<{
           onToggle={onToggle}
           onOpenFreelancers={onOpenFreelancers}
           onEdit={onEdit}
+          onAddSubcategory={onAddSubcategory}
           onDelete={onDelete}
+          onActivate={onActivate}
+          activatingId={activatingId}
         />
       ))}
     </>
@@ -376,40 +409,65 @@ const AdminCategories: React.FC = () => {
   const [stats, setStats] = useState<CategoryStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
-  const page = 1;
-  const pageSize = 100; // backend max; enough for all categories
   const [formOpen, setFormOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  /** When creating, optional parent for a new subcategory (API `parentId`). */
+  const [createParent, setCreateParent] = useState<{ id: string; name: string } | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [activatingId, setActivatingId] = useState<string | null>(null);
   const [imageDropActive, setImageDropActive] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const fetchCategories = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await get(`/admin/categories?includeInactive=true&page=${page}&limit=${pageSize}`);
-      if (res.success) {
+      const merged: CategoryItem[] = [];
+      let pageNum = 1;
+      const pageLimit = 500;
+      let reportedTotal = 0;
+      let loadedAnyPage = false;
+
+      for (;;) {
+        const res = await get(
+          `/admin/categories?includeInactive=true&page=${pageNum}&limit=${pageLimit}`,
+        );
+        if (!res.success) {
+          if (pageNum === 1) toast.error('Failed to load categories');
+          break;
+        }
+
+        loadedAnyPage = true;
         const cats: CategoryItem[] = res.data.categories || [];
-        setCategories(cats);
-        setTotal(res.data.total || 0);
-        // Default collapsed view keeps the table compact.
-        setExpanded(new Set());
-        sendClientLog({
-          level: 'warn',
-          source: 'admin-categories.fetchCategories.success',
-          message: 'Loaded categories',
-          metadata: {
-            count: cats.length,
-            total: res.data.total || 0,
-            lottieCount: cats.filter((cat) => typeof cat.imageUrl === 'string' && isLottieImageUrl(cat.imageUrl)).length,
-            topLevelCount: cats.filter((cat) => !cat.parentId).length,
-          },
-        });
+        reportedTotal = typeof res.data.total === 'number' ? res.data.total : reportedTotal;
+        merged.push(...cats);
+
+        if (cats.length === 0) break;
+        if (reportedTotal > 0 && merged.length >= reportedTotal) break;
+        if (cats.length < pageLimit) break;
+        pageNum += 1;
       }
+
+      if (!loadedAnyPage) return;
+
+      setCategories(merged);
+      setTotal(reportedTotal > 0 ? reportedTotal : merged.length);
+      setExpanded(new Set());
+      sendClientLog({
+        level: 'warn',
+        source: 'admin-categories.fetchCategories.success',
+        message: 'Loaded categories',
+        metadata: {
+          count: merged.length,
+          total: reportedTotal > 0 ? reportedTotal : merged.length,
+          pages: pageNum,
+          lottieCount: merged.filter((cat) => typeof cat.imageUrl === 'string' && isLottieImageUrl(cat.imageUrl)).length,
+          topLevelCount: merged.filter((cat) => !cat.parentId).length,
+        },
+      });
     } catch {
       sendClientLog({
         source: 'admin-categories.fetchCategories.error',
@@ -419,7 +477,7 @@ const AdminCategories: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, pageSize]);
+  }, []);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -461,17 +519,37 @@ const AdminCategories: React.FC = () => {
     }
   }, []);
 
-  const openCreate = () => { setEditId(null); setForm(emptyForm); setFormOpen(true); };
+  const openCreate = () => {
+    setCreateParent(null);
+    setEditId(null);
+    setForm(emptyForm);
+    setFormOpen(true);
+  };
+
+  const openCreateSubcategory = (parent: CategoryItem) => {
+    if (parent.level >= 4) {
+      toast.error('This category is at maximum depth (4 levels). Add a subcategory under a higher-level parent instead.');
+      return;
+    }
+    setCreateParent({ id: parent.id, name: parent.name });
+    setEditId(null);
+    setForm(emptyForm);
+    setFormOpen(true);
+  };
+
   const openEdit = (cat: CategoryItem) => {
+    const modes = cat.allowedPricingModes?.length ? cat.allowedPricingModes : ['hourly'];
+    setCreateParent(null);
     setEditId(cat.id);
     setForm({
-      name: cat.name, slug: cat.slug, description: cat.description || '',
+      name: cat.name, description: cat.description || '',
       color: cat.color || '', isActive: cat.isActive, displayOrder: cat.displayOrder,
       isProximityBased: cat.isProximityBased, isFeatured: cat.isFeatured,
       supportsRecurring: cat.supportsRecurring ?? false,
+      pricingHourly: modes.includes('hourly'),
+      pricingInvoice: modes.includes('invoice'),
       iconCodePoint: cat.iconCodePoint ?? '', iconFontFamily: cat.iconFontFamily || 'MaterialIcons',
       imageBase64: null, imageType: null,
-      websiteImageUrl: cat.websiteImageUrl || '',
     });
     setFormOpen(true);
   };
@@ -491,6 +569,13 @@ const AdminCategories: React.FC = () => {
 
   const handleSave = async () => {
     if (!form.name.trim()) { toast.error('Name is required'); return; }
+    const allowedPricingModes: string[] = [];
+    if (form.pricingHourly) allowedPricingModes.push('hourly');
+    if (form.pricingInvoice) allowedPricingModes.push('invoice');
+    if (allowedPricingModes.length === 0) {
+      toast.error('Select at least one pricing mode (Hourly and/or Invoice)');
+      return;
+    }
     try {
       setSaving(true);
       const payload: Record<string, unknown> = {
@@ -498,16 +583,16 @@ const AdminCategories: React.FC = () => {
         color: form.color || undefined, isActive: form.isActive,
         displayOrder: form.displayOrder, isProximityBased: form.isProximityBased,
         isFeatured: form.isFeatured, supportsRecurring: form.supportsRecurring,
+        allowedPricingModes,
         iconFontFamily: form.iconFontFamily || undefined,
       };
-      if (form.slug) payload.slug = form.slug;
+      if (!editId && createParent) payload.parentId = createParent.id;
       const iconCode = typeof form.iconCodePoint === 'number' ? form.iconCodePoint : parseInt(String(form.iconCodePoint), 10);
       if (!isNaN(iconCode)) payload.iconCodePoint = iconCode;
       if (form.imageBase64 && form.imageType) { payload.image = form.imageBase64; payload.imageType = form.imageType; }
-      if (form.websiteImageUrl.trim()) payload.websiteImageUrl = form.websiteImageUrl.trim();
-      else payload.websiteImageUrl = null;
       if (editId) { await put(`/admin/categories/${editId}`, payload); toast.success('Category updated'); }
       else { await post('/admin/categories', payload); toast.success('Category created'); }
+      setCreateParent(null);
       setFormOpen(false);
       fetchCategories();
       fetchStats();
@@ -534,6 +619,21 @@ const AdminCategories: React.FC = () => {
       toast.error(msg);
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleActivate = async (categoryId: string) => {
+    try {
+      setActivatingId(categoryId);
+      await put(`/admin/categories/${categoryId}`, { isActive: true });
+      toast.success('Category activated');
+      fetchCategories();
+      fetchStats();
+    } catch (err: unknown) {
+      const msg = err && typeof err === 'object' && 'message' in err ? String((err as { message?: string }).message) : 'Failed to activate category';
+      toast.error(msg);
+    } finally {
+      setActivatingId(null);
     }
   };
 
@@ -609,6 +709,9 @@ const AdminCategories: React.FC = () => {
                 <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500 hidden md:table-cell">
                   Featured
                 </th>
+                <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500 hidden lg:table-cell">
+                  Pricing
+                </th>
                 <th className="px-4 py-3 text-left text-[10px] uppercase tracking-[0.2em] font-medium text-neutral-400 dark:text-neutral-500 hidden md:table-cell">
                   Order
                 </th>
@@ -625,9 +728,12 @@ const AdminCategories: React.FC = () => {
                   depth={0}
                   expanded={expanded}
                   onToggle={toggleExpand}
-                  onOpenFreelancers={(categoryFilter) => navigate(`/admin/freelancers?categoryId=${encodeURIComponent(categoryFilter)}`)}
+                  onOpenFreelancers={(categoryId) => navigate(`/admin/freelancers?categoryId=${encodeURIComponent(categoryId)}`)}
                   onEdit={openEdit}
+                  onAddSubcategory={openCreateSubcategory}
                   onDelete={(id) => { setDeleteId(id); setDeleteOpen(true); }}
+                  onActivate={handleActivate}
+                  activatingId={activatingId}
                 />
               ))}
             </tbody>
@@ -643,21 +749,40 @@ const AdminCategories: React.FC = () => {
       </div>
 
       {/* Create / Edit Dialog */}
-      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+      <Dialog
+        open={formOpen}
+        onOpenChange={(open) => {
+          setFormOpen(open);
+          if (!open) setCreateParent(null);
+        }}
+      >
         <DialogContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-700 text-black dark:text-white sm:max-w-lg rounded-2xl shadow-soft-lg max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="text-black dark:text-white font-serif text-xl">
-              {editId ? 'Edit Category' : 'Create Category'}
+              {editId ? 'Edit Category' : createParent ? `Create subcategory under ${createParent.name}` : 'Create Category'}
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              {editId
+                ? 'Update category name, description, icon, image, and ordering.'
+                : 'Add a new category or subcategory with optional icon and image.'}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-5 py-2 overflow-y-auto flex-1 min-h-0 pr-1">
+            {editId && (
+              <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-medium mb-1">Category ID</p>
+                <p className="text-xs font-mono text-neutral-800 dark:text-neutral-200 break-all">{editId}</p>
+              </div>
+            )}
+            {!editId && createParent && (
+              <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 font-medium mb-1">Parent ID</p>
+                <p className="text-xs font-mono text-neutral-800 dark:text-neutral-200 break-all">{createParent.id}</p>
+              </div>
+            )}
             <div>
               <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-2 block">Name *</Label>
               <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-black dark:text-white rounded-xl focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-600" />
-            </div>
-            <div>
-              <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-2 block">Slug</Label>
-              <Input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="auto-generated if empty" className="bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-black dark:text-white rounded-xl focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-600" />
             </div>
             <div>
               <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-2 block">Description</Label>
@@ -744,29 +869,35 @@ const AdminCategories: React.FC = () => {
               )}
             </div>
 
-            {/* Website image — separate from app image */}
             <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4">
-              <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-1 block">Website Image URL</Label>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-2">
-                This image appears on the public Skillance website (ServicesPage, CategoryPage). It is separate from the app icon/image above.
+              <Label className="text-xs text-neutral-400 dark:text-neutral-500 uppercase tracking-widest font-medium mb-2 block">
+                Allowed pricing modes
+              </Label>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3">
+                Controls whether freelancers see Hourly, Invoice, or both when setting category rates in the app. Apply per child category (e.g. Electrician), not only the parent, if freelancers book under that leaf.
               </p>
-              <Input
-                value={form.websiteImageUrl}
-                onChange={(e) => setForm((f) => ({ ...f, websiteImageUrl: e.target.value }))}
-                placeholder="https://images.unsplash.com/..."
-                className="bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-black dark:text-white rounded-xl focus-visible:ring-neutral-300 dark:focus-visible:ring-neutral-600"
-              />
-              {form.websiteImageUrl && sanitizeHttpImageUrl(form.websiteImageUrl) && (
-                <div className="mt-2 rounded-xl overflow-hidden aspect-[16/9] bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
-                  <img
-                    src={sanitizeHttpImageUrl(form.websiteImageUrl) || undefined}
-                    alt="Website image preview"
-                    className="w-full h-full object-cover"
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                    onLoad={(e) => { (e.currentTarget as HTMLImageElement).style.display = ''; }}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="form-pricing-hourly"
+                    checked={form.pricingHourly}
+                    onCheckedChange={(v) => setForm((f) => ({ ...f, pricingHourly: v === true }))}
                   />
+                  <Label htmlFor="form-pricing-hourly" className="text-sm text-neutral-700 dark:text-neutral-200 font-normal cursor-pointer">
+                    Hourly
+                  </Label>
                 </div>
-              )}
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="form-pricing-invoice"
+                    checked={form.pricingInvoice}
+                    onCheckedChange={(v) => setForm((f) => ({ ...f, pricingInvoice: v === true }))}
+                  />
+                  <Label htmlFor="form-pricing-invoice" className="text-sm text-neutral-700 dark:text-neutral-200 font-normal cursor-pointer">
+                    Invoice (fixed quote)
+                  </Label>
+                </div>
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-6 pt-2">
@@ -791,7 +922,13 @@ const AdminCategories: React.FC = () => {
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-2 pt-2">
-            <Button variant="outline" onClick={() => setFormOpen(false)} className="border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white rounded-full">Cancel</Button>
+            <Button
+              variant="outline"
+              onClick={() => { setFormOpen(false); setCreateParent(null); }}
+              className="border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white rounded-full"
+            >
+              Cancel
+            </Button>
             <Button onClick={handleSave} disabled={saving} className="bg-black text-white hover:bg-neutral-800 rounded-full">
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {editId ? 'Update' : 'Create'}
@@ -804,7 +941,7 @@ const AdminCategories: React.FC = () => {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         title="Deactivate Category"
-        description="This will deactivate the category. It can be reactivated later."
+        description="This hides the category from new freelancer selections. Reactivate anytime with the green Activate button on the row, or open Edit and turn Active on."
         confirmLabel="Deactivate"
         variant="destructive"
         isLoading={deleting}

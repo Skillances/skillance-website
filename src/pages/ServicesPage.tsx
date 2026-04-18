@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight, Search, X, ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
 import { fetchServiceCategories, type ServiceCategoryItem } from '@/lib/serviceCategories';
+import { SpecializationTreeList } from '@/components/SpecializationTreeList';
 
 const ServicesPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -300,7 +301,7 @@ const ServicesPage = () => {
                       {category.subcategoryCount} Specializations
                     </span>
                     <button
-                      onClick={() => navigate(`/category/${category.slug}`)}
+                      onClick={() => navigate(`/category/${category.id}`)}
                       className="text-[10px] font-semibold hover:text-black transition-colors flex items-center justify-center gap-1 group/btn w-full py-2"
                     >
                       <span>Explore</span>
@@ -334,6 +335,7 @@ const ServicesPage = () => {
           <div className="space-y-3">
             {allCategories.map((category) => {
               const subcategories = category.subcategories;
+              const specTree = category.specializationTree;
               const isExpanded = expandedIds.has(category.id);
 
               return (
@@ -383,29 +385,46 @@ const ServicesPage = () => {
                     </div>
                   </button>
 
-                  {/* Accordion body — subcategories */}
+                  {/* Accordion body — grid rows keep min-h-0 so inner overflow-y-auto can scroll (overflow-hidden + max-h fights touch scrolling). */}
                   <div
-                    className={`overflow-hidden transition-all duration-500 ease-in-out ${isExpanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}
+                    className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                      isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                    }`}
                   >
-                    <div className="px-5 sm:px-7 pb-5 pt-1 border-t border-neutral-100">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-5">
-                        {subcategories.map((sub) => (
-                          <div
-                            key={sub}
-                            className="flex items-center gap-2 py-2 px-3 rounded-xl bg-neutral-50 hover:bg-neutral-100 transition-colors"
+                    <div className="min-h-0 overflow-hidden">
+                      <div className="border-t border-neutral-100">
+                        <div
+                          className="max-h-[min(75dvh,36rem)] overflow-y-auto overscroll-y-contain px-5 pt-3 pb-2 sm:px-7 touch-pan-y [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]"
+                        >
+                          <p className="mb-3 text-[11px] text-neutral-500">
+                            Expand a subject to see specializations. Scroll this list when there are many.
+                          </p>
+                          {specTree.length > 0 ? (
+                            <SpecializationTreeList nodes={specTree} />
+                          ) : (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-2">
+                              {subcategories.map((sub) => (
+                                <div
+                                  key={sub}
+                                  className="flex items-center gap-2 py-2 px-3 rounded-xl bg-neutral-50 hover:bg-neutral-100 transition-colors"
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-neutral-300 shrink-0" />
+                                  <span className="text-xs text-neutral-600 leading-tight">{sub}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="px-5 sm:px-7 pb-5 pt-2">
+                          <button
+                            onClick={() => navigate(`/category/${category.id}`)}
+                            className="group/btn flex items-center gap-2 text-sm font-semibold text-black hover:text-neutral-600 transition-colors"
                           >
-                            <span className="w-1.5 h-1.5 rounded-full bg-neutral-300 shrink-0" />
-                            <span className="text-xs text-neutral-600 leading-tight">{sub}</span>
-                          </div>
-                        ))}
+                            Explore {category.name}
+                            <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+                          </button>
+                        </div>
                       </div>
-                      <button
-                        onClick={() => navigate(`/category/${category.slug}`)}
-                        className="group/btn flex items-center gap-2 text-sm font-semibold text-black hover:text-neutral-600 transition-colors"
-                      >
-                        Explore {category.name}
-                        <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
-                      </button>
                     </div>
                   </div>
                 </div>

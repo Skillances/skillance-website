@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { X, ArrowUpRight } from 'lucide-react';
 import { fetchServiceCategories, type ServiceCategoryItem } from '@/lib/serviceCategories';
+import { SpecializationTreeList } from '@/components/SpecializationTreeList';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -219,16 +220,20 @@ const Services = () => {
 
                 <div className="pb-4">
                   <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-4">Available Specializations</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedCategory.subcategories.map(sub => (
-                      <span
-                        key={sub}
-                        className="px-3 py-1.5 rounded-full border border-neutral-200 text-xs text-neutral-600 hover:border-black hover:text-black hover:bg-neutral-50 transition-all cursor-default"
-                      >
-                        {sub}
-                      </span>
-                    ))}
-                  </div>
+                  {selectedCategory.specializationTree.length > 0 ? (
+                    <SpecializationTreeList nodes={selectedCategory.specializationTree} compact />
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {selectedCategory.subcategories.map((sub) => (
+                        <span
+                          key={sub}
+                          className="px-3 py-1.5 rounded-full border border-neutral-200 text-xs text-neutral-600 hover:border-black hover:text-black hover:bg-neutral-50 transition-all cursor-default"
+                        >
+                          {sub}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 

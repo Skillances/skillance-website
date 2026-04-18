@@ -40,13 +40,16 @@ const AdminBookings = lazy(() => import('./pages/admin/AdminBookings'));
 const AdminCustomerDetail = lazy(() => import('./pages/admin/AdminCustomerDetail'));
 const AdminVerifications = lazy(() => import('./pages/admin/AdminVerifications'));
 const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
+const AdminFinance = lazy(() => import('./pages/admin/AdminFinance'));
 const AdminSecurity = lazy(() => import('./pages/admin/AdminSecurity'));
 const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs'));
 const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
 const AdminSystem = lazy(() => import('./pages/admin/AdminSystem'));
+const AdminObservability = lazy(() => import('./pages/admin/AdminObservability'));
 const AdminContactMessages = lazy(() => import('./pages/admin/AdminContactMessages'));
 const AdminNotifySubscribers = lazy(() => import('./pages/admin/AdminNotifySubscribers'));
 const AdminWebsiteReviews = lazy(() => import('./pages/admin/AdminWebsiteReviews'));
+const AdminBookingReviews = lazy(() => import('./pages/admin/AdminBookingReviews'));
 const AdminChatLogs = lazy(() => import('./pages/admin/AdminChatLogs'));
 
 gsap.registerPlugin(ScrollTrigger);
@@ -167,6 +170,8 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
         duration: 1.2,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         autoRaf: false,
+        // Let wheel/trackpad scroll native overflow regions (Services accordions, modals, etc.).
+        allowNestedScroll: true,
       });
 
       // Expose on window so Navigation can use lenis.scrollTo (avoids scrollIntoView conflict)
@@ -235,7 +240,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                 <ProtectedRoute requireAdmin>
                   <AdminThemeProvider>
                     <Suspense fallback={<AdminLoadingFallback />}>
-                      <AdminRouteErrorBoundary key={location.pathname}>
+                      <AdminRouteErrorBoundary resetPath={location.pathname}>
                         <AdminLayout>
                           <Routes>
                             <Route path="dashboard" element={<AdminDashboard />} />
@@ -248,6 +253,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                             <Route path="customers/:customerId" element={<AdminCustomerDetail />} />
                             <Route path="verifications" element={<AdminVerifications />} />
                             <Route path="analytics" element={<AdminAnalytics />} />
+                            <Route path="finance" element={<AdminFinance />} />
                             <Route path="security" element={<AdminSecurity />} />
                             <Route path="audit-logs" element={<AdminAuditLogs />} />
                             <Route path="categories" element={<AdminCategories />} />
@@ -255,7 +261,9 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                             <Route path="chat-logs" element={<AdminChatLogs />} />
                             <Route path="notify-subscribers" element={<AdminNotifySubscribers />} />
                             <Route path="website-reviews" element={<AdminWebsiteReviews />} />
+                            <Route path="booking-reviews" element={<AdminBookingReviews />} />
                             <Route path="system" element={<AdminSystem />} />
+                            <Route path="observability" element={<AdminObservability />} />
                             <Route path="*" element={<AdminDashboard />} />
                           </Routes>
                         </AdminLayout>

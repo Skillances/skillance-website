@@ -3,20 +3,36 @@ import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Lock, Mail, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 
+const REMEMBER_EMAIL_STORAGE_KEY = 'skillance_admin_remember_email';
+
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
   const { canSubmit, secondsRemaining, startCooldownFromRetryAfter } = useFormRateLimit(600_000);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(REMEMBER_EMAIL_STORAGE_KEY);
+      if (saved) {
+        setEmail(saved.trim().toLowerCase());
+        setRememberMe(true);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   useEffect(() => {
     if (error) {
@@ -63,9 +79,18 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const result = await login(email, password);
+      const result = await login(email, password, { rememberMe });
 
       if (result.success) {
+        try {
+          if (rememberMe) {
+            localStorage.setItem(REMEMBER_EMAIL_STORAGE_KEY, email.trim().toLowerCase());
+          } else {
+            localStorage.removeItem(REMEMBER_EMAIL_STORAGE_KEY);
+          }
+        } catch {
+          /* ignore */
+        }
         if (result.user?.isAdmin === true) {
           navigate('/admin/dashboard', { replace: true });
         } else {
@@ -194,6 +219,28 @@ const LoginPage: React.FC = () => {
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id="remember-me"
+                    checked={rememberMe}
+                    onCheckedChange={(v) => setRememberMe(v === true)}
+                    disabled={isLoading || !canSubmit}
+                    className="border-neutral-600 data-[state=checked]:border-white data-[state=checked]:bg-white data-[state=checked]:text-neutral-950"
+                  />
+                  <Label
+                    htmlFor="remember-me"
+                    className="text-sm font-normal text-neutral-300 cursor-pointer leading-snug"
+                  >
+                    Remember me on this device
+                  </Label>
+                </div>
+                <p className="text-xs text-neutral-600 pl-7 leading-relaxed">
+                  Saves your email and keeps you signed in longer. Your password is never stored here; use your
+                  browser or password manager to fill it securely.
+                </p>
               </div>
 
               <Button

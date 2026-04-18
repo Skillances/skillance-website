@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import {
   LayoutDashboard,
+  Activity,
   Users,
   Briefcase,
   CalendarDays,
@@ -11,6 +12,7 @@ import {
   Menu,
   X,
   TrendingUp,
+  CircleDollarSign,
   UserRound,
   ShieldAlert,
   Tag,
@@ -20,6 +22,7 @@ import {
   Mail,
   BellRing,
   Star,
+  ListChecks,
   ScrollText,
   MessageCircle,
   ChevronDown,
@@ -40,6 +43,7 @@ const adminMenuGroups = [
     items: [
       { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
       { name: 'Analytics', path: '/admin/analytics', icon: TrendingUp },
+      { name: 'Finance', path: '/admin/finance', icon: CircleDollarSign },
     ],
   },
   {
@@ -59,12 +63,14 @@ const adminMenuGroups = [
       { name: 'Messages', path: '/admin/contact-messages', icon: Mail },
       { name: 'Chat Logs', path: '/admin/chat-logs', icon: MessageCircle },
       { name: 'Subscribers', path: '/admin/notify-subscribers', icon: BellRing },
-      { name: 'Reviews', path: '/admin/website-reviews', icon: Star },
+      { name: 'Website reviews', path: '/admin/website-reviews', icon: Star },
+      { name: 'Booking reviews', path: '/admin/booking-reviews', icon: ListChecks },
     ],
   },
   {
     label: 'System',
     items: [
+      { name: 'Observability', path: '/admin/observability', icon: Activity },
       { name: 'Security', path: '/admin/security', icon: ShieldAlert },
       { name: 'Audit Logs', path: '/admin/audit-logs', icon: ScrollText },
       { name: 'System', path: '/admin/system', icon: Settings2 },
