@@ -26,7 +26,7 @@ const LaunchCountdown = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    const targetDate = new Date('2026-04-22T00:00:00').getTime();
+    const targetDate = new Date('2026-06-01T00:00:00').getTime();
 
     const calculateTimeLeft = () => {
       const now = new Date().getTime();
