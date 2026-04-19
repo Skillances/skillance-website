@@ -12,7 +12,21 @@ interface Stat {
   label: string;
 }
 
+function parseUsersCount(data: unknown): number | null {
+  if (!data || typeof data !== 'object') return null;
+  const raw = (data as Record<string, unknown>).usersCount;
+  if (typeof raw === 'number' && Number.isFinite(raw)) {
+    return Math.max(0, Math.floor(raw));
+  }
+  if (typeof raw === 'string' && raw.trim() !== '') {
+    const n = Number(raw);
+    if (Number.isFinite(n)) return Math.max(0, Math.floor(n));
+  }
+  return null;
+}
+
 const defaultStats: Stat[] = [
+  { value: 0, suffix: '', label: 'current user count on Skillance' },
   { value: 100, suffix: '%', label: 'of professionals are verified before joining' },
   { value: 1, suffix: 'K+', label: 'successful service bookings completed' },
   { value: 4.8, suffix: '', label: 'average rating from satisfied customers' },
@@ -32,8 +46,11 @@ const Stats = () => {
           const { verifiedPercent, bookingsCount, avgRating } = res.data;
           const bookingsDisplay = bookingsCount >= 1000 ? bookingsCount / 1000 : bookingsCount;
           const bookingsSuffix = bookingsCount >= 1000 ? 'K+' : '+';
+          const usersParsed = parseUsersCount(res.data);
+          const userCount = usersParsed ?? 0;
 
           setStats([
+            { value: userCount, suffix: '', label: 'current user count on Skillance' },
             { value: verifiedPercent, suffix: '%', label: 'of professionals are verified before joining' },
             { value: bookingsDisplay, suffix: bookingsSuffix, label: 'successful service bookings completed' },
             { value: avgRating, suffix: '', label: 'average rating from satisfied customers' },
@@ -63,11 +80,11 @@ const Stats = () => {
         }
       );
 
-      const animationObj = { 
-        val0: 0, 
-        val1: 0, 
-        val2: 0 
-      };
+      const len = stats.length;
+      const anim: Record<string, number> = {};
+      for (let i = 0; i < len; i += 1) {
+        anim[`v${i}`] = 0;
+      }
 
       ScrollTrigger.create({
         trigger: '.stats-container',
@@ -75,24 +92,24 @@ const Stats = () => {
         onEnter: () => {
           if (!hasAnimated.current) {
             hasAnimated.current = true;
-            gsap.to(animationObj, {
-              val0: stats[0].value,
-              val1: stats[1].value,
-              val2: stats[2].value,
+            const endValues = Object.fromEntries(
+              stats.map((s, i) => [`v${i}`, s.value]),
+            ) as Record<string, number>;
+            gsap.to(anim, {
               duration: 2,
               ease: 'power2.out',
+              ...endValues,
               onUpdate: () => {
-                setAnimatedValues([
-                  Number(animationObj.val0.toFixed(stats[0].value % 1 === 0 ? 0 : 1)),
-                  Number(animationObj.val1.toFixed(stats[1].value % 1 === 0 ? 0 : 1)),
-                  Number(animationObj.val2.toFixed(stats[2].value % 1 === 0 ? 0 : 1)),
-                ]);
-              }
+                setAnimatedValues(
+                  stats.map((s, i) =>
+                    Number(anim[`v${i}`].toFixed(s.value % 1 === 0 ? 0 : 1)),
+                  ),
+                );
+              },
             });
           }
         },
       });
-      
     }, sectionRef);
 
     return () => ctx.revert();
@@ -122,9 +139,11 @@ const Stats = () => {
             {stats.map((stat, index) => (
               <div key={index} className="flex items-baseline gap-4">
                 <span className="font-serif text-5xl sm:text-7xl lg:text-8xl text-black tabular-nums">
-                  {animatedValues[index]}{stat.suffix}
+                  {index === 0
+                    ? Math.round(animatedValues[index] ?? 0).toLocaleString('en-ZA')
+                    : `${animatedValues[index] ?? 0}${stat.suffix}`}
                 </span>
-                <span className="text-neutral-500 text-lg max-w-[200px]">
+                <span className="text-neutral-500 text-lg max-w-[220px]">
                   {stat.label}
                 </span>
               </div>

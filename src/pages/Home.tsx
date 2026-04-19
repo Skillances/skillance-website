@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { computeSectionScrollTop, getLenisFromWindow, getSectionScrollTopReservePx, getViewportScrollY } from '@/lib/sectionScroll';
 import Hero from '../components/sections/Hero';
-import HomeUserCountCta from '@/components/sections/HomeUserCountCta';
 import Mission from '../components/sections/Mission';
 import Services from '../components/sections/Services';
 import HowItWorks from '../components/sections/HowItWorks';
@@ -109,7 +108,6 @@ const Home = () => {
   return (
     <>
       <Hero />
-      <HomeUserCountCta />
       <Mission />
       <HowItWorks />
       <Services />
