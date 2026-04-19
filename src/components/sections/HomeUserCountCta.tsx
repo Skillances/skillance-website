@@ -1,3 +1,7 @@
+/**
+ * Live user count strip (home page, between Hero and Mission).
+ * Path: src/components/sections/HomeUserCountCta.tsx
+ */
 import { useEffect, useState } from 'react';
 import { get } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
@@ -15,10 +19,6 @@ function parseUsersCount(data: unknown): number | null {
   return null;
 }
 
-/**
- * Thin band between hero and mission: live user count only (GET /public/stats).
- * No icons. Renders nothing if the count cannot be loaded.
- */
 const HomeUserCountCta = () => {
   const [usersCount, setUsersCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,12 +42,8 @@ const HomeUserCountCta = () => {
     };
   }, []);
 
-  if (!loading && usersCount === null) {
-    return null;
-  }
-
-  const formatted =
-    usersCount != null ? usersCount.toLocaleString('en-ZA') : '';
+  const countLabel =
+    usersCount != null ? usersCount.toLocaleString('en-ZA') : '\u2014';
 
   return (
     <section
@@ -62,7 +58,12 @@ const HomeUserCountCta = () => {
           />
         ) : (
           <p className="font-serif text-3xl text-black sm:text-4xl lg:text-[2.75rem] leading-tight tracking-tight">
-            <span className="tabular-nums not-italic">{formatted}</span>
+            <span
+              className={`tabular-nums not-italic ${usersCount == null ? 'text-neutral-400' : ''}`}
+              title={usersCount == null ? 'Deploy the latest API so this shows your live user total.' : undefined}
+            >
+              {countLabel}
+            </span>
             <span className="text-neutral-500 font-normal"> Skillance users</span>
           </p>
         )}
