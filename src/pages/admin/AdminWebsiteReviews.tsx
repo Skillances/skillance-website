@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { get, put, del } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { Star, CheckCircle, XCircle, Trash2, Clock, Quote } from 'lucide-react';
 import PageHeader from '@/components/admin/PageHeader';
 import SearchFilter, { type FilterConfig } from '@/components/admin/SearchFilter';
@@ -39,7 +40,7 @@ const AdminWebsiteReviews: React.FC = () => {
       params.set('limit', String(pageSize));
       if (statusFilter !== 'all') params.set('status', statusFilter);
 
-      const res = await get(`/admin/website-reviews?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.websiteReviews}?${params.toString()}`);
       if (res.success) {
         setReviews(res.data.reviews);
         setTotal(res.data.pagination.total);
@@ -57,7 +58,7 @@ const AdminWebsiteReviews: React.FC = () => {
 
   const handleApprove = async (id: string) => {
     try {
-      await put(`/admin/website-reviews/${id}`, { status: 'approved' });
+      await put(ApiPaths.admin.websiteReview(id), { status: 'approved' });
       toast.success('Review approved');
       fetchReviews();
     } catch {
@@ -67,7 +68,7 @@ const AdminWebsiteReviews: React.FC = () => {
 
   const handleReject = async (id: string) => {
     try {
-      await put(`/admin/website-reviews/${id}`, { status: 'rejected' });
+      await put(ApiPaths.admin.websiteReview(id), { status: 'rejected' });
       toast.success('Review rejected');
       fetchReviews();
     } catch {
@@ -77,7 +78,7 @@ const AdminWebsiteReviews: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await del(`/admin/website-reviews/${id}`);
+      await del(ApiPaths.admin.websiteReview(id));
       toast.success('Review deleted');
       fetchReviews();
     } catch {
@@ -87,7 +88,7 @@ const AdminWebsiteReviews: React.FC = () => {
 
   const handleToggleFeatured = async (id: string, currentlyFeatured: boolean) => {
     try {
-      await put(`/admin/website-reviews/${id}`, { isFeatured: !currentlyFeatured });
+      await put(ApiPaths.admin.websiteReview(id), { isFeatured: !currentlyFeatured });
       toast.success(currentlyFeatured ? 'Removed from testimonials' : 'Added to testimonials');
       fetchReviews();
     } catch {

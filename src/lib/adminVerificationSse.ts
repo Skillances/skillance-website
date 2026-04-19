@@ -1,4 +1,5 @@
 import { apiRequest } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 
 /**
  * Reads admin verification SSE (Bearer auth). Parses `data:` JSON lines; ignores comments and `connected` heartbeats.
@@ -8,7 +9,7 @@ export async function consumeAdminVerificationSse(
   signal: AbortSignal,
 ): Promise<void> {
   const response = await apiRequest(
-    '/admin/events/verification-stream',
+    ApiPaths.admin.eventsVerificationStream,
     { method: 'GET', signal },
     true,
   );

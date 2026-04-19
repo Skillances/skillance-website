@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { get, post } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 import { toast } from 'sonner';
 
@@ -34,7 +35,7 @@ const Reviews = () => {
   const { canSubmit, secondsRemaining, startCooldown, startCooldownFromRetryAfter } = useFormRateLimit(60_000);
 
   useEffect(() => {
-    get('/public/reviews')
+    get(ApiPaths.public.reviews)
       .then((res) => {
         if (res.success && Array.isArray(res.data)) {
           setReviews(res.data);
@@ -69,7 +70,7 @@ const Reviews = () => {
     if (rating > 0 && comment && location && canSubmit) {
       setIsSubmitting(true);
       try {
-        await post('/public/reviews', {
+        await post(ApiPaths.public.reviews, {
           name: isAnonymous ? 'Anonymous' : name || 'Valued User',
           role: userRole,
           rating,

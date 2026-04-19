@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import PageTemplate from '../components/layout/PageTemplate';
 import { Send, MapPin, Mail, Phone } from 'lucide-react';
 import { post } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 
 const ContactPage = () => {
@@ -39,7 +40,7 @@ const ContactPage = () => {
           form,
           import.meta.env.VITE_EMAILJS_PUBLIC_KEY
         ),
-        post('/public/contact', {
+        post(ApiPaths.public.contact, {
           name: formData.get('user_name'),
           email: formData.get('user_email'),
           subject: formData.get('subject'),

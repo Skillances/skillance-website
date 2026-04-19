@@ -4,6 +4,7 @@ import { useAdminTheme } from '@/context/AdminThemeContext';
 import { Button } from '@/components/ui/button';
 import { Users, Briefcase, ShieldCheck, Download, Calendar, TrendingUp, MessageSquare, Bell, Star, ChevronDown } from 'lucide-react';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import StatsCard from '@/components/admin/dashboard/StatsCard';
 import ActivityFeed from '@/components/admin/dashboard/ActivityFeed';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -80,13 +81,13 @@ const AdminDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       const [dashboardRes, userGrowthRes, freelancerGrowthRes, securityRes, messagesRes, subscribersRes, reviewsRes] = await Promise.all([
-        get('/admin/dashboard'),
-        get(`/admin/analytics/user-growth?${query}`),
-        get(`/admin/analytics/freelancer-growth?${query}`),
-          get('/admin/security/events?limit=10&orderBy=createdAt&orderDirection=desc').catch(() => null),
-          get('/admin/contact-messages?status=new&limit=1').catch(() => null),
-          get('/admin/notify-subscribers?limit=1').catch(() => null),
-          get('/admin/website-reviews?status=pending&limit=1').catch(() => null),
+        get(ApiPaths.admin.dashboard),
+        get(`${ApiPaths.admin.analyticsUserGrowth}?${query}`),
+        get(`${ApiPaths.admin.analyticsFreelancerGrowth}?${query}`),
+          get(`${ApiPaths.admin.securityEvents}?limit=10&orderBy=createdAt&orderDirection=desc`).catch(() => null),
+          get(`${ApiPaths.admin.contactMessages}?status=new&limit=1`).catch(() => null),
+          get(`${ApiPaths.admin.notifySubscribers}?limit=1`).catch(() => null),
+          get(`${ApiPaths.admin.websiteReviews}?status=pending&limit=1`).catch(() => null),
         ]);
 
         if (dashboardRes.success && dashboardRes.data) {

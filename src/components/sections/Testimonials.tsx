@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -24,7 +25,7 @@ const Testimonials = () => {
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const json = await get('/public/testimonials');
+        const json = await get(ApiPaths.public.testimonials);
         if (json.success && json.data?.length > 0) {
           setTestimonials(json.data);
         }

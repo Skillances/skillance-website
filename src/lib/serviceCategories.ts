@@ -1,4 +1,5 @@
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 
 export interface CategoryApiNode {
   id: string;
@@ -206,14 +207,14 @@ function mapApiCategory(cat: CategoryApiNode): ServiceCategoryItem {
 
 export async function fetchServiceCategories(): Promise<ServiceCategoryItem[]> {
   try {
-    const featuredRes = await get('/categories/featured').catch(() => null);
+    const featuredRes = await get(ApiPaths.categories.featured).catch(() => null);
     const featuredRaw = Array.isArray(featuredRes) ? featuredRes : featuredRes?.data;
     const featured = Array.isArray(featuredRaw) ? (featuredRaw as CategoryApiNode[]) : [];
     if (featured.length > 0) {
       return featured.map(mapApiCategory);
     }
 
-    const categoriesRes = await get('/categories');
+    const categoriesRes = await get(ApiPaths.categories.list);
     const categoriesRaw = Array.isArray(categoriesRes) ? categoriesRes : categoriesRes?.data;
     const categories = Array.isArray(categoriesRaw) ? (categoriesRaw as CategoryApiNode[]) : [];
     if (categories.length > 0) {

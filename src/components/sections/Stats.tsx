@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,7 +26,7 @@ const Stats = () => {
   const statsReady = useRef(false);
 
   useEffect(() => {
-    get('/public/stats')
+    get(ApiPaths.public.stats)
       .then((res) => {
         if (res.success && res.data) {
           const { verifiedPercent, bookingsCount, avgRating } = res.data;

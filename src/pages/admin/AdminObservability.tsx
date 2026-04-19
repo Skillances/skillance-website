@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import PageHeader from '@/components/admin/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -319,9 +320,9 @@ const AdminObservability: React.FC = () => {
         if (!opts?.quiet) setLoading(true);
         else setRefreshing(true);
         const [snapRes, histRes, qmRes] = await Promise.all([
-          get('/admin/metrics/snapshot'),
-          get(`/admin/metrics/history?${qs}`),
-          get('/admin/query-metrics?source=both&summary=true&hours=24').catch(() => null),
+          get(ApiPaths.admin.metricsSnapshot),
+          get(`${ApiPaths.admin.metricsHistory}?${qs}`),
+          get(`${ApiPaths.admin.queryMetrics}?source=both&summary=true&hours=24`).catch(() => null),
         ]);
         if (snapRes.success && snapRes.data) setSnapshot(snapRes.data as MetricsSnapshot);
         if (histRes.success && histRes.data) {
@@ -369,7 +370,7 @@ const AdminObservability: React.FC = () => {
       try {
         const results = await Promise.all(
           CRITICAL_ACTIONS.map((a) =>
-            get(`/admin/audit-logs?action=${encodeURIComponent(a.value)}&limit=15&offset=0`).catch(() => ({
+            get(`${ApiPaths.admin.auditLogs}?action=${encodeURIComponent(a.value)}&limit=15&offset=0`).catch(() => ({
               success: false,
             })),
           ),

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { get, post } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import {
   Wrench,
   Activity,
@@ -97,7 +98,7 @@ const AdminSystem: React.FC = () => {
     if (!silent) setLoading(true);
     else setRefreshing(true);
     try {
-      const res = await get('/admin/maintenance/tasks');
+      const res = await get(ApiPaths.admin.maintenanceTasks);
       if (res.success && res.data) {
         const data = res.data as { tasks: MaintenanceTask[] };
         setTasks(data.tasks ?? []);
@@ -118,7 +119,7 @@ const AdminSystem: React.FC = () => {
     async (task: MaintenanceTask) => {
       setRunningTaskId(task.id);
       try {
-        const res = await post(`/admin/maintenance/run/${encodeURIComponent(task.id)}`, {});
+        const res = await post(ApiPaths.admin.maintenanceRun(task.id), {});
         if (res.success && res.data) {
           const result = res.data as MaintenanceTaskResult;
           toast.success(`${task.title}: ${result.summary}`);

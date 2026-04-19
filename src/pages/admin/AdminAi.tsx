@@ -15,6 +15,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { get, put } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { toast } from 'sonner';
 import { KeyRound, Cpu, Eye, EyeOff, Power, Trash2 } from 'lucide-react';
 
@@ -49,7 +50,7 @@ const AdminAi: React.FC = () => {
   const loadConfig = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await get('/admin/ai/config');
+      const res = await get(ApiPaths.admin.aiConfig);
       if (res.success && res.data) {
         const c = res.data as AdminAiConfig;
         setConfig(c);
@@ -100,7 +101,7 @@ const AdminAi: React.FC = () => {
       const payload: Record<string, unknown> = { model, enabled };
       const keyTrim = keyDraft.trim() || readKeyFromDom();
       if (keyTrim) payload.apiKey = keyTrim;
-      const res = await put('/admin/ai/config', payload);
+      const res = await put(ApiPaths.admin.aiConfig, payload);
       if (res.success) {
         toast.success('Saved');
         setKeyDraft('');
@@ -122,7 +123,7 @@ const AdminAi: React.FC = () => {
       return;
     }
     try {
-      const res = await put('/admin/ai/config', { apiKey: null });
+      const res = await put(ApiPaths.admin.aiConfig, { apiKey: null });
       if (res.success) {
         toast.success('API key removed');
         setConfig(res.data);

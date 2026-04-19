@@ -33,6 +33,7 @@ import PublicFaqBot from './components/layout/PublicFaqBot';
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminRoleApplications = lazy(() => import('./pages/admin/AdminRoleApplications'));
 const AdminUserDetail = lazy(() => import('./pages/admin/AdminUserDetail'));
 const AdminFreelancers = lazy(() => import('./pages/admin/AdminFreelancers'));
 const AdminFreelancerDetail = lazy(() => import('./pages/admin/AdminFreelancerDetail'));
@@ -248,6 +249,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                           <Routes>
                             <Route path="dashboard" element={<AdminDashboard />} />
                             <Route path="users" element={<AdminUsers />} />
+                            <Route path="role-applications" element={<AdminRoleApplications />} />
                             <Route path="users/:userId" element={<AdminUserDetail />} />
                             <Route path="freelancers" element={<AdminFreelancers />} />
                             <Route path="freelancers/:freelancerId" element={<AdminFreelancerDetail />} />

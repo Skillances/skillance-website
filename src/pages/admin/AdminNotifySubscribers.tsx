@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { get, del } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { Bell, Download, Trash2, Users } from 'lucide-react';
 import PageHeader from '@/components/admin/PageHeader';
 import SearchFilter, { type FilterConfig } from '@/components/admin/SearchFilter';
@@ -36,7 +37,7 @@ const AdminNotifySubscribers: React.FC = () => {
       params.set('limit', String(pageSize));
       if (statusFilter !== 'all') params.set('status', statusFilter);
 
-      const res = await get(`/admin/notify-subscribers?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.notifySubscribers}?${params.toString()}`);
       if (res.success) {
         setSubscribers(res.data.subscribers);
         setTotal(res.data.pagination.total);
@@ -54,7 +55,7 @@ const AdminNotifySubscribers: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await del(`/admin/notify-subscribers/${id}`);
+      await del(ApiPaths.admin.notifySubscriber(id));
       toast.success('Subscriber removed');
       fetchSubscribers();
     } catch {
@@ -64,7 +65,7 @@ const AdminNotifySubscribers: React.FC = () => {
 
   const handleExport = () => {
     const token = localStorage.getItem('accessToken');
-    const url = `${API_BASE_URL}/admin/notify-subscribers/export`;
+    const url = `${API_BASE_URL}${ApiPaths.admin.notifySubscribersExport}`;
     const link = document.createElement('a');
     link.href = url;
 

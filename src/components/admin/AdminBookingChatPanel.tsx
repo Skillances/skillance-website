@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiRequest } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, RefreshCw } from 'lucide-react';
 
@@ -60,7 +61,7 @@ const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
       setFreelancerName('Freelancer');
       setResolvedCustomerUserId(null);
       setResolvedFreelancerUserId(null);
-      const response = await apiRequest(`/admin/bookings/${bookingId}/chat`, { method: 'GET' });
+      const response = await apiRequest(ApiPaths.admin.bookingChat(bookingId), { method: 'GET' });
       if (response.status === 404) {
         setNoChat(true);
         setMessages([]);

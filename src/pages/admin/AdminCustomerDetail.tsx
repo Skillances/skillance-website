@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { ArrowLeft, CalendarDays, Users, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PageHeader from '@/components/admin/PageHeader';
@@ -40,10 +41,10 @@ const AdminCustomerDetail: React.FC = () => {
   const [expandedBooking, setExpandedBooking] = useState<string | null>(null);
   const BOOKINGS_PAGE = 5;
 
-  useEffect(() => { const fetch = async () => { try { setIsLoading(true); const res = await get(`/admin/customers/${customerId}`); if (res.success) setCustomer(res.data); } catch { toast.error('Failed to load customer'); } finally { setIsLoading(false); } }; if (customerId) fetch(); }, [customerId]);
+  useEffect(() => { const fetch = async () => { try { setIsLoading(true); const res = await get(ApiPaths.admin.customer(customerId!)); if (res.success) setCustomer(res.data); } catch { toast.error('Failed to load customer'); } finally { setIsLoading(false); } }; if (customerId) fetch(); }, [customerId]);
 
   useEffect(() => {
-    get('/admin/categories?includeInactive=true&limit=500')
+    get(`${ApiPaths.admin.categories}?includeInactive=true&limit=500`)
       .then((res) => {
         if (res.success && Array.isArray(res.data?.categories)) {
           const map: Record<string, string> = {};
@@ -58,7 +59,7 @@ const AdminCustomerDetail: React.FC = () => {
     if (!customerId) return;
     try {
       setBookingsLoading(true);
-      const res = await get(`/admin/customers/${customerId}/bookings?limit=${BOOKINGS_PAGE}&offset=${offset}`);
+      const res = await get(`${ApiPaths.admin.customerBookings(customerId!)}?limit=${BOOKINGS_PAGE}&offset=${offset}`);
       if (res.success) {
         setBookings((prev) => append ? [...prev, ...res.data.bookings] : res.data.bookings);
         setBookingsTotal(res.data.total);

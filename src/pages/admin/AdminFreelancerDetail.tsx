@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { get, put, post, del } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { ArrowLeft, CheckCircle, XCircle, User, IdCard, FileCheck, BadgeCheck, Shield, ZoomIn, ZoomOut, RotateCw, Minimize2, Trash2, ImageIcon, Tag, CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -68,7 +69,7 @@ const AdminFreelancerDetail: React.FC = () => {
   const BOOKINGS_PAGE = 5;
 
   useEffect(() => {
-    get('/admin/categories?includeInactive=true&limit=500')
+    get(`${ApiPaths.admin.categories}?includeInactive=true&limit=500`)
       .then((res) => {
         if (res.success && Array.isArray(res.data?.categories)) {
           const map: Record<string, string> = {};
@@ -83,7 +84,7 @@ const AdminFreelancerDetail: React.FC = () => {
     if (!freelancerId) return;
     try {
       setBookingsLoading(true);
-      const res = await get(`/admin/freelancers/${freelancerId}/bookings?limit=${BOOKINGS_PAGE}&offset=${offset}`);
+      const res = await get(`${ApiPaths.admin.freelancerBookings(freelancerId!)}?limit=${BOOKINGS_PAGE}&offset=${offset}`);
       if (res.success) {
         setBookings((prev) => append ? [...prev, ...res.data.bookings] : res.data.bookings);
         setBookingsTotal(res.data.total);
@@ -171,17 +172,17 @@ const AdminFreelancerDetail: React.FC = () => {
     setIsDragging(true);
   };
 
-  const fetchFreelancer = async () => { try { setIsLoading(true); const res = await get(`/admin/freelancers/${freelancerId}`); if (res.success) setFreelancer(res.data); } catch { toast.error('Failed to load freelancer'); } finally { setIsLoading(false); } };
+  const fetchFreelancer = async () => { try { setIsLoading(true); const res = await get(ApiPaths.admin.freelancer(freelancerId!)); if (res.success) setFreelancer(res.data); } catch { toast.error('Failed to load freelancer'); } finally { setIsLoading(false); } };
   useEffect(() => { if (freelancerId) fetchFreelancer(); }, [freelancerId]);
 
-  const handleVerifyId = async () => { try { setVerifyIdLoading(true); const body: any = { status: verifyIdAction }; if (verifyIdAction === 'rejected' && rejectionReason) body.rejectionReason = rejectionReason; await put(`/admin/freelancers/${freelancerId}/verify-id`, body); toast.success(`ID ${verifyIdAction === 'verified' ? 'approved' : 'rejected'} successfully`); setVerifyIdOpen(false); setRejectionReason(''); fetchFreelancer(); } catch (err: any) { toast.error(err?.message || 'Failed to verify ID'); } finally { setVerifyIdLoading(false); } };
-  const handleVerifyClearance = async () => { try { setClearanceLoading(true); await post(`/admin/freelancers/${freelancerId}/police-clearance/verify`, { status: clearanceAction }); toast.success(`Police clearance ${clearanceAction === 'verified' ? 'approved' : 'rejected'} successfully`); setVerifyClearanceOpen(false); fetchFreelancer(); } catch (err: any) { toast.error(err?.message || 'Failed to verify clearance'); } finally { setClearanceLoading(false); } };
+  const handleVerifyId = async () => { try { setVerifyIdLoading(true); const body: any = { status: verifyIdAction }; if (verifyIdAction === 'rejected' && rejectionReason) body.rejectionReason = rejectionReason; await put(ApiPaths.admin.freelancerVerifyId(freelancerId!), body); toast.success(`ID ${verifyIdAction === 'verified' ? 'approved' : 'rejected'} successfully`); setVerifyIdOpen(false); setRejectionReason(''); fetchFreelancer(); } catch (err: any) { toast.error(err?.message || 'Failed to verify ID'); } finally { setVerifyIdLoading(false); } };
+  const handleVerifyClearance = async () => { try { setClearanceLoading(true); await post(ApiPaths.admin.freelancerPoliceClearanceVerify(freelancerId!), { status: clearanceAction }); toast.success(`Police clearance ${clearanceAction === 'verified' ? 'approved' : 'rejected'} successfully`); setVerifyClearanceOpen(false); fetchFreelancer(); } catch (err: any) { toast.error(err?.message || 'Failed to verify clearance'); } finally { setClearanceLoading(false); } };
 
   const [deletePhotoLoading, setDeletePhotoLoading] = useState<string | null>(null);
   const handleDeletePhoto = async (photoType: string) => {
     try {
       setDeletePhotoLoading(photoType);
-      await del(`/admin/freelancers/${freelancerId}/photos/${photoType}`);
+      await del(ApiPaths.admin.freelancerPhoto(freelancerId!, photoType));
       toast.success('Photo removed');
       fetchFreelancer();
     } catch (err: any) {

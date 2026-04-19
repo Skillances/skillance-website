@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { Users, UserCheck, ShieldCheck, UserPlus } from 'lucide-react';
 import PageHeader from '@/components/admin/PageHeader';
 import SearchFilter, { type FilterConfig } from '@/components/admin/SearchFilter';
@@ -15,36 +16,35 @@ interface UserItem {
   fullName: string;
   tag: string;
   phoneNumber: string | null;
-  userType: string;
+  primaryRole: string;
   isAdmin: boolean;
   createdAt: string;
   customerBookingsCount?: number;
+  customerProfileId?: string | null;
   freelancer: {
     id: string;
     isVerified: boolean;
-    idVerificationStatus: string;
+    kycStatus: string;
     rating: number;
     totalReviews: number;
   } | null;
 }
 
 function getUserRoles(u: UserItem): { freelancer: boolean; customer: boolean } {
-  const hasFreelancerProfile = u.freelancer !== null;
-  const hasCustomerActivity =
-    (u.customerBookingsCount ?? 0) > 0 || u.userType === 'customer';
-
-  if (hasFreelancerProfile && hasCustomerActivity) {
-    return { freelancer: true, customer: true };
-  }
-  if (hasFreelancerProfile) {
-    return { freelancer: true, customer: false };
-  }
-  return { freelancer: false, customer: true };
+  return {
+    freelancer: u.freelancer !== null,
+    customer: u.customerProfileId != null,
+  };
 }
 
 const UserTypeCell: React.FC<{ user: UserItem }> = ({ user }) => {
   const roles = getUserRoles(user);
   const both = roles.freelancer && roles.customer;
+  const neither = !roles.freelancer && !roles.customer;
+
+  if (neither) {
+    return <span className="text-xs text-neutral-400">No role profiles</span>;
+  }
 
   if (both) {
     return (
@@ -106,7 +106,7 @@ const AdminUsers: React.FC = () => {
       }
       if (adminFilter !== 'all') params.set('isAdmin', adminFilter);
 
-      const res = await get(`/admin/users?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.users}?${params.toString()}`);
       if (res.success) {
         setUsers(res.data.users);
         setTotal(res.data.pagination.total);
@@ -120,7 +120,7 @@ const AdminUsers: React.FC = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await get('/admin/users/stats');
+      const res = await get(ApiPaths.admin.usersStats);
       if (res.success) setStats(res.data);
     } catch {
       // stats are non-critical
@@ -180,7 +180,7 @@ const AdminUsers: React.FC = () => {
       ),
     },
     { key: 'email', header: 'Email', sortable: true, render: (u) => <span className="text-neutral-500">{u.email}</span> },
-    { key: 'userType', header: 'Type', render: (u) => <UserTypeCell user={u} /> },
+    { key: 'roles', header: 'Roles', render: (u) => <UserTypeCell user={u} /> },
     { key: 'isAdmin', header: 'Admin', render: (u) => u.isAdmin ? <StatusBadge status="admin" /> : <span className="text-neutral-300">--</span> },
     { key: 'createdAt', header: 'Joined', sortable: true, render: (u) => <span className="text-neutral-400 text-xs">{new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span> },
   ];

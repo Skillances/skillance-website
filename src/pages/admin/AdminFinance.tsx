@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import PageHeader from '@/components/admin/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -179,8 +180,8 @@ const AdminFinance: React.FC = () => {
       const sumQ = summaryQueryForPeriod(summaryPeriod);
       const tsQ = chartQuery(chartRange, granularity);
       const [sumRes, tsRes] = await Promise.all([
-        get(`/admin/finance/summary${sumQ}`),
-        get(`/admin/finance/timeseries${tsQ}`),
+        get(`${ApiPaths.admin.financeSummary}${sumQ}`),
+        get(`${ApiPaths.admin.financeTimeseries}${tsQ}`),
       ]);
 
       if (sumRes.success && sumRes.data) {

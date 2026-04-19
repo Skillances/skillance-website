@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { post, get, clearTokens, storeTokens } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 
 interface User {
   id: string;
@@ -49,7 +50,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       try {
-        const response = await get('/users/me');
+        const response = await get(ApiPaths.users.me);
         if (cancelled) return;
 
         if (response?.success && response?.data?.user) {
@@ -96,7 +97,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('Email and password are required');
       }
 
-      const response = await post('/auth/login', {
+      const response = await post(ApiPaths.auth.login, {
         email: sanitizedEmail,
         password,
         rememberMe: options?.rememberMe === true,
@@ -140,7 +141,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = async () => {
     try {
-      await post('/auth/logout', {}).catch(() => {});
+      await post(ApiPaths.auth.logout, {}).catch(() => {});
     } catch (error) {
     } finally {
       clearTokens();

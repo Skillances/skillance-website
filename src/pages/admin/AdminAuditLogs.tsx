@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { ClipboardList, RefreshCw, Download, Calendar as CalendarIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -177,7 +178,7 @@ const AdminAuditLogs: React.FC = () => {
           params.set('actorId', actorSearchDebounced);
         }
       }
-      const res = await get(`/admin/audit-logs?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.auditLogs}?${params.toString()}`);
       if (res.success) {
         const rawLogs = res.data?.logs ?? (Array.isArray(res.data) ? res.data : []);
         const normalized = (rawLogs as unknown[]).map(normalizeAuditLog);
@@ -196,7 +197,7 @@ const AdminAuditLogs: React.FC = () => {
       const params = new URLSearchParams();
       params.set('startDate', startDate.toISOString());
       params.set('endDate', endDate.toISOString());
-      const res = await get(`/admin/audit-logs/stats?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.auditLogsStats}?${params.toString()}`);
       if (res.success) setStats(res.data);
     } catch {}
   }, [startDate, endDate]);
@@ -233,7 +234,7 @@ const AdminAuditLogs: React.FC = () => {
           params.set('actorId', actorSearchDebounced);
         }
       }
-      const res = await get(`/admin/audit-logs?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.auditLogs}?${params.toString()}`);
       const rawExport = res.success ? (res.data?.logs ?? (Array.isArray(res.data) ? res.data : [])) : [];
       const exportLogs = (rawExport as unknown[]).map(normalizeAuditLog);
       const workbook = new ExcelJS.Workbook();

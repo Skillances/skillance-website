@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { get, put, post } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { CheckCircle, XCircle, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,8 +28,8 @@ const AdminVerifications: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const fetchPendingId = useCallback(async () => { try { setIsLoadingId(true); const res = await get('/admin/freelancers/pending-verification?status=pending&limit=100'); if (res.success) setPendingId(res.data.freelancers || []); } catch { toast.error('Failed to load pending ID verifications'); } finally { setIsLoadingId(false); } }, []);
-  const fetchPendingClearance = useCallback(async () => { try { setIsLoadingClearance(true); const res = await get('/admin/freelancers?idVerificationStatus=all&limit=100'); if (res.success) { setPendingClearance((res.data.freelancers || []).filter((f: any) => f.policeClearanceStatus === 'pending' && f.policeClearancePhotoUrl)); } } catch { toast.error('Failed to load pending clearances'); } finally { setIsLoadingClearance(false); } }, []);
+  const fetchPendingId = useCallback(async () => { try { setIsLoadingId(true); const res = await get(`${ApiPaths.admin.freelancersPendingVerification}?status=pending&limit=100`); if (res.success) setPendingId(res.data.freelancers || []); } catch { toast.error('Failed to load pending ID verifications'); } finally { setIsLoadingId(false); } }, []);
+  const fetchPendingClearance = useCallback(async () => { try { setIsLoadingClearance(true); const res = await get(`${ApiPaths.admin.freelancers}?idVerificationStatus=all&limit=100`); if (res.success) { setPendingClearance((res.data.freelancers || []).filter((f: any) => f.policeClearanceStatus === 'pending' && f.policeClearancePhotoUrl)); } } catch { toast.error('Failed to load pending clearances'); } finally { setIsLoadingClearance(false); } }, []);
   useEffect(() => { fetchPendingId(); fetchPendingClearance(); }, [fetchPendingId, fetchPendingClearance]);
 
   useEffect(() => {
@@ -62,7 +63,7 @@ const AdminVerifications: React.FC = () => {
   }, [fetchPendingId, fetchPendingClearance]);
 
   const openAction = (freelancer: PendingFreelancer, type: 'id' | 'clearance', status: 'verified' | 'rejected') => { setActionFreelancer(freelancer); setActionType(type); setActionStatus(status); setRejectionReason(''); setDialogOpen(true); };
-  const handleAction = async () => { if (!actionFreelancer) return; try { setActionLoading(true); if (actionType === 'id') { const body: any = { status: actionStatus }; if (actionStatus === 'rejected' && rejectionReason) body.rejectionReason = rejectionReason; await put(`/admin/freelancers/${actionFreelancer.id}/verify-id`, body); } else { await post(`/admin/freelancers/${actionFreelancer.id}/police-clearance/verify`, { status: actionStatus }); } toast.success(`${actionType === 'id' ? 'ID' : 'Police clearance'} ${actionStatus === 'verified' ? 'approved' : 'rejected'}`); setDialogOpen(false); fetchPendingId(); fetchPendingClearance(); } catch (err: any) { toast.error(err?.message || 'Action failed'); } finally { setActionLoading(false); } };
+  const handleAction = async () => { if (!actionFreelancer) return; try { setActionLoading(true); if (actionType === 'id') { const body: any = { status: actionStatus }; if (actionStatus === 'rejected' && rejectionReason) body.rejectionReason = rejectionReason; await put(ApiPaths.admin.freelancerVerifyId(actionFreelancer.id), body); } else { await post(ApiPaths.admin.freelancerPoliceClearanceVerify(actionFreelancer.id), { status: actionStatus }); } toast.success(`${actionType === 'id' ? 'ID' : 'Police clearance'} ${actionStatus === 'verified' ? 'approved' : 'rejected'}`); setDialogOpen(false); fetchPendingId(); fetchPendingClearance(); } catch (err: any) { toast.error(err?.message || 'Action failed'); } finally { setActionLoading(false); } };
 
   const idColumns: Column<PendingFreelancer>[] = [
     { key: 'fullName', header: 'Freelancer', render: (f) => (<div><p className="text-black dark:text-white font-medium text-sm">{f.fullName ?? f.user?.fullName ?? 'Unknown'}</p><p className="text-neutral-400 dark:text-neutral-500 text-xs">{f.email ?? f.user?.email ?? ''}</p></div>) },

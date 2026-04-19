@@ -4,6 +4,7 @@ import PageTemplate from '../components/layout/PageTemplate';
 import { ArrowUpRight } from 'lucide-react';
 import gsap from 'gsap';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { SpecializationTreeList } from '@/components/SpecializationTreeList';
 import type { ServiceSpecializationNode } from '@/lib/serviceCategories';
 
@@ -66,7 +67,7 @@ const CategoryPage = () => {
       try {
         setIsLoading(true);
         setNotFound(false);
-        const res = await get('/categories');
+        const res = await get(ApiPaths.categories.list);
         const data = Array.isArray(res) ? res : (res?.data ?? []);
         if (!mounted) return;
 

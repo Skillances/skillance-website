@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { get, put } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { Star, ListChecks, EyeOff, RotateCcw } from 'lucide-react';
 import PageHeader from '@/components/admin/PageHeader';
 import SearchFilter, { type FilterConfig } from '@/components/admin/SearchFilter';
@@ -45,7 +46,7 @@ const AdminBookingReviews: React.FC = () => {
       const fid = freelancerIdFilter.trim();
       if (fid) params.set('freelancerId', fid);
 
-      const res = await get(`/admin/booking-reviews?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.bookingReviews}?${params.toString()}`);
       if (res.success) {
         setReviews(res.data.reviews ?? []);
         setTotal(res.data.total ?? 0);
@@ -64,7 +65,7 @@ const AdminBookingReviews: React.FC = () => {
   const runHide = async (id: string) => {
     try {
       setActionId(id);
-      await put(`/admin/booking-reviews/${id}/hide`, {});
+      await put(ApiPaths.admin.bookingReviewHide(id), {});
       toast.success('Review hidden');
       fetchReviews();
     } catch {
@@ -77,7 +78,7 @@ const AdminBookingReviews: React.FC = () => {
   const runRestore = async (id: string) => {
     try {
       setActionId(id);
-      await put(`/admin/booking-reviews/${id}/restore`, {});
+      await put(ApiPaths.admin.bookingReviewRestore(id), {});
       toast.success('Review restored');
       fetchReviews();
     } catch {

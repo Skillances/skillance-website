@@ -5,6 +5,7 @@ import { Sparkles, X, Send, Loader2, Database, AlertTriangle } from 'lucide-reac
 import { ColorOrb } from '@/components/ui/ai-input';
 import { Button } from '@/components/ui/button';
 import { post, get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -56,7 +57,7 @@ const AdminAiChat: React.FC = () => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await get('/admin/ai/config');
+        const res = await get(ApiPaths.admin.aiConfig);
         if (!cancelled && res.success) {
           setEnabled(Boolean(res.data.enabled));
           setHasKey(Boolean(res.data.hasApiKey));
@@ -104,7 +105,7 @@ const AdminAiChat: React.FC = () => {
     }, 500);
     try {
       const history = next.slice(-MAX_HISTORY).map(({ role, content }) => ({ role, content }));
-      const res = await post('/admin/ai/chat', { messages: history });
+      const res = await post(ApiPaths.admin.aiChat, { messages: history });
       if (res.success) {
         const reply: Message = {
           role: 'assistant',

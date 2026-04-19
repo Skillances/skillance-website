@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { get, put, del } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { Mail, MailOpen, Reply, Archive, Trash2, X } from 'lucide-react';
 import PageHeader from '@/components/admin/PageHeader';
 import SearchFilter, { type FilterConfig } from '@/components/admin/SearchFilter';
@@ -47,7 +48,7 @@ const AdminContactMessages: React.FC = () => {
       params.set('limit', String(pageSize));
       if (statusFilter !== 'all') params.set('status', statusFilter);
 
-      const res = await get(`/admin/contact-messages?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.contactMessages}?${params.toString()}`);
       if (res.success) {
         setMessages(res.data.messages);
         setTotal(res.data.pagination.total);
@@ -65,7 +66,7 @@ const AdminContactMessages: React.FC = () => {
 
   const handleStatusChange = async (id: string, status: string) => {
     try {
-      await put(`/admin/contact-messages/${id}`, { status });
+      await put(ApiPaths.admin.contactMessage(id), { status });
       toast.success(`Marked as ${status}`);
       fetchMessages();
       if (selected?.id === id) setSelected((prev) => prev ? { ...prev, status } : null);
@@ -77,7 +78,7 @@ const AdminContactMessages: React.FC = () => {
   const handleSaveNotes = async () => {
     if (!selected) return;
     try {
-      await put(`/admin/contact-messages/${selected.id}`, { adminNotes });
+      await put(ApiPaths.admin.contactMessage(selected.id), { adminNotes });
       toast.success('Notes saved');
       fetchMessages();
     } catch {
@@ -87,7 +88,7 @@ const AdminContactMessages: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await del(`/admin/contact-messages/${id}`);
+      await del(ApiPaths.admin.contactMessage(id));
       toast.success('Message deleted');
       if (selected?.id === id) setSelected(null);
       fetchMessages();

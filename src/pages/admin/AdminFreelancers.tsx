@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { Briefcase, CheckCircle, Clock, XCircle, BadgeCheck, Shield } from 'lucide-react';
 import PageHeader from '@/components/admin/PageHeader';
 import SearchFilter, { type FilterConfig } from '@/components/admin/SearchFilter';
@@ -38,7 +39,7 @@ const AdminFreelancers: React.FC = () => {
       if (verificationFilter !== 'all') params.set('idVerificationStatus', verificationFilter);
       if (search.trim()) params.set('search', search.trim());
       if (categoryIdFilter) params.set('categoryId', categoryIdFilter);
-      const res = await get(`/admin/freelancers?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.freelancers}?${params.toString()}`);
       if (res.success) {
         setFreelancers(res.data.freelancers);
         setTotal(res.data.total);
@@ -50,7 +51,7 @@ const AdminFreelancers: React.FC = () => {
     }
   }, [page, pageSize, sortKey, sortDirection, verificationFilter, search, categoryIdFilter]);
 
-  const fetchStats = useCallback(async () => { try { const res = await get('/admin/freelancers/stats'); if (res.success) setStats(res.data); } catch {} }, []);
+  const fetchStats = useCallback(async () => { try { const res = await get(ApiPaths.admin.freelancersStats); if (res.success) setStats(res.data); } catch {} }, []);
   useEffect(() => { fetchStats(); }, [fetchStats]);
   useEffect(() => { fetchFreelancers(); }, [fetchFreelancers]);
 

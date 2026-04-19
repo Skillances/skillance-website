@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { CalendarDays, UserRound, Briefcase, Filter } from 'lucide-react';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import PageHeader from '@/components/admin/PageHeader';
 import SearchFilter, { type FilterConfig } from '@/components/admin/SearchFilter';
 import DataTable, { type Column } from '@/components/admin/DataTable';
@@ -100,7 +101,7 @@ const AdminBookings: React.FC = () => {
       if (clientFilter !== 'all') params.set('clientId', clientFilter);
       if (freelancerFilter !== 'all') params.set('freelancerId', freelancerFilter);
 
-      const res = await get(`/admin/bookings?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.bookings}?${params.toString()}`);
       if (res.success) {
         const incoming = (res.data.bookings ?? []) as BookingItem[];
         setBookings(incoming);
@@ -145,7 +146,7 @@ const AdminBookings: React.FC = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await get('/admin/bookings/stats');
+      const res = await get(ApiPaths.admin.bookingsStats);
       if (res.success) setStats(res.data as BookingStats);
     } catch {
       // non-critical

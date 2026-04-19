@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { MessageSquare, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PageHeader from '@/components/admin/PageHeader';
@@ -36,7 +37,7 @@ const AdminChatLogs: React.FC = () => {
     try {
       setLoading(true);
       const offset = (page - 1) * pageSize;
-      const res = await get(`/admin/chats?limit=${pageSize}&offset=${offset}`);
+      const res = await get(`${ApiPaths.admin.chats}?limit=${pageSize}&offset=${offset}`);
       if (res.success && res.data) {
         setChats(res.data.chats || []);
         setTotal(res.data.total ?? 0);

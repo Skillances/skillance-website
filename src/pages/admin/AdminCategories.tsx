@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { get, post, put, del } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import {
   Plus, Edit, Trash2, FolderOpen, Loader2, Upload, ImageIcon, Star,
   ChevronRight, ChevronDown, CheckCircle2,
@@ -433,7 +434,7 @@ const AdminCategories: React.FC = () => {
 
       for (;;) {
         const res = await get(
-          `/admin/categories?includeInactive=true&page=${pageNum}&limit=${pageLimit}`,
+          `${ApiPaths.admin.categories}?includeInactive=true&page=${pageNum}&limit=${pageLimit}`,
         );
         if (!res.success) {
           if (pageNum === 1) toast.error('Failed to load categories');
@@ -481,7 +482,7 @@ const AdminCategories: React.FC = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await get('/admin/categories/stats');
+      const res = await get(ApiPaths.admin.categoriesStats);
       if (res.success) setStats(res.data);
     } catch {
       sendClientLog({
@@ -590,8 +591,8 @@ const AdminCategories: React.FC = () => {
       const iconCode = typeof form.iconCodePoint === 'number' ? form.iconCodePoint : parseInt(String(form.iconCodePoint), 10);
       if (!isNaN(iconCode)) payload.iconCodePoint = iconCode;
       if (form.imageBase64 && form.imageType) { payload.image = form.imageBase64; payload.imageType = form.imageType; }
-      if (editId) { await put(`/admin/categories/${editId}`, payload); toast.success('Category updated'); }
-      else { await post('/admin/categories', payload); toast.success('Category created'); }
+      if (editId) { await put(ApiPaths.admin.category(editId), payload); toast.success('Category updated'); }
+      else { await post(ApiPaths.admin.categories, payload); toast.success('Category created'); }
       setCreateParent(null);
       setFormOpen(false);
       fetchCategories();
@@ -608,7 +609,7 @@ const AdminCategories: React.FC = () => {
     if (!deleteId) return;
     try {
       setDeleting(true);
-      await del(`/admin/categories/${deleteId}`);
+      await del(ApiPaths.admin.category(deleteId));
       toast.success('Category deactivated');
       setDeleteOpen(false);
       setDeleteId(null);
@@ -625,7 +626,7 @@ const AdminCategories: React.FC = () => {
   const handleActivate = async (categoryId: string) => {
     try {
       setActivatingId(categoryId);
-      await put(`/admin/categories/${categoryId}`, { isActive: true });
+      await put(ApiPaths.admin.category(categoryId), { isActive: true });
       toast.success('Category activated');
       fetchCategories();
       fetchStats();

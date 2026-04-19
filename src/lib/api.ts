@@ -2,6 +2,8 @@
  * API utility for making authenticated requests to the backend
  */
 
+import { ApiPaths } from '@/lib/apiEndpoints';
+
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
 let isRefreshing = false;
@@ -40,7 +42,7 @@ async function refreshAccessToken() {
         throw new Error('No refresh token available');
       }
 
-      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      const response = await fetch(`${API_BASE_URL}${ApiPaths.auth.refresh}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +106,7 @@ export async function apiRequest(endpoint: string, options: any = {}, retryOn401
     let response = await fetch(url, config);
 
     if (response.status === 401 && retryOn401 && hasStoredSession) {
-      if (endpoint === '/auth/refresh') {
+      if (endpoint === ApiPaths.auth.refresh) {
         clearTokens();
         throw new Error('Authentication required');
       }

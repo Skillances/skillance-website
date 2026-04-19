@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import PageHeader from '@/components/admin/PageHeader';
 import SearchFilter from '@/components/admin/SearchFilter';
 import DataTable, { type Column } from '@/components/admin/DataTable';
@@ -18,7 +19,7 @@ const AdminCustomers: React.FC = () => {
   const pageSize = 20;
 
   const fetchCustomers = useCallback(async () => {
-    try { setIsLoading(true); const params = new URLSearchParams(); params.set('page', String(page)); params.set('limit', String(pageSize)); params.set('sortBy', 'createdAt'); params.set('sortOrder', 'desc'); if (search) params.set('search', search); const res = await get(`/admin/customers?${params.toString()}`); if (res.success) { setCustomers(res.data.customers); setTotal(res.data.pagination.total); } } catch { toast.error('Failed to load customers'); } finally { setIsLoading(false); }
+    try { setIsLoading(true); const params = new URLSearchParams(); params.set('page', String(page)); params.set('limit', String(pageSize)); params.set('sortBy', 'createdAt'); params.set('sortOrder', 'desc'); if (search) params.set('search', search); const res = await get(`${ApiPaths.admin.customers}?${params.toString()}`); if (res.success) { setCustomers(res.data.customers); setTotal(res.data.pagination.total); } } catch { toast.error('Failed to load customers'); } finally { setIsLoading(false); }
   }, [page, pageSize, search]);
 
   useEffect(() => { const debounce = setTimeout(() => fetchCustomers(), search ? 400 : 0); return () => clearTimeout(debounce); }, [fetchCustomers]);

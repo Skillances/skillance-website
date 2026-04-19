@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { post } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 import { toast } from 'sonner';
 
@@ -46,7 +47,7 @@ const CTA = () => {
     setAlreadyOnWaitlist(false);
 
     try {
-      const res = await post('/public/notify', { email });
+      const res = await post(ApiPaths.public.notify, { email });
       if (res?.data?.alreadySubscribed) {
         setAlreadyOnWaitlist(true);
         setError('This email is already on the waitlist.');

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import {
   RefreshCw,
   Download,
@@ -148,7 +149,7 @@ const AdminCompliance: React.FC = () => {
         limit: '200',
         offset: '0',
       });
-      const res = await get(`/admin/compliance/cookie-consent?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.complianceCookieConsent}?${params.toString()}`);
       if (res.success) setCookieData(res.data);
     } catch {
       toast.error('Failed to load cookie consent data');
@@ -166,7 +167,7 @@ const AdminCompliance: React.FC = () => {
       });
       if (roleFilter !== 'all') params.set('role', roleFilter);
       if (emailFilterDebounced) params.set('actorEmail', emailFilterDebounced);
-      const res = await get(`/admin/compliance/terms-acceptance?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.complianceTermsAcceptance}?${params.toString()}`);
       if (res.success) setTermsData(res.data);
     } catch {
       toast.error('Failed to load terms acceptance data');

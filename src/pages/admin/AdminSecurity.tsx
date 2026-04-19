@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { get, post } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { Shield, AlertTriangle, Ban, Globe, MapPin, AlertOctagon, Bug, Zap, RefreshCw, Download, Calendar as CalendarIcon, ShieldOff } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -149,7 +150,7 @@ const AdminSecurity: React.FC = () => {
         params.set('pathSearch', pathSearchDebounced);
         params.set('reasonSearch', pathSearchDebounced);
       }
-      const res = await get(`/admin/security/events?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.securityEvents}?${params.toString()}`);
       if (res.success) {
         setEvents(res.data.events || []);
         setTotal(res.data.total || 0);
@@ -166,7 +167,7 @@ const AdminSecurity: React.FC = () => {
       const params = new URLSearchParams();
       params.set('startDate', startDate.toISOString());
       params.set('endDate', endDate.toISOString());
-      const res = await get(`/admin/security/statistics?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.securityStatistics}?${params.toString()}`);
       if (res.success) setStats(res.data);
     } catch {}
   }, [startDate, endDate]);
@@ -177,7 +178,7 @@ const AdminSecurity: React.FC = () => {
       const params = new URLSearchParams();
       params.set('startDate', start.toISOString());
       params.set('endDate', end.toISOString());
-      const res = await get(`/admin/security/statistics?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.securityStatistics}?${params.toString()}`);
       if (res.success) {
         setCriticalStats({
           exploitAttempts: res.data.exploitAttempts ?? 0,
@@ -190,7 +191,7 @@ const AdminSecurity: React.FC = () => {
     try {
       setByCountryLoading(true);
       setByCountryError(false);
-      const res = await get('/admin/security/by-country?limit=30');
+      const res = await get(`${ApiPaths.admin.securityByCountry}?limit=30`);
       if (res.success) {
         setByCountry(Array.isArray(res.data) ? res.data : []);
       } else {
@@ -209,7 +210,7 @@ const AdminSecurity: React.FC = () => {
   const fetchBlockedIps = useCallback(async () => {
     try {
       setBlockedIpsLoading(true);
-      const res = await get('/admin/security/blocked-ips');
+      const res = await get(ApiPaths.admin.securityBlockedIps);
       if (res.success && Array.isArray(res.data)) {
         setBlockedIps(res.data);
       } else {
@@ -256,7 +257,7 @@ const AdminSecurity: React.FC = () => {
     setIpDialogOpen(true);
     setIpLoading(true);
     try {
-      const res = await get(`/admin/security/ip/${encodeURIComponent(ip)}?limit=50`);
+      const res = await get(`${ApiPaths.admin.securityIp(ip)}?limit=50`);
       if (res.success) {
         setIpHistory(res.data.events || []);
         setIpBlocked(res.data.blocked ?? false);
@@ -280,7 +281,7 @@ const AdminSecurity: React.FC = () => {
   const handleBlockIp = async () => {
     if (!ipAddress.trim()) return;
     try {
-      const res = await post('/admin/security/block-ip', { ipAddress: ipAddress.trim(), durationHours: 24 });
+      const res = await post(ApiPaths.admin.securityBlockIp, { ipAddress: ipAddress.trim(), durationHours: 24 });
       if (res.success) {
         toast.success(`IP ${ipAddress} blocked for 24 hours`);
         setIpBlocked(true);
@@ -294,7 +295,7 @@ const AdminSecurity: React.FC = () => {
   const handleUnblockIp = async () => {
     if (!ipAddress.trim()) return;
     try {
-      const res = await post('/admin/security/unblock-ip', { ipAddress: ipAddress.trim() });
+      const res = await post(ApiPaths.admin.securityUnblockIp, { ipAddress: ipAddress.trim() });
       if (res.success) {
         toast.success(`IP ${ipAddress} unblocked`);
         setIpBlocked(false);
@@ -307,7 +308,7 @@ const AdminSecurity: React.FC = () => {
 
   const handleUnblockFromList = async (ip: string) => {
     try {
-      const res = await post('/admin/security/unblock-ip', { ipAddress: ip });
+      const res = await post(ApiPaths.admin.securityUnblockIp, { ipAddress: ip });
       if (res.success) {
         toast.success(`IP ${ip} unblocked`);
         setBlockedIps((prev) => prev.filter((x) => x !== ip));
@@ -335,7 +336,7 @@ const AdminSecurity: React.FC = () => {
         params.set('pathSearch', pathSearchDebounced);
         params.set('reasonSearch', pathSearchDebounced);
       }
-      const res = await get(`/admin/security/events?${params.toString()}`);
+      const res = await get(`${ApiPaths.admin.securityEvents}?${params.toString()}`);
       const exportEvents = res.success ? (res.data.events || []) : [];
       const workbook = new ExcelJS.Workbook();
       workbook.creator = 'Skillance Admin';

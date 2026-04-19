@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { get } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -25,7 +26,13 @@ const AdminAnalytics: React.FC = () => {
     const fetchAll = async () => {
       setLoading(true);
       try {
-        const [ugRes, fgRes, ctRes, vtRes, udRes] = await Promise.all([get(`/admin/analytics/user-growth?interval=${interval}`), get(`/admin/analytics/freelancer-growth?interval=${interval}`), get('/admin/analytics/category-trends'), get('/admin/analytics/verification-trends'), get('/admin/analytics/user-distribution')]);
+        const [ugRes, fgRes, ctRes, vtRes, udRes] = await Promise.all([
+          get(`${ApiPaths.admin.analyticsUserGrowth}?interval=${interval}`),
+          get(`${ApiPaths.admin.analyticsFreelancerGrowth}?interval=${interval}`),
+          get(ApiPaths.admin.analyticsCategoryTrends),
+          get(ApiPaths.admin.analyticsVerificationTrends),
+          get(ApiPaths.admin.analyticsUserDistribution),
+        ]);
         if (ugRes.success) { const series = ugRes.data?.data?.series || ugRes.data?.series || []; setUserGrowth(series.map((d: any) => ({ name: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), count: d.count, cumulative: d.cumulative }))); }
         if (fgRes.success) { const series = fgRes.data?.data?.series || fgRes.data?.series || []; setFreelancerGrowth(series.map((d: any) => ({ name: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), count: d.count, cumulative: d.cumulative }))); }
         if (ctRes.success) { const rawData = ctRes.data || []; const grouped: Record<string, number> = {}; rawData.forEach((d: any) => { const name = d.categoryName || d.name || 'Unknown'; grouped[name] = (grouped[name] || 0) + (d.count || d.freelancerCount || 0); }); setCategoryTrends(Object.entries(grouped).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 10)); }

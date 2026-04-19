@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Cookie } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { post } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import {
   COOKIE_CONSENT_STORAGE_KEY,
   COOKIE_POLICY_VERSION,
@@ -38,7 +39,7 @@ function persistConsent(
   };
   localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(payload));
   applyConsentToGtag(decision, analytics, marketing);
-  void post('/public/cookie-consent', {
+  void post(ApiPaths.public.cookieConsent, {
     policyVersion: COOKIE_POLICY_VERSION,
     decision,
     analytics,

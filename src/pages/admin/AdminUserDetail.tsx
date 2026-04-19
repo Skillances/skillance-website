@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { get, put } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { ArrowLeft, Edit, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -32,32 +33,22 @@ interface UserData {
   tag: string;
   phoneNumber: string | null;
   profilePhotoUrl: string | null;
-  userType: string;
+  primaryRole: string;
   isAdmin: boolean;
   createdAt: string;
   updatedAt: string;
+  customerProfileId?: string | null;
   customerBookingsCount?: number;
   calendarSyncEnabled?: boolean;
   calendarLinks?: CalendarLink[];
   freelancer: any | null;
 }
 
-// Mirrors the list page (AdminUsers.tsx). A user is considered to act as a
-// customer if their `userType` is "customer" OR they have ever placed a
-// booking (even when their primary userType is "freelancer"). A user is a
-// freelancer whenever they have a freelancer profile row.
 function getUserRoles(u: UserData): { freelancer: boolean; customer: boolean } {
-  const hasFreelancerProfile = u.freelancer !== null;
-  const hasCustomerActivity =
-    (u.customerBookingsCount ?? 0) > 0 || u.userType === 'customer';
-
-  if (hasFreelancerProfile && hasCustomerActivity) {
-    return { freelancer: true, customer: true };
-  }
-  if (hasFreelancerProfile) {
-    return { freelancer: true, customer: false };
-  }
-  return { freelancer: false, customer: true };
+  return {
+    freelancer: u.freelancer !== null,
+    customer: u.customerProfileId != null,
+  };
 }
 
 const GoogleGlyph: React.FC<{ className?: string }> = ({ className }) => (
@@ -150,6 +141,9 @@ const ConnectedAccountCard: React.FC<{ link: CalendarLink }> = ({ link }) => {
 
 const UserTypeValue: React.FC<{ user: UserData }> = ({ user }) => {
   const roles = getUserRoles(user);
+  if (!roles.freelancer && !roles.customer) {
+    return <span className="text-xs text-neutral-400">No role profiles</span>;
+  }
   if (roles.freelancer && roles.customer) {
     return (
       <div className="flex flex-wrap items-center gap-1">
@@ -176,16 +170,17 @@ const AdminUserDetail: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [editForm, setEditForm] = useState({ userType: '', isAdmin: false });
+  const [editForm, setEditForm] = useState({ primaryRole: '', isAdmin: false });
 
   useEffect(() => {
     const fetch = async () => {
+      if (!userId) return;
       try {
         setIsLoading(true);
-        const res = await get(`/admin/users/${userId}`);
+        const res = await get(ApiPaths.admin.user(userId));
         if (res.success) {
           setUser(res.data);
-          setEditForm({ userType: res.data.userType, isAdmin: res.data.isAdmin });
+          setEditForm({ primaryRole: res.data.primaryRole, isAdmin: res.data.isAdmin });
         }
       } catch { toast.error('Failed to load user'); }
       finally { setIsLoading(false); }
@@ -195,7 +190,7 @@ const AdminUserDetail: React.FC = () => {
 
   const openAccountSettings = () => {
     if (!user) return;
-    setEditForm({ userType: user.userType, isAdmin: user.isAdmin });
+    setEditForm({ primaryRole: user.primaryRole, isAdmin: user.isAdmin });
     setEditOpen(true);
   };
 
@@ -204,11 +199,16 @@ const AdminUserDetail: React.FC = () => {
     try {
       setSaving(true);
       const payload: Record<string, unknown> = {};
-      if (editForm.userType !== user?.userType) payload.userType = editForm.userType;
+      if (editForm.primaryRole !== user?.primaryRole) payload.userType = editForm.primaryRole;
       if (editForm.isAdmin !== user?.isAdmin) payload.isAdmin = editForm.isAdmin;
       if (Object.keys(payload).length === 0) { setEditOpen(false); return; }
-      const res = await put(`/admin/users/${userId}`, payload);
-      if (res.success) { setUser(res.data); setEditOpen(false); toast.success('User updated successfully'); }
+      const res = await put(ApiPaths.admin.user(userId), payload);
+      if (res.success) {
+        const refreshed = await get(ApiPaths.admin.user(userId));
+        if (refreshed.success) setUser(refreshed.data);
+        setEditOpen(false);
+        toast.success('User updated successfully');
+      }
     } catch (err: any) { toast.error(err?.message || 'Failed to update user'); }
     finally { setSaving(false); }
   };
@@ -233,7 +233,8 @@ const AdminUserDetail: React.FC = () => {
   const profileFields: DetailField[] = [
     { label: 'Full Name', value: user.fullName }, { label: 'Tag', value: `@${user.tag}` },
     { label: 'Email', value: user.email }, { label: 'Phone', value: user.phoneNumber || '--' },
-    { label: 'User Type', value: <UserTypeValue user={user} /> },
+    { label: 'Default landing', value: <span className="capitalize">{user.primaryRole}</span> },
+    { label: 'Roles', value: <UserTypeValue user={user} /> },
     { label: 'Admin', value: user.isAdmin ? <StatusBadge status="admin" /> : 'No' },
   ];
   const systemFields: DetailField[] = [
@@ -244,7 +245,7 @@ const AdminUserDetail: React.FC = () => {
   ];
   const freelancerFields: DetailField[] = user.freelancer ? [
     { label: 'Freelancer ID', value: <span className="font-mono text-xs">{user.freelancer.id}</span> },
-    { label: 'ID Verification', value: <StatusBadge status={user.freelancer.idVerificationStatus || 'not_submitted'} /> },
+    { label: 'KYC (freelancer)', value: <StatusBadge status={user.freelancer.kycStatus || 'not_submitted'} /> },
     { label: 'Verified', value: user.freelancer.isVerified ? <StatusBadge status="verified" /> : <StatusBadge status="pending" label="Unverified" /> },
     { label: 'Rating', value: user.freelancer.rating ? `${user.freelancer.rating.toFixed(1)} / 5` : 'No ratings' },
   ] : [];
@@ -298,8 +299,8 @@ const AdminUserDetail: React.FC = () => {
           </DialogHeader>
           <div className="space-y-5 py-2">
             <div>
-              <label className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2 block">User Type</label>
-              <Select value={editForm.userType} onValueChange={(v) => setEditForm((f) => ({ ...f, userType: v }))}>
+              <label className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2 block">Default landing role</label>
+              <Select value={editForm.primaryRole} onValueChange={(v) => setEditForm((f) => ({ ...f, primaryRole: v }))}>
                 <SelectTrigger className="bg-white border-neutral-200 text-black w-full rounded-xl"><SelectValue /></SelectTrigger>
                 <SelectContent className="bg-white border-neutral-200 rounded-xl shadow-soft">
                   <SelectItem value="customer" className="text-neutral-600 focus:bg-neutral-50 focus:text-black rounded-lg">Customer</SelectItem>
