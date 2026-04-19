@@ -30,8 +30,17 @@ type Message = {
 
 const MAX_HISTORY = 20;
 
+/** Admin chat renders plain text; strip common Markdown so answers stay readable. */
+function formatAssistantMessage(text: string): string {
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/`{3}[\s\S]*?`{3}/g, (block) => block.replace(/^```\w*\n?/, '').replace(/\n?```$/, ''));
+}
+
 // Thresholds at which we escalate the "still working" hint shown to the admin
-// while the backend is running a long query. These are purely UI feedback;
+// while the backend is fetching data. These are purely UI feedback;
 // the backend has no row cap or timeout.
 const SLOW_HINT_MS = 4_000;
 const VERY_SLOW_HINT_MS = 15_000;
@@ -197,7 +206,7 @@ const AdminAiChat: React.FC = () => {
             >
               {messages.length === 0 && !sending && (
                 <div className="text-center text-xs text-neutral-400 dark:text-neutral-500 py-6 space-y-2">
-                  <p>Ask about users, bookings, revenue, audit events — anything in the whitelisted tables.</p>
+                  <p>Ask about users, bookings, revenue, audit events, and other operational data the assistant can access.</p>
                   <div className="flex flex-wrap justify-center gap-1.5 pt-2">
                     {[
                       'How many users signed up this week?',
@@ -296,11 +305,11 @@ const AdminAiChat: React.FC = () => {
 function ThinkingIndicator({ elapsedMs }: { elapsedMs: number }) {
   const seconds = Math.floor(elapsedMs / 1000);
   const label = elapsedMs >= EXTREME_HINT_MS
-    ? `Still crunching a heavy query (${seconds}s) — no row cap, please hang on…`
+    ? `Still working through a large amount of data (${seconds}s) — please hang on…`
     : elapsedMs >= VERY_SLOW_HINT_MS
-      ? `Running a long query (${seconds}s) — pulling extended data…`
+      ? `Still fetching (${seconds}s) — gathering a lot of detail…`
       : elapsedMs >= SLOW_HINT_MS
-        ? `Thinking (${seconds}s) — this may take a moment for large queries.`
+        ? `Thinking (${seconds}s) — a bit longer for a large answer.`
         : 'Thinking…';
 
   const severe = elapsedMs >= VERY_SLOW_HINT_MS;
@@ -337,7 +346,7 @@ function MessageBubble({ message }: { message: Message }) {
             : 'bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-100',
         )}
       >
-        {message.content}
+        {isUser ? message.content : formatAssistantMessage(message.content)}
 
         {!isUser && warnings.length > 0 && (
           <div className="mt-2 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200 p-2 space-y-1">
@@ -362,19 +371,29 @@ function MessageBubble({ message }: { message: Message }) {
                 <details key={i} className="text-[10px] opacity-80">
                   <summary className="cursor-pointer font-mono inline-flex items-center gap-1 flex-wrap">
                     <Database className="h-3 w-3" />
-                    {tc.name}
+                    {tc.name === 'run_sql' ? 'Data lookup' : tc.name}
                     {tc.error
                       ? ' · error'
                       : (
                         <span className="opacity-70">
-                          {typeof rowCount === 'number' ? ` · ${rowCount.toLocaleString()} rows` : ''}
+                          {typeof rowCount === 'number' ? ` · ${rowCount.toLocaleString()} records` : ''}
                           {typeof durationMs === 'number' ? ` · ${durationMs}ms` : ''}
                         </span>
                       )}
                   </summary>
-                  <pre className="mt-1 whitespace-pre-wrap font-mono opacity-75 text-[10px]">
-                    {JSON.stringify(tc.input, null, 2)}
-                  </pre>
+                  {tc.name === 'run_sql' ? (
+                    tc.error ? null : (
+                      <p className="mt-1 text-[10px] opacity-75 leading-snug">
+                        {typeof rowCount === 'number' && typeof durationMs === 'number'
+                          ? `Retrieved ${rowCount.toLocaleString()} record${rowCount === 1 ? '' : 's'} in ${durationMs} ms.`
+                          : 'Data lookup completed.'}
+                      </p>
+                    )
+                  ) : (
+                    <pre className="mt-1 whitespace-pre-wrap font-mono opacity-75 text-[10px]">
+                      {JSON.stringify(tc.input, null, 2)}
+                    </pre>
+                  )}
                   {tc.error && <p className="text-red-300 font-mono">{tc.error}</p>}
                 </details>
               );
