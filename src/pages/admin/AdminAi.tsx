@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PageHeader from '@/components/admin/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,25 +28,35 @@ interface AdminAiConfig {
   updatedAt: string;
 }
 
+const DEFAULT_MODEL = 'claude-haiku-4-5';
+
 const AdminAi: React.FC = () => {
   const [config, setConfig] = useState<AdminAiConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const [showKeyField, setShowKeyField] = useState(false);
+  /** Mirrors the API key field for dirty-checking; prefer reading the ref on save. */
   const [keyDraft, setKeyDraft] = useState('');
-  const [model, setModel] = useState('claude-haiku-4-5');
+  /** Remount the password input so each open starts clean (uncontrolled field). */
+  const [keyFieldNonce, setKeyFieldNonce] = useState(0);
+  const keyInputRef = useRef<HTMLInputElement>(null);
+  const [model, setModel] = useState(DEFAULT_MODEL);
   const [enabled, setEnabled] = useState(false);
+
+  const readKeyFromDom = useCallback(() => keyInputRef.current?.value?.trim() ?? '', []);
 
   const loadConfig = useCallback(async () => {
     try {
       setLoading(true);
       const res = await get('/admin/ai/config');
-      if (res.success) {
+      if (res.success && res.data) {
         const c = res.data as AdminAiConfig;
         setConfig(c);
         setModel(c.model);
         setEnabled(c.enabled);
+      } else {
+        toast.error(res.message || 'Failed to load AI configuration');
       }
     } catch {
       toast.error('Failed to load AI configuration');
@@ -57,25 +67,45 @@ const AdminAi: React.FC = () => {
 
   useEffect(() => { loadConfig(); }, [loadConfig]);
 
+  // Password managers / browser autofill often populate the DOM without firing
+  // React's onChange. Poll briefly while the key field is open so `keyDraft`
+  // (and Save) stay in sync with what the user actually sees.
+  useEffect(() => {
+    if (!showKeyField) return undefined;
+    const sync = () => {
+      const el = keyInputRef.current;
+      if (!el?.value) return;
+      setKeyDraft((prev) => (el.value !== prev ? el.value : prev));
+    };
+    sync();
+    const id = window.setInterval(sync, 400);
+    return () => window.clearInterval(id);
+  }, [showKeyField]);
+
   const dirty = useMemo(() => {
-    if (!config) return false;
+    const hasNewKey = keyDraft.trim().length > 0 || readKeyFromDom().length > 0;
+    if (!config) {
+      return hasNewKey || enabled || model !== DEFAULT_MODEL;
+    }
     return (
       model !== config.model ||
       enabled !== config.enabled ||
-      keyDraft.trim().length > 0
+      hasNewKey
     );
-  }, [config, model, enabled, keyDraft]);
+  }, [config, model, enabled, keyDraft, readKeyFromDom]);
 
   const handleSave = async () => {
     try {
       setSaving(true);
       const payload: Record<string, unknown> = { model, enabled };
-      if (keyDraft.trim()) payload.apiKey = keyDraft.trim();
+      const keyTrim = keyDraft.trim() || readKeyFromDom();
+      if (keyTrim) payload.apiKey = keyTrim;
       const res = await put('/admin/ai/config', payload);
       if (res.success) {
         toast.success('Saved');
         setKeyDraft('');
         setShowKeyField(false);
+        setKeyFieldNonce((n) => n + 1);
         setConfig(res.data);
       } else {
         toast.error(res.message || 'Failed to save');
@@ -97,6 +127,7 @@ const AdminAi: React.FC = () => {
         toast.success('API key removed');
         setConfig(res.data);
         setKeyDraft('');
+        setKeyFieldNonce((n) => n + 1);
       }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Failed to clear key');
@@ -158,10 +189,15 @@ const AdminAi: React.FC = () => {
               {showKeyField ? (
                 <div className="flex items-center gap-2">
                   <Input
+                    key={`anthropic-api-key-${keyFieldNonce}`}
+                    ref={keyInputRef}
                     type="password"
+                    name="anthropicApiKey"
+                    autoComplete="new-password"
                     placeholder="sk-ant-api..."
-                    value={keyDraft}
+                    defaultValue=""
                     onChange={(e) => setKeyDraft(e.target.value)}
+                    onInput={(e) => setKeyDraft(e.currentTarget.value)}
                     className="font-mono"
                     autoFocus
                   />
@@ -169,7 +205,11 @@ const AdminAi: React.FC = () => {
                     type="button"
                     size="sm"
                     variant="ghost"
-                    onClick={() => { setShowKeyField(false); setKeyDraft(''); }}
+                    onClick={() => {
+                      setShowKeyField(false);
+                      setKeyDraft('');
+                      setKeyFieldNonce((n) => n + 1);
+                    }}
                   >
                     <EyeOff className="h-4 w-4" />
                   </Button>
@@ -181,7 +221,11 @@ const AdminAi: React.FC = () => {
                     size="sm"
                     variant="outline"
                     className="rounded-full"
-                    onClick={() => setShowKeyField(true)}
+                    onClick={() => {
+                      setKeyDraft('');
+                      setKeyFieldNonce((n) => n + 1);
+                      setShowKeyField(true);
+                    }}
                   >
                     <Eye className="h-4 w-4 mr-2" /> {config?.hasApiKey ? 'Rotate key' : 'Add key'}
                   </Button>
