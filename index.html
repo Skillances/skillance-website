@@ -20,7 +20,10 @@
         var raw = localStorage.getItem('skillance-cookie-consent');
         if (raw) {
           var o = JSON.parse(raw);
-          if (o.decision === 'accepted_all') {
+          /* Keep in sync with COOKIE_POLICY_VERSION in src/constants/cookieConsent.ts */
+          if (!o.policyVersion || o.policyVersion !== '2') {
+            /* Outdated or missing version: do not pre-grant non-essential consent */
+          } else if (o.decision === 'accepted_all') {
             gtag('consent', 'update', {
               analytics_storage: 'granted',
               ad_storage: 'granted',

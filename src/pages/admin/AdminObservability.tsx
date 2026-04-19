@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { get } from '@/lib/api';
 import PageHeader from '@/components/admin/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   AreaChart,
@@ -30,6 +31,8 @@ import {
   ScrollText,
   ShieldAlert,
   LayoutDashboard,
+  AlertTriangle,
+  Clock,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import DataTable, { type Column } from '@/components/admin/DataTable';
@@ -61,6 +64,14 @@ type TopRoute = {
   routeTemplate: string;
   requestCount: number;
   avgDurationMs: number;
+};
+
+type SlowQuery = {
+  key: string;
+  duration: number;
+  model: string | null;
+  action: string;
+  createdAt: string;
 };
 
 function rangeForKey(key: TimeRangeKey): { from: Date; to: Date } {
@@ -109,49 +120,120 @@ const routeColumns: Column<TopRoute>[] = [
   },
 ];
 
+const queryColumns: Column<SlowQuery>[] = [
+  {
+    key: 'key',
+    header: 'Query',
+    render: (q) => (
+      <span className="font-mono text-xs text-neutral-600 truncate max-w-[300px] block">{q.key}</span>
+    ),
+  },
+  {
+    key: 'model',
+    header: 'Model',
+    render: (q) => <span className="text-neutral-500 text-xs">{q.model || '--'}</span>,
+  },
+  {
+    key: 'action',
+    header: 'Action',
+    render: (q) => <span className="text-neutral-500 text-xs">{q.action}</span>,
+  },
+  {
+    key: 'duration',
+    header: 'Duration',
+    render: (q) => (
+      <span
+        className={`text-xs font-mono ${
+          q.duration > 500 ? 'text-red-600' : q.duration > 200 ? 'text-amber-600' : 'text-neutral-600'
+        }`}
+      >
+        {q.duration}ms
+      </span>
+    ),
+  },
+  {
+    key: 'createdAt',
+    header: 'Time',
+    render: (q) => (
+      <span className="text-neutral-400 text-xs">
+        {q.createdAt ? new Date(q.createdAt).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--'}
+      </span>
+    ),
+  },
+];
+
+const CRITICAL_ACTIONS = [
+  { label: 'Booking create conflict (409)', value: 'critical_flow_booking_create_conflict' },
+  { label: 'Booking accept race (concurrent)', value: 'critical_flow_booking_accept_race' },
+  { label: 'Booking accept conflict', value: 'critical_flow_booking_accept_conflict' },
+];
+
 const AdminObservability: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get('tab') === 'database' || searchParams.get('tab') === 'critical' ? searchParams.get('tab')! : 'traffic';
+
+  const setTab = (v: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (v === 'traffic') next.delete('tab');
+    else next.set('tab', v);
+    setSearchParams(next, { replace: true });
+  };
+
   const [rangeKey, setRangeKey] = useState<TimeRangeKey>('24h');
   const [snapshot, setSnapshot] = useState<MetricsSnapshot | null>(null);
   const [history, setHistory] = useState<{ byTime: HistoryByTime[]; topRoutes: TopRoute[] } | null>(
     null,
   );
-  const [querySummary, setQuerySummary] = useState<{
-    totalQueries?: number;
-    slowQueries?: number;
+  const [queryMetrics, setQueryMetrics] = useState<{
+    summary: { totalQueries?: number; slowQueries?: number; slowestQueries?: SlowQuery[] };
+    threshold?: number;
   } | null>(null);
+  const [criticalPreview, setCriticalPreview] = useState<{ logs: unknown[]; loading: boolean }>({
+    logs: [],
+    loading: false,
+  });
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchData = useCallback(async (opts?: { quiet?: boolean }) => {
-    const { from, to } = rangeForKey(rangeKey);
-    const qs = `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}`;
-    try {
-      if (!opts?.quiet) setLoading(true);
-      else setRefreshing(true);
-      const [snapRes, histRes, qmRes] = await Promise.all([
-        get('/admin/metrics/snapshot'),
-        get(`/admin/metrics/history?${qs}`),
-        get('/admin/query-metrics?source=database&summary=true&hours=24').catch(() => null),
-      ]);
-      if (snapRes.success && snapRes.data) setSnapshot(snapRes.data as MetricsSnapshot);
-      if (histRes.success && histRes.data) {
-        setHistory(histRes.data as { byTime: HistoryByTime[]; topRoutes: TopRoute[] });
+  const fetchData = useCallback(
+    async (opts?: { quiet?: boolean }) => {
+      const { from, to } = rangeForKey(rangeKey);
+      const qs = `from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}`;
+      try {
+        if (!opts?.quiet) setLoading(true);
+        else setRefreshing(true);
+        const [snapRes, histRes, qmRes] = await Promise.all([
+          get('/admin/metrics/snapshot'),
+          get(`/admin/metrics/history?${qs}`),
+          get('/admin/query-metrics?source=both&summary=true&hours=24').catch(() => null),
+        ]);
+        if (snapRes.success && snapRes.data) setSnapshot(snapRes.data as MetricsSnapshot);
+        if (histRes.success && histRes.data) {
+          setHistory(histRes.data as { byTime: HistoryByTime[]; topRoutes: TopRoute[] });
+        }
+        if (qmRes?.success && qmRes.data?.database?.summary) {
+          const dbSummary = qmRes.data.database.summary;
+          setQueryMetrics({
+            summary: {
+              totalQueries: dbSummary.totalQueries,
+              slowQueries: dbSummary.slowQueries,
+              slowestQueries: dbSummary.slowestQueries || [],
+            },
+            threshold: qmRes.data.threshold,
+          });
+        } else {
+          setQueryMetrics(null);
+        }
+      } catch {
+        toast.error('Failed to load observability data');
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-      if (qmRes?.success && qmRes.data?.database?.summary) {
-        setQuerySummary({
-          totalQueries: qmRes.data.database.summary.totalQueries,
-          slowQueries: qmRes.data.database.summary.slowQueries,
-        });
-      } else {
-        setQuerySummary(null);
-      }
-    } catch {
-      toast.error('Failed to load observability data');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [rangeKey]);
+    },
+    [rangeKey],
+  );
 
   useEffect(() => {
     void fetchData();
@@ -164,6 +246,39 @@ const AdminObservability: React.FC = () => {
     return () => clearInterval(id);
   }, [fetchData]);
 
+  useEffect(() => {
+    if (tab !== 'critical') return;
+    let cancelled = false;
+    (async () => {
+      setCriticalPreview((p) => ({ ...p, loading: true }));
+      try {
+        const results = await Promise.all(
+          CRITICAL_ACTIONS.map((a) =>
+            get(`/admin/audit-logs?action=${encodeURIComponent(a.value)}&limit=15&offset=0`).catch(() => ({
+              success: false,
+            })),
+          ),
+        );
+        if (cancelled) return;
+        const merged: unknown[] = [];
+        for (const r of results) {
+          if (r.success && r.data?.logs) merged.push(...r.data.logs);
+        }
+        merged.sort((a, b) => {
+          const ta = new Date((a as { createdAt: string }).createdAt).getTime();
+          const tb = new Date((b as { createdAt: string }).createdAt).getTime();
+          return tb - ta;
+        });
+        setCriticalPreview({ logs: merged.slice(0, 40), loading: false });
+      } catch {
+        if (!cancelled) setCriticalPreview({ logs: [], loading: false });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tab]);
+
   const chartData =
     history?.byTime.map((b) => ({
       name: bucketLabel(b.bucketStart),
@@ -175,18 +290,18 @@ const AdminObservability: React.FC = () => {
     ? Object.entries(snapshot.http.by_status_class).sort(([a], [b]) => a.localeCompare(b))
     : [];
 
+  const slowQueries = queryMetrics?.summary.slowestQueries ?? [];
+  const dbSummary = queryMetrics?.summary;
+
   return (
     <div className="space-y-10">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <PageHeader
           title="Observability"
-          description="HTTP traffic aggregates (persisted) and live snapshot. No response bodies stored."
+          description="Traffic, database query health, and MVP critical-flow signals. No response bodies stored."
         />
         <div className="flex items-center gap-3">
-          <Select
-            value={rangeKey}
-            onValueChange={(v) => setRangeKey(v as TimeRangeKey)}
-          >
+          <Select value={rangeKey} onValueChange={(v) => setRangeKey(v as TimeRangeKey)}>
             <SelectTrigger className="w-[160px] rounded-full border-neutral-200 dark:border-neutral-600">
               <SelectValue placeholder="Range" />
             </SelectTrigger>
@@ -216,182 +331,287 @@ const AdminObservability: React.FC = () => {
         </p>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {loading && !snapshot ? (
-          <>
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton
-                key={i}
-                className="h-28 rounded-2xl bg-neutral-100 dark:bg-neutral-800"
-              />
-            ))}
-          </>
-        ) : (
-          <>
+      <Tabs value={tab} onValueChange={setTab} className="w-full">
+        <TabsList className="flex flex-wrap h-auto gap-1 p-1 bg-neutral-100 dark:bg-neutral-900 rounded-xl">
+          <TabsTrigger value="traffic" className="rounded-lg px-4">
+            Traffic &amp; API
+          </TabsTrigger>
+          <TabsTrigger value="database" className="rounded-lg px-4">
+            Database
+          </TabsTrigger>
+          <TabsTrigger value="critical" className="rounded-lg px-4">
+            Critical flows
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="traffic" className="space-y-10 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {loading && !snapshot ? (
+              <>
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-28 rounded-2xl bg-neutral-100 dark:bg-neutral-800" />
+                ))}
+              </>
+            ) : (
+              <>
+                <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium uppercase tracking-wide text-neutral-500 flex items-center gap-2">
+                      <Activity className="h-4 w-4" /> HTTP (rolling window)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-2xl font-semibold tabular-nums">
+                      {snapshot?.http.request_count?.toLocaleString() ?? '0'}
+                    </p>
+                    <p className="text-xs text-neutral-500 mt-1">Requests in snapshot window</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+                      Avg latency (snapshot)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-2xl font-semibold tabular-nums">{snapshot?.http.avg_duration_ms ?? 0} ms</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+                      Prisma (process)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-2xl font-semibold tabular-nums">
+                      {snapshot?.prisma.total_queries_since_process_start?.toLocaleString() ?? '0'}
+                    </p>
+                    <p className="text-xs text-neutral-500 mt-1">Queries since process start</p>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </div>
+
+          {statusEntries.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {statusEntries.map(([k, v]) => (
+                <span
+                  key={k}
+                  className="text-xs px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 tabular-nums"
+                >
+                  {k}: {v.toLocaleString()}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
+                  Request volume by bucket
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="h-[280px]">
+                {loading && chartData.length === 0 ? (
+                  <Skeleton className="h-full w-full rounded-xl bg-neutral-100 dark:bg-neutral-800" />
+                ) : chartData.length === 0 ? (
+                  <p className="text-sm text-neutral-500">No HTTP aggregate data in this range yet.</p>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-700" />
+                      <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="currentColor" className="text-neutral-400" />
+                      <YAxis tick={{ fontSize: 10 }} stroke="currentColor" className="text-neutral-400" />
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: 12,
+                          border: '1px solid var(--border, #e5e5e5)',
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="requests"
+                        name="Requests"
+                        stroke="#737373"
+                        fill="currentColor"
+                        className="text-neutral-400 dark:text-neutral-600"
+                        fillOpacity={0.2}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
+                  Average duration by bucket
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="h-[280px]">
+                {loading && chartData.length === 0 ? (
+                  <Skeleton className="h-full w-full rounded-xl bg-neutral-100 dark:bg-neutral-800" />
+                ) : chartData.length === 0 ? (
+                  <p className="text-sm text-neutral-500">No data.</p>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-700" />
+                      <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="currentColor" className="text-neutral-400" />
+                      <YAxis tick={{ fontSize: 10 }} stroke="currentColor" className="text-neutral-400" />
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: 12,
+                          border: '1px solid var(--border, #e5e5e5)',
+                        }}
+                      />
+                      <Bar
+                        dataKey="avgMs"
+                        name="Avg ms"
+                        fill="currentColor"
+                        className="text-neutral-500 dark:text-neutral-500"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div>
+            <h2 className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-4 tracking-wide uppercase">
+              Top routes ({rangeKey})
+            </h2>
+            <DataTable
+              columns={routeColumns}
+              data={history?.topRoutes ?? []}
+              isLoading={loading}
+              emptyTitle="No route data"
+              emptyDescription="Traffic will appear after buckets are recorded and flushed to the database."
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="database" className="space-y-8 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-medium uppercase tracking-wide text-neutral-500 flex items-center gap-2">
-                  <Activity className="h-4 w-4" /> HTTP (rolling window)
+                  <Database className="h-4 w-4" /> DB queries (24h)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-semibold tabular-nums">
-                  {snapshot?.http.request_count?.toLocaleString() ?? '0'}
-                </p>
-                <p className="text-xs text-neutral-500 mt-1">Requests in snapshot window</p>
+                {loading && !dbSummary ? (
+                  <Skeleton className="h-16 w-full rounded-xl bg-neutral-100 dark:bg-neutral-800" />
+                ) : dbSummary ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-500">Total</span>
+                      <span className="font-medium tabular-nums">{dbSummary.totalQueries?.toLocaleString() ?? 0}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-500">Slow queries</span>
+                      <span className={`font-medium tabular-nums ${(dbSummary.slowQueries ?? 0) > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                        {dbSummary.slowQueries ?? 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-neutral-500">Threshold</span>
+                      <span className="text-neutral-600 tabular-nums">{queryMetrics?.threshold ?? 150}ms</span>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-neutral-500">No query metrics.</p>
+                )}
               </CardContent>
             </Card>
             <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
               <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Avg latency (snapshot)
-                </CardTitle>
+                <CardTitle className="text-xs font-medium uppercase text-neutral-500">Note</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-semibold tabular-nums">
-                  {snapshot?.http.avg_duration_ms ?? 0} ms
-                </p>
+              <CardContent className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                Query metrics are sampled from the API process. Use this tab to spot regressions; detailed forensics may
+                still need database logs in production.
               </CardContent>
             </Card>
-            <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Prisma (process)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-semibold tabular-nums">
-                  {snapshot?.prisma.total_queries_since_process_start?.toLocaleString() ?? '0'}
-                </p>
-                <p className="text-xs text-neutral-500 mt-1">Queries since process start</p>
-              </CardContent>
-            </Card>
-            <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  DB queries (24h)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-semibold tabular-nums">
-                  {querySummary?.totalQueries?.toLocaleString() ?? '—'}
-                </p>
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                  Slow: {querySummary?.slowQueries?.toLocaleString() ?? '—'}
-                </p>
-              </CardContent>
-            </Card>
-          </>
-        )}
-      </div>
+          </div>
+          {slowQueries.length > 0 && (
+            <div>
+              <h2 className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-4 flex items-center gap-2 tracking-wide uppercase">
+                <Clock className="h-4 w-4 text-amber-500" /> Slowest queries (24h)
+              </h2>
+              <DataTable
+                columns={queryColumns}
+                data={slowQueries}
+                isLoading={loading}
+                emptyTitle="No slow queries"
+                emptyDescription="All queries within threshold"
+              />
+            </div>
+          )}
+        </TabsContent>
 
-      {statusEntries.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {statusEntries.map(([k, v]) => (
-            <span
-              key={k}
-              className="text-xs px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 tabular-nums"
-            >
-              {k}: {v.toLocaleString()}
-            </span>
-          ))}
-        </div>
-      )}
+        <TabsContent value="critical" className="space-y-6 mt-6">
+          <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2 text-neutral-700 dark:text-neutral-200">
+                <AlertTriangle className="h-4 w-4 text-amber-600" /> MVP critical flows
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              <p>
+                Events such as <strong>double booking attempts</strong> (slot conflict) and{' '}
+                <strong>concurrent accept</strong> (two accept requests for the same pending booking) are written to{' '}
+                <strong>audit logs</strong> with dedicated actions. Use Audit Logs for full search, filters, and CSV
+                export.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {CRITICAL_ACTIONS.map((a) => (
+                  <Button key={a.value} variant="outline" size="sm" className="rounded-full" asChild>
+                    <Link to={`/admin/audit-logs?action=${encodeURIComponent(a.value)}`}>{a.label}</Link>
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
-              Request volume by bucket
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="h-[280px]">
-            {loading && chartData.length === 0 ? (
-              <Skeleton className="h-full w-full rounded-xl bg-neutral-100 dark:bg-neutral-800" />
-            ) : chartData.length === 0 ? (
-              <p className="text-sm text-neutral-500">No HTTP aggregate data in this range yet.</p>
+          <div>
+            <h3 className="text-sm font-medium text-neutral-500 mb-3">Recent combined preview</h3>
+            {criticalPreview.loading ? (
+              <Skeleton className="h-40 rounded-2xl bg-neutral-100 dark:bg-neutral-800" />
+            ) : criticalPreview.logs.length === 0 ? (
+              <p className="text-sm text-neutral-500">No critical-flow audit rows yet.</p>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-700" />
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="currentColor" className="text-neutral-400" />
-                  <YAxis tick={{ fontSize: 10 }} stroke="currentColor" className="text-neutral-400" />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: 12,
-                      border: '1px solid var(--border, #e5e5e5)',
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="requests"
-                    name="Requests"
-                    stroke="#737373"
-                    fill="currentColor"
-                    className="text-neutral-400 dark:text-neutral-600"
-                    fillOpacity={0.2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <ul className="space-y-2 text-xs font-mono text-neutral-600 dark:text-neutral-400">
+                {(criticalPreview.logs as { id: string; action: string; createdAt: string; resourceId?: string | null }[]).map(
+                  (row) => (
+                    <li key={row.id} className="flex flex-wrap gap-x-3 border-b border-neutral-100 dark:border-neutral-800 pb-2">
+                      <span>{new Date(row.createdAt).toLocaleString()}</span>
+                      <span className="text-black dark:text-white">{row.action}</span>
+                      {row.resourceId && <span>resource:{row.resourceId}</span>}
+                    </li>
+                  ),
+                )}
+              </ul>
             )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
-              Average duration by bucket
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="h-[280px]">
-            {loading && chartData.length === 0 ? (
-              <Skeleton className="h-full w-full rounded-xl bg-neutral-100 dark:bg-neutral-800" />
-            ) : chartData.length === 0 ? (
-              <p className="text-sm text-neutral-500">No data.</p>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-700" />
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="currentColor" className="text-neutral-400" />
-                  <YAxis tick={{ fontSize: 10 }} stroke="currentColor" className="text-neutral-400" />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: 12,
-                      border: '1px solid var(--border, #e5e5e5)',
-                    }}
-                  />
-                  <Bar dataKey="avgMs" name="Avg ms" fill="currentColor" className="text-neutral-500 dark:text-neutral-500" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div>
-        <h2 className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-4 tracking-wide uppercase">
-          Top routes ({rangeKey})
-        </h2>
-        <DataTable
-          columns={routeColumns}
-          data={history?.topRoutes ?? []}
-          isLoading={loading}
-          emptyTitle="No route data"
-          emptyDescription="Traffic will appear after buckets are recorded and flushed to the database."
-        />
-      </div>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
         <CardHeader>
-          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
-            Related admin tools
-          </CardTitle>
+          <CardTitle className="text-sm font-medium text-neutral-600 dark:text-neutral-300">Related admin tools</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-3">
           <Button variant="outline" size="sm" className="rounded-full" asChild>
             <Link to="/admin/system">
               <Database className="h-4 w-4 mr-2" />
-              System &amp; slow queries
+              System maintenance
             </Link>
           </Button>
           <Button variant="outline" size="sm" className="rounded-full" asChild>

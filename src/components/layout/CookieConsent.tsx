@@ -17,6 +17,7 @@ function readStoredConsent(): StoredCookieConsent | null {
     if (!raw) return null;
     const o = JSON.parse(raw) as StoredCookieConsent;
     if (!o.policyVersion || !o.decision) return null;
+    if (o.policyVersion !== COOKIE_POLICY_VERSION) return null;
     return o;
   } catch {
     return null;

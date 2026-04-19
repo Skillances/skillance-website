@@ -1,5 +1,8 @@
-/** Bump when cookie / privacy policy text materially changes (must match backend COOKIE_POLICY_VERSION_LATEST). */
-export const COOKIE_POLICY_VERSION = '1';
+/**
+ * Bump when cookie / privacy policy text materially changes.
+ * Must match: backend `COOKIE_POLICY_VERSION_LATEST`, and the policy version check in `index.html` (inline GTM consent bootstrap).
+ */
+export const COOKIE_POLICY_VERSION = '2';
 
 export const COOKIE_CONSENT_STORAGE_KEY = 'skillance-cookie-consent';
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { get } from '@/lib/api';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { ClipboardList, RefreshCw, Download, Calendar as CalendarIcon } from 'lucide-react';
@@ -66,6 +66,9 @@ const ACTION_OPTIONS = [
   { label: 'Booking Accept', value: 'booking_accept' },
   { label: 'Booking Decline', value: 'booking_decline' },
   { label: 'Booking Cancel', value: 'booking_cancel' },
+  { label: 'Critical: booking create conflict', value: 'critical_flow_booking_create_conflict' },
+  { label: 'Critical: booking accept race', value: 'critical_flow_booking_accept_race' },
+  { label: 'Critical: booking accept conflict', value: 'critical_flow_booking_accept_conflict' },
   { label: 'Favorite Add', value: 'favorite_add' },
   { label: 'Favorite Remove', value: 'favorite_remove' },
   { label: 'Profile Update', value: 'profile_update' },
@@ -111,6 +114,7 @@ function normalizeAuditLog(raw: unknown): AuditLog {
 
 const AdminAuditLogs: React.FC = () => {
   const { isDark } = useAdminTheme();
+  const [searchParams] = useSearchParams();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [stats, setStats] = useState<AuditStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -130,6 +134,12 @@ const AdminAuditLogs: React.FC = () => {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const pageSize = 20;
+
+  const urlAction = searchParams.get('action');
+  useEffect(() => {
+    if (!urlAction || urlAction === 'all' || !ACTION_OPTIONS.some((o) => o.value === urlAction)) return;
+    setActionFilter(urlAction);
+  }, [urlAction]);
 
   useEffect(() => {
     const t = setTimeout(() => setActorSearchDebounced(actorSearch.trim()), 300);
