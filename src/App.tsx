@@ -29,6 +29,7 @@ import { AdminThemeProvider, useAdminTheme } from './context/AdminThemeContext';
 import CookieConsent from './components/layout/CookieConsent';
 import LaunchCountdown from './components/layout/LaunchCountdown';
 import ScrollIndicator from './components/layout/ScrollIndicator';
+import PublicFaqBot from './components/layout/PublicFaqBot';
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
@@ -52,6 +53,7 @@ const AdminWebsiteReviews = lazy(() => import('./pages/admin/AdminWebsiteReviews
 const AdminBookingReviews = lazy(() => import('./pages/admin/AdminBookingReviews'));
 const AdminChatLogs = lazy(() => import('./pages/admin/AdminChatLogs'));
 const AdminCompliance = lazy(() => import('./pages/admin/AdminCompliance'));
+const AdminAi = lazy(() => import('./pages/admin/AdminAi'));
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -266,6 +268,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                             <Route path="booking-reviews" element={<AdminBookingReviews />} />
                             <Route path="system" element={<AdminSystem />} />
                             <Route path="observability" element={<AdminObservability />} />
+                            <Route path="ai" element={<AdminAi />} />
                             <Route path="*" element={<AdminDashboard />} />
                           </Routes>
                         </AdminLayout>
@@ -284,6 +287,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
           <CookieConsent />
           <LaunchCountdown />
           <ScrollIndicator />
+          <PublicFaqBot />
         </>
       )}
     </div>

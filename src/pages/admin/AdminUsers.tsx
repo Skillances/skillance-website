@@ -18,6 +18,7 @@ interface UserItem {
   userType: string;
   isAdmin: boolean;
   createdAt: string;
+  customerBookingsCount?: number;
   freelancer: {
     id: string;
     isVerified: boolean;
@@ -26,6 +27,44 @@ interface UserItem {
     totalReviews: number;
   } | null;
 }
+
+function getUserRoles(u: UserItem): { freelancer: boolean; customer: boolean } {
+  const hasFreelancerProfile = u.freelancer !== null;
+  const hasCustomerActivity =
+    (u.customerBookingsCount ?? 0) > 0 || u.userType === 'customer';
+
+  if (hasFreelancerProfile && hasCustomerActivity) {
+    return { freelancer: true, customer: true };
+  }
+  if (hasFreelancerProfile) {
+    return { freelancer: true, customer: false };
+  }
+  return { freelancer: false, customer: true };
+}
+
+const UserTypeCell: React.FC<{ user: UserItem }> = ({ user }) => {
+  const roles = getUserRoles(user);
+  const both = roles.freelancer && roles.customer;
+
+  if (both) {
+    return (
+      <div className="flex flex-wrap items-center gap-1">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-violet-50 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300">
+          Freelancer
+        </span>
+        <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">
+          &amp;
+        </span>
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+          Customer
+        </span>
+      </div>
+    );
+  }
+
+  const status = roles.freelancer ? 'freelancer' : 'customer';
+  return <StatusBadge status={status as any} />;
+};
 
 interface UserStats {
   total: number;
@@ -59,7 +98,12 @@ const AdminUsers: React.FC = () => {
       params.set('sortBy', sortKey);
       params.set('sortOrder', sortDirection);
       if (search) params.set('search', search);
-      if (userTypeFilter !== 'all') params.set('userType', userTypeFilter);
+      // Only `customer` and `freelancer` are understood by the backend. `both`
+      // is a virtual filter that narrows the current page client-side since
+      // there is no DB column for "acted in both roles".
+      if (userTypeFilter === 'customer' || userTypeFilter === 'freelancer') {
+        params.set('userType', userTypeFilter);
+      }
       if (adminFilter !== 'all') params.set('isAdmin', adminFilter);
 
       const res = await get(`/admin/users?${params.toString()}`);
@@ -96,9 +140,29 @@ const AdminUsers: React.FC = () => {
   };
 
   const filters: FilterConfig[] = [
-    { key: 'userType', placeholder: 'User Type', value: userTypeFilter, onChange: (v) => { setUserTypeFilter(v); setPage(1); }, options: [{ label: 'All Types', value: 'all' }, { label: 'Customer', value: 'customer' }, { label: 'Freelancer', value: 'freelancer' }] },
+    {
+      key: 'userType',
+      placeholder: 'User Type',
+      value: userTypeFilter,
+      onChange: (v) => { setUserTypeFilter(v); setPage(1); },
+      options: [
+        { label: 'All Types', value: 'all' },
+        { label: 'Customer (only)', value: 'customer' },
+        { label: 'Freelancer (only)', value: 'freelancer' },
+        { label: 'Freelancer & Customer', value: 'both' },
+      ],
+    },
     { key: 'isAdmin', placeholder: 'Admin Status', value: adminFilter, onChange: (v) => { setAdminFilter(v); setPage(1); }, options: [{ label: 'All', value: 'all' }, { label: 'Admins', value: 'true' }, { label: 'Non-Admins', value: 'false' }] },
   ];
+
+  const visibleUsers = users.filter((u) => {
+    if (userTypeFilter === 'all') return true;
+    const roles = getUserRoles(u);
+    if (userTypeFilter === 'both') return roles.freelancer && roles.customer;
+    if (userTypeFilter === 'freelancer') return roles.freelancer && !roles.customer;
+    if (userTypeFilter === 'customer') return roles.customer && !roles.freelancer;
+    return true;
+  });
 
   const columns: Column<UserItem>[] = [
     {
@@ -116,7 +180,7 @@ const AdminUsers: React.FC = () => {
       ),
     },
     { key: 'email', header: 'Email', sortable: true, render: (u) => <span className="text-neutral-500">{u.email}</span> },
-    { key: 'userType', header: 'Type', render: (u) => <StatusBadge status={u.userType as any} /> },
+    { key: 'userType', header: 'Type', render: (u) => <UserTypeCell user={u} /> },
     { key: 'isAdmin', header: 'Admin', render: (u) => u.isAdmin ? <StatusBadge status="admin" /> : <span className="text-neutral-300">--</span> },
     { key: 'createdAt', header: 'Joined', sortable: true, render: (u) => <span className="text-neutral-400 text-xs">{new Date(u.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span> },
   ];
@@ -137,7 +201,7 @@ const AdminUsers: React.FC = () => {
         </div>
       )}
       <SearchFilter searchValue={search} onSearchChange={(v) => { setSearch(v); setPage(1); }} searchPlaceholder="Search by name, email, or tag..." filters={filters} />
-      <DataTable columns={columns} data={users} isLoading={isLoading} emptyTitle="No users found" emptyDescription="Try adjusting your search or filters" onRowClick={(u) => navigate(`/admin/users/${u.id}`)} sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} page={page} pageSize={pageSize} total={total} onPageChange={setPage} />
+      <DataTable columns={columns} data={visibleUsers} isLoading={isLoading} emptyTitle="No users found" emptyDescription="Try adjusting your search or filters" onRowClick={(u) => navigate(`/admin/users/${u.id}`)} sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} page={page} pageSize={pageSize} total={total} onPageChange={setPage} />
     </div>
   );
 };

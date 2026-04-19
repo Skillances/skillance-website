@@ -29,10 +29,12 @@ import {
   ChevronDown,
   PanelLeftClose,
   PanelLeftOpen,
+  Sparkles,
 } from 'lucide-react';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import AdminAiChat from '@/components/admin/AdminAiChat';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -59,6 +61,7 @@ const adminMenuGroups: {
       { name: 'Security', path: '/admin/security', icon: ShieldAlert },
       { name: 'Audit Logs', path: '/admin/audit-logs', icon: ScrollText },
       { name: 'Compliance', path: '/admin/compliance', icon: Cookie },
+      { name: 'AI assistant', path: '/admin/ai', icon: Sparkles },
       { name: 'System', path: '/admin/system', icon: Settings2 },
     ],
   },
@@ -509,6 +512,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </motion.div>
         </main>
       </div>
+      {/* Floating Claude-powered admin assistant (only rendered when enabled) */}
+      <AdminAiChat />
     </div>
   );
 };
