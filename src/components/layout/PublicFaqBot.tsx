@@ -12,22 +12,20 @@ type Turn =
   | { kind: 'choice'; id: string; label: string }
   | { kind: 'reply'; id: string; text: string };
 
-// Conversational glue so branch picks still feel like an answer, not a silent
-// tree walk. One of these is chosen at random when the user descends into a
-// branch (not a leaf).
+// Short neutral transitions between branch levels. Labels like "I'm a customer"
+// read poorly inside sentences, so we avoid echoing the clicked option.
 const BRANCH_REPLIES = [
-  'Got it — here are some questions I can answer about {label}:',
-  'Happy to help with {label}. Which of these fits best?',
-  'Sure. Here\u2019s what most people ask about {label}:',
-  'Good choice. Pick one below and I\u2019ll give you the full answer.',
+  'Here are some related questions:',
+  'Choose one of these:',
+  'Which of these fits best?',
+  'Tap a topic below for the full answer:',
 ];
 
 const EXHAUSTED_REPLY =
   'That\u2019s everything I have for this topic. Want to go back one step or start over?';
 
-function randomReply(label: string): string {
-  const template = BRANCH_REPLIES[Math.floor(Math.random() * BRANCH_REPLIES.length)];
-  return template.replace('{label}', label);
+function randomBranchReply(): string {
+  return BRANCH_REPLIES[Math.floor(Math.random() * BRANCH_REPLIES.length)];
 }
 
 // Simulated thinking window. Small enough to stay snappy, large enough to
@@ -96,7 +94,7 @@ const PublicFaqBot: React.FC = () => {
     } else {
       setHistory((prev) => [
         ...prev,
-        { kind: 'reply', id: `${child.id}-intro`, text: randomReply(child.label) },
+        { kind: 'reply', id: `${child.id}-intro`, text: randomBranchReply() },
       ]);
       setPath((prev) => [...prev, child.id]);
     }
@@ -191,8 +189,9 @@ const PublicFaqBot: React.FC = () => {
             {/* Conversation */}
             <div ref={scrollerRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3 text-sm">
               <BotBubble id="intro">
-                Hi! I can answer common questions about Skillance. Pick a topic and
-                I&rsquo;ll guide you to the right answer.
+                Hi! First choose whether you&rsquo;re booking a service, offering services
+                on Skillance, or here for something else (press, investment, general).
+                Then pick a topic and I&rsquo;ll show the answer that fits your situation.
               </BotBubble>
 
               <AnimatePresence initial={false}>

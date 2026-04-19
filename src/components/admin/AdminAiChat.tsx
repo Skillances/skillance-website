@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Sparkles, X, Send, Loader2, Database, AlertTriangle } from 'lucide-react';
+import { Sparkles, X, Send, Loader2, Database, AlertTriangle, Trash2 } from 'lucide-react';
 
 import { ColorOrb } from '@/components/ui/ai-input';
 import { Button } from '@/components/ui/button';
@@ -100,6 +100,13 @@ const AdminAiChat: React.FC = () => {
     return () => document.removeEventListener('keydown', handleKey);
   }, []);
 
+  const clearConversation = useCallback(() => {
+    if (sending) return;
+    setMessages([]);
+    setDraft('');
+    setTimeout(() => textareaRef.current?.focus(), 30);
+  }, [sending]);
+
   const sendMessage = useCallback(async () => {
     const text = draft.trim();
     if (!text || sending) return;
@@ -146,6 +153,11 @@ const AdminAiChat: React.FC = () => {
   }, [draft, messages, sending]);
 
   function handleKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'l') {
+      e.preventDefault();
+      clearConversation();
+      return;
+    }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       void sendMessage();
@@ -189,14 +201,26 @@ const AdminAiChat: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="p-1.5 rounded-lg text-neutral-400 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                aria-label="Close"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <div className="flex items-center gap-0.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={clearConversation}
+                  disabled={sending || (messages.length === 0 && !draft.trim())}
+                  title="Clear conversation"
+                  className="p-1.5 rounded-lg text-neutral-400 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                  aria-label="Clear conversation"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="p-1.5 rounded-lg text-neutral-400 hover:text-black dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
             {/* Messages */}
@@ -268,8 +292,10 @@ const AdminAiChat: React.FC = () => {
                   )}
                 </Button>
               </div>
-              <p className="text-[10px] text-neutral-400 mt-1 px-2">
+              <p className="text-[10px] text-neutral-400 mt-1 px-2 leading-snug">
                 Press Enter to send · Shift+Enter for newline
+                <br />
+                Ctrl+Shift+L or Cmd+Shift+L clears the conversation
               </p>
             </div>
           </motion.div>

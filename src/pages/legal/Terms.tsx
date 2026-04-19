@@ -157,8 +157,9 @@ const Terms = () => {
           </p>
           <ul className="list-disc pl-6 space-y-2">
             <li>
-              <strong className="text-black">Booking commission:</strong> up to <strong className="text-black">10%</strong>{' '}
-              of the booking total on completed bookings, deducted before payout to the Freelancer.
+              <strong className="text-black">Booking commission:</strong>{' '}
+              <strong className="text-black">8–9% including VAT</strong> on the booking total for completed bookings, deducted
+              before payout to the Freelancer.
             </li>
             <li>
               <strong className="text-black">Connection fee:</strong> a non-refundable R50 fee on the invoice path, as

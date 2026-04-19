@@ -67,8 +67,9 @@ const Privacy = () => {
               &quot;special&quot; or sensitive personal information under POPIA and is handled accordingly.
             </li>
             <li>
-              <strong className="text-black">Booking and commerce data:</strong> bookings, invoices, connection fee payments
-              (R50, non-refundable), session PIN evidence, session duration, disputes, cancellations.
+              <strong className="text-black">Booking and commerce data:</strong> bookings, invoices, platform commission on
+              completed bookings (<strong className="text-black">8–9% including VAT</strong> unless otherwise agreed),
+              connection fee payments (R50, non-refundable), session PIN evidence, session duration, disputes, cancellations.
             </li>
             <li>
               <strong className="text-black">Payment data:</strong> processed by our payment provider (currently WalletDoc);
@@ -183,7 +184,11 @@ const Privacy = () => {
           </p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Active account and profile data: while your account is active.</li>
-            <li>Booking, invoice, commission, and connection fee records: for the period required by tax and accounting law (generally at least 5 years from the end of the relevant financial year).</li>
+            <li>
+              Booking, invoice, platform commission (8–9% including VAT on completed bookings unless otherwise agreed), and
+              connection fee records: for the period required by tax and accounting law (generally at least 5 years from the
+              end of the relevant financial year).
+            </li>
             <li>Chat messages and moderation records: retained for safety, dispute, and compliance purposes (e.g. 90 days for routine moderation, longer for active investigations).</li>
             <li>Identity verification documents: retained for the period required to evidence verification, then deleted or anonymised.</li>
             <li>Security logs and audit logs (including cookie consent records): retained for a limited period (e.g. approximately 90 days for security, longer for consent records that serve as proof of lawful processing).</li>

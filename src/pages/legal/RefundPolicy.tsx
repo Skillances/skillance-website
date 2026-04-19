@@ -22,7 +22,9 @@ const RefundPolicy = () => {
             Skillance is a commission-based marketplace. Customer payments are processed by our third-party payment provider
             (currently WalletDoc) and held in <strong className="text-black">escrow</strong> until a booking completes and
             the <strong className="text-black">24-hour dispute window</strong> has passed without a valid dispute. Freelancer
-            payouts are <em>booking total minus the platform commission</em> (up to 10% unless a different rate is agreed).
+            payouts are <em>booking total minus the platform commission</em> (typically{' '}
+            <strong className="text-black">8–9% including VAT</strong> on the booking total, unless a different rate is agreed
+            in writing).
           </p>
           <p className="leading-relaxed">
             Bookings use one of two pricing modes:
@@ -124,6 +126,10 @@ const RefundPolicy = () => {
 
         <section className="space-y-3">
           <h2 className="text-2xl font-serif text-black mb-2">6. Platform commission on refunds</h2>
+          <p className="leading-relaxed">
+            Our standard booking commission is <strong className="text-black">8–9% including VAT</strong>, as set out in the
+            Terms (unless a different rate is agreed in writing).
+          </p>
           <ul className="list-disc pl-6 space-y-2">
             <li><strong className="text-black">Full refund to customer:</strong> no platform commission is charged on the refunded booking.</li>
             <li><strong className="text-black">Partial refund:</strong> platform commission is calculated proportionally on the amount retained by the Freelancer, not on the refunded portion.</li>
