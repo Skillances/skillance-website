@@ -168,6 +168,120 @@ const CRITICAL_ACTIONS = [
   { label: 'Booking accept conflict', value: 'critical_flow_booking_accept_conflict' },
 ];
 
+type CriticalLogRow = {
+  id: string;
+  action: string;
+  createdAt: string;
+  actorId?: string | null;
+  actorName?: string | null;
+  actorEmail?: string | null;
+  resource?: string | null;
+  resourceId?: string | null;
+  ipAddress?: string | null;
+  metadata?: Record<string, unknown> | null;
+};
+
+function criticalBadge(action: string): { label: string; cls: string } {
+  const match = CRITICAL_ACTIONS.find((a) => a.value === action);
+  const label = match?.label ?? action;
+  const cls =
+    action === 'critical_flow_booking_accept_race'
+      ? 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200'
+      : action === 'critical_flow_booking_accept_conflict'
+        ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100'
+        : 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200';
+  return { label, cls };
+}
+
+const criticalColumns: Column<CriticalLogRow>[] = [
+  {
+    key: 'createdAt',
+    header: 'Time',
+    render: (r) => (
+      <div className="min-w-[150px]">
+        <p className="text-sm text-black dark:text-white">{new Date(r.createdAt).toLocaleString()}</p>
+        <p className="text-xs text-neutral-400 font-mono">{new Date(r.createdAt).toISOString()}</p>
+      </div>
+    ),
+  },
+  {
+    key: 'action',
+    header: 'Flow',
+    render: (r) => {
+      const { label, cls } = criticalBadge(r.action);
+      return (
+        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cls}`} title={r.action}>
+          {label}
+        </span>
+      );
+    },
+  },
+  {
+    key: 'actor',
+    header: 'Actor',
+    render: (r) =>
+      r.actorId ? (
+        <Link to={`/admin/users/${r.actorId}`} className="text-sm hover:underline">
+          <p className="text-black dark:text-white font-medium">{r.actorName || 'Unknown'}</p>
+          {r.actorEmail && (
+            <p className="text-xs text-neutral-500 truncate max-w-[220px]">{r.actorEmail}</p>
+          )}
+        </Link>
+      ) : (
+        <span className="text-xs text-neutral-400">system</span>
+      ),
+  },
+  {
+    key: 'resource',
+    header: 'Resource',
+    render: (r) => (
+      <div className="min-w-[150px]">
+        <p className="text-xs text-neutral-500 uppercase tracking-wide">{r.resource || '—'}</p>
+        {r.resourceId && (
+          <p className="text-xs font-mono text-neutral-600 dark:text-neutral-300 truncate max-w-[200px]">
+            {r.resourceId}
+          </p>
+        )}
+      </div>
+    ),
+  },
+  {
+    key: 'metadata',
+    header: 'Details',
+    render: (r) => {
+      if (!r.metadata || Object.keys(r.metadata).length === 0) {
+        return <span className="text-xs text-neutral-400">—</span>;
+      }
+      const pairs = Object.entries(r.metadata).slice(0, 4);
+      return (
+        <div className="flex flex-wrap gap-1 max-w-[320px]">
+          {pairs.map(([k, v]) => (
+            <span
+              key={k}
+              className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300"
+              title={`${k}: ${String(v)}`}
+            >
+              {k}: {String(v).slice(0, 24)}
+            </span>
+          ))}
+        </div>
+      );
+    },
+  },
+  {
+    key: 'view',
+    header: '',
+    render: (r) => (
+      <Link
+        to={`/admin/audit-logs?action=${encodeURIComponent(r.action)}`}
+        className="text-xs text-neutral-500 hover:text-black dark:hover:text-white underline"
+      >
+        View all
+      </Link>
+    ),
+  },
+];
+
 const AdminObservability: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get('tab') === 'database' || searchParams.get('tab') === 'critical' ? searchParams.get('tab')! : 'traffic';
@@ -192,6 +306,7 @@ const AdminObservability: React.FC = () => {
     logs: [],
     loading: false,
   });
+  const [criticalActionFilter, setCriticalActionFilter] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -567,37 +682,84 @@ const AdminObservability: React.FC = () => {
               <p>
                 Events such as <strong>double booking attempts</strong> (slot conflict) and{' '}
                 <strong>concurrent accept</strong> (two accept requests for the same pending booking) are written to{' '}
-                <strong>audit logs</strong> with dedicated actions. Use Audit Logs for full search, filters, and CSV
-                export.
+                <strong>audit logs</strong> with dedicated actions. The most recent events are shown below - tap a
+                chip to narrow down to a single flow.
               </p>
-              <div className="flex flex-wrap gap-2">
-                {CRITICAL_ACTIONS.map((a) => (
-                  <Button key={a.value} variant="outline" size="sm" className="rounded-full" asChild>
-                    <Link to={`/admin/audit-logs?action=${encodeURIComponent(a.value)}`}>{a.label}</Link>
-                  </Button>
-                ))}
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant={criticalActionFilter === null ? 'default' : 'outline'}
+                  size="sm"
+                  className="rounded-full"
+                  onClick={() => setCriticalActionFilter(null)}
+                >
+                  All ({(criticalPreview.logs as { action: string }[]).length})
+                </Button>
+                {CRITICAL_ACTIONS.map((a) => {
+                  const count = (criticalPreview.logs as { action: string }[]).filter(
+                    (r) => r.action === a.value,
+                  ).length;
+                  const active = criticalActionFilter === a.value;
+                  return (
+                    <Button
+                      key={a.value}
+                      variant={active ? 'default' : 'outline'}
+                      size="sm"
+                      className="rounded-full"
+                      onClick={() => setCriticalActionFilter(active ? null : a.value)}
+                      title={a.value}
+                    >
+                      {a.label} ({count})
+                    </Button>
+                  );
+                })}
+                <div className="flex-1" />
+                <Button variant="ghost" size="sm" className="rounded-full" asChild>
+                  <Link
+                    to={
+                      criticalActionFilter
+                        ? `/admin/audit-logs?action=${encodeURIComponent(criticalActionFilter)}`
+                        : '/admin/audit-logs'
+                    }
+                  >
+                    Full audit logs
+                    <ScrollText className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
 
           <div>
-            <h3 className="text-sm font-medium text-neutral-500 mb-3">Recent combined preview</h3>
+            <h3 className="text-sm font-medium text-neutral-500 mb-3 flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-500" /> Recent critical-flow events
+              {criticalActionFilter && (
+                <span className="text-xs font-normal text-neutral-400">
+                  - filtered: {CRITICAL_ACTIONS.find((a) => a.value === criticalActionFilter)?.label}
+                </span>
+              )}
+            </h3>
             {criticalPreview.loading ? (
               <Skeleton className="h-40 rounded-2xl bg-neutral-100 dark:bg-neutral-800" />
-            ) : criticalPreview.logs.length === 0 ? (
-              <p className="text-sm text-neutral-500">No critical-flow audit rows yet.</p>
             ) : (
-              <ul className="space-y-2 text-xs font-mono text-neutral-600 dark:text-neutral-400">
-                {(criticalPreview.logs as { id: string; action: string; createdAt: string; resourceId?: string | null }[]).map(
-                  (row) => (
-                    <li key={row.id} className="flex flex-wrap gap-x-3 border-b border-neutral-100 dark:border-neutral-800 pb-2">
-                      <span>{new Date(row.createdAt).toLocaleString()}</span>
-                      <span className="text-black dark:text-white">{row.action}</span>
-                      {row.resourceId && <span>resource:{row.resourceId}</span>}
-                    </li>
-                  ),
-                )}
-              </ul>
+              <DataTable
+                columns={criticalColumns}
+                data={
+                  (criticalPreview.logs as CriticalLogRow[]).filter((r) =>
+                    criticalActionFilter ? r.action === criticalActionFilter : true,
+                  )
+                }
+                isLoading={criticalPreview.loading}
+                emptyTitle={
+                  criticalActionFilter
+                    ? 'No events for this flow'
+                    : 'No critical-flow audit rows yet'
+                }
+                emptyDescription={
+                  criticalActionFilter
+                    ? 'Try "All" or another flow chip above.'
+                    : 'Rows appear when a slot conflict or concurrent accept is detected.'
+                }
+              />
             )}
           </div>
         </TabsContent>

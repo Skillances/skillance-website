@@ -38,39 +38,23 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
-const adminMenuGroups = [
+type Platform = 'both' | 'app' | 'web';
+
+const adminMenuGroups: {
+  label: string;
+  platform: Platform;
+  subtitle: string;
+  items: { name: string; path: string; icon: typeof LayoutDashboard }[];
+}[] = [
   {
-    label: 'Overview',
+    label: 'Both',
+    platform: 'both',
+    subtitle: 'Shared / infrastructure',
     items: [
       { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
       { name: 'Analytics', path: '/admin/analytics', icon: TrendingUp },
       { name: 'Finance', path: '/admin/finance', icon: CircleDollarSign },
-    ],
-  },
-  {
-    label: 'People',
-    items: [
       { name: 'Users', path: '/admin/users', icon: Users },
-      { name: 'Freelancers', path: '/admin/freelancers', icon: Briefcase },
-      { name: 'Customers', path: '/admin/customers', icon: UserRound },
-      { name: 'Booking', path: '/admin/bookings', icon: CalendarDays },
-      { name: 'Verifications', path: '/admin/verifications', icon: BadgeCheck },
-    ],
-  },
-  {
-    label: 'Content',
-    items: [
-      { name: 'Categories', path: '/admin/categories', icon: Tag },
-      { name: 'Messages', path: '/admin/contact-messages', icon: Mail },
-      { name: 'Chat Logs', path: '/admin/chat-logs', icon: MessageCircle },
-      { name: 'Subscribers', path: '/admin/notify-subscribers', icon: BellRing },
-      { name: 'Website reviews', path: '/admin/website-reviews', icon: Star },
-      { name: 'Booking reviews', path: '/admin/booking-reviews', icon: ListChecks },
-    ],
-  },
-  {
-    label: 'System',
-    items: [
       { name: 'Observability', path: '/admin/observability', icon: Activity },
       { name: 'Security', path: '/admin/security', icon: ShieldAlert },
       { name: 'Audit Logs', path: '/admin/audit-logs', icon: ScrollText },
@@ -78,7 +62,46 @@ const adminMenuGroups = [
       { name: 'System', path: '/admin/system', icon: Settings2 },
     ],
   },
+  {
+    label: 'App',
+    platform: 'app',
+    subtitle: 'Mobile (iOS / Android)',
+    items: [
+      { name: 'Freelancers', path: '/admin/freelancers', icon: Briefcase },
+      { name: 'Customers', path: '/admin/customers', icon: UserRound },
+      { name: 'Bookings', path: '/admin/bookings', icon: CalendarDays },
+      { name: 'Verifications', path: '/admin/verifications', icon: BadgeCheck },
+      { name: 'Categories', path: '/admin/categories', icon: Tag },
+      { name: 'Chat Logs', path: '/admin/chat-logs', icon: MessageCircle },
+      { name: 'Booking reviews', path: '/admin/booking-reviews', icon: ListChecks },
+    ],
+  },
+  {
+    label: 'Web',
+    platform: 'web',
+    subtitle: 'skillance.co.za',
+    items: [
+      { name: 'Contact messages', path: '/admin/contact-messages', icon: Mail },
+      { name: 'Subscribers', path: '/admin/notify-subscribers', icon: BellRing },
+      { name: 'Website reviews', path: '/admin/website-reviews', icon: Star },
+    ],
+  },
 ];
+
+const PLATFORM_STYLES: Record<Platform, { dot: string; chip: string }> = {
+  both: {
+    dot: 'bg-neutral-400 dark:bg-neutral-500',
+    chip: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
+  },
+  app: {
+    dot: 'bg-emerald-500',
+    chip: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200',
+  },
+  web: {
+    dot: 'bg-sky-500',
+    chip: 'bg-sky-50 text-sky-700 dark:bg-sky-900/40 dark:text-sky-200',
+  },
+};
 
 // Flat list for active-check lookup
 const allMenuItems = adminMenuGroups.flatMap((g) => g.items);
@@ -186,26 +209,43 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       </div>
 
       {/* Navigation groups */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
         {adminMenuGroups.map((group) => {
           const isCollapsed = !!collapsedGroups[group.label];
           const hasActiveItem = group.items.some((item) => isActive(item.path));
+          const styles = PLATFORM_STYLES[group.platform];
 
           return (
             <div key={group.label}>
-              {/* Group header — clickable to collapse */}
+              {/* Group header - platform marker + collapsible */}
               <button
                 type="button"
                 onClick={() => toggleGroup(group.label)}
-                className="w-full flex items-center justify-between px-3 py-1.5 mb-0.5 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800/60 transition-colors group"
+                className="w-full flex items-center justify-between px-2 py-2 mb-1 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/60 transition-colors group"
               >
-                <span className={cn(
-                  'text-[10px] font-semibold uppercase tracking-widest select-none transition-colors',
-                  hasActiveItem
-                    ? 'text-neutral-700 dark:text-neutral-300'
-                    : 'text-neutral-400 dark:text-neutral-600 group-hover:text-neutral-600 dark:group-hover:text-neutral-400',
-                )}>
-                  {group.label}
+                <span className="flex items-center gap-2 min-w-0">
+                  <span
+                    aria-hidden="true"
+                    className={cn('h-1.5 w-1.5 rounded-full shrink-0', styles.dot)}
+                  />
+                  <span
+                    className={cn(
+                      'text-[10px] font-bold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-md',
+                      styles.chip,
+                    )}
+                  >
+                    {group.label}
+                  </span>
+                  <span
+                    className={cn(
+                      'text-[10px] font-medium truncate transition-colors',
+                      hasActiveItem
+                        ? 'text-neutral-600 dark:text-neutral-300'
+                        : 'text-neutral-400 dark:text-neutral-500',
+                    )}
+                  >
+                    {group.subtitle}
+                  </span>
                 </span>
                 <ChevronDown
                   size={12}
@@ -324,21 +364,42 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </div>
             {/* Icon-only nav */}
             <nav className="flex-1 overflow-y-auto overflow-x-visible flex flex-col items-center py-3 px-1.5">
-              {adminMenuGroups.map((group, groupIndex) => (
-                <div key={group.label} className="w-full flex flex-col items-center">
-                  {groupIndex > 0 && (
-                    <span
-                      aria-hidden="true"
-                      className="my-2 h-px w-6 rounded-full bg-neutral-200 dark:bg-neutral-800"
-                    />
-                  )}
-                  <div className="w-full flex flex-col items-center gap-1">
-                    {group.items.map((item) => (
-                      <CollapsedNavItem key={item.path} item={item} active={isActive(item.path)} />
-                    ))}
+              {adminMenuGroups.map((group, groupIndex) => {
+                const styles = PLATFORM_STYLES[group.platform];
+                return (
+                  <div key={group.label} className="w-full flex flex-col items-center">
+                    <div
+                      className="relative group/platform mt-2 mb-1.5 flex items-center justify-center w-full"
+                      aria-label={`${group.label} section`}
+                    >
+                      {groupIndex > 0 && (
+                        <span
+                          aria-hidden="true"
+                          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-px w-6 rounded-full bg-neutral-200 dark:bg-neutral-800"
+                        />
+                      )}
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          'relative h-2 w-2 rounded-full ring-2 ring-white dark:ring-neutral-950',
+                          styles.dot,
+                        )}
+                      />
+                      <span
+                        role="tooltip"
+                        className="pointer-events-none absolute left-full top-1/2 z-30 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg border border-neutral-200 bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-neutral-700 opacity-0 shadow-lg transition-all duration-150 group-hover/platform:opacity-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+                      >
+                        {group.label} — {group.subtitle}
+                      </span>
+                    </div>
+                    <div className="w-full flex flex-col items-center gap-1">
+                      {group.items.map((item) => (
+                        <CollapsedNavItem key={item.path} item={item} active={isActive(item.path)} />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </nav>
             {/* Footer icons */}
             <div className="shrink-0 flex flex-col items-center gap-1 px-2 pb-4 pt-2 border-t border-neutral-100 dark:border-neutral-800">

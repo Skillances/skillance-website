@@ -74,6 +74,7 @@ const ACTION_OPTIONS = [
   { label: 'Profile Update', value: 'profile_update' },
   { label: 'Freelancer Profile Update', value: 'freelancer_profile_update' },
   { label: 'Cookie consent', value: 'cookie_consent' },
+  { label: 'Terms accepted', value: 'terms_accepted' },
   { label: 'Moderation: chat', value: 'content_moderation_chat' },
   { label: 'Moderation: contact', value: 'content_moderation_contact_message' },
   { label: 'Moderation: freelancer bio', value: 'content_moderation_freelancer_bio' },
