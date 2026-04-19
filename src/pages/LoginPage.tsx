@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Lock, Mail, AlertCircle, Eye, EyeOff, RefreshCw } from 'lucide-react';
+import { Lock, Mail, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import { useFormRateLimit } from '@/hooks/useFormRateLimit';
@@ -117,15 +117,6 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[#070707] px-5 py-14 sm:px-8">
-      <button
-        type="button"
-        onClick={() => window.location.reload()}
-        className="fixed top-5 right-5 z-50 flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-neutral-900/60 text-neutral-400 backdrop-blur-md transition-colors hover:border-white/[0.18] hover:text-white"
-        aria-label="Refresh page"
-        title="Refresh"
-      >
-        <RefreshCw className="h-[18px] w-[18px]" strokeWidth={1.75} />
-      </button>
       {/* Ambient layers — depth without clutter */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(255,255,255,0.07),transparent_55%)]" />

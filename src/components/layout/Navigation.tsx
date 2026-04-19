@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, RefreshCw } from 'lucide-react';
+import { X } from 'lucide-react';
 import { MenuToggleIcon } from '../ui/menu-toggle-icon';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -114,10 +114,6 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
     runScroll();
   };
 
-  const handleRefreshPage = () => {
-    window.location.reload();
-  };
-
   const handleLinkClick = (href: string, event?: React.MouseEvent) => {
     if (event) event.preventDefault();
     setIsMobileMenuOpen(false);
@@ -228,27 +224,9 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                   <span className={`absolute -bottom-1 left-0 w-0 h-px transition-all duration-300 group-hover:w-full ${underlineColor}`} />
                 </button>
               ))}
-              <button
-                type="button"
-                onClick={handleRefreshPage}
-                className={`p-2 rounded-lg transition-colors ${textColorMuted} ${hoverColor}`}
-                aria-label="Refresh page"
-                title="Refresh"
-              >
-                <RefreshCw className="w-[18px] h-[18px]" strokeWidth={2} />
-              </button>
             </div>
 
             <div className="flex items-center gap-1 lg:hidden">
-              <button
-                type="button"
-                onClick={handleRefreshPage}
-                className={`p-2 rounded-lg transition-colors relative z-50 ${isDarkSection ? 'text-white/80 hover:text-white' : 'text-neutral-600 hover:text-black'}`}
-                aria-label="Refresh page"
-                title="Refresh"
-              >
-                <RefreshCw className="w-7 h-7" strokeWidth={1.75} />
-              </button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 transition-colors relative z-50 text-black"

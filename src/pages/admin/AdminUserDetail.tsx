@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { get, put } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
-import { ArrowLeft, Edit, Loader2 } from 'lucide-react';
+import { ArrowLeft, Edit, Loader2, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -10,6 +10,7 @@ import PageHeader from '@/components/admin/PageHeader';
 import DetailCard, { type DetailField } from '@/components/admin/DetailCard';
 import StatusBadge from '@/components/admin/StatusBadge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 
 interface CalendarLink {
@@ -41,7 +42,20 @@ interface UserData {
   customerBookingsCount?: number;
   calendarSyncEnabled?: boolean;
   calendarLinks?: CalendarLink[];
-  freelancer: any | null;
+  freelancer: {
+    id: string;
+    kycStatus?: string;
+    isVerified?: boolean;
+    rating?: number;
+    categoryIds?: string[];
+    categoryRates?: Array<{
+      id: string;
+      categoryId: string;
+      hourlyRate: number | string;
+      bookingPricingMode?: string;
+      deletedAt?: string | null;
+    }>;
+  } | null;
 }
 
 function getUserRoles(u: UserData): { freelancer: boolean; customer: boolean } {
@@ -171,6 +185,19 @@ const AdminUserDetail: React.FC = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editForm, setEditForm] = useState({ primaryRole: '', isAdmin: false });
+  const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    get(`${ApiPaths.admin.categories}?includeInactive=true&limit=500`)
+      .then((res) => {
+        if (res.success && Array.isArray(res.data?.categories)) {
+          const map: Record<string, string> = {};
+          for (const c of res.data.categories) map[c.id] = c.name;
+          setCategoryMap(map);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const fetch = async () => {
@@ -248,6 +275,8 @@ const AdminUserDetail: React.FC = () => {
     { label: 'Created', value: new Date(user.createdAt).toLocaleString() },
     { label: 'Updated', value: new Date(user.updatedAt).toLocaleString() },
   ];
+  const activeCategoryRates = user.freelancer?.categoryRates?.filter((cr) => !cr.deletedAt) ?? [];
+
   const freelancerFields: DetailField[] = user.freelancer ? [
     { label: 'Freelancer ID', value: <span className="font-mono text-xs">{user.freelancer.id}</span> },
     { label: 'KYC (freelancer)', value: <StatusBadge status={user.freelancer.kycStatus || 'not_submitted'} /> },
@@ -270,6 +299,56 @@ const AdminUserDetail: React.FC = () => {
         <DetailCard title="Profile Information" fields={profileFields} />
         <DetailCard title="System Information" fields={systemFields} />
         {user.freelancer && <DetailCard title="Freelancer Profile" fields={freelancerFields} className="lg:col-span-2" />}
+
+        {user.freelancer && (
+          <Card className="lg:col-span-2 border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)] overflow-hidden">
+            <CardHeader className="border-b border-neutral-100 dark:border-neutral-700/80 py-5 px-6">
+              <CardTitle className="text-lg font-semibold text-black dark:text-white tracking-tight flex items-center gap-3">
+                <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-neutral-100 dark:bg-neutral-700">
+                  <Tag className="h-5 w-5 text-neutral-600 dark:text-neutral-300" />
+                </span>
+                Services offered
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {activeCategoryRates.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {activeCategoryRates.map((cr) => (
+                    <div
+                      key={cr.id}
+                      className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-neutral-100 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-black dark:text-white truncate">
+                          {categoryMap[cr.categoryId] || cr.categoryId}
+                        </p>
+                        {cr.bookingPricingMode && cr.bookingPricingMode !== 'hourly' && (
+                          <p className="text-[11px] text-neutral-400 mt-0.5 capitalize">{cr.bookingPricingMode} pricing</p>
+                        )}
+                      </div>
+                      <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-300 tabular-nums shrink-0">
+                        R{Number(cr.hourlyRate).toFixed(0)}/hr
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : user.freelancer.categoryIds && user.freelancer.categoryIds.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {user.freelancer.categoryIds.map((id) => (
+                    <span
+                      key={id}
+                      className="px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-700 text-black dark:text-white"
+                    >
+                      {categoryMap[id] || id}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-neutral-400 dark:text-neutral-500 text-center py-4">No services or categories registered</p>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         <div className="lg:col-span-2 bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-100 dark:border-neutral-800 p-6 shadow-soft">
           <div className="flex items-center justify-between mb-4">
