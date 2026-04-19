@@ -7,6 +7,8 @@ interface User {
   fullName: string;
   email: string;
   isAdmin: boolean;
+  /** Canonical landing role from API; `admin` for staff (marketplace stats exclude this). */
+  primaryRole?: string;
 }
 
 interface AuthContextType {
@@ -55,15 +57,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         if (response?.success && response?.data?.user) {
           const { user: userData } = response.data;
+          const staff =
+            userData.isAdmin === true || String(userData.primaryRole).toLowerCase() === 'admin';
           const authUser: User = {
             id: userData.id,
             fullName: userData.fullName ?? '',
             email: userData.email ?? '',
-            isAdmin: userData.isAdmin === true,
+            isAdmin: staff,
+            primaryRole: userData.primaryRole,
           };
           setUser(authUser);
           setIsAuthenticated(true);
-          setIsAdmin(authUser.isAdmin);
+          setIsAdmin(staff);
           localStorage.setItem('user', JSON.stringify(authUser));
         }
       } catch (error) {
@@ -107,13 +112,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const { user: userData, accessToken, refreshToken } = response.data;
 
         storeTokens(accessToken, refreshToken);
-        localStorage.setItem('user', JSON.stringify(userData));
+        const staff =
+          userData.isAdmin === true || String(userData.primaryRole).toLowerCase() === 'admin';
+        const normalizedUser: User = {
+          id: userData.id,
+          fullName: userData.fullName ?? '',
+          email: userData.email ?? '',
+          isAdmin: staff,
+          primaryRole: userData.primaryRole,
+        };
+        localStorage.setItem('user', JSON.stringify(normalizedUser));
 
-        setUser(userData);
+        setUser(normalizedUser);
         setIsAuthenticated(true);
-        setIsAdmin(userData.isAdmin === true);
+        setIsAdmin(staff);
 
-        return { success: true, user: userData };
+        return { success: true, user: normalizedUser };
       } else {
         throw new Error(response.message || 'Login failed');
       }

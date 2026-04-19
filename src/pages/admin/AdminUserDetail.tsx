@@ -199,7 +199,12 @@ const AdminUserDetail: React.FC = () => {
     try {
       setSaving(true);
       const payload: Record<string, unknown> = {};
-      if (editForm.primaryRole !== user?.primaryRole) payload.userType = editForm.primaryRole;
+      if (
+        editForm.primaryRole !== user?.primaryRole &&
+        (editForm.primaryRole === 'customer' || editForm.primaryRole === 'freelancer')
+      ) {
+        payload.userType = editForm.primaryRole;
+      }
       if (editForm.isAdmin !== user?.isAdmin) payload.isAdmin = editForm.isAdmin;
       if (Object.keys(payload).length === 0) { setEditOpen(false); return; }
       const res = await put(ApiPaths.admin.user(userId), payload);
@@ -300,17 +305,43 @@ const AdminUserDetail: React.FC = () => {
           <div className="space-y-5 py-2">
             <div>
               <label className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2 block">Default landing role</label>
-              <Select value={editForm.primaryRole} onValueChange={(v) => setEditForm((f) => ({ ...f, primaryRole: v }))}>
-                <SelectTrigger className="bg-white border-neutral-200 text-black w-full rounded-xl"><SelectValue /></SelectTrigger>
-                <SelectContent className="bg-white border-neutral-200 rounded-xl shadow-soft">
-                  <SelectItem value="customer" className="text-neutral-600 focus:bg-neutral-50 focus:text-black rounded-lg">Customer</SelectItem>
-                  <SelectItem value="freelancer" className="text-neutral-600 focus:bg-neutral-50 focus:text-black rounded-lg">Freelancer</SelectItem>
-                </SelectContent>
-              </Select>
+              {editForm.isAdmin ? (
+                <p className="text-sm text-neutral-600 rounded-xl border border-neutral-100 bg-neutral-50 dark:bg-neutral-800/50 dark:border-neutral-800 dark:text-neutral-300 px-3 py-2 leading-relaxed">
+                  Staff accounts use the Admin primary role and are excluded from marketplace user statistics. Turn off Admin access to choose Customer or Freelancer.
+                </p>
+              ) : (
+                <Select
+                  value={editForm.primaryRole === 'admin' ? 'customer' : editForm.primaryRole}
+                  onValueChange={(v) => setEditForm((f) => ({ ...f, primaryRole: v }))}
+                >
+                  <SelectTrigger className="bg-white border-neutral-200 text-black w-full rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent className="bg-white border-neutral-200 rounded-xl shadow-soft">
+                    <SelectItem value="customer" className="text-neutral-600 focus:bg-neutral-50 focus:text-black rounded-lg">Customer</SelectItem>
+                    <SelectItem value="freelancer" className="text-neutral-600 focus:bg-neutral-50 focus:text-black rounded-lg">Freelancer</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <label className="text-xs text-neutral-400 uppercase tracking-widest font-medium">Admin Access</label>
-              <button onClick={() => setEditForm((f) => ({ ...f, isAdmin: !f.isAdmin }))} className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${editForm.isAdmin ? 'bg-black' : 'bg-neutral-200'}`} aria-label={editForm.isAdmin ? 'Admin (on)' : 'Admin (off)'}>
+              <button
+                type="button"
+                onClick={() =>
+                  setEditForm((f) => {
+                    const nextAdmin = !f.isAdmin;
+                    return {
+                      ...f,
+                      isAdmin: nextAdmin,
+                      primaryRole: nextAdmin
+                        ? 'admin'
+                        : f.primaryRole === 'admin'
+                          ? 'customer'
+                          : f.primaryRole,
+                    };
+                  })}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${editForm.isAdmin ? 'bg-black' : 'bg-neutral-200'}`}
+                aria-label={editForm.isAdmin ? 'Admin (on)' : 'Admin (off)'}
+              >
                 <span className={`inline-block h-4 w-4 transform rounded-full transition-transform duration-200 ${editForm.isAdmin ? 'translate-x-6 bg-white' : 'translate-x-1 bg-neutral-400'}`} />
               </button>
             </div>

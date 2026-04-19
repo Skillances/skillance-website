@@ -31,6 +31,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Sparkles,
+  RefreshCw,
 } from 'lucide-react';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -152,6 +153,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  /** Bumping this remounts the current admin route so data hooks run again (same as a soft refresh). */
+  const [refreshNonce, setRefreshNonce] = useState(0);
 
   // Track which groups are collapsed — all open by default
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
@@ -182,6 +185,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const toggleGroup = (label: string) => {
     setCollapsedGroups((prev) => ({ ...prev, [label]: !prev[label] }));
+  };
+
+  const bumpPageRefresh = () => {
+    setRefreshNonce((n) => n + 1);
   };
 
   const SidebarContent = () => (
@@ -480,18 +487,38 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <span className="text-sm font-medium text-black dark:text-white">
             {allMenuItems.find((item) => isActive(item.path))?.name || 'Admin'}
           </span>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="p-1.5 rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-colors"
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {isDark ? <Sun size={17} /> : <Moon size={17} />}
-          </button>
+          <div className="flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={bumpPageRefresh}
+              className="p-1.5 rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-colors"
+              aria-label="Refresh page"
+              title="Refresh"
+            >
+              <RefreshCw size={17} />
+            </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-1.5 rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-colors"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {isDark ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
+          </div>
         </div>
 
-        {/* Desktop theme toggle — top-right corner */}
-        <div className="hidden lg:flex absolute top-3 right-4 z-20">
+        {/* Desktop refresh + theme — top-right corner */}
+        <div className="hidden lg:flex absolute top-3 right-4 z-20 items-center gap-1">
+          <button
+            type="button"
+            onClick={bumpPageRefresh}
+            className="p-2 rounded-xl text-neutral-400 dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-colors"
+            aria-label="Refresh page"
+            title="Refresh"
+          >
+            <RefreshCw size={17} />
+          </button>
           <button
             type="button"
             onClick={toggleTheme}
@@ -505,7 +532,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         {/* Page Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 bg-neutral-50/50 dark:bg-neutral-900 min-h-screen">
           <motion.div
-            key={location.pathname}
+            key={`${location.pathname}-${refreshNonce}`}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}

@@ -35,6 +35,32 @@ function sanitizeHttpImageUrl(url: string | null | undefined): string | null {
   }
 }
 
+/** KYC document fields live on `user` in the admin API; keep fallbacks for older payloads. */
+function getFreelancerKycSlice(f: Record<string, any> | null) {
+  if (!f) {
+    return {
+      idVerificationStatus: undefined as string | undefined,
+      policeClearanceStatus: undefined as string | undefined,
+      idNumber: undefined as string | undefined,
+      idFrontPhotoUrl: undefined as string | undefined,
+      idBackPhotoUrl: undefined as string | undefined,
+      selfiePhotoUrl: undefined as string | undefined,
+      policeClearancePhotoUrl: undefined as string | undefined,
+    };
+  }
+  const u = f.user;
+  return {
+    idVerificationStatus: u?.idVerificationStatus ?? f.idVerificationStatus,
+    policeClearanceStatus: u?.policeClearanceStatus ?? f.policeClearanceStatus,
+    idNumber: u?.idNumber ?? f.idNumber,
+    idFrontPhotoUrl: u?.idFrontPhotoUrl ?? f.idFrontPhotoUrl,
+    idBackPhotoUrl: u?.idBackPhotoUrl ?? f.idBackPhotoUrl,
+    selfiePhotoUrl: u?.selfiePhotoUrl ?? f.selfiePhotoUrl,
+    policeClearancePhotoUrl:
+      u?.policeClearanceDocumentUrl ?? f.policeClearancePhotoUrl ?? f.policeClearanceDocumentUrl,
+  };
+}
+
 const AdminFreelancerDetail: React.FC = () => {
   const { freelancerId } = useParams<{ freelancerId: string }>();
   const navigate = useNavigate();
@@ -195,6 +221,8 @@ const AdminFreelancerDetail: React.FC = () => {
   if (isLoading) return (<div className="space-y-8"><Skeleton className="h-10 w-64 bg-neutral-100 rounded" /><div className="grid grid-cols-1 lg:grid-cols-2 gap-6"><Skeleton className="h-72 bg-neutral-100 rounded-2xl" /><Skeleton className="h-72 bg-neutral-100 rounded-2xl" /></div></div>);
   if (!freelancer) return (<div className="text-center py-20"><p className="text-neutral-500">Freelancer not found</p><Button variant="outline" className="mt-4 rounded-full" onClick={() => navigate('/admin/freelancers')}>Back</Button></div>);
 
+  const kyc = getFreelancerKycSlice(freelancer);
+
   const profileFields: DetailField[] = [
     { label: 'Full Name', value: freelancer.user?.fullName }, { label: 'Email', value: freelancer.user?.email },
     { label: 'Phone', value: freelancer.user?.phoneNumber || '--' }, { label: 'Tag', value: freelancer.user?.tag ? `@${freelancer.user.tag}` : '--' },
@@ -202,10 +230,10 @@ const AdminFreelancerDetail: React.FC = () => {
     { label: 'Rating', value: freelancer.rating ? `${Number(freelancer.rating).toFixed(1)} / 5 (${freelancer.totalReviews || 0} reviews)` : 'No ratings' },
   ];
   const verificationFields: DetailField[] = [
-    { label: 'ID Verification', value: <StatusBadge status={(freelancer.idVerificationStatus || 'not_submitted') as any} /> },
-    { label: 'Police Clearance', value: <StatusBadge status={(freelancer.policeClearanceStatus || 'not_submitted') as any} /> },
+    { label: 'ID Verification', value: <StatusBadge status={(kyc.idVerificationStatus || 'not_submitted') as any} /> },
+    { label: 'Police Clearance', value: <StatusBadge status={(kyc.policeClearanceStatus || 'not_submitted') as any} /> },
     { label: 'Overall Verified', value: freelancer.isVerified ? <StatusBadge status="verified" /> : <StatusBadge status="pending" label="Not Verified" /> },
-    { label: 'ID Number', value: freelancer.idNumber ? <span className="font-mono text-xs">{freelancer.idNumber}</span> : '--' },
+    { label: 'ID Number', value: kyc.idNumber ? <span className="font-mono text-xs">{kyc.idNumber}</span> : '--' },
   ];
   const systemFields: DetailField[] = [
     { label: 'Freelancer ID', value: <span className="font-mono text-xs">{freelancer.id}</span> },
@@ -215,18 +243,19 @@ const AdminFreelancerDetail: React.FC = () => {
     { label: 'Created', value: new Date(freelancer.createdAt).toLocaleString() },
     { label: 'Updated', value: new Date(freelancer.updatedAt).toLocaleString() },
   ];
-  const canVerifyId = freelancer.idVerificationStatus === 'pending';
-  const canVerifyClearance = freelancer.policeClearanceStatus === 'pending' && freelancer.policeClearancePhotoUrl;
+  const canVerifyId = kyc.idVerificationStatus === 'pending';
+  const canVerifyClearance =
+    kyc.policeClearanceStatus === 'pending' && Boolean(kyc.policeClearancePhotoUrl);
 
   const nameWithBadges = (
     <span className="inline-flex items-center gap-2 flex-wrap">
       <span>{freelancer.user?.fullName || 'Freelancer'}</span>
-      {freelancer.idVerificationStatus === 'verified' && (
+      {kyc.idVerificationStatus === 'verified' && (
         <span className="inline-flex items-center justify-center rounded-full bg-emerald-500 text-white p-1" title="ID verified">
           <BadgeCheck className="h-4 w-4" strokeWidth={2.5} />
         </span>
       )}
-      {freelancer.policeClearanceStatus === 'verified' && (
+      {kyc.policeClearanceStatus === 'verified' && (
         <span className="inline-flex items-center justify-center rounded-full bg-blue-500 text-white p-1" title="Police clearance verified">
           <Shield className="h-4 w-4" strokeWidth={2} />
         </span>
@@ -286,10 +315,10 @@ const AdminFreelancerDetail: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {[
               { key: 'profilePhoto', label: 'Profile photo', url: freelancer.user?.profilePhotoUrl, icon: User },
-              { key: 'idFront', label: 'ID (front)', url: freelancer.idFrontPhotoUrl, icon: IdCard },
-              { key: 'idBack', label: 'ID (back)', url: freelancer.idBackPhotoUrl, icon: IdCard },
-              { key: 'selfie', label: 'Selfie', url: freelancer.selfiePhotoUrl, icon: User },
-              { key: 'policeClearance', label: 'Police clearance', url: freelancer.policeClearancePhotoUrl, icon: FileCheck },
+              { key: 'idFront', label: 'ID (front)', url: kyc.idFrontPhotoUrl, icon: IdCard },
+              { key: 'idBack', label: 'ID (back)', url: kyc.idBackPhotoUrl, icon: IdCard },
+              { key: 'selfie', label: 'Selfie', url: kyc.selfiePhotoUrl, icon: User },
+              { key: 'policeClearance', label: 'Police clearance', url: kyc.policeClearancePhotoUrl, icon: FileCheck },
             ].map(({ key, label, url, icon: Icon }) => {
               const safeUrl = sanitizeHttpImageUrl(url);
               return (
