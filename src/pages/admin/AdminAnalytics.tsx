@@ -12,6 +12,42 @@ import { useAdminTheme } from '@/context/AdminThemeContext';
 const LIGHT_COLORS = ['#171717', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#06b6d4', '#84cc16'];
 const DARK_COLORS = ['#e5e5e5', '#a78bfa', '#34d399', '#fbbf24', '#f87171', '#f472b6', '#22d3ee', '#a3e635'];
 
+/**
+ * Backend sends `date` as YYYY-MM-DD (daily), YYYY-Www (weekly ISO week), or YYYY-MM (monthly).
+ * Only the daily form is reliably parseable with `new Date(string)`.
+ */
+function formatAnalyticsChartLabel(raw: string | undefined | null, interval: string): string {
+  if (raw == null || raw === '') return '';
+
+  const s = String(raw).trim();
+
+  if (interval === 'weekly') {
+    const m = s.match(/^(\d{4})-W(\d{1,2})$/i);
+    if (m) {
+      const year = m[1];
+      const week = parseInt(m[2], 10);
+      return `Week ${week}, ${year}`;
+    }
+  }
+
+  if (interval === 'monthly') {
+    const m = s.match(/^(\d{4})-(\d{2})$/);
+    if (m) {
+      const d = new Date(Number(m[1]), Number(m[2]) - 1, 1);
+      if (!Number.isNaN(d.getTime())) {
+        return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      }
+    }
+  }
+
+  const d = new Date(s);
+  if (!Number.isNaN(d.getTime())) {
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  return s;
+}
+
 const AdminAnalytics: React.FC = () => {
   const { isDark } = useAdminTheme();
   const [interval, setInterval] = useState<string>('daily');
@@ -33,8 +69,26 @@ const AdminAnalytics: React.FC = () => {
           get(ApiPaths.admin.analyticsVerificationTrends),
           get(ApiPaths.admin.analyticsUserDistribution),
         ]);
-        if (ugRes.success) { const series = ugRes.data?.data?.series || ugRes.data?.series || []; setUserGrowth(series.map((d: any) => ({ name: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), count: d.count, cumulative: d.cumulative }))); }
-        if (fgRes.success) { const series = fgRes.data?.data?.series || fgRes.data?.series || []; setFreelancerGrowth(series.map((d: any) => ({ name: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), count: d.count, cumulative: d.cumulative }))); }
+        if (ugRes.success) {
+          const series = ugRes.data?.data?.series || ugRes.data?.series || [];
+          setUserGrowth(
+            series.map((d: any) => ({
+              name: formatAnalyticsChartLabel(d.date, interval),
+              count: d.count,
+              cumulative: d.cumulative,
+            })),
+          );
+        }
+        if (fgRes.success) {
+          const series = fgRes.data?.data?.series || fgRes.data?.series || [];
+          setFreelancerGrowth(
+            series.map((d: any) => ({
+              name: formatAnalyticsChartLabel(d.date, interval),
+              count: d.count,
+              cumulative: d.cumulative,
+            })),
+          );
+        }
         if (ctRes.success) { const rawData = ctRes.data || []; const grouped: Record<string, number> = {}; rawData.forEach((d: any) => { const name = d.categoryName || d.name || 'Unknown'; grouped[name] = (grouped[name] || 0) + (d.count || d.freelancerCount || 0); }); setCategoryTrends(Object.entries(grouped).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 10)); }
         if (vtRes.success) { setVerificationTrends((vtRes.data || []).map((d: any) => ({ name: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), pending: d.pending || 0, verified: d.verified || 0, rejected: d.rejected || 0 }))); }
         if (udRes.success) setUserDistribution(udRes.data);

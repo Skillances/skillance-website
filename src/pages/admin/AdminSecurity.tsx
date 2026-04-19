@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import DataTable, { type Column } from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 import StatsCard from '@/components/admin/dashboard/StatsCard';
-import SecurityWorldMap from '@/components/admin/SecurityWorldMap';
+import SecurityWorldMap, { type SecurityMapIpFocus } from '@/components/admin/SecurityWorldMap';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -34,6 +34,28 @@ function getCountryName(code: string): string {
   } catch {
     return code;
   }
+}
+
+type IpGeoPayload = {
+  found: boolean;
+  lat?: number | null;
+  lon?: number | null;
+  countryCode?: string | null;
+  region?: string | null;
+  city?: string | null;
+  timezone?: string | null;
+};
+
+/** Human-readable region line from geoip-lite fields. */
+function formatIpGeoLabel(geo: IpGeoPayload | undefined): string {
+  if (!geo?.found) return 'Location unknown (private or non-routable IP)';
+  const parts: string[] = [];
+  if (geo.city) parts.push(geo.city);
+  if (geo.region) parts.push(geo.region);
+  if (geo.countryCode) parts.push(getCountryName(geo.countryCode));
+  const base = parts.join(', ');
+  if (geo.timezone) return base ? `${base} · ${geo.timezone}` : geo.timezone;
+  return base || 'Location unknown';
 }
 
 const eventTypeColors: Record<string, string> = {
@@ -112,6 +134,8 @@ const AdminSecurity: React.FC = () => {
   const [blockedIpsLoading, setBlockedIpsLoading] = useState(false);
   const [blockedIpSearch, setBlockedIpSearch] = useState('');
   const [blockedIpScope, setBlockedIpScope] = useState<BlockedIpScope>('all');
+  const [mapIpFocus, setMapIpFocus] = useState<SecurityMapIpFocus | null>(null);
+  const [mapGeoNotice, setMapGeoNotice] = useState<{ ip: string; message: string } | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setSearchDebounced(searchValue.trim()), 300);
@@ -253,6 +277,7 @@ const AdminSecurity: React.FC = () => {
   }, [blockedIps, blockedIpSearch, blockedIpScope]);
 
   const viewIpHistory = async (ip: string) => {
+    document.getElementById('security-world-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     setIpAddress(ip);
     setIpDialogOpen(true);
     setIpLoading(true);
@@ -261,6 +286,19 @@ const AdminSecurity: React.FC = () => {
       if (res.success) {
         setIpHistory(res.data.events || []);
         setIpBlocked(res.data.blocked ?? false);
+        const geo = res.data.geo as IpGeoPayload | undefined;
+        if (geo?.found && typeof geo.lat === 'number' && typeof geo.lon === 'number') {
+          setMapIpFocus({
+            ip,
+            lat: geo.lat,
+            lon: geo.lon,
+            label: formatIpGeoLabel(geo),
+          });
+          setMapGeoNotice(null);
+        } else {
+          setMapIpFocus(null);
+          setMapGeoNotice({ ip, message: formatIpGeoLabel(geo) });
+        }
       }
     } catch {
       toast.error('Failed to load IP history');
@@ -532,33 +570,69 @@ const AdminSecurity: React.FC = () => {
         </div>
       )}
 
-      <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)] overflow-hidden">
+      <Card
+        id="security-world-map"
+        className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm dark:shadow-[0_1px_0_0_rgba(255,255,255,0.06)] overflow-hidden scroll-mt-24"
+      >
         <CardHeader className="border-b border-neutral-100 dark:border-neutral-700/80 pb-4 px-6">
-          <CardTitle className="text-sm font-medium text-neutral-500 dark:text-neutral-400 tracking-wide uppercase flex items-center gap-2">
-            <MapPin className="h-4 w-4" /> Events by Country
-          </CardTitle>
-          <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">Hover over a circle to see details. Scroll to zoom, drag to pan.</p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <CardTitle className="text-sm font-medium text-neutral-500 dark:text-neutral-400 tracking-wide uppercase flex items-center gap-2">
+                <MapPin className="h-4 w-4" /> Events by Country
+              </CardTitle>
+              <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">
+                Hover over a circle for counts. Scroll to zoom, drag to pan. Click an IP in the events table or blocked list to pan here and see GeoIP
+                region.
+              </p>
+            </div>
+            {(mapIpFocus || mapGeoNotice) && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="shrink-0 rounded-lg h-8 text-xs text-neutral-600 dark:text-neutral-400"
+                onClick={() => {
+                  setMapIpFocus(null);
+                  setMapGeoNotice(null);
+                }}
+              >
+                Clear map
+              </Button>
+            )}
+          </div>
+          {mapGeoNotice && (
+            <div className="mt-3 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/90 dark:bg-amber-950/40 px-3 py-2 text-xs text-amber-950 dark:text-amber-100">
+              <span className="font-mono font-medium">{mapGeoNotice.ip}</span>
+              <span className="text-amber-800 dark:text-amber-200"> — {mapGeoNotice.message}</span>
+            </div>
+          )}
         </CardHeader>
         <CardContent className="p-0">
           {byCountryLoading ? (
             <div className="p-6">
               <Skeleton className="w-full h-[300px] rounded-lg bg-neutral-100 dark:bg-neutral-700" />
             </div>
-          ) : byCountry.length > 0 ? (
+          ) : byCountry.length > 0 || mapIpFocus ? (
             <>
-              <SecurityWorldMap data={byCountry} />
+              <SecurityWorldMap data={byCountry} ipFocus={mapIpFocus} />
               <div className="px-6 pb-5 pt-3 border-t border-neutral-100 dark:border-neutral-700/50">
-                <div className="flex flex-wrap gap-x-5 gap-y-1">
-                  {byCountry.slice(0, 12).map((c) => (
-                    <span key={c.countryCode} className="text-[11px] text-neutral-500 dark:text-neutral-400 tabular-nums">
-                      <span className="font-medium text-neutral-700 dark:text-neutral-300">{getCountryName(c.countryCode)}</span>{' '}
-                      {c.count.toLocaleString()}
-                    </span>
-                  ))}
-                  {byCountry.length > 12 && (
-                    <span className="text-[11px] text-neutral-400 dark:text-neutral-500">+{byCountry.length - 12} more</span>
-                  )}
-                </div>
+                {byCountry.length > 0 ? (
+                  <div className="flex flex-wrap gap-x-5 gap-y-1">
+                    {byCountry.slice(0, 12).map((c) => (
+                      <span key={c.countryCode} className="text-[11px] text-neutral-500 dark:text-neutral-400 tabular-nums">
+                        <span className="font-medium text-neutral-700 dark:text-neutral-300">{getCountryName(c.countryCode)}</span>{' '}
+                        {c.count.toLocaleString()}
+                      </span>
+                    ))}
+                    {byCountry.length > 12 && (
+                      <span className="text-[11px] text-neutral-400 dark:text-neutral-500">+{byCountry.length - 12} more</span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-neutral-400 dark:text-neutral-500">
+                    No country aggregates yet. The map still shows the selected IP when GeoIP resolves.
+                  </p>
+                )}
               </div>
             </>
           ) : byCountryError ? (
