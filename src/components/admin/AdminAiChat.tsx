@@ -8,13 +8,33 @@ import { post, get } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
+type ToolCallMeta = {
+  name: string;
+  input: unknown;
+  result?: {
+    rowCount?: number;
+    durationMs?: number;
+    warnings?: string[];
+  };
+  error?: string;
+};
+
 type Message = {
   role: 'user' | 'assistant';
   content: string;
-  toolCalls?: Array<{ name: string; input: unknown; result?: unknown; error?: string }>;
+  toolCalls?: ToolCallMeta[];
+  warnings?: string[];
+  totalDurationMs?: number;
 };
 
 const MAX_HISTORY = 20;
+
+// Thresholds at which we escalate the "still working" hint shown to the admin
+// while the backend is running a long query. These are purely UI feedback;
+// the backend has no row cap or timeout.
+const SLOW_HINT_MS = 4_000;
+const VERY_SLOW_HINT_MS = 15_000;
+const EXTREME_HINT_MS = 30_000;
 
 const AdminAiChat: React.FC = () => {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -28,6 +48,7 @@ const AdminAiChat: React.FC = () => {
   const [draft, setDraft] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [sending, setSending] = useState(false);
+  const [elapsedMs, setElapsedMs] = useState(0);
 
   // Lightweight config check on mount so the widget can gracefully hide
   // itself if the assistant hasn't been configured yet.
@@ -76,6 +97,11 @@ const AdminAiChat: React.FC = () => {
     setMessages(next);
     setDraft('');
     setSending(true);
+    setElapsedMs(0);
+    const startedAt = Date.now();
+    const tick = window.setInterval(() => {
+      setElapsedMs(Date.now() - startedAt);
+    }, 500);
     try {
       const history = next.slice(-MAX_HISTORY).map(({ role, content }) => ({ role, content }));
       const res = await post('/admin/ai/chat', { messages: history });
@@ -84,6 +110,10 @@ const AdminAiChat: React.FC = () => {
           role: 'assistant',
           content: res.data.message || '(No response)',
           toolCalls: res.data.toolCalls,
+          warnings: Array.isArray(res.data.warnings) ? res.data.warnings : undefined,
+          totalDurationMs: typeof res.data.totalDurationMs === 'number'
+            ? res.data.totalDurationMs
+            : undefined,
         };
         setMessages((prev) => [...prev, reply]);
       } else {
@@ -98,7 +128,9 @@ const AdminAiChat: React.FC = () => {
       toast.error(msg);
       setMessages((prev) => [...prev, { role: 'assistant', content: `(error: ${msg})` }]);
     } finally {
+      window.clearInterval(tick);
       setSending(false);
+      setElapsedMs(0);
       setTimeout(() => textareaRef.current?.focus(), 30);
     }
   }, [draft, messages, sending]);
@@ -196,12 +228,7 @@ const AdminAiChat: React.FC = () => {
               {messages.map((m, i) => (
                 <MessageBubble key={i} message={m} />
               ))}
-              {sending && (
-                <div className="flex items-center gap-2 text-xs text-neutral-400">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Thinking…
-                </div>
-              )}
+              {sending && <ThinkingIndicator elapsedMs={elapsedMs} />}
             </div>
 
             {/* Composer */}
@@ -265,8 +292,40 @@ const AdminAiChat: React.FC = () => {
   );
 };
 
+function ThinkingIndicator({ elapsedMs }: { elapsedMs: number }) {
+  const seconds = Math.floor(elapsedMs / 1000);
+  const label = elapsedMs >= EXTREME_HINT_MS
+    ? `Still crunching a heavy query (${seconds}s) — no row cap, please hang on…`
+    : elapsedMs >= VERY_SLOW_HINT_MS
+      ? `Running a long query (${seconds}s) — pulling extended data…`
+      : elapsedMs >= SLOW_HINT_MS
+        ? `Thinking (${seconds}s) — this may take a moment for large queries.`
+        : 'Thinking…';
+
+  const severe = elapsedMs >= VERY_SLOW_HINT_MS;
+
+  return (
+    <div
+      className={cn(
+        'flex items-start gap-2 text-xs rounded-xl px-3 py-2 border',
+        severe
+          ? 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/30 dark:text-amber-200 dark:border-amber-900/40'
+          : 'bg-neutral-50 text-neutral-500 border-neutral-100 dark:bg-neutral-800/50 dark:text-neutral-400 dark:border-neutral-800',
+      )}
+    >
+      {severe ? (
+        <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+      ) : (
+        <Loader2 className="h-3 w-3 mt-0.5 shrink-0 animate-spin" />
+      )}
+      <span className="leading-snug">{label}</span>
+    </div>
+  );
+}
+
 function MessageBubble({ message }: { message: Message }) {
   const isUser = message.role === 'user';
+  const warnings = message.warnings ?? [];
   return (
     <div className={cn('flex', isUser ? 'justify-end' : 'justify-start')}>
       <div
@@ -278,22 +337,54 @@ function MessageBubble({ message }: { message: Message }) {
         )}
       >
         {message.content}
+
+        {!isUser && warnings.length > 0 && (
+          <div className="mt-2 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200 p-2 space-y-1">
+            <div className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide">
+              <AlertTriangle className="h-3 w-3" />
+              Warnings
+            </div>
+            <ul className="text-[11px] leading-snug list-disc pl-4">
+              {warnings.map((w, i) => (
+                <li key={i}>{w}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {message.toolCalls && message.toolCalls.length > 0 && (
           <div className="mt-2 pt-2 border-t border-white/10 dark:border-black/10 space-y-1">
-            {message.toolCalls.map((tc, i) => (
-              <details key={i} className="text-[10px] opacity-80">
-                <summary className="cursor-pointer font-mono inline-flex items-center gap-1">
-                  <Database className="h-3 w-3" />
-                  {tc.name}
-                  {tc.error ? ' · error' : ''}
-                </summary>
-                <pre className="mt-1 whitespace-pre-wrap font-mono opacity-75 text-[10px]">
-                  {JSON.stringify(tc.input, null, 2)}
-                </pre>
-                {tc.error && <p className="text-red-300 font-mono">{tc.error}</p>}
-              </details>
-            ))}
+            {message.toolCalls.map((tc, i) => {
+              const rowCount = tc.result?.rowCount;
+              const durationMs = tc.result?.durationMs;
+              return (
+                <details key={i} className="text-[10px] opacity-80">
+                  <summary className="cursor-pointer font-mono inline-flex items-center gap-1 flex-wrap">
+                    <Database className="h-3 w-3" />
+                    {tc.name}
+                    {tc.error
+                      ? ' · error'
+                      : (
+                        <span className="opacity-70">
+                          {typeof rowCount === 'number' ? ` · ${rowCount.toLocaleString()} rows` : ''}
+                          {typeof durationMs === 'number' ? ` · ${durationMs}ms` : ''}
+                        </span>
+                      )}
+                  </summary>
+                  <pre className="mt-1 whitespace-pre-wrap font-mono opacity-75 text-[10px]">
+                    {JSON.stringify(tc.input, null, 2)}
+                  </pre>
+                  {tc.error && <p className="text-red-300 font-mono">{tc.error}</p>}
+                </details>
+              );
+            })}
           </div>
+        )}
+
+        {!isUser && typeof message.totalDurationMs === 'number' && message.totalDurationMs >= SLOW_HINT_MS && (
+          <p className="mt-1.5 text-[10px] opacity-60">
+            Took {(message.totalDurationMs / 1000).toFixed(1)}s
+          </p>
         )}
       </div>
     </div>

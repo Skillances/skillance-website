@@ -11,7 +11,163 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
-interface UserData { id: string; firebaseUid: string; email: string; fullName: string; tag: string; phoneNumber: string | null; profilePhotoUrl: string | null; userType: string; isAdmin: boolean; createdAt: string; updatedAt: string; freelancer: any | null; }
+interface CalendarLink {
+  id: string;
+  provider: 'google' | 'apple' | string;
+  providerAccountId: string;
+  status: string;
+  syncDirection: string;
+  defaultCalendarId: string | null;
+  lastSyncedAt: string | null;
+  lastError: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface UserData {
+  id: string;
+  firebaseUid: string;
+  email: string;
+  fullName: string;
+  tag: string;
+  phoneNumber: string | null;
+  profilePhotoUrl: string | null;
+  userType: string;
+  isAdmin: boolean;
+  createdAt: string;
+  updatedAt: string;
+  customerBookingsCount?: number;
+  calendarSyncEnabled?: boolean;
+  calendarLinks?: CalendarLink[];
+  freelancer: any | null;
+}
+
+// Mirrors the list page (AdminUsers.tsx). A user is considered to act as a
+// customer if their `userType` is "customer" OR they have ever placed a
+// booking (even when their primary userType is "freelancer"). A user is a
+// freelancer whenever they have a freelancer profile row.
+function getUserRoles(u: UserData): { freelancer: boolean; customer: boolean } {
+  const hasFreelancerProfile = u.freelancer !== null;
+  const hasCustomerActivity =
+    (u.customerBookingsCount ?? 0) > 0 || u.userType === 'customer';
+
+  if (hasFreelancerProfile && hasCustomerActivity) {
+    return { freelancer: true, customer: true };
+  }
+  if (hasFreelancerProfile) {
+    return { freelancer: true, customer: false };
+  }
+  return { freelancer: false, customer: true };
+}
+
+const GoogleGlyph: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    viewBox="0 0 48 48"
+    aria-hidden
+    className={className}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.4 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+    <path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 0 1 9.5 24c0-1.6.27-3.14.74-4.59l-7.98-6.19A23.94 23.94 0 0 0 0 24c0 3.84.92 7.47 2.56 10.78l7.97-6.19z" />
+    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+  </svg>
+);
+
+const AppleGlyph: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    viewBox="0 0 24 24"
+    aria-hidden
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      fill="currentColor"
+      d="M16.365 1.43c0 1.14-.43 2.24-1.23 3.05-.87.9-2.08 1.55-3.18 1.45-.12-1.11.43-2.26 1.22-3.05.86-.9 2.12-1.57 3.19-1.45zM21 17.13c-.48 1.12-.71 1.63-1.33 2.62-.87 1.39-2.11 3.12-3.64 3.14-1.36.02-1.71-.88-3.55-.87-1.84.01-2.23.89-3.58.87-1.53-.02-2.7-1.58-3.57-2.97C2.35 16.12 2.07 11.06 3.98 8.26c1.04-1.5 2.66-2.38 4.19-2.38 1.55 0 2.53.85 3.83.85 1.26 0 2.02-.85 3.82-.85 1.37 0 2.83.74 3.88 2.03-3.41 1.87-2.85 6.74.3 9.22z"
+    />
+  </svg>
+);
+
+const ConnectedAccountCard: React.FC<{ link: CalendarLink }> = ({ link }) => {
+  const provider = link.provider?.toLowerCase();
+  const isGoogle = provider === 'google';
+  const isApple = provider === 'apple';
+  const displayName = isGoogle ? 'Google' : isApple ? 'Apple' : link.provider;
+
+  const statusStyles =
+    link.status === 'active'
+      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300'
+      : link.status === 'error'
+        ? 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300'
+        : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400';
+
+  return (
+    <div className="flex items-start gap-3 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      <div className="shrink-0 h-9 w-9 rounded-full bg-neutral-50 dark:bg-neutral-800 flex items-center justify-center text-neutral-800 dark:text-neutral-200">
+        {isGoogle ? (
+          <GoogleGlyph className="h-4 w-4" />
+        ) : isApple ? (
+          <AppleGlyph className="h-4 w-4" />
+        ) : (
+          <span className="text-[10px] font-semibold uppercase">{displayName.slice(0, 2)}</span>
+        )}
+      </div>
+      <div className="min-w-0 flex-1 space-y-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className="text-sm font-medium text-black dark:text-white">
+            {displayName}
+          </p>
+          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${statusStyles}`}>
+            {link.status}
+          </span>
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+            {link.syncDirection === 'two_way' ? 'Two-way sync' : 'Outbound only'}
+          </span>
+        </div>
+        <p className="text-xs text-neutral-500 truncate">{link.providerAccountId}</p>
+        <div className="text-[11px] text-neutral-400 flex flex-wrap gap-x-3 gap-y-0.5">
+          <span>
+            Linked {new Date(link.createdAt).toLocaleDateString('en-ZA', {
+              year: 'numeric', month: 'short', day: 'numeric',
+            })}
+          </span>
+          {link.lastSyncedAt && (
+            <span>
+              Last sync {new Date(link.lastSyncedAt).toLocaleString('en-ZA')}
+            </span>
+          )}
+        </div>
+        {link.lastError && (
+          <p className="text-[11px] text-red-500 dark:text-red-400 line-clamp-2">
+            {link.lastError}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const UserTypeValue: React.FC<{ user: UserData }> = ({ user }) => {
+  const roles = getUserRoles(user);
+  if (roles.freelancer && roles.customer) {
+    return (
+      <div className="flex flex-wrap items-center gap-1">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-violet-50 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300">
+          Freelancer
+        </span>
+        <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">
+          &amp;
+        </span>
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+          Customer
+        </span>
+      </div>
+    );
+  }
+  const status = roles.freelancer ? 'freelancer' : 'customer';
+  return <StatusBadge status={status as any} />;
+};
 
 const AdminUserDetail: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -77,7 +233,7 @@ const AdminUserDetail: React.FC = () => {
   const profileFields: DetailField[] = [
     { label: 'Full Name', value: user.fullName }, { label: 'Tag', value: `@${user.tag}` },
     { label: 'Email', value: user.email }, { label: 'Phone', value: user.phoneNumber || '--' },
-    { label: 'User Type', value: <StatusBadge status={user.userType as any} /> },
+    { label: 'User Type', value: <UserTypeValue user={user} /> },
     { label: 'Admin', value: user.isAdmin ? <StatusBadge status="admin" /> : 'No' },
   ];
   const systemFields: DetailField[] = [
@@ -108,6 +264,28 @@ const AdminUserDetail: React.FC = () => {
         <DetailCard title="Profile Information" fields={profileFields} />
         <DetailCard title="System Information" fields={systemFields} />
         {user.freelancer && <DetailCard title="Freelancer Profile" fields={freelancerFields} className="lg:col-span-2" />}
+
+        <div className="lg:col-span-2 bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-100 dark:border-neutral-800 p-6 shadow-soft">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-black dark:text-white tracking-tight">
+              Connected accounts
+            </h3>
+            <span className="text-[10px] uppercase tracking-widest text-neutral-400">
+              Google &amp; Apple
+            </span>
+          </div>
+          {user.calendarLinks && user.calendarLinks.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {user.calendarLinks.map((link) => (
+                <ConnectedAccountCard key={link.id} link={link} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-neutral-400">
+              No Google or Apple accounts are linked to this user.
+            </p>
+          )}
+        </div>
       </div>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
