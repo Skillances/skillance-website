@@ -34,6 +34,7 @@ import {
   LayoutDashboard,
   AlertTriangle,
   Clock,
+  Bug,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import DataTable, { type Column } from '@/components/admin/DataTable';
@@ -82,6 +83,13 @@ function rangeForKey(key: TimeRangeKey): { from: Date; to: Date } {
   else if (key === '7d') from.setDate(from.getDate() - 7);
   else from.setDate(from.getDate() - 30);
   return { from, to };
+}
+
+/** Hours for persisted error streams (query_metrics + security_events). */
+function hoursForErrorsRange(key: TimeRangeKey): number {
+  if (key === '24h') return 24;
+  if (key === '7d') return 168;
+  return 720;
 }
 
 function bucketLabel(iso: string): string {
@@ -283,9 +291,99 @@ const criticalColumns: Column<CriticalLogRow>[] = [
   },
 ];
 
+type ObservabilityErrorRow = {
+  id: string;
+  source: 'database' | 'security';
+  severity: 'error' | 'warn';
+  title: string;
+  message: string;
+  createdAt: string;
+  context: Record<string, unknown> | null;
+};
+
+function formatErrorContext(ctx: Record<string, unknown> | null): string {
+  if (!ctx || Object.keys(ctx).length === 0) return '';
+  try {
+    return JSON.stringify(ctx);
+  } catch {
+    return '';
+  }
+}
+
+const errorColumns: Column<ObservabilityErrorRow>[] = [
+  {
+    key: 'createdAt',
+    header: 'Time',
+    render: (r) => (
+      <div className="min-w-[140px]">
+        <p className="text-sm text-black dark:text-white">{new Date(r.createdAt).toLocaleString()}</p>
+        <p className="text-[10px] text-neutral-400 font-mono truncate max-w-[200px]">{r.source}</p>
+      </div>
+    ),
+  },
+  {
+    key: 'severity',
+    header: 'Level',
+    render: (r) => (
+      <span
+        className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${
+          r.severity === 'error'
+            ? 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200'
+            : 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100'
+        }`}
+      >
+        {r.severity}
+      </span>
+    ),
+  },
+  {
+    key: 'source',
+    header: 'Source',
+    render: (r) => (
+      <span className="text-xs font-medium text-neutral-600 dark:text-neutral-300">
+        {r.source === 'database' ? 'DB query' : 'Security'}
+      </span>
+    ),
+  },
+  {
+    key: 'title',
+    header: 'Type / key',
+    render: (r) => (
+      <span className="font-mono text-xs text-neutral-700 dark:text-neutral-200 truncate max-w-[280px] block" title={r.title}>
+        {r.title}
+      </span>
+    ),
+  },
+  {
+    key: 'message',
+    header: 'Message',
+    render: (r) => (
+      <span className="text-xs text-neutral-600 dark:text-neutral-300 line-clamp-2 max-w-[360px]" title={r.message}>
+        {r.message}
+      </span>
+    ),
+  },
+  {
+    key: 'context',
+    header: 'Context',
+    render: (r) => {
+      const s = formatErrorContext(r.context);
+      if (!s) return <span className="text-xs text-neutral-400">—</span>;
+      return (
+        <span className="text-[10px] font-mono text-neutral-500 truncate max-w-[220px] block" title={s}>
+          {s.slice(0, 120)}
+          {s.length > 120 ? '…' : ''}
+        </span>
+      );
+    },
+  },
+];
+
 const AdminObservability: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab = searchParams.get('tab') === 'database' || searchParams.get('tab') === 'critical' ? searchParams.get('tab')! : 'traffic';
+  const rawTab = searchParams.get('tab');
+  const tab =
+    rawTab === 'database' || rawTab === 'critical' || rawTab === 'errors' ? rawTab : 'traffic';
 
   const setTab = (v: string) => {
     const next = new URLSearchParams(searchParams);
@@ -308,6 +406,11 @@ const AdminObservability: React.FC = () => {
     loading: false,
   });
   const [criticalActionFilter, setCriticalActionFilter] = useState<string | null>(null);
+  const [errorsState, setErrorsState] = useState<{
+    rows: ObservabilityErrorRow[];
+    window: { from: string; to: string; hours: number } | null;
+    loading: boolean;
+  }>({ rows: [], window: null, loading: false });
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -350,6 +453,30 @@ const AdminObservability: React.FC = () => {
     },
     [rangeKey],
   );
+
+  const fetchErrorsData = useCallback(async () => {
+    setErrorsState((s) => ({ ...s, loading: true }));
+    try {
+      const hours = hoursForErrorsRange(rangeKey);
+      const res = await get(`${ApiPaths.admin.observabilityErrors}?hours=${hours}&limit=200`);
+      if (res.success && res.data) {
+        const payload = res.data as {
+          rows?: ObservabilityErrorRow[];
+          window?: { from: string; to: string; hours: number };
+        };
+        setErrorsState({
+          rows: payload.rows ?? [],
+          window: payload.window ?? null,
+          loading: false,
+        });
+      } else {
+        setErrorsState({ rows: [], window: null, loading: false });
+      }
+    } catch {
+      toast.error('Failed to load system errors');
+      setErrorsState({ rows: [], window: null, loading: false });
+    }
+  }, [rangeKey]);
 
   useEffect(() => {
     void fetchData();
@@ -395,6 +522,11 @@ const AdminObservability: React.FC = () => {
     };
   }, [tab]);
 
+  useEffect(() => {
+    if (tab !== 'errors') return;
+    void fetchErrorsData();
+  }, [tab, rangeKey, fetchErrorsData]);
+
   const chartData =
     history?.byTime.map((b) => ({
       name: bucketLabel(b.bucketStart),
@@ -433,7 +565,10 @@ const AdminObservability: React.FC = () => {
             size="sm"
             className="rounded-full"
             disabled={refreshing}
-            onClick={() => void fetchData()}
+            onClick={() => {
+              void fetchData();
+              if (tab === 'errors') void fetchErrorsData();
+            }}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
@@ -457,6 +592,10 @@ const AdminObservability: React.FC = () => {
           </TabsTrigger>
           <TabsTrigger value="critical" className="rounded-lg px-4">
             Critical flows
+          </TabsTrigger>
+          <TabsTrigger value="errors" className="rounded-lg px-4">
+            <Bug className="h-3.5 w-3.5 mr-1.5 inline-block align-middle" />
+            Errors
           </TabsTrigger>
         </TabsList>
 
@@ -763,6 +902,41 @@ const AdminObservability: React.FC = () => {
               />
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent value="errors" className="space-y-6 mt-6">
+          <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2 text-neutral-700 dark:text-neutral-200">
+                <Bug className="h-4 w-4 text-red-600" /> System errors (persisted)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              <p>
+                Combines <strong>failed Prisma queries</strong> recorded in <code className="text-xs">query_metrics</code>{' '}
+                (non-empty <code className="text-xs">error</code>) with <strong>security events</strong> from{' '}
+                <code className="text-xs">security_events</code>. Routine calendar sync noise (<code className="text-xs">availability_*</code>) is
+                omitted. The time range matches the selector above.
+              </p>
+              {errorsState.window && (
+                <p className="text-xs text-neutral-500 font-mono">
+                  Window: {new Date(errorsState.window.from).toISOString()} – {new Date(errorsState.window.to).toISOString()}{' '}
+                  ({errorsState.window.hours}h)
+                </p>
+              )}
+            </CardContent>
+          </Card>
+          {errorsState.loading ? (
+            <Skeleton className="h-48 rounded-2xl bg-neutral-100 dark:bg-neutral-800" />
+          ) : (
+            <DataTable
+              columns={errorColumns}
+              data={errorsState.rows}
+              isLoading={errorsState.loading}
+              emptyTitle="No errors in this window"
+              emptyDescription="When queries fail or security middleware logs an event, rows appear here."
+            />
+          )}
         </TabsContent>
       </Tabs>
 

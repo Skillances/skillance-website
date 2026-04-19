@@ -36,6 +36,7 @@ export const ApiPaths = {
     metricsSnapshot: '/admin/metrics/snapshot',
     metricsHistory: '/admin/metrics/history',
     queryMetrics: '/admin/query-metrics',
+    observabilityErrors: '/admin/observability/errors',
 
     chats: '/admin/chats',
     bookingChat: (bookingId: string) => `/admin/bookings/${bookingId}/chat`,
