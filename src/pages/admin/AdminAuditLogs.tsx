@@ -70,6 +70,11 @@ const ACTION_OPTIONS = [
   { label: 'Favorite Remove', value: 'favorite_remove' },
   { label: 'Profile Update', value: 'profile_update' },
   { label: 'Freelancer Profile Update', value: 'freelancer_profile_update' },
+  { label: 'Cookie consent', value: 'cookie_consent' },
+  { label: 'Moderation: chat', value: 'content_moderation_chat' },
+  { label: 'Moderation: contact', value: 'content_moderation_contact_message' },
+  { label: 'Moderation: freelancer bio', value: 'content_moderation_freelancer_bio' },
+  { label: 'Moderation: portfolio', value: 'content_moderation_portfolio_project' },
 ];
 
 const RESOURCE_OPTIONS = [
@@ -78,6 +83,10 @@ const RESOURCE_OPTIONS = [
   { label: 'Booking', value: 'booking' },
   { label: 'Favorite', value: 'favorite' },
   { label: 'Freelancer', value: 'freelancer' },
+  { label: 'Cookie consent', value: 'cookie_consent' },
+  { label: 'Conversation message', value: 'conversation_message' },
+  { label: 'Contact message', value: 'contact_message' },
+  { label: 'Portfolio project', value: 'portfolio_project' },
 ];
 
 function normalizeAuditLog(raw: unknown): AuditLog {

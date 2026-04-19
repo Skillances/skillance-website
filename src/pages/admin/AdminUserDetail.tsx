@@ -3,9 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { get, put } from '@/lib/api';
 import { ArrowLeft, Edit, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import PageHeader from '@/components/admin/PageHeader';
 import DetailCard, { type DetailField } from '@/components/admin/DetailCard';
 import StatusBadge from '@/components/admin/StatusBadge';
@@ -21,27 +20,34 @@ const AdminUserDetail: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [editForm, setEditForm] = useState({ fullName: '', phoneNumber: '', userType: '', isAdmin: false });
+  const [editForm, setEditForm] = useState({ userType: '', isAdmin: false });
 
   useEffect(() => {
     const fetch = async () => {
       try {
         setIsLoading(true);
         const res = await get(`/admin/users/${userId}`);
-        if (res.success) { setUser(res.data); setEditForm({ fullName: res.data.fullName || '', phoneNumber: res.data.phoneNumber || '', userType: res.data.userType, isAdmin: res.data.isAdmin }); }
+        if (res.success) {
+          setUser(res.data);
+          setEditForm({ userType: res.data.userType, isAdmin: res.data.isAdmin });
+        }
       } catch { toast.error('Failed to load user'); }
       finally { setIsLoading(false); }
     };
     if (userId) fetch();
   }, [userId]);
 
+  const openAccountSettings = () => {
+    if (!user) return;
+    setEditForm({ userType: user.userType, isAdmin: user.isAdmin });
+    setEditOpen(true);
+  };
+
   const handleSave = async () => {
     if (!userId) return;
     try {
       setSaving(true);
-      const payload: any = {};
-      if (editForm.fullName !== user?.fullName) payload.fullName = editForm.fullName;
-      if (editForm.phoneNumber !== (user?.phoneNumber || '')) payload.phoneNumber = editForm.phoneNumber;
+      const payload: Record<string, unknown> = {};
       if (editForm.userType !== user?.userType) payload.userType = editForm.userType;
       if (editForm.isAdmin !== user?.isAdmin) payload.isAdmin = editForm.isAdmin;
       if (Object.keys(payload).length === 0) { setEditOpen(false); return; }
@@ -93,8 +99,8 @@ const AdminUserDetail: React.FC = () => {
         <Button variant="outline" size="sm" onClick={() => navigate('/admin/users')} className="border-neutral-200 text-neutral-500 hover:text-black hover:border-neutral-300 rounded-full">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
-        <Button size="sm" onClick={() => setEditOpen(true)} className="bg-black text-white hover:bg-neutral-800 rounded-full">
-          <Edit className="mr-2 h-4 w-4" /> Edit User
+        <Button size="sm" onClick={openAccountSettings} className="bg-black text-white hover:bg-neutral-800 rounded-full">
+          <Edit className="mr-2 h-4 w-4" /> Account settings
         </Button>
       </PageHeader>
 
@@ -106,16 +112,13 @@ const AdminUserDetail: React.FC = () => {
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="bg-white border-neutral-200 text-black sm:max-w-md rounded-2xl shadow-soft-lg">
-          <DialogHeader><DialogTitle className="text-black font-serif text-xl">Edit User</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle className="text-black font-serif text-xl">Account settings</DialogTitle>
+            <DialogDescription className="text-xs text-neutral-500 pt-1">
+              Name, email, and phone can only be changed by the user (POPIA). Admins may adjust role flags only.
+            </DialogDescription>
+          </DialogHeader>
           <div className="space-y-5 py-2">
-            <div>
-              <label className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2 block">Full Name</label>
-              <Input value={editForm.fullName} onChange={(e) => setEditForm((f) => ({ ...f, fullName: e.target.value }))} className="bg-white border-neutral-200 text-black rounded-xl focus-visible:ring-neutral-300" />
-            </div>
-            <div>
-              <label className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2 block">Phone Number</label>
-              <Input value={editForm.phoneNumber} onChange={(e) => setEditForm((f) => ({ ...f, phoneNumber: e.target.value }))} className="bg-white border-neutral-200 text-black rounded-xl focus-visible:ring-neutral-300" />
-            </div>
             <div>
               <label className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2 block">User Type</label>
               <Select value={editForm.userType} onValueChange={(v) => setEditForm((f) => ({ ...f, userType: v }))}>

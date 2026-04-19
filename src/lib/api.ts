@@ -154,7 +154,14 @@ export async function post(endpoint: string, data: any) {
     throw error;
   }
 
-  return response.json();
+  if (response.status === 204) {
+    return { success: true };
+  }
+  const text = await response.text();
+  if (!text.trim()) {
+    return { success: true };
+  }
+  return JSON.parse(text);
 }
 
 export async function get(endpoint: string) {

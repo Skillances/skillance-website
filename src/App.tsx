@@ -51,6 +51,7 @@ const AdminNotifySubscribers = lazy(() => import('./pages/admin/AdminNotifySubsc
 const AdminWebsiteReviews = lazy(() => import('./pages/admin/AdminWebsiteReviews'));
 const AdminBookingReviews = lazy(() => import('./pages/admin/AdminBookingReviews'));
 const AdminChatLogs = lazy(() => import('./pages/admin/AdminChatLogs'));
+const AdminCompliance = lazy(() => import('./pages/admin/AdminCompliance'));
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -256,6 +257,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                             <Route path="finance" element={<AdminFinance />} />
                             <Route path="security" element={<AdminSecurity />} />
                             <Route path="audit-logs" element={<AdminAuditLogs />} />
+                            <Route path="compliance" element={<AdminCompliance />} />
                             <Route path="categories" element={<AdminCategories />} />
                             <Route path="contact-messages" element={<AdminContactMessages />} />
                             <Route path="chat-logs" element={<AdminChatLogs />} />
