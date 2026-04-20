@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { get, put } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { ArrowLeft, Edit, Loader2, Tag } from 'lucide-react';
@@ -12,6 +12,7 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { useAdminBackNavigation } from '@/hooks/useAdminBackNavigation';
 
 interface CalendarLink {
   id: string;
@@ -179,7 +180,7 @@ const UserTypeValue: React.FC<{ user: UserData }> = ({ user }) => {
 
 const AdminUserDetail: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
-  const navigate = useNavigate();
+  const goBack = useAdminBackNavigation();
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
@@ -258,7 +259,7 @@ const AdminUserDetail: React.FC = () => {
   if (!user) return (
     <div className="text-center py-20">
       <p className="text-neutral-500">User not found</p>
-      <Button variant="outline" className="mt-4 rounded-full" onClick={() => navigate('/admin/users')}>Back to Users</Button>
+      <Button variant="outline" className="mt-4 rounded-full" onClick={() => goBack('/admin/users')}>Back</Button>
     </div>
   );
 
@@ -287,7 +288,7 @@ const AdminUserDetail: React.FC = () => {
   return (
     <div className="space-y-10">
       <PageHeader title={user.fullName} description={user.email}>
-        <Button variant="outline" size="sm" onClick={() => navigate('/admin/users')} className="border-neutral-200 text-neutral-500 hover:text-black hover:border-neutral-300 rounded-full">
+        <Button variant="outline" size="sm" onClick={() => goBack('/admin/users')} className="border-neutral-200 text-neutral-500 hover:text-black hover:border-neutral-300 rounded-full">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
         <Button size="sm" onClick={openAccountSettings} className="bg-black text-white hover:bg-neutral-800 rounded-full">

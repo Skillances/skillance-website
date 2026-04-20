@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { get, put, post, del } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { ArrowLeft, CheckCircle, XCircle, User, IdCard, FileCheck, BadgeCheck, Shield, ZoomIn, ZoomOut, RotateCw, Minimize2, Trash2, ImageIcon, Tag, CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import AdminBookingChatPanel from '@/components/admin/AdminBookingChatPanel';
+import { useAdminBackNavigation } from '@/hooks/useAdminBackNavigation';
 
 const bookingStatusMap: Record<string, string> = {
   pending: 'warning',
@@ -63,7 +64,7 @@ function getFreelancerKycSlice(f: Record<string, any> | null) {
 
 const AdminFreelancerDetail: React.FC = () => {
   const { freelancerId } = useParams<{ freelancerId: string }>();
-  const navigate = useNavigate();
+  const goBack = useAdminBackNavigation();
   const [freelancer, setFreelancer] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -219,7 +220,7 @@ const AdminFreelancerDetail: React.FC = () => {
   };
 
   if (isLoading) return (<div className="space-y-8"><Skeleton className="h-10 w-64 bg-neutral-100 rounded" /><div className="grid grid-cols-1 lg:grid-cols-2 gap-6"><Skeleton className="h-72 bg-neutral-100 rounded-2xl" /><Skeleton className="h-72 bg-neutral-100 rounded-2xl" /></div></div>);
-  if (!freelancer) return (<div className="text-center py-20"><p className="text-neutral-500">Freelancer not found</p><Button variant="outline" className="mt-4 rounded-full" onClick={() => navigate('/admin/freelancers')}>Back</Button></div>);
+  if (!freelancer) return (<div className="text-center py-20"><p className="text-neutral-500">Freelancer not found</p><Button variant="outline" className="mt-4 rounded-full" onClick={() => goBack('/admin/freelancers')}>Back</Button></div>);
 
   const kyc = getFreelancerKycSlice(freelancer);
 
@@ -266,7 +267,7 @@ const AdminFreelancerDetail: React.FC = () => {
   return (
     <div className="space-y-10">
       <PageHeader title={nameWithBadges} description={`Freelancer profile - ${freelancer.user?.email}`}>
-        <Button variant="outline" size="sm" onClick={() => navigate('/admin/freelancers')} className="border-neutral-200 text-neutral-500 hover:text-black hover:border-neutral-300 rounded-full"><ArrowLeft className="mr-2 h-4 w-4" /> Back</Button>
+        <Button variant="outline" size="sm" onClick={() => goBack('/admin/freelancers')} className="border-neutral-200 text-neutral-500 hover:text-black hover:border-neutral-300 rounded-full"><ArrowLeft className="mr-2 h-4 w-4" /> Back</Button>
       </PageHeader>
 
       {(canVerifyId || canVerifyClearance) && (
