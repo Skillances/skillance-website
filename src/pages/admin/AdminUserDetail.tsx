@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import PageHeader from '@/components/admin/PageHeader';
+import { resolveCategoryLabel } from '@/lib/utils';
 import DetailCard, { type DetailField } from '@/components/admin/DetailCard';
 import StatusBadge from '@/components/admin/StatusBadge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -321,7 +322,7 @@ const AdminUserDetail: React.FC = () => {
                     >
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-black dark:text-white truncate">
-                          {categoryMap[cr.categoryId] || cr.categoryId}
+                          {resolveCategoryLabel(cr.categoryId, categoryMap)}
                         </p>
                         {cr.bookingPricingMode && cr.bookingPricingMode !== 'hourly' && (
                           <p className="text-[11px] text-neutral-400 mt-0.5 capitalize">{cr.bookingPricingMode} pricing</p>
@@ -340,7 +341,7 @@ const AdminUserDetail: React.FC = () => {
                       key={id}
                       className="px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-700 text-black dark:text-white"
                     >
-                      {categoryMap[id] || id}
+                      {resolveCategoryLabel(id, categoryMap)}
                     </span>
                   ))}
                 </div>

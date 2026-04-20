@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import AdminBookingChatPanel from '@/components/admin/AdminBookingChatPanel';
 import { useAdminBackNavigation } from '@/hooks/useAdminBackNavigation';
+import { resolveCategoryLabel } from '@/lib/utils';
 
 const bookingStatusMap: Record<string, string> = {
   pending: 'warning',
@@ -239,7 +240,7 @@ const AdminCustomerDetail: React.FC = () => {
                                 <span className="text-black dark:text-white font-medium truncate">{flName}</span>
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{categoryMap[b.category] || b.category}</td>
+                            <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{resolveCategoryLabel(String(b.category ?? ''), categoryMap)}</td>
                             <td className="px-4 py-3"><StatusBadge status={(bookingStatusMap[b.status] || b.status) as any} label={b.status} /></td>
                             <td className="px-6 py-3 text-right font-medium text-black dark:text-white tabular-nums">R{Number(b.totalPrice).toFixed(0)}</td>
                           </tr>

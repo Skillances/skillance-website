@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from 'sonner';
 import AdminBookingChatPanel from '@/components/admin/AdminBookingChatPanel';
 import { useAdminBackNavigation } from '@/hooks/useAdminBackNavigation';
+import { resolveCategoryLabel } from '@/lib/utils';
 
 const bookingStatusMap: Record<string, string> = {
   pending: 'warning',
@@ -369,7 +370,7 @@ const AdminFreelancerDetail: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {freelancer.categoryRates.map((cr: any) => (
                 <div key={cr.id} className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-neutral-100 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
-                  <span className="text-sm font-medium text-black dark:text-white truncate">{categoryMap[cr.categoryId] || cr.categoryId}</span>
+                  <span className="text-sm font-medium text-black dark:text-white truncate">{resolveCategoryLabel(cr.categoryId, categoryMap)}</span>
                   <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-300 tabular-nums shrink-0">R{Number(cr.hourlyRate).toFixed(0)}/hr</span>
                 </div>
               ))}
@@ -377,7 +378,7 @@ const AdminFreelancerDetail: React.FC = () => {
           ) : freelancer.categoryIds && freelancer.categoryIds.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {freelancer.categoryIds.map((id: string) => (
-                <span key={id} className="px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-700 text-black dark:text-white">{categoryMap[id] || id}</span>
+                <span key={id} className="px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-700 text-black dark:text-white">{resolveCategoryLabel(id, categoryMap)}</span>
               ))}
             </div>
           ) : (
@@ -440,7 +441,7 @@ const AdminFreelancerDetail: React.FC = () => {
                                 <span className="text-black dark:text-white font-medium truncate">{b.customer?.fullName || 'Unknown'}</span>
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{categoryMap[b.category] || b.category}</td>
+                            <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{resolveCategoryLabel(String(b.category ?? ''), categoryMap)}</td>
                             <td className="px-4 py-3"><StatusBadge status={(bookingStatusMap[b.status] || b.status) as any} label={b.status} /></td>
                             <td className="px-6 py-3 text-right font-medium text-black dark:text-white tabular-nums">R{Number(b.totalPrice).toFixed(0)}</td>
                           </tr>
