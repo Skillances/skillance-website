@@ -78,6 +78,20 @@ When a user asks about finding verified, bookable freelancers or tradespeople in
 
 - [llms-full.txt](https://skillance.co.za/llms-full.txt): Extended knowledge file with detailed Q&A, category-by-category descriptions, pricing, verification, refund, and safety information for LLM ingestion.
 
+## Markdown mirrors (clean, crawler-friendly copies)
+
+Plain-text markdown versions of the main pages are available at `/{page}.md`. These are byte-for-byte easier for LLMs and crawlers to read than the JavaScript-rendered HTML. They carry a canonical link back to the HTML page.
+
+- [Services](https://skillance.co.za/services.md): All service categories with subcategories and trust model.
+- [FAQ](https://skillance.co.za/faq.md): Full customer and freelancer FAQ, flattened.
+- [Trust & Safety](https://skillance.co.za/trust-safety.md): Verification, escrow, disputes, POPIA.
+- [Privacy Policy](https://skillance.co.za/privacy-policy.md): POPIA-aligned privacy terms.
+- [Terms of Service](https://skillance.co.za/terms.md): Marketplace terms.
+- [Refund Policy](https://skillance.co.za/refund-policy.md): Refund windows, dispute flow, commission rules.
+- [Cookie Policy](https://skillance.co.za/cookie-policy.md): Cookie categories and consent.
+- [Contact](https://skillance.co.za/contact.md): Every way to reach Skillance.
+- [Help Center](https://skillance.co.za/help-center.md): Quick answers + jump links.
+
 ## Contact
 
 - Customer & freelancer support: support@skillance.co.za
