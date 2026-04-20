@@ -274,7 +274,7 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'How do you verify freelancers?',
               kind: 'leaf',
               answer:
-                'Every freelancer goes through ID verification, profile-photo matching, and (for regulated trades) certification checks. Verified badges appear on their profile so you can see at a glance who has passed the full review.',
+                'Every freelancer goes through South African ID verification and profile-photo matching before they can take bookings. Skillance doesn\'t require trade certifications — we\'re a ratings-and-reviews marketplace, so anyone can register and customers judge quality from public reviews left by previous clients. A verified badge appears on profiles once ID verification is complete.',
             },
             {
               id: 'cs.privacy',
@@ -430,7 +430,7 @@ export const PUBLIC_FAQ: FaqNode = {
                   label: 'What documents do I need?',
                   kind: 'leaf',
                   answer:
-                    'A South African ID or valid work permit, a clear profile photo, and (for some categories) a trade certification or proof of qualification. Banking details are captured later so you can receive payouts.',
+                    'A South African ID or valid work permit and a clear profile photo. That\'s it to get listed — Skillance doesn\'t gate registration on trade certifications or qualifications. You build your reputation through ratings and reviews from real jobs. Banking details are captured later so you can receive payouts.',
                 },
                 {
                   id: 'freelancers.join.categories',
@@ -454,11 +454,11 @@ export const PUBLIC_FAQ: FaqNode = {
                     'We check that the photo on your SA ID matches your profile photo and that the ID number is valid. This protects customers and keeps the platform compliant with POPIA and local consumer law.',
                 },
                 {
-                  id: 'freelancers.verify.trade',
-                  label: 'Trade certification',
+                  id: 'freelancers.verify.reviews',
+                  label: 'Ratings & reviews (how customers judge you)',
                   kind: 'leaf',
                   answer:
-                    'Regulated categories (e.g. electrical, plumbing) require proof of qualification. Upload it during sign-up — until it\'s approved your profile shows as "Unverified trade" and some customers may filter you out.',
+                    'Skillance doesn\'t require trade certifications or qualifications to register — we\'re a ratings-and-reviews marketplace. After each completed booking, customers rate you 1–5 stars and leave a public review on your profile. New freelancers start with no reviews; the quickest way to build a strong profile is to take early bookings, do great work, and ask satisfied customers to leave a review. Your rating is the signal customers use most when choosing who to book.',
                 },
                 {
                   id: 'freelancers.verify.reject',
@@ -572,7 +572,7 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'How does Skillance verify freelancers?',
               kind: 'leaf',
               answer:
-                'Every freelancer goes through ID verification, profile-photo matching, and (for regulated trades) certification checks. Customers see verification badges on profiles so they can book with confidence.',
+                'Every freelancer goes through South African ID verification and profile-photo matching before they can take bookings. Skillance doesn\'t require trade certifications — the platform runs on ratings and reviews, so anyone can register and build a reputation through real bookings. A verified badge appears on your profile once ID verification is complete.',
             },
             {
               id: 'fs.privacy',

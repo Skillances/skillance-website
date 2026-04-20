@@ -228,10 +228,14 @@ const Terms = () => {
         <section className="space-y-3">
           <h2 className="text-2xl font-serif text-black mb-2">12. Safety, verification, and off-platform interactions</h2>
           <p className="leading-relaxed">
-            We take reasonable steps to verify Freelancer identity and, for certain categories, require police clearance and
-            qualification evidence. Verification is not a guarantee. Customers and Freelancers interact in person or remotely
-            at their own risk. You are expected to use ordinary care, follow the safety guidance we publish in the Help Center
-            and Trust &amp; Safety pages, and to report safety incidents promptly.
+            We take reasonable steps to verify Freelancer identity (South African ID or equivalent and profile-photo match)
+            before a Freelancer may take bookings. Freelancers may optionally upload a police clearance certificate as an
+            additional trust signal on their profile, and we reserve the right to require further verification for specific
+            roles or categories. Skillance does not require trade certifications as a condition of registration &mdash;
+            Customers evaluate Freelancers through public ratings and reviews from completed bookings. Verification is not a
+            guarantee. Customers and Freelancers interact in person or remotely at their own risk. You are expected to use
+            ordinary care, follow the safety guidance we publish in the Help Center and Trust &amp; Safety pages, and to
+            report safety incidents promptly.
           </p>
           <p className="leading-relaxed">
             Do not meet in unsafe locations, share financial information beyond what is required to complete a Platform

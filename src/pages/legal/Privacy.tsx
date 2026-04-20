@@ -59,12 +59,13 @@ const Privacy = () => {
             </li>
             <li>
               <strong className="text-black">Freelancer profile data:</strong> bio, skills, rates, categories, portfolio
-              content, service locations, availability, certifications.
+              content, service locations, availability, and public ratings and reviews from completed bookings.
             </li>
             <li>
               <strong className="text-black">Identity and safety data:</strong> government-issued ID or passport (and photos
-              of the document), a selfie for verification, police clearance where required for certain categories. This is
-              &quot;special&quot; or sensitive personal information under POPIA and is handled accordingly.
+              of the document) and a selfie for verification. Freelancers may also optionally upload a police clearance
+              certificate to display an extra trust badge on their profile — it is not required to register or take
+              bookings. This is &quot;special&quot; or sensitive personal information under POPIA and is handled accordingly.
             </li>
             <li>
               <strong className="text-black">Booking and commerce data:</strong> bookings, invoices, platform commission on

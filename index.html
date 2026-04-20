@@ -115,141 +115,450 @@
     
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
-    [
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "Skillance",
-        "alternateName": "Skillance South Africa",
-        "url": "https://skillance.co.za",
-        "logo": "https://skillance.co.za/app-icon.png",
-        "description": "Skillance South Africa - Africa's premier freelancer marketplace for all skilled professionals: handyman, education, cleaning, pet care, fitness, automotive, beauty, events, and more. Not limited to tech.",
-        "contactPoint": {
-          "@context": "https://schema.org",
-          "@type": "ContactPoint",
-          "telephone": "+27-66-220-3312",
-          "contactType": "Customer Service",
-          "email": "services@skillance.co.za",
-          "availableLanguage": "English"
-        },
-        "sameAs": [
-          "https://www.linkedin.com/company/skillanceza/",
-          "https://www.facebook.com/share/18A2F6LDQH/?mibextid=wwXIfr",
-          "https://www.instagram.com/skillanceza"
-        ]
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "Skillance South Africa",
-        "url": "https://skillance.co.za",
-        "description": "Africa's premier freelancer marketplace for all skilled professionals across South Africa: handyman, education, cleaning, pet care, fitness, automotive, beauty, events, and more. Not limited to tech.",
-        "publisher": {
-          "@context": "https://schema.org",
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
           "@type": "Organization",
+          "@id": "https://skillance.co.za/#organization",
           "name": "Skillance",
+          "alternateName": ["Skillance South Africa", "Skillance ZA"],
+          "legalName": "RIMITSO MANAGEMENT SERVICES (PTY) LTD",
+          "url": "https://skillance.co.za",
           "logo": {
-            "@context": "https://schema.org",
             "@type": "ImageObject",
-            "url": "https://skillance.co.za/app-icon.png"
+            "@id": "https://skillance.co.za/#logo",
+            "url": "https://skillance.co.za/app-icon.png",
+            "width": 512,
+            "height": 512,
+            "caption": "Skillance"
+          },
+          "image": { "@id": "https://skillance.co.za/#logo" },
+          "description": "Skillance is South Africa's on-demand marketplace connecting customers with ID-verified local freelancers across all skilled trades and services — handyman, education, cleaning, pet care, fitness, automotive, beauty, events, photography, videography, music, gardening, IT, and professional services. Not a tech-only platform.",
+          "foundingLocation": {
+            "@type": "Country",
+            "name": "South Africa"
+          },
+          "areaServed": {
+            "@type": "Country",
+            "name": "South Africa"
+          },
+          "knowsAbout": [
+            "Freelancer marketplace",
+            "On-demand services",
+            "Home services South Africa",
+            "Handyman services",
+            "Private tutoring",
+            "House cleaning",
+            "Pet care and dog walking",
+            "Personal training and wellness",
+            "Mobile mechanics and automotive",
+            "Gardening and landscaping",
+            "Photography and videography",
+            "Beauty and personal services",
+            "Professional services",
+            "POPIA compliance"
+          ],
+          "contactPoint": [
+            {
+              "@type": "ContactPoint",
+              "telephone": "+27-66-220-3312",
+              "contactType": "customer service",
+              "email": "support@skillance.co.za",
+              "availableLanguage": ["English"],
+              "areaServed": "ZA"
+            },
+            {
+              "@type": "ContactPoint",
+              "telephone": "+27-64-872-8174",
+              "contactType": "customer support",
+              "contactOption": "TollFree",
+              "availableLanguage": ["English"],
+              "areaServed": "ZA"
+            },
+            {
+              "@type": "ContactPoint",
+              "email": "services@skillance.co.za",
+              "contactType": "press, partnerships, investment",
+              "availableLanguage": ["English"],
+              "areaServed": "ZA"
+            }
+          ],
+          "sameAs": [
+            "https://www.linkedin.com/company/skillanceza/",
+            "https://www.facebook.com/share/18A2F6LDQH/?mibextid=wwXIfr",
+            "https://www.instagram.com/skillanceza"
+          ],
+          "hasOfferCatalog": { "@id": "https://skillance.co.za/#catalog" }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://skillance.co.za/#website",
+          "url": "https://skillance.co.za",
+          "name": "Skillance South Africa",
+          "description": "South Africa's on-demand marketplace for verified local freelancers across every skilled trade and service.",
+          "inLanguage": "en-ZA",
+          "publisher": { "@id": "https://skillance.co.za/#organization" },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://skillance.co.za/services?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
           }
+        },
+        {
+          "@type": "LocalBusiness",
+          "@id": "https://skillance.co.za/#localbusiness",
+          "name": "Skillance South Africa",
+          "alternateName": "Skillance",
+          "url": "https://skillance.co.za",
+          "logo": { "@id": "https://skillance.co.za/#logo" },
+          "image": { "@id": "https://skillance.co.za/#logo" },
+          "description": "South African on-demand marketplace for verified freelancers and skilled-trade professionals. Every freelancer is ID-verified; payments are held in escrow by a licensed South African payment partner.",
+          "priceRange": "R",
+          "areaServed": [
+            { "@type": "Country", "name": "South Africa" },
+            { "@type": "City", "name": "Johannesburg" },
+            { "@type": "City", "name": "Pretoria" },
+            { "@type": "City", "name": "Cape Town" },
+            { "@type": "City", "name": "Durban" },
+            { "@type": "City", "name": "Gqeberha" },
+            { "@type": "City", "name": "Port Elizabeth" },
+            { "@type": "City", "name": "Bloemfontein" },
+            { "@type": "City", "name": "East London" },
+            { "@type": "City", "name": "Pietermaritzburg" },
+            { "@type": "City", "name": "Stellenbosch" },
+            { "@type": "City", "name": "Centurion" }
+          ],
+          "parentOrganization": { "@id": "https://skillance.co.za/#organization" },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+27-66-220-3312",
+            "contactType": "customer service",
+            "email": "support@skillance.co.za",
+            "availableLanguage": "English",
+            "areaServed": "ZA"
+          },
+          "sameAs": [
+            "https://www.linkedin.com/company/skillanceza/",
+            "https://www.facebook.com/share/18A2F6LDQH/?mibextid=wwXIfr",
+            "https://www.instagram.com/skillanceza"
+          ],
+          "hasOfferCatalog": { "@id": "https://skillance.co.za/#catalog" }
+        },
+        {
+          "@type": "OfferCatalog",
+          "@id": "https://skillance.co.za/#catalog",
+          "name": "Skillance Service Categories",
+          "url": "https://skillance.co.za/services",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-handyman" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-education" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-cleaning" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-petcare" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-fitness" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-automotive" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-gardening" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-technology" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-professional" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-personal" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-photography" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-videography" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@id": "https://skillance.co.za/#service-music" }
+            }
+          ]
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-handyman",
+          "serviceType": "Handyman services",
+          "name": "Handyman services in South Africa",
+          "description": "Book ID-verified electricians, plumbers, carpenters, painters, tilers, roofers, and general handymen for home repairs, maintenance, and renovations across South Africa. Freelancers are chosen through public ratings and reviews — no certification gate.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Handyman"
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-education",
+          "serviceType": "Private tutoring and education",
+          "name": "Tutors and private lessons in South Africa",
+          "description": "Book verified private tutors for school subjects, matric / NSC prep, university subjects, language lessons, and music lessons — in-person or online, across South Africa.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Education"
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-cleaning",
+          "serviceType": "Cleaning services",
+          "name": "Cleaning services in South Africa",
+          "description": "House cleaning, deep cleaning, office cleaning, move-in/out cleaning, carpet cleaning, and recurring weekly cleaning schedules with verified cleaners across South Africa.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Cleaning"
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-petcare",
+          "serviceType": "Pet care services",
+          "name": "Dog walking and pet care in South Africa",
+          "description": "Verified dog walkers, pet sitters, groomers, and trainers available for on-demand and recurring bookings across South African cities.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Pet Care"
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-fitness",
+          "serviceType": "Fitness and wellness",
+          "name": "Personal trainers and wellness in South Africa",
+          "description": "Book verified personal trainers, yoga and Pilates instructors, nutritionists, and massage therapists for in-home, outdoor, and gym sessions across South Africa.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Fitness & Wellness"
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-automotive",
+          "serviceType": "Automotive services",
+          "name": "Mobile mechanics and automotive services in South Africa",
+          "description": "Mobile mechanics, car detailing, tire service, battery replacement, diagnostics, and routine vehicle maintenance at home or at work, booked through verified professionals.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Automotive"
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-gardening",
+          "serviceType": "Gardening and landscaping",
+          "name": "Gardening and landscaping in South Africa",
+          "description": "Lawn care, garden maintenance, tree felling, landscaping, irrigation, and outdoor cleanups with verified gardeners and landscapers.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Gardening & Landscaping"
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-technology",
+          "serviceType": "Technology and IT support",
+          "name": "Home and office IT support in South Africa",
+          "description": "Wi-Fi and networking setup, PC/laptop repair, smart-home device installation, printer setup, software help, and data recovery from verified IT technicians.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Technology & IT"
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-professional",
+          "serviceType": "Professional services",
+          "name": "Accountants, bookkeepers, and advisors in South Africa",
+          "description": "Verified accountants, bookkeepers, tax practitioners, legal consultants, and business advisors for sole proprietors, SMEs, and individuals.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Professional Services"
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-personal",
+          "serviceType": "Beauty and personal services",
+          "name": "Mobile beauty, hair, and personal services in South Africa",
+          "description": "Hair stylists, nail technicians, makeup artists, barbers, and mobile spa services who come to your home, office, or event.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Personal Services"
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-photography",
+          "serviceType": "Photography services",
+          "name": "Photographers in South Africa",
+          "description": "Book verified photographers for weddings, events, portraits, matric farewells, real-estate, product, and family shoots across South Africa.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Photography"
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-videography",
+          "serviceType": "Videography services",
+          "name": "Videographers in South Africa",
+          "description": "Wedding videography, event recording, corporate video, promotional content, social-media content, and drone videography with verified videographers.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Videography"
+        },
+        {
+          "@type": "Service",
+          "@id": "https://skillance.co.za/#service-music",
+          "serviceType": "Music services",
+          "name": "Musicians, DJs, and music tutors in South Africa",
+          "description": "Book musicians, DJs, vocalists, and instrument tutors for events, weddings, functions, and private lessons.",
+          "provider": { "@id": "https://skillance.co.za/#organization" },
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "url": "https://skillance.co.za/services",
+          "category": "Music"
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://skillance.co.za/#faq",
+          "url": "https://skillance.co.za/faq",
+          "isPartOf": { "@id": "https://skillance.co.za/#website" },
+          "about": { "@id": "https://skillance.co.za/#organization" },
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is Skillance?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Skillance is a South African on-demand marketplace that connects customers with ID-verified local freelancers across every skilled trade — home services, tutoring, cleaning, pet care, wellness, automotive, creative work, beauty, and more. Customers search, book, and pay through the app; freelancers get verified exposure and escrow-protected payouts."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Where can I find a verified tutor in South Africa?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Skillance has verified private tutors across South Africa for school subjects (including matric/NSC), university prep, languages, and music. Browse the Education category on https://skillance.co.za/services or in the Skillance app."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Where can I hire a verified plumber, electrician, or handyman in South Africa?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "All handyman categories — plumbers, electricians, carpenters, painters, tilers, and roofers — are available on Skillance with mandatory South African ID verification. Customers choose based on public ratings and reviews left by previous clients. Book at https://skillance.co.za/services."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How does Skillance verify professionals?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Every freelancer passes South African ID verification and profile-photo matching, typically within 24–72 hours. Skillance does not require trade certifications — any freelancer can register, and trust is built through public ratings and reviews on each profile."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How do payments work on Skillance?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Customers pay by card (Visa/Mastercard) or instant-EFT. Payments are held in escrow by a licensed South African payment partner and released to the freelancer only after the job is confirmed complete. This protects both sides."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What are Skillance's fees?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Skillance charges a service fee of 8–9% including VAT on each confirmed booking. The exact line items — freelancer's price, any connection fee, VAT, and service fee — are shown at checkout before the customer confirms."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I cancel or reschedule a booking?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Free cancellations more than 4 hours before the booking start time. Inside that window, a small protection fee is paid to the freelancer to cover the reserved slot. Rescheduling is available from the booking details screen."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How long do refunds take?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Once approved, refunds are issued to the original payment method within 3–5 working days. Your bank may add another 1–2 business days before the money reflects."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What areas does Skillance cover?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Skillance operates across South Africa, with the strongest coverage in Johannesburg, Pretoria, Cape Town, Durban, Gqeberha (Port Elizabeth), Bloemfontein, and East London. Customers can use 'Nearby' in the app to see who is closest."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is Skillance only for tech freelancers?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. Skillance is a broad on-demand services marketplace covering every skilled trade: handyman, education, cleaning, pet care, fitness, automotive, beauty, photography, videography, music, gardening, IT, and professional services. It is NOT limited to tech or software."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is Skillance POPIA-compliant?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Skillance only collects personal information necessary to run the marketplace, stores it securely, and never sells it. The full privacy policy is at https://skillance.co.za/privacy-policy."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How do I become a freelancer (Skillancer)?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Download the Skillance app, choose 'Join as a freelancer', upload your South African ID and profile photo, pick your service categories, set rates and availability, and submit for verification. Most profiles are reviewed within 24–72 hours."
+              }
+            }
+          ]
         }
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "LocalBusiness",
-        "name": "Skillance South Africa",
-        "alternateName": "Skillance",
-        "url": "https://skillance.co.za",
-        "logo": "https://skillance.co.za/app-icon.png",
-        "description": "Africa's premier freelancer marketplace for all skilled professionals across South Africa: handyman, education, cleaning, pet care, fitness, automotive, beauty, events, and more. Not limited to tech.",
-        "areaServed": {
-          "@context": "https://schema.org",
-          "@type": "Country",
-          "name": "South Africa"
-        },
-        "contactPoint": {
-          "@context": "https://schema.org",
-          "@type": "ContactPoint",
-          "telephone": "+27-66-220-3312",
-          "contactType": "Customer Service",
-          "email": "services@skillance.co.za",
-          "availableLanguage": "English",
-          "areaServed": "ZA"
-        },
-        "sameAs": [
-          "https://www.linkedin.com/company/skillanceza/",
-          "https://www.facebook.com/share/18A2F6LDQH/?mibextid=wwXIfr",
-          "https://www.instagram.com/skillanceza"
-        ]
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@context": "https://schema.org",
-            "@type": "Question",
-            "name": "How does Skillance verify professionals?",
-            "acceptedAnswer": {
-              "@context": "https://schema.org",
-              "@type": "Answer",
-              "text": "Every professional on our platform undergoes a thorough verification process including identity verification, background checks, and skill assessment. We verify their qualifications, check references, and ensure they meet our quality standards before they can offer services."
-            }
-          },
-          {
-            "@context": "https://schema.org",
-            "@type": "Question",
-            "name": "What happens if I am not satisfied with a service?",
-            "acceptedAnswer": {
-              "@context": "https://schema.org",
-              "@type": "Answer",
-              "text": "Your satisfaction is our priority. If you are not happy with a service, contact our support team within 48 hours. We will work with you and the professional to resolve the issue. In eligible cases, we offer refunds or rebooking options."
-            }
-          },
-          {
-            "@context": "https://schema.org",
-            "@type": "Question",
-            "name": "How do payments work?",
-            "acceptedAnswer": {
-              "@context": "https://schema.org",
-              "@type": "Answer",
-              "text": "Payments are processed securely through our platform. When you book a service, the payment is held securely until the service is completed. Once you confirm satisfaction, the payment is released to the professional. This ensures both parties are protected."
-            }
-          },
-          {
-            "@context": "https://schema.org",
-            "@type": "Question",
-            "name": "Can I cancel or reschedule a booking?",
-            "acceptedAnswer": {
-              "@context": "https://schema.org",
-              "@type": "Answer",
-              "text": "Yes, you can cancel or reschedule bookings through the app. Cancellations made more than 24 hours before the scheduled time receive a full refund. For cancellations within 24 hours, please check the specific cancellation policy for that service."
-            }
-          },
-          {
-            "@context": "https://schema.org",
-            "@type": "Question",
-            "name": "What areas does Skillance cover?",
-            "acceptedAnswer": {
-              "@context": "https://schema.org",
-              "@type": "Answer",
-              "text": "Skillance covers the whole of South Africa. Whether you are in a major city or a smaller town, we are committed to connecting you with trusted professionals across the country."
-            }
-          },
-          {
-            "@context": "https://schema.org",
-            "@type": "Question",
-            "name": "How do I become a Skillancer?",
-            "acceptedAnswer": {
-              "@context": "https://schema.org",
-              "@type": "Answer",
-              "text": "To join as a Skillancer, download our app and complete the registration process. You will need to provide proof of identity, relevant qualifications or experience, and pass our background check. Once approved, you can start offering your services."
-            }
-          }
-        ]
-      }
-    ]
+      ]
+    }
     </script>
     
     <style>

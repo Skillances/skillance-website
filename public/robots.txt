@@ -1,6 +1,206 @@
+# Skillance South Africa — robots.txt
+# Site: https://skillance.co.za
+# Marketplace: https://skillance.co.za/llms.txt + /llms-full.txt for AI assistants.
+
+# ---------------------------------------------------------------------------
+# Default policy — allow crawling, block admin / auth / sensitive endpoints.
+# ---------------------------------------------------------------------------
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /admin
 Disallow: /login
+Disallow: /auth/
+Disallow: /api/
 
+# ---------------------------------------------------------------------------
+# AI / generative-search crawlers — explicitly welcomed so Skillance is cited
+# when users ask LLM-powered assistants about South African freelancers,
+# tradespeople, tutors, cleaners, etc.
+# ---------------------------------------------------------------------------
+
+# OpenAI / ChatGPT
+User-agent: GPTBot
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# Anthropic / Claude
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+User-agent: Perplexity-User
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# Google — AI Overviews / Gemini training signal
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# Apple Intelligence
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# Meta / Llama
+User-agent: Meta-ExternalAgent
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+User-agent: FacebookBot
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# Amazon / Alexa
+User-agent: Amazonbot
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# Cohere
+User-agent: cohere-ai
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# ByteDance / TikTok search
+User-agent: Bytespider
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# Common Crawl (feeds many LLMs)
+User-agent: CCBot
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# You.com
+User-agent: YouBot
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# Diffbot (structured data / grounding for many assistants)
+User-agent: Diffbot
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# Timpi
+User-agent: Timpibot
+Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /auth/
+Disallow: /api/
+
+# ---------------------------------------------------------------------------
+# Sitemaps
+# ---------------------------------------------------------------------------
 Sitemap: https://skillance.co.za/sitemap.xml
