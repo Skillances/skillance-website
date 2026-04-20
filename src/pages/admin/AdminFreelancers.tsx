@@ -11,7 +11,7 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import StatsCard from '@/components/admin/dashboard/StatsCard';
 import { toast } from 'sonner';
 
-interface FreelancerItem { id: string; isVerified: boolean; idVerificationStatus: string; policeClearanceStatus: string | null; rating: number; totalBookingsCompleted: number; createdAt: string; user: { id: string; email: string; fullName: string; tag: string; phoneNumber: string | null; city: string | null; profilePhotoUrl: string | null; createdAt: string; }; }
+interface FreelancerItem { id: string; isVerified: boolean; kycStatus?: string; idVerificationStatus?: string; policeClearanceStatus?: string | null; rating: number; totalBookingsCompleted: number; createdAt: string; user: { id: string; email: string; fullName: string; tag: string; phoneNumber: string | null; city: string | null; profilePhotoUrl: string | null; createdAt: string; idVerificationStatus?: string; policeClearanceStatus?: string | null; }; }
 interface FreelancerStats { total: number; verified: number; pending: number; rejected: number; averageRating: number; totalBookingsCompleted: number; }
 
 const AdminFreelancers: React.FC = () => {
@@ -62,7 +62,10 @@ const AdminFreelancers: React.FC = () => {
   const filters: FilterConfig[] = [{ key: 'idVerificationStatus', placeholder: 'Verification Status', value: verificationFilter, onChange: (v) => { setVerificationFilter(v); setPage(1); }, options: [{ label: 'All Statuses', value: 'all' }, { label: 'Verified', value: 'verified' }, { label: 'Unverified', value: 'unverified' }, { label: 'Pending', value: 'pending' }, { label: 'Rejected', value: 'rejected' }] }];
 
   const columns: Column<FreelancerItem>[] = [
-    { key: 'fullName', header: 'Freelancer', sortable: true, render: (f) => (
+    { key: 'fullName', header: 'Freelancer', sortable: true, render: (f) => {
+      const idStatus = f.user?.idVerificationStatus ?? f.idVerificationStatus;
+      const clearanceStatus = f.user?.policeClearanceStatus ?? f.policeClearanceStatus;
+      return (
       <div className="flex items-center gap-3">
         {f.user.profilePhotoUrl ? (
           <img src={f.user.profilePhotoUrl} alt={f.user.fullName ? `Photo of ${f.user.fullName}` : 'Profile photo'} className="w-8 h-8 rounded-full object-cover shrink-0 bg-neutral-100 dark:bg-neutral-700" />
@@ -71,12 +74,12 @@ const AdminFreelancers: React.FC = () => {
         )}
         <div className="min-w-0 flex items-center gap-1.5 flex-wrap">
           <p className="text-black dark:text-white font-medium text-sm truncate">{f.user.fullName}</p>
-          {f.idVerificationStatus === 'verified' && (
+          {idStatus === 'verified' && (
             <span className="flex items-center justify-center rounded-full bg-emerald-500 text-white p-0.5 shrink-0" title="ID verified">
               <BadgeCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
             </span>
           )}
-          {f.policeClearanceStatus === 'verified' && (
+          {clearanceStatus === 'verified' && (
             <span className="flex items-center justify-center rounded-full bg-blue-500 text-white p-0.5 shrink-0" title="Police clearance verified">
               <Shield className="h-3.5 w-3.5" strokeWidth={2} />
             </span>
@@ -84,9 +87,10 @@ const AdminFreelancers: React.FC = () => {
           <p className="text-neutral-400 dark:text-neutral-500 text-xs truncate w-full">{f.user.email}</p>
         </div>
       </div>
-    )},
-    { key: 'idVerificationStatus', header: 'ID Verification', render: (f) => <StatusBadge status={(f.idVerificationStatus || 'not_submitted') as any} /> },
-    { key: 'policeClearanceStatus', header: 'Police Clearance', render: (f) => <StatusBadge status={(f.policeClearanceStatus || 'not_submitted') as any} /> },
+      );
+    }},
+    { key: 'idVerificationStatus', header: 'ID Verification', render: (f) => <StatusBadge status={((f.user?.idVerificationStatus ?? f.idVerificationStatus) || 'not_submitted') as any} /> },
+    { key: 'policeClearanceStatus', header: 'Police Clearance', render: (f) => <StatusBadge status={((f.user?.policeClearanceStatus ?? f.policeClearanceStatus) || 'not_submitted') as any} /> },
     { key: 'rating', header: 'Rating', sortable: true, render: (f) => <span className="text-neutral-600 dark:text-neutral-400">{f.rating ? `${Number(f.rating).toFixed(1)}` : '--'}</span> },
     { key: 'createdAt', header: 'Joined', sortable: true, render: (f) => <span className="text-neutral-400 dark:text-neutral-500 text-xs">{new Date(f.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span> },
   ];
