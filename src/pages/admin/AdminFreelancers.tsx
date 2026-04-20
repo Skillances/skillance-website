@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { get } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { Briefcase, CheckCircle, Clock, XCircle, BadgeCheck, Shield } from 'lucide-react';
@@ -21,6 +22,7 @@ const AdminFreelancers: React.FC = () => {
   const [stats, setStats] = useState<FreelancerStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const searchDebounced = useDebouncedValue(search, 400);
   const [verificationFilter, setVerificationFilter] = useState('all');
   const [sortKey, setSortKey] = useState('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -37,7 +39,7 @@ const AdminFreelancers: React.FC = () => {
       params.set('sortBy', sortKey);
       params.set('sortOrder', sortDirection);
       if (verificationFilter !== 'all') params.set('idVerificationStatus', verificationFilter);
-      if (search.trim()) params.set('search', search.trim());
+      if (searchDebounced.trim()) params.set('search', searchDebounced.trim());
       if (categoryIdFilter) params.set('categoryId', categoryIdFilter);
       const res = await get(`${ApiPaths.admin.freelancers}?${params.toString()}`);
       if (res.success) {
@@ -49,7 +51,7 @@ const AdminFreelancers: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, pageSize, sortKey, sortDirection, verificationFilter, search, categoryIdFilter]);
+  }, [page, pageSize, sortKey, sortDirection, verificationFilter, searchDebounced, categoryIdFilter]);
 
   const fetchStats = useCallback(async () => { try { const res = await get(ApiPaths.admin.freelancersStats); if (res.success) setStats(res.data); } catch {} }, []);
   useEffect(() => { fetchStats(); }, [fetchStats]);

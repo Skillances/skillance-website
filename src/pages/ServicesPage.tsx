@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useDeferredValue } from 'react';
 import PageTemplate from '../components/layout/PageTemplate';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight, Search, X, ChevronDown } from 'lucide-react';
@@ -11,6 +11,7 @@ const ServicesPage = () => {
   const hasAnimated = useRef(false);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [allCategories, setAllCategories] = useState<ServiceCategoryItem[]>([]);
 
@@ -24,14 +25,14 @@ const ServicesPage = () => {
   };
 
   const filteredCategories = useMemo(() => {
-    if (!searchQuery.trim()) {
+    if (!deferredSearchQuery.trim()) {
       return allCategories.map(cat => ({
         ...cat,
         matchedSpecializations: [] as string[]
       }));
     }
 
-    const query = searchQuery.toLowerCase().trim();
+    const query = deferredSearchQuery.toLowerCase().trim();
     const queryWords = query.split(/\s+/);
 
     const synonyms: Record<string, string[]> = {
@@ -173,7 +174,7 @@ const ServicesPage = () => {
       const synonymsList = synonyms[word] || [];
       return synonymsList.some(syn => catText.includes(syn));
     }));
-  }, [searchQuery, allCategories]);
+  }, [deferredSearchQuery, allCategories]);
 
   useEffect(() => {
     window.scrollTo(0, 0);

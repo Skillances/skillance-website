@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { get, put, del } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { Mail, MailOpen, Reply, Archive, Trash2, X } from 'lucide-react';
@@ -34,6 +35,7 @@ const AdminContactMessages: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const searchDebounced = useDebouncedValue(search, 300);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [selected, setSelected] = useState<ContactMessage | null>(null);
@@ -198,9 +200,9 @@ const AdminContactMessages: React.FC = () => {
       <DataTable
         columns={columns}
         data={messages.filter((m) =>
-          !search || m.name.toLowerCase().includes(search.toLowerCase()) ||
-          m.email.toLowerCase().includes(search.toLowerCase()) ||
-          m.subject.toLowerCase().includes(search.toLowerCase())
+          !searchDebounced || m.name.toLowerCase().includes(searchDebounced.toLowerCase()) ||
+          m.email.toLowerCase().includes(searchDebounced.toLowerCase()) ||
+          m.subject.toLowerCase().includes(searchDebounced.toLowerCase())
         )}
         isLoading={isLoading}
         emptyTitle="No messages yet"

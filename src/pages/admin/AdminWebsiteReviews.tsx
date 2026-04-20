@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { get, put, del } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { Star, CheckCircle, XCircle, Trash2, Clock, Quote } from 'lucide-react';
@@ -28,6 +29,7 @@ const AdminWebsiteReviews: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const searchDebounced = useDebouncedValue(search, 300);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const pageSize = 20;
@@ -257,9 +259,9 @@ const AdminWebsiteReviews: React.FC = () => {
       <DataTable
         columns={columns}
         data={reviews.filter((r) =>
-          !search || r.name.toLowerCase().includes(search.toLowerCase()) ||
-          r.comment.toLowerCase().includes(search.toLowerCase()) ||
-          r.location.toLowerCase().includes(search.toLowerCase())
+          !searchDebounced || r.name.toLowerCase().includes(searchDebounced.toLowerCase()) ||
+          r.comment.toLowerCase().includes(searchDebounced.toLowerCase()) ||
+          r.location.toLowerCase().includes(searchDebounced.toLowerCase())
         )}
         isLoading={isLoading}
         emptyTitle="No reviews yet"

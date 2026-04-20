@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { get, put } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { Star, ListChecks, EyeOff, RotateCcw } from 'lucide-react';
@@ -28,7 +29,9 @@ const AdminBookingReviews: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [visibility, setVisibility] = useState<'visible' | 'all'>('visible');
   const [search, setSearch] = useState('');
+  const searchDebounced = useDebouncedValue(search, 300);
   const [freelancerIdFilter, setFreelancerIdFilter] = useState('');
+  const freelancerIdDebounced = useDebouncedValue(freelancerIdFilter, 400);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [actionId, setActionId] = useState<string | null>(null);
@@ -43,7 +46,7 @@ const AdminBookingReviews: React.FC = () => {
       params.set('page', String(page));
       params.set('limit', String(pageSize));
       if (includeDeleted) params.set('includeDeleted', 'true');
-      const fid = freelancerIdFilter.trim();
+      const fid = freelancerIdDebounced.trim();
       if (fid) params.set('freelancerId', fid);
 
       const res = await get(`${ApiPaths.admin.bookingReviews}?${params.toString()}`);
@@ -56,7 +59,7 @@ const AdminBookingReviews: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [page, pageSize, includeDeleted, freelancerIdFilter]);
+  }, [page, pageSize, includeDeleted, freelancerIdDebounced]);
 
   useEffect(() => {
     fetchReviews();
@@ -103,7 +106,7 @@ const AdminBookingReviews: React.FC = () => {
   };
 
   const filteredRows = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = searchDebounced.trim().toLowerCase();
     if (!q) return reviews;
     return reviews.filter((r) => {
       const cust = `${r.customer?.fullName ?? ''} ${r.customer?.email ?? ''}`.toLowerCase();
@@ -116,7 +119,7 @@ const AdminBookingReviews: React.FC = () => {
         r.id.toLowerCase().includes(q)
       );
     });
-  }, [reviews, search]);
+  }, [reviews, searchDebounced]);
 
   const filters: FilterConfig[] = [
     {

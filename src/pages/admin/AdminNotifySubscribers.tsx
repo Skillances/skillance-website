@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { get, del } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { Bell, Download, Trash2, Users } from 'lucide-react';
@@ -25,6 +26,7 @@ const AdminNotifySubscribers: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const searchDebounced = useDebouncedValue(search, 300);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const pageSize = 20;
@@ -180,7 +182,7 @@ const AdminNotifySubscribers: React.FC = () => {
       <DataTable
         columns={columns}
         data={subscribers.filter((s) =>
-          !search || s.email.toLowerCase().includes(search.toLowerCase())
+          !searchDebounced || s.email.toLowerCase().includes(searchDebounced.toLowerCase())
         )}
         isLoading={isLoading}
         emptyTitle="No subscribers yet"

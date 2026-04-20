@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { get, post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { Shield, AlertTriangle, Ban, Globe, MapPin, AlertOctagon, Bug, Zap, RefreshCw, Download, Calendar as CalendarIcon, ShieldOff } from 'lucide-react';
@@ -133,6 +134,7 @@ const AdminSecurity: React.FC = () => {
   const [blockedIps, setBlockedIps] = useState<string[]>([]);
   const [blockedIpsLoading, setBlockedIpsLoading] = useState(false);
   const [blockedIpSearch, setBlockedIpSearch] = useState('');
+  const blockedIpSearchDebounced = useDebouncedValue(blockedIpSearch, 300);
   const [blockedIpScope, setBlockedIpScope] = useState<BlockedIpScope>('all');
   const [mapIpFocus, setMapIpFocus] = useState<SecurityMapIpFocus | null>(null);
   const [mapGeoNotice, setMapGeoNotice] = useState<{ ip: string; message: string } | null>(null);
@@ -264,7 +266,7 @@ const AdminSecurity: React.FC = () => {
   }, [fetchCriticalStats]);
 
   const filteredBlockedIps = useMemo(() => {
-    const search = blockedIpSearch.trim().toLowerCase();
+    const search = blockedIpSearchDebounced.trim().toLowerCase();
     return blockedIps.filter((ip) => {
       const normalized = ip.toLowerCase();
       if (search && !normalized.includes(search)) return false;
@@ -274,7 +276,7 @@ const AdminSecurity: React.FC = () => {
       if (blockedIpScope === 'public') return !isIpv6(ip) && !isPrivateIpv4(ip);
       return true;
     });
-  }, [blockedIps, blockedIpSearch, blockedIpScope]);
+  }, [blockedIps, blockedIpSearchDebounced, blockedIpScope]);
 
   const viewIpHistory = async (ip: string) => {
     document.getElementById('security-world-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
