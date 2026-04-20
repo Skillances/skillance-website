@@ -13,7 +13,24 @@ import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import { toast } from 'sonner';
 import { consumeAdminVerificationSse } from '@/lib/adminVerificationSse';
 
-interface PendingFreelancer { id: string; idNumber?: string | null; idVerificationStatus: string; policeClearanceStatus?: string | null; policeClearancePhotoUrl?: string | null; createdAt: string; fullName?: string; email?: string; user?: { id: string; email: string; fullName: string; tag: string; }; }
+interface PendingFreelancer {
+  id: string;
+  idNumber?: string | null;
+  idVerificationStatus: string;
+  policeClearanceStatus?: string | null;
+  policeClearancePhotoUrl?: string | null;
+  createdAt: string;
+  fullName?: string;
+  email?: string;
+  user?: {
+    id: string;
+    email: string;
+    fullName: string;
+    tag: string;
+    policeClearanceStatus?: string | null;
+    policeClearanceDocumentUrl?: string | null;
+  };
+}
 
 const AdminVerifications: React.FC = () => {
   const navigate = useNavigate();
@@ -29,7 +46,21 @@ const AdminVerifications: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchPendingId = useCallback(async () => { try { setIsLoadingId(true); const res = await get(`${ApiPaths.admin.freelancersPendingVerification}?status=pending&limit=100`); if (res.success) setPendingId(res.data.freelancers || []); } catch { toast.error('Failed to load pending ID verifications'); } finally { setIsLoadingId(false); } }, []);
-  const fetchPendingClearance = useCallback(async () => { try { setIsLoadingClearance(true); const res = await get(`${ApiPaths.admin.freelancers}?idVerificationStatus=all&limit=100`); if (res.success) { setPendingClearance((res.data.freelancers || []).filter((f: any) => f.policeClearanceStatus === 'pending' && f.policeClearancePhotoUrl)); } } catch { toast.error('Failed to load pending clearances'); } finally { setIsLoadingClearance(false); } }, []);
+  const fetchPendingClearance = useCallback(async () => {
+    try {
+      setIsLoadingClearance(true);
+      const res = await get(
+        `${ApiPaths.admin.freelancers}?idVerificationStatus=all&policeClearanceStatus=pending&limit=100`,
+      );
+      if (res.success) {
+        setPendingClearance(res.data.freelancers || []);
+      }
+    } catch {
+      toast.error('Failed to load pending clearances');
+    } finally {
+      setIsLoadingClearance(false);
+    }
+  }, []);
   useEffect(() => { fetchPendingId(); fetchPendingClearance(); }, [fetchPendingId, fetchPendingClearance]);
 
   useEffect(() => {
@@ -81,7 +112,7 @@ const AdminVerifications: React.FC = () => {
 
   const clearanceColumns: Column<PendingFreelancer>[] = [
     { key: 'fullName', header: 'Freelancer', render: (f) => (<div><p className="text-black dark:text-white font-medium text-sm">{f.fullName ?? f.user?.fullName ?? 'Unknown'}</p><p className="text-neutral-400 dark:text-neutral-500 text-xs">{f.email ?? f.user?.email ?? ''}</p></div>) },
-    { key: 'status', header: 'Status', render: (f) => <StatusBadge status={(f.policeClearanceStatus || 'pending') as any} /> },
+    { key: 'status', header: 'Status', render: (f) => <StatusBadge status={((f.user?.policeClearanceStatus ?? f.policeClearanceStatus) || 'pending') as any} /> },
     { key: 'createdAt', header: 'Submitted', render: (f) => <span className="text-neutral-400 text-xs">{new Date(f.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span> },
     { key: 'actions', header: 'Actions', render: (f) => (
       <div className="flex items-center gap-1">
