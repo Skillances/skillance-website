@@ -2,6 +2,11 @@ import path from "path"
 import react from "@vitejs/plugin-react"
 import { defineConfig, loadEnv, type Plugin } from "vite"
 import { inspectAttr } from 'kimi-plugin-inspect-react'
+import { prefersMarkdown } from "./functions/lib/acceptNegotiation"
+import {
+  estimateMarkdownTokens,
+  HOMEPAGE_MARKDOWN_FOR_AGENTS,
+} from "./functions/lib/homepageMarkdown"
 
 const DEFAULT_S3_CATEGORY_BASE =
   "https://skillance-public.s3.af-south-1.amazonaws.com/category-images"
@@ -105,6 +110,45 @@ function devS3PublicJsonProxy(allowedPrefix: string): Plugin {
   }
 }
 
+/** Dev server: mirror Cloudflare Pages markdown negotiation for `Accept: text/markdown` on `/`. */
+function markdownAgentDevMiddleware(): Plugin {
+  const linkDiscovery =
+    '</.well-known/api-catalog>; rel="api-catalog", <https://api.skillance.co.za/docs>; rel="service-doc"'
+
+  return {
+    name: "markdown-agent-dev-middleware",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const rawUrl = req.url?.split("?")[0] ?? ""
+        const pathname = rawUrl === "" ? "/" : rawUrl
+        const isHome = pathname === "/" || pathname === "/index.html"
+        if (
+          !isHome ||
+          (req.method !== "GET" && req.method !== "HEAD")
+        ) {
+          next()
+          return
+        }
+        if (!prefersMarkdown(req.headers.accept ?? null)) {
+          next()
+          return
+        }
+        const tokens = estimateMarkdownTokens(HOMEPAGE_MARKDOWN_FOR_AGENTS)
+        res.statusCode = 200
+        res.setHeader("Content-Type", "text/markdown; charset=utf-8")
+        res.setHeader("Vary", "Accept")
+        res.setHeader("Link", linkDiscovery)
+        res.setHeader("x-markdown-tokens", String(tokens))
+        if (req.method === "HEAD") {
+          res.end()
+          return
+        }
+        res.end(HOMEPAGE_MARKDOWN_FOR_AGENTS)
+      })
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "")
@@ -116,7 +160,12 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: true,
     },
-    plugins: [devS3PublicJsonProxy(s3CategoryBase), inspectAttr(), react()],
+    plugins: [
+      devS3PublicJsonProxy(s3CategoryBase),
+      markdownAgentDevMiddleware(),
+      inspectAttr(),
+      react(),
+    ],
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),

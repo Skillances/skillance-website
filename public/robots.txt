@@ -203,4 +203,6 @@ Disallow: /api/
 # ---------------------------------------------------------------------------
 # Sitemaps
 # ---------------------------------------------------------------------------
+Content-Signal: ai-train=no, search=yes, ai-input=no
+
 Sitemap: https://skillance.co.za/sitemap.xml

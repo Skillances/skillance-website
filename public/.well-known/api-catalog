@@ -1,0 +1,13 @@
+{
+  "kind": "APIList",
+  "title": "Skillance marketplace API discovery",
+  "description": "Endpoints for integrating with the Skillance REST API.",
+  "apis": [
+    {
+      "title": "Skillance REST API",
+      "href": "https://api.skillance.co.za/docs",
+      "description": "OpenAPI documentation (Swagger UI)",
+      "type": "openapi"
+    }
+  ]
+}
