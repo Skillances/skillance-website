@@ -28,6 +28,11 @@ export function clearTokens() {
   localStorage.removeItem('user');
 }
 
+/** Backend sends this when the client IP is security-blocked (login, refresh, and API calls). */
+function responseIndicatesIpBlocked(status: number, body: { code?: string }) {
+  return (status === 403 || status === 404) && body?.code === 'ip_blocked';
+}
+
 async function refreshAccessToken() {
   if (isRefreshing && refreshPromise) {
     return refreshPromise;
@@ -53,7 +58,13 @@ async function refreshAccessToken() {
       });
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: 'Refresh failed' }));
+        const error = (await response.json().catch(() => ({ message: 'Refresh failed' }))) as {
+          message?: string;
+          code?: string;
+        };
+        if (responseIndicatesIpBlocked(response.status, error)) {
+          clearTokens();
+        }
         throw new Error(error.message || 'Token refresh failed');
       }
 
@@ -104,6 +115,17 @@ export async function apiRequest(endpoint: string, options: any = {}, retryOn401
 
   try {
     let response = await fetch(url, config);
+
+    if (hasStoredSession && (response.status === 403 || response.status === 404)) {
+      const body = (await response
+        .clone()
+        .json()
+        .catch(() => ({}))) as { code?: string };
+      if (responseIndicatesIpBlocked(response.status, body)) {
+        clearTokens();
+        throw new Error('Authentication required');
+      }
+    }
 
     if (response.status === 401 && retryOn401 && hasStoredSession) {
       if (endpoint === ApiPaths.auth.refresh) {
