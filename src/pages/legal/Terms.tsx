@@ -6,7 +6,7 @@ const Terms = () => {
     <PageTemplate title="Terms of Service" animateSections>
       <div className="space-y-10 text-neutral-600">
         <div className="space-y-3">
-          <p className="text-xl leading-relaxed italic text-black/80">Last updated: 19 April 2026</p>
+          <p className="text-xl leading-relaxed italic text-black/80">Last updated: 24 April 2026</p>
           <p className="text-sm leading-relaxed text-neutral-500">
             These Terms of Service (&quot;Terms&quot;) govern use of the Skillance website at{' '}
             <a
@@ -220,6 +220,18 @@ const Terms = () => {
             respond to valid reports within a reasonable time.
           </p>
           <p className="leading-relaxed">
+            <strong className="text-black">Offensive language and evasion of contact rules.</strong> You must not use profanity,
+            slurs, or other language intended to harass, demean, or offend, or to evade our rules, anywhere on the Platform
+            (including chat, your profile, portfolio, or public website contact forms). We use automated and human review: we
+            may filter or block messages, log incidents (including a short snippet and, where available, the detected terms) for
+            our trust and safety team, and track repeated issues. We may send you a <strong className="text-black">formal written
+            warning</strong> that appears in the app; continued serious or repeated breaches may lead to <strong
+            className="text-black">suspension or a permanent ban</strong>. If your account is banned, we may show an estimate of
+            any balance still being processed so you understand how funds may be released under our payment and Refund rules;
+            that number is an estimate, not a binding settlement, and is subject to completed bookings, disputes, and
+            lawfully required deductions.
+          </p>
+          <p className="leading-relaxed">
             Reviews must reflect a genuine experience, must not be defamatory, threatening, or otherwise unlawful, and may be
             edited for length, formatting, or privacy (for example, to redact personal data of third parties).
           </p>
@@ -292,7 +304,9 @@ const Terms = () => {
           <p className="leading-relaxed">
             We may suspend, restrict, or terminate access to your account or the Platform, and remove content, where we
             reasonably believe there has been a breach of these Terms, fraud, abuse, a safety or legal risk, or where required
-            by law. Where practical, we will provide notice and an opportunity to respond.
+            by law. A ban may follow formal warnings, serious misconduct, or repeated policy breaches, including in communication
+            and profile content, as described in section 11. Where practical, we will provide notice and an opportunity to
+            respond.
           </p>
           <p className="leading-relaxed">
             You can request deletion of your account at any time from within the app, via the website profile, or by emailing{' '}

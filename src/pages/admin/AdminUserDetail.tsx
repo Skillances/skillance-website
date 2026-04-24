@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { get, put } from '@/lib/api';
+import { get, post, put } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
-import { ArrowLeft, Edit, ExternalLink, ImageIcon, Loader2, Tag } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Edit, ExternalLink, ImageIcon, Loader2, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -12,6 +12,7 @@ import DetailCard, { type DetailField } from '@/components/admin/DetailCard';
 import StatusBadge from '@/components/admin/StatusBadge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { useAdminBackNavigation } from '@/hooks/useAdminBackNavigation';
 
@@ -46,6 +47,35 @@ interface PortfolioProject {
   displayOrder?: number;
 }
 
+interface PolicyIncident {
+  id: string;
+  source: string;
+  resourceId: string | null;
+  matchedWords: string[];
+  snippet: string | null;
+  contactEmail: string | null;
+  detectedTypes: string[];
+  createdAt: string;
+}
+
+interface WrittenWarning {
+  id: string;
+  body: string;
+  createdAt: string;
+  acknowledgedAt: string | null;
+  createdBy: { id: string; fullName: string; email: string };
+}
+
+interface UserPolicy {
+  isBanned: boolean;
+  bannedAt: string | null;
+  banReason: string | null;
+  bannedBalanceSnapshotCents: string | null;
+  profanityStrikeCount: number;
+  incidents: PolicyIncident[];
+  writtenWarnings: WrittenWarning[];
+}
+
 interface UserData {
   id: string;
   firebaseUid: string;
@@ -63,6 +93,7 @@ interface UserData {
   calendarSyncEnabled?: boolean;
   calendarLinks?: CalendarLink[];
   profileMedia?: ProfileMedia | null;
+  policy?: UserPolicy;
   freelancer: {
     id: string;
     kycStatus?: string;
@@ -278,6 +309,11 @@ const AdminUserDetail: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [editForm, setEditForm] = useState({ primaryRole: '', isAdmin: false });
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
+  const [warnOpen, setWarnOpen] = useState(false);
+  const [banOpen, setBanOpen] = useState(false);
+  const [policyBusy, setPolicyBusy] = useState(false);
+  const [warnText, setWarnText] = useState('');
+  const [banReason, setBanReason] = useState('');
 
   useEffect(() => {
     get(`${ApiPaths.admin.categories}?includeInactive=true&limit=500`)
@@ -311,6 +347,58 @@ const AdminUserDetail: React.FC = () => {
     if (!user) return;
     setEditForm({ primaryRole: user.primaryRole, isAdmin: user.isAdmin });
     setEditOpen(true);
+  };
+
+  const refreshUser = async () => {
+    if (!userId) return;
+    const refreshed = await get(ApiPaths.admin.user(userId));
+    if (refreshed.success) setUser(refreshed.data);
+  };
+
+  const submitWarning = async () => {
+    if (!userId || warnText.trim().length < 3) return;
+    setPolicyBusy(true);
+    try {
+      const res = await post(`${ApiPaths.admin.user(userId)}/policy-warning`, { body: warnText.trim() });
+      if (res.success) {
+        toast.success('Warning sent to the user in-app');
+        setWarnOpen(false);
+        setWarnText('');
+        await refreshUser();
+      } else {
+        toast.error((res as { message?: string }).message || 'Failed to send warning');
+      }
+    } catch (e: any) { toast.error(e?.message || 'Failed to send warning'); } finally { setPolicyBusy(false); }
+  };
+
+  const submitBan = async () => {
+    if (!userId || banReason.trim().length < 3) return;
+    setPolicyBusy(true);
+    try {
+      const res = await post(`${ApiPaths.admin.user(userId)}/ban`, { reason: banReason.trim() });
+      if (res.success) {
+        toast.success('User banned');
+        setBanOpen(false);
+        setBanReason('');
+        await refreshUser();
+      } else {
+        toast.error((res as { message?: string }).message || 'Failed to ban');
+      }
+    } catch (e: any) { toast.error(e?.message || 'Failed to ban'); } finally { setPolicyBusy(false); }
+  };
+
+  const submitUnban = async () => {
+    if (!userId) return;
+    setPolicyBusy(true);
+    try {
+      const res = await post(`${ApiPaths.admin.user(userId)}/unban`, {});
+      if (res.success) {
+        toast.success('Ban removed');
+        await refreshUser();
+      } else {
+        toast.error((res as { message?: string }).message || 'Failed to unban');
+      }
+    } catch (e: any) { toast.error(e?.message || 'Failed to unban'); } finally { setPolicyBusy(false); }
   };
 
   const handleSave = async () => {
@@ -513,6 +601,177 @@ const AdminUserDetail: React.FC = () => {
           );
         })()}
 
+        {user.policy && (
+          <Card className="lg:col-span-2 border-amber-200/80 dark:border-amber-900/50 bg-gradient-to-br from-amber-50/90 via-white to-white dark:from-amber-950/20 dark:via-neutral-900 dark:to-neutral-900 rounded-2xl shadow-sm overflow-hidden">
+            <CardHeader className="border-b border-amber-100/80 dark:border-amber-900/30 py-5 px-6">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-200">
+                    <AlertTriangle className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <CardTitle className="text-lg font-semibold text-black dark:text-white tracking-tight">
+                      Trust &amp; safety
+                    </CardTitle>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 font-normal pt-1 max-w-2xl">
+                      Moderation trail (exact matched tokens where detected), official warnings shown in the app, and account suspension.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 shrink-0">
+                  {user.isAdmin ? null : (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full border-amber-200 text-amber-900 dark:text-amber-100 dark:border-amber-800"
+                        onClick={() => { setWarnText(''); setWarnOpen(true); }}
+                        disabled={user.policy.isBanned}
+                      >
+                        Issue written warning
+                      </Button>
+                      {user.policy.isBanned ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          className="rounded-full"
+                          onClick={() => { void submitUnban(); }}
+                          disabled={policyBusy}
+                        >
+                          Unban
+                        </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="rounded-full bg-red-600 hover:bg-red-700 text-white"
+                          onClick={() => { setBanReason(''); setBanOpen(true); }}
+                        >
+                          Ban user
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="flex flex-wrap gap-3 text-sm">
+                {user.policy.isBanned ? (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-200">
+                    Banned
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
+                    Active
+                  </span>
+                )}
+                <span className="text-neutral-500 dark:text-neutral-400">
+                  Strikes (profanity):{' '}
+                  <span className="font-semibold text-black dark:text-white tabular-nums">
+                    {user.policy.profanityStrikeCount}
+                  </span>
+                </span>
+                {user.policy.isBanned && user.policy.bannedAt && (
+                  <span className="text-xs text-neutral-500">
+                    Banned {new Date(user.policy.bannedAt).toLocaleString('en-ZA')}
+                  </span>
+                )}
+              </div>
+              {user.policy.isBanned && user.policy.banReason && (
+                <div className="rounded-xl border border-red-200/60 bg-red-50/50 dark:bg-red-950/20 dark:border-red-900/40 p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-red-800 dark:text-red-200 mb-1">Ban reason on file</p>
+                  <p className="text-sm text-neutral-800 dark:text-neutral-200 whitespace-pre-wrap">{user.policy.banReason}</p>
+                  {user.policy.bannedBalanceSnapshotCents && Number(user.policy.bannedBalanceSnapshotCents) > 0 && (
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-2">
+                      Balance snapshot at ban (ZAR, estimate): R
+                      {(Number(user.policy.bannedBalanceSnapshotCents) / 100).toFixed(2)}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-3">Moderation log</h4>
+                {user.policy.incidents.length === 0 ? (
+                  <p className="text-sm text-neutral-400">No recorded incidents for this user.</p>
+                ) : (
+                  <div className="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-neutral-50 dark:bg-neutral-800/50 text-[10px] uppercase tracking-widest text-neutral-500">
+                        <tr>
+                          <th className="px-3 py-2">When</th>
+                          <th className="px-3 py-2">Source</th>
+                          <th className="px-3 py-2">Matched</th>
+                          <th className="px-3 py-2">Types</th>
+                          <th className="px-3 py-2 min-w-[180px]">Snippet</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                        {user.policy.incidents.map((row) => (
+                          <tr key={row.id} className="align-top">
+                            <td className="px-3 py-2 whitespace-nowrap text-xs text-neutral-500">
+                              {new Date(row.createdAt).toLocaleString('en-ZA')}
+                            </td>
+                            <td className="px-3 py-2 text-xs font-mono text-neutral-600 dark:text-neutral-300">{row.source}</td>
+                            <td className="px-3 py-2">
+                              <div className="flex flex-wrap gap-1 max-w-[220px]">
+                                {row.matchedWords.length === 0 ? (
+                                  <span className="text-xs text-neutral-400">--</span>
+                                ) : (
+                                  row.matchedWords.map((w) => (
+                                    <span
+                                      key={`${row.id}-${w}`}
+                                      className="px-1.5 py-0.5 rounded-md bg-amber-100/80 dark:bg-amber-950/50 text-amber-950 dark:text-amber-100 text-xs font-medium"
+                                    >
+                                      {w}
+                                    </span>
+                                  ))
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-3 py-2 text-xs text-neutral-500">{(row.detectedTypes || []).join(', ')}</td>
+                            <td className="px-3 py-2 text-xs text-neutral-500 line-clamp-2">{row.snippet || '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-3">Written warnings (in-app)</h4>
+                {user.policy.writtenWarnings.length === 0 ? (
+                  <p className="text-sm text-neutral-400">No official warnings on file.</p>
+                ) : (
+                  <ul className="space-y-3">
+                    {user.policy.writtenWarnings.map((w) => (
+                      <li
+                        key={w.id}
+                        className="rounded-xl border border-violet-100 dark:border-violet-900/40 bg-violet-50/40 dark:bg-violet-950/10 p-4"
+                      >
+                        <p className="text-xs text-neutral-400">
+                          {new Date(w.createdAt).toLocaleString('en-ZA')}
+                          {w.acknowledgedAt ? (
+                            <span className="ml-2 text-emerald-600 dark:text-emerald-400">· Acknowledged</span>
+                          ) : (
+                            <span className="ml-2 text-amber-600 dark:text-amber-300">· Not yet acknowledged in app</span>
+                          )}
+                        </p>
+                        <p className="text-sm text-black dark:text-white mt-2 whitespace-pre-wrap">{w.body}</p>
+                        <p className="text-[11px] text-neutral-500 mt-2">By {w.createdBy?.fullName || 'Admin'}</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="lg:col-span-2 bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-100 dark:border-neutral-800 p-6 shadow-soft">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-black dark:text-white tracking-tight">
@@ -592,6 +851,68 @@ const AdminUserDetail: React.FC = () => {
             <Button variant="outline" onClick={() => setEditOpen(false)} className="border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:text-black rounded-full">Cancel</Button>
             <Button onClick={handleSave} disabled={saving} className="bg-black text-white hover:bg-neutral-800 rounded-full">
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={warnOpen} onOpenChange={setWarnOpen}>
+        <DialogContent className="bg-white border-neutral-200 text-black sm:max-w-lg rounded-2xl shadow-soft-lg">
+          <DialogHeader>
+            <DialogTitle className="text-black font-serif text-xl">Written warning</DialogTitle>
+            <DialogDescription className="text-xs text-neutral-500 pt-1">
+              Shown on the user&apos;s dashboard (customer or freelancer) until they tap &quot;I&apos;ve read this&quot;. Use clear, professional language.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={warnText}
+            onChange={(e) => setWarnText(e.target.value)}
+            placeholder="e.g. Your recent messages contained language that breaches our community standards…"
+            className="min-h-[140px] rounded-xl border-neutral-200"
+          />
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
+            <Button variant="outline" onClick={() => setWarnOpen(false)} className="border-neutral-200 rounded-full" type="button">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => { void submitWarning(); }}
+              disabled={policyBusy || warnText.trim().length < 3}
+              className="bg-black text-white rounded-full"
+              type="button"
+            >
+              {policyBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Send to app
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={banOpen} onOpenChange={setBanOpen}>
+        <DialogContent className="bg-white border-neutral-200 text-black sm:max-w-lg rounded-2xl shadow-soft-lg">
+          <DialogHeader>
+            <DialogTitle className="text-black font-serif text-xl">Ban this user</DialogTitle>
+            <DialogDescription className="text-xs text-neutral-500 pt-1">
+              They will be signed out and blocked from the API. We record an estimated balance for communications only.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={banReason}
+            onChange={(e) => setBanReason(e.target.value)}
+            placeholder="Reason shown to the user and kept on file…"
+            className="min-h-[120px] rounded-xl border-neutral-200"
+          />
+          <DialogFooter className="gap-2 sm:gap-2 pt-2">
+            <Button variant="outline" onClick={() => setBanOpen(false)} className="border-neutral-200 rounded-full" type="button">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => { void submitBan(); }}
+              disabled={policyBusy || banReason.trim().length < 3}
+              className="bg-red-600 hover:bg-red-700 text-white rounded-full"
+              type="button"
+            >
+              {policyBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Confirm ban
             </Button>
           </DialogFooter>
         </DialogContent>
