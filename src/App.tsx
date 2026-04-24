@@ -55,6 +55,8 @@ const AdminBookingReviews = lazy(() => import('./pages/admin/AdminBookingReviews
 const AdminChatLogs = lazy(() => import('./pages/admin/AdminChatLogs'));
 const AdminCompliance = lazy(() => import('./pages/admin/AdminCompliance'));
 const AdminAi = lazy(() => import('./pages/admin/AdminAi'));
+const AdminCategoryLimitRequests = lazy(() => import('./pages/admin/AdminCategoryLimitRequests'));
+const AdminCertificationReviews = lazy(() => import('./pages/admin/AdminCertificationReviews'));
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -257,6 +259,8 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                             <Route path="bookings" element={<AdminBookings />} />
                             <Route path="customers/:customerId" element={<AdminCustomerDetail />} />
                             <Route path="verifications" element={<AdminVerifications />} />
+                            <Route path="category-limit-requests" element={<AdminCategoryLimitRequests />} />
+                            <Route path="certification-reviews" element={<AdminCertificationReviews />} />
                             <Route path="analytics" element={<AdminAnalytics />} />
                             <Route path="finance" element={<AdminFinance />} />
                             <Route path="security" element={<AdminSecurity />} />

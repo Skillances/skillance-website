@@ -47,6 +47,16 @@ export const ApiPaths = {
     freelancer: (id: string) => `/admin/freelancers/${id}`,
     freelancerBookings: (id: string) => `/admin/freelancers/${id}/bookings`,
     freelancerVerifyId: (id: string) => `/admin/freelancers/${id}/verify-id`,
+
+    freelancerCategoryLimitRequests: '/admin/freelancer-category-limit-requests',
+    freelancerCategoryLimitRequestApprove: (requestId: string) =>
+      `/admin/freelancer-category-limit-requests/${requestId}/approve`,
+    freelancerCategoryLimitRequestDeny: (requestId: string) =>
+      `/admin/freelancer-category-limit-requests/${requestId}/deny`,
+
+    freelancerCertificationsPending: '/admin/freelancer-certifications/pending',
+    freelancerCertificationVerify: (certificationId: string) =>
+      `/admin/freelancer-certifications/${certificationId}/verify`,
     freelancerPoliceClearanceVerify: (id: string) =>
       `/admin/freelancers/${id}/police-clearance/verify`,
     freelancerPhoto: (freelancerId: string, photoType: string) =>
