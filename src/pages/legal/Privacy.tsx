@@ -20,8 +20,9 @@ const Privacy = () => {
           <h2 className="text-2xl font-serif text-black mb-2">1. Who is responsible (Responsible Party)</h2>
           <p className="leading-relaxed">
             The responsible party under the Protection of Personal Information Act, 2013 (&quot;POPIA&quot;) is{' '}
-            <strong className="text-black">RIMITSO MANAGEMENT SERVICES (PTY) LTD</strong>, trading as Skillance, a company
-            registered in the Republic of South Africa.
+            <strong className="text-black">RIMITSO MANAGEMENT SERVICES (PTY) LTD</strong> (Rimitso Management Services).
+            Skillance is <strong className="text-black">owned by and part of</strong> Rimitso. Rimitso trades as Skillance
+            and is a company registered in the Republic of South Africa.
           </p>
           <p className="leading-relaxed">
             For privacy queries, to exercise POPIA rights, or to contact our information officer, email{' '}
@@ -287,7 +288,7 @@ const Privacy = () => {
         <section className="space-y-3">
           <h2 className="text-2xl font-serif text-black mb-2">15. Contact</h2>
           <p className="leading-relaxed">
-            RIMITSO MANAGEMENT SERVICES (PTY) LTD (Skillance). Email{' '}
+            RIMITSO MANAGEMENT SERVICES (PTY) LTD. Skillance is owned by and part of Rimitso Management Services. Email{' '}
             <a href="mailto:services@skillance.co.za" className="text-black underline underline-offset-4 hover:no-underline">
               services@skillance.co.za
             </a>{' '}

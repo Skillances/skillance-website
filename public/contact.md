@@ -8,7 +8,7 @@ Canonical page: https://skillance.co.za/contact
 
 ## Who we are
 
-Skillance is operated by **RIMITSO MANAGEMENT SERVICES (PTY) LTD**, registered in the Republic of South Africa. We run an on-demand marketplace connecting customers with verified local freelancers across South Africa.
+**Skillance** is **owned by and part of Rimitso Management Services (Pty) Ltd** (legal name: **RIMITSO MANAGEMENT SERVICES (PTY) LTD**), registered in the Republic of South Africa. We run an on-demand marketplace connecting customers with verified local freelancers across South Africa.
 
 ## How to reach us
 

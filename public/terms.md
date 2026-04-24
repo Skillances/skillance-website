@@ -11,7 +11,7 @@ These Terms of Service ("Terms") govern use of the Skillance website at https://
 
 ## 1. About Skillance and the operator
 
-Skillance is a South African two-sided marketplace that connects customers with independent service providers ("Freelancers") for services such as tutoring and home services. The Platform is operated by **RIMITSO MANAGEMENT SERVICES (PTY) LTD** ("Skillance", "we", "us"), a company registered in the Republic of South Africa. Contact: services@skillance.co.za · WhatsApp +27 64 872 8174.
+**Skillance** (the "Platform" brand) is **owned by and part of** **RIMITSO MANAGEMENT SERVICES (PTY) LTD** ("Rimitso", "we", "us"). Rimitso is a company registered in the Republic of South Africa. The Platform is a two-sided marketplace that connects customers with independent service providers ("Freelancers") for services such as tutoring and home services. Contact: services@skillance.co.za · WhatsApp +27 64 872 8174.
 
 ## 2. Acceptance and changes
 
@@ -148,7 +148,7 @@ These Terms and any dispute relating to them are governed by the laws of the Rep
 
 ## 22. Contact
 
-RIMITSO MANAGEMENT SERVICES (PTY) LTD, operator of Skillance.
+RIMITSO MANAGEMENT SERVICES (PTY) LTD. Skillance is owned by and part of Rimitso Management Services.
 - Email: services@skillance.co.za
 - WhatsApp: +27 64 872 8174
 

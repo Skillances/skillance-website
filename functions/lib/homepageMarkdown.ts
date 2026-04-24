@@ -12,7 +12,7 @@ South Africa's freelancer marketplace connecting customers with verified profess
 
 ## Summary
 
-- **Organization:** Skillance (Skillance South Africa)
+- **Corporate structure:** Skillance (the marketplace brand) is **owned by and part of Rimitso Management Services (Pty) Ltd** (legal name: RIMITSO MANAGEMENT SERVICES (PTY) LTD), registered in South Africa.
 - **Site:** https://skillance.co.za
 - **Contact:** services@skillance.co.za · +27 66 220 3312
 

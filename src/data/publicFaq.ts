@@ -78,7 +78,7 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'Where you operate & who runs Skillance',
               kind: 'leaf',
               answer:
-                'Skillance launches in South Africa with freelancers in major metros — use Nearby in the app to see who is close. The platform is operated by RIMITSO MANAGEMENT SERVICES (PTY) LTD; billing, data handling and support follow South African consumer and data-protection law (POPIA).',
+                'Skillance is owned by and part of Rimitso Management Services (Pty) Ltd (legal name: RIMITSO MANAGEMENT SERVICES (PTY) LTD). We launch in South Africa with freelancers in major metros — use Nearby in the app to see who is close. Billing, data handling and support follow South African consumer and data-protection law (POPIA).',
             },
           ],
         },
@@ -702,7 +702,7 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'Who operates Skillance?',
               kind: 'leaf',
               answer:
-                'RIMITSO MANAGEMENT SERVICES (PTY) LTD, trading as Skillance — registered in South Africa. Billing, data processing, and support are handled under South African law including POPIA and the CPA.',
+                'Skillance is owned by and part of Rimitso Management Services (Pty) Ltd (RIMITSO MANAGEMENT SERVICES (PTY) LTD), trading as Skillance — registered in South Africa. Billing, data processing, and support are handled under South African law including POPIA and the CPA.',
             },
           ],
         },

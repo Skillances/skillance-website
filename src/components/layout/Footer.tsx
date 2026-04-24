@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Linkedin } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { CORPORATE_OWNERSHIP_SENTENCE } from '../../constants/corporate';
 
 const Footer = () => {
   const location = useLocation();
@@ -146,9 +147,9 @@ const Footer = () => {
               href="https://bizportal.gov.za/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-neutral-400 hover:text-white transition-colors max-w-md"
+              className="text-sm text-neutral-400 hover:text-white transition-colors max-w-md leading-snug"
             >
-              A product of RIMITSO MANAGEMENT SERVICES (PTY) LTD
+              {CORPORATE_OWNERSHIP_SENTENCE}
             </a>
             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
               <a

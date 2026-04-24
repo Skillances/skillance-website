@@ -65,9 +65,9 @@
     <!-- Primary Meta Tags -->
     <title>Skillance South Africa | Freelancer Marketplace Platform</title>
     <meta name="title" content="Skillance South Africa" />
-    <meta name="description" content="Skillance South Africa - Connect with verified freelancers and skilled professionals. Find trusted experts for your projects on Africa's premier marketplace." />
-    <meta name="keywords" content="Skillance South Africa, freelancer marketplace South Africa, hire freelancers South Africa, freelance services South Africa, skilled professionals South Africa, freelancer platform South Africa, trusted freelancers, local expertise, project services South Africa" />
-    <meta name="author" content="Skillance" />
+    <meta name="description" content="Skillance — owned and part of Rimitso Management Services (Pty) Ltd. South Africa’s marketplace connecting customers with verified freelancers: home services, tutoring, cleaning, and more. POPIA-aligned." />
+    <meta name="keywords" content="Skillance, Rimitso Management Services, Skillance South Africa, freelancer marketplace South Africa, hire freelancers South Africa, freelance services South Africa, skilled professionals South Africa, trusted freelancers, POPIA" />
+    <meta name="author" content="Rimitso Management Services (Pty) Ltd" />
     <meta name="robots" content="index, follow" />
     <meta name="language" content="en" />
     <meta name="revisit-after" content="7 days" />
@@ -92,7 +92,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://skillance.co.za" />
     <meta property="og:title" content="Skillance South Africa | Freelancer Marketplace Platform" />
-    <meta property="og:description" content="Skillance South Africa - Connect with verified freelancers and skilled professionals. Find trusted experts on Africa's premier marketplace." />
+    <meta property="og:description" content="Skillance — owned and part of Rimitso Management Services (Pty) Ltd. Verified freelancers and skilled professionals across South Africa." />
     <meta property="og:image" content="https://skillance.co.za/app-icon.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -104,7 +104,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://skillance.co.za" />
     <meta name="twitter:title" content="Skillance South Africa | Freelancer Marketplace Platform" />
-    <meta name="twitter:description" content="Skillance South Africa - Connect with verified freelancers and skilled professionals. Find trusted experts on Africa's premier marketplace." />
+    <meta name="twitter:description" content="Skillance — owned and part of Rimitso Management Services (Pty) Ltd. Verified freelancers across South Africa." />
     <meta name="twitter:image" content="https://skillance.co.za/app-icon.png" />
     
     <!-- Google Fonts - async load to avoid render blocking -->
@@ -120,10 +120,20 @@
       "@graph": [
         {
           "@type": "Organization",
+          "@id": "https://skillance.co.za/#parentOrganization",
+          "name": "Rimitso Management Services",
+          "legalName": "RIMITSO MANAGEMENT SERVICES (PTY) LTD",
+          "url": "https://skillance.co.za",
+          "description": "Parent company of Skillance. Rimitso Management Services (Pty) Ltd owns the Skillance marketplace platform; Skillance is owned by and part of Rimitso Management Services.",
+          "areaServed": { "@type": "Country", "name": "South Africa" },
+          "subOrganization": { "@id": "https://skillance.co.za/#organization" }
+        },
+        {
+          "@type": "Organization",
           "@id": "https://skillance.co.za/#organization",
           "name": "Skillance",
-          "alternateName": ["Skillance South Africa", "Skillance ZA"],
-          "legalName": "RIMITSO MANAGEMENT SERVICES (PTY) LTD",
+          "alternateName": ["Skillance South Africa", "Skillance ZA", "Skillance"],
+          "parentOrganization": { "@id": "https://skillance.co.za/#parentOrganization" },
           "url": "https://skillance.co.za",
           "logo": {
             "@type": "ImageObject",
@@ -134,7 +144,7 @@
             "caption": "Skillance"
           },
           "image": { "@id": "https://skillance.co.za/#logo" },
-          "description": "Skillance is South Africa's on-demand marketplace connecting customers with ID-verified local freelancers across all skilled trades and services — handyman, education, cleaning, pet care, fitness, automotive, beauty, events, photography, videography, music, gardening, IT, and professional services. Not a tech-only platform.",
+          "description": "Skillance is owned by and part of Rimitso Management Services (Pty) Ltd. South Africa's on-demand marketplace connecting customers with ID-verified local freelancers across all skilled trades and services — handyman, education, cleaning, pet care, fitness, automotive, beauty, events, photography, videography, music, gardening, IT, and professional services. Not a tech-only platform.",
           "foundingLocation": {
             "@type": "Country",
             "name": "South Africa"
@@ -232,7 +242,7 @@
             { "@type": "City", "name": "Stellenbosch" },
             { "@type": "City", "name": "Centurion" }
           ],
-          "parentOrganization": { "@id": "https://skillance.co.za/#organization" },
+          "parentOrganization": { "@id": "https://skillance.co.za/#parentOrganization" },
           "contactPoint": {
             "@type": "ContactPoint",
             "telephone": "+27-66-220-3312",
@@ -464,7 +474,7 @@
               "name": "What is Skillance?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Skillance is a South African on-demand marketplace that connects customers with ID-verified local freelancers across every skilled trade — home services, tutoring, cleaning, pet care, wellness, automotive, creative work, beauty, and more. Customers search, book, and pay through the app; freelancers get verified exposure and escrow-protected payouts."
+                "text": "Skillance is owned by and part of Rimitso Management Services (Pty) Ltd. It is a South African on-demand marketplace that connects customers with ID-verified local freelancers across every skilled trade — home services, tutoring, cleaning, pet care, wellness, automotive, creative work, beauty, and more. Customers search, book, and pay through the app; freelancers get verified exposure and escrow-protected payouts."
               }
             },
             {

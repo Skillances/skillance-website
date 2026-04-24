@@ -5,7 +5,7 @@
 Canonical page: https://skillance.co.za/refund-policy
 Last updated: 19 April 2026
 
-This Refund Policy forms part of our Terms of Service (https://skillance.co.za/terms) and applies to bookings made through Skillance, operated by **RIMITSO MANAGEMENT SERVICES (PTY) LTD**. All amounts are in South African Rand (ZAR) and inclusive of VAT where applicable.
+This Refund Policy forms part of our Terms of Service (https://skillance.co.za/terms) and applies to bookings made through Skillance. **Skillance is owned by and part of** **RIMITSO MANAGEMENT SERVICES (PTY) LTD** (Rimitso Management Services). All amounts are in South African Rand (ZAR) and inclusive of VAT where applicable.
 
 ---
 

@@ -10,8 +10,9 @@ const RefundPolicy = () => {
           <p className="text-sm leading-relaxed text-neutral-500">
             This Refund Policy forms part of our{' '}
             <Link to="/terms" className="text-black underline underline-offset-4 hover:no-underline">Terms of Service</Link>{' '}
-            and applies to bookings made through Skillance, operated by{' '}
-            <strong className="text-black">RIMITSO MANAGEMENT SERVICES (PTY) LTD</strong>. All amounts are in South African
+            and applies to bookings made through Skillance. Skillance is{' '}
+            <strong className="text-black">owned by and part of RIMITSO MANAGEMENT SERVICES (PTY) LTD</strong> (Rimitso
+            Management Services). All amounts are in South African
             Rand (ZAR) and inclusive of VAT where applicable.
           </p>
         </div>

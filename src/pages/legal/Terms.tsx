@@ -30,10 +30,10 @@ const Terms = () => {
         <section className="space-y-3">
           <h2 className="text-2xl font-serif text-black mb-2">1. About Skillance and the operator</h2>
           <p className="leading-relaxed">
-            Skillance is a South African two-sided marketplace that connects customers with independent service providers
-            (&quot;Freelancers&quot;) for services such as tutoring and home services. The Platform is operated by{' '}
-            <strong className="text-black">RIMITSO MANAGEMENT SERVICES (PTY) LTD</strong> (&quot;Skillance&quot;,
-            &quot;we&quot;, &quot;us&quot;), a company registered in the Republic of South Africa.
+            Skillance is <strong className="text-black">owned by and part of RIMITSO MANAGEMENT SERVICES (PTY) LTD</strong>{' '}
+            (Rimitso Management Services; &quot;Rimitso&quot;, &quot;we&quot;, &quot;us&quot;), registered in the Republic
+            of South Africa. The Platform is a two-sided marketplace that connects customers with independent service
+            providers (&quot;Freelancers&quot;) for services such as tutoring and home services.
           </p>
           <p className="leading-relaxed">
             Contact us at{' '}
@@ -383,7 +383,7 @@ const Terms = () => {
         <section className="space-y-3">
           <h2 className="text-2xl font-serif text-black mb-2">22. Contact</h2>
           <p className="leading-relaxed">
-            RIMITSO MANAGEMENT SERVICES (PTY) LTD, operator of Skillance. Email{' '}
+            RIMITSO MANAGEMENT SERVICES (PTY) LTD. Skillance is owned by and part of Rimitso Management Services. Email{' '}
             <a href="mailto:services@skillance.co.za" className="text-black underline underline-offset-4 hover:no-underline">services@skillance.co.za</a>{' '}
             or WhatsApp{' '}
             <a

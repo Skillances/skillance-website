@@ -4,6 +4,8 @@
 
 Canonical page: https://skillance.co.za/trust-safety
 
+**Corporate:** Skillance is **owned by and part of Rimitso Management Services (Pty) Ltd** (legal name: **RIMITSO MANAGEMENT SERVICES (PTY) LTD**), registered in South Africa.
+
 ---
 
 ## Verification

@@ -23,7 +23,7 @@ Creating an account and browsing freelancers is free. In-app messaging opens aft
 No. You'll see the freelancer's price and the Skillance service fee before you confirm a booking. VAT (where applicable) is included in the total shown at checkout.
 
 **Where does Skillance operate?**
-Skillance launches in South Africa with freelancers in major metros (Johannesburg, Pretoria, Cape Town, Durban, Gqeberha, Bloemfontein, East London). Use Nearby in the app to see who is close. The platform is operated by RIMITSO MANAGEMENT SERVICES (PTY) LTD; billing, data handling, and support follow South African consumer and data-protection law (POPIA).
+Skillance is owned by and part of Rimitso Management Services (Pty) Ltd (legal name: RIMITSO MANAGEMENT SERVICES (PTY) LTD). We launch in South Africa with freelancers in major metros (Johannesburg, Pretoria, Cape Town, Durban, Gqeberha, Bloemfontein, East London). Use Nearby in the app to see who is close. Billing, data handling, and support follow South African consumer and data-protection law (POPIA).
 
 ### Bookings, pricing & reviews
 
@@ -243,7 +243,7 @@ ID-verified freelancers, transparent pricing, escrow payments, in-app messaging 
 South Africa, with coverage across major metros. Availability grows as more freelancers join each area.
 
 **Who operates Skillance?**
-RIMITSO MANAGEMENT SERVICES (PTY) LTD, trading as Skillance — registered in South Africa. Billing, data processing, and support are handled under South African law including POPIA and the CPA.
+Skillance is owned by and part of Rimitso Management Services (Pty) Ltd (RIMITSO MANAGEMENT SERVICES (PTY) LTD), trading as Skillance — registered in South Africa. Billing, data processing, and support are handled under South African law including POPIA and the CPA.
 
 **Press, media & brand**
 Email services@skillance.co.za with "Press" in the subject line and we'll route you to the right person.

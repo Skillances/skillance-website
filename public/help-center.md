@@ -8,7 +8,7 @@ Canonical page: https://skillance.co.za/help-center
 
 ## Quick answers
 
-- **What is Skillance?** A South African marketplace that connects customers with ID-verified local freelancers for on-demand services (home repairs, tutoring, cleaning, pet care, wellness, creative, and more). Book, pay, and chat through the app; payments are held in escrow until the job is complete.
+- **What is Skillance?** A South African marketplace (owned by and part of Rimitso Management Services (Pty) Ltd) that connects customers with ID-verified local freelancers for on-demand services (home repairs, tutoring, cleaning, pet care, wellness, creative, and more). Book, pay, and chat through the app; payments are held in escrow until the job is complete.
 - **Where does Skillance work?** Across South Africa, with strongest coverage in Johannesburg, Pretoria, Cape Town, Durban, Gqeberha, Bloemfontein, and East London.
 - **Is it free?** Browsing and creating an account is free. A transparent 8–9% (VAT-inclusive) platform fee is applied at checkout.
 - **How do I get help?** See https://skillance.co.za/faq for detailed answers, or email support@skillance.co.za.
