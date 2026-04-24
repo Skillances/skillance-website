@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { get, put } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
-import { ArrowLeft, Edit, Loader2, Tag } from 'lucide-react';
+import { ArrowLeft, Edit, ExternalLink, ImageIcon, Loader2, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -28,6 +28,24 @@ interface CalendarLink {
   updatedAt: string;
 }
 
+interface ProfileMedia {
+  profilePhotoUrl: string | null;
+  idFrontPhotoUrl: string | null;
+  idBackPhotoUrl: string | null;
+  selfiePhotoUrl: string | null;
+  idVerificationStatus?: string;
+  policeClearanceStatus?: string;
+  policeClearanceDocumentUrl: string | null;
+}
+
+interface PortfolioProject {
+  id: string;
+  title: string;
+  description?: string | null;
+  imageUrls: string[];
+  displayOrder?: number;
+}
+
 interface UserData {
   id: string;
   firebaseUid: string;
@@ -44,12 +62,16 @@ interface UserData {
   customerBookingsCount?: number;
   calendarSyncEnabled?: boolean;
   calendarLinks?: CalendarLink[];
+  profileMedia?: ProfileMedia | null;
   freelancer: {
     id: string;
     kycStatus?: string;
     isVerified?: boolean;
     rating?: number;
     categoryIds?: string[];
+    coverPhotoUrl?: string | null;
+    portfolioPhotos?: string[];
+    portfolioProjects?: PortfolioProject[];
     categoryRates?: Array<{
       id: string;
       categoryId: string;
@@ -149,6 +171,74 @@ const ConnectedAccountCard: React.FC<{ link: CalendarLink }> = ({ link }) => {
           <p className="text-[11px] text-red-500 dark:text-red-400 line-clamp-2">
             {link.lastError}
           </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+function isLikelyImageUrl(url: string): boolean {
+  return /\.(jpe?g|png|gif|webp|bmp|svg|heic|heif)(\?|#|$)/i.test(url) || /\/image\//i.test(url);
+}
+
+function collectProfileMediaItems(user: UserData): { key: string; label: string; url: string }[] {
+  const items: { key: string; label: string; url: string }[] = [];
+  const pm = user.profileMedia;
+  if (pm) {
+    if (pm.profilePhotoUrl?.trim()) items.push({ key: 'm-pp', label: 'Profile photo', url: pm.profilePhotoUrl.trim() });
+    if (pm.idFrontPhotoUrl?.trim()) items.push({ key: 'm-idf', label: 'ID (front)', url: pm.idFrontPhotoUrl.trim() });
+    if (pm.idBackPhotoUrl?.trim()) items.push({ key: 'm-idb', label: 'ID (back)', url: pm.idBackPhotoUrl.trim() });
+    if (pm.selfiePhotoUrl?.trim()) items.push({ key: 'm-sf', label: 'Selfie (verification)', url: pm.selfiePhotoUrl.trim() });
+    if (pm.policeClearanceDocumentUrl?.trim()) {
+      items.push({
+        key: 'm-pc',
+        label: 'Police clearance document',
+        url: pm.policeClearanceDocumentUrl.trim(),
+      });
+    }
+  } else if (user.profilePhotoUrl?.trim()) {
+    items.push({ key: 'm-pp', label: 'Profile photo', url: user.profilePhotoUrl.trim() });
+  }
+  const f = user.freelancer;
+  if (f) {
+    if (f.coverPhotoUrl?.trim()) items.push({ key: 'm-cov', label: 'Cover photo', url: f.coverPhotoUrl.trim() });
+    (f.portfolioPhotos || []).forEach((url, i) => {
+      if (url?.trim()) items.push({ key: `m-pfol-${i}`, label: `Portfolio image ${i + 1}`, url: url.trim() });
+    });
+  }
+  return items;
+}
+
+const MediaTile: React.FC<{ label: string; url: string }> = ({ label, url }) => {
+  const [loadError, setLoadError] = useState(false);
+  const u = String(url || '').trim();
+  if (!u) return null;
+  const showAsImage = isLikelyImageUrl(u) && !loadError;
+  return (
+    <div className="rounded-xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/80 dark:bg-neutral-900/50 overflow-hidden flex flex-col">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 px-2.5 py-1.5 border-b border-neutral-100/80 dark:border-neutral-800 truncate">
+        {label}
+      </p>
+      <div className="p-2 flex-1 min-h-[88px] flex items-center justify-center">
+        {showAsImage ? (
+          <a href={u} target="_blank" rel="noopener noreferrer" className="block w-full max-h-40">
+            <img
+              src={u}
+              alt=""
+              className="w-full max-h-40 object-contain object-center rounded-lg bg-black/5 dark:bg-white/5"
+              onError={() => setLoadError(true)}
+            />
+          </a>
+        ) : (
+          <a
+            href={u}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs text-violet-600 dark:text-violet-400 font-medium break-all text-center px-1 hover:underline"
+          >
+            <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+            Open file
+          </a>
         )}
       </div>
     </div>
@@ -351,6 +441,77 @@ const AdminUserDetail: React.FC = () => {
             </CardContent>
           </Card>
         )}
+
+        {(() => {
+          const mediaItems = collectProfileMediaItems(user);
+          const projects = user.freelancer?.portfolioProjects ?? [];
+          if (mediaItems.length === 0 && projects.length === 0) return null;
+          return (
+            <Card className="lg:col-span-2 border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm overflow-hidden">
+              <CardHeader className="border-b border-neutral-100 dark:border-neutral-700/80 py-5 px-6">
+                <CardTitle className="text-lg font-semibold text-black dark:text-white tracking-tight flex items-center gap-3">
+                  <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-violet-100 dark:bg-violet-950/50">
+                    <ImageIcon className="h-5 w-5 text-violet-700 dark:text-violet-300" />
+                  </span>
+                  Profile media
+                </CardTitle>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400 font-normal pt-1">
+                  Images and documents currently stored for this user (KYC, portfolio, cover). Open in a new tab to review full size.
+                </p>
+                {user.profileMedia && (
+                  <p className="text-[10px] text-neutral-400 mt-1">
+                    ID verification:{' '}
+                    <span className="font-medium text-neutral-600 dark:text-neutral-300">
+                      {user.profileMedia.idVerificationStatus || '—'}
+                    </span>
+                    {user.profileMedia.policeClearanceStatus != null && (
+                      <>
+                        {' '}
+                        · Police clearance:{' '}
+                        <span className="font-medium text-neutral-600 dark:text-neutral-300">
+                          {user.profileMedia.policeClearanceStatus}
+                        </span>
+                      </>
+                    )}
+                  </p>
+                )}
+              </CardHeader>
+              <CardContent className="p-6 space-y-8">
+                {mediaItems.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-3">All uploads</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {mediaItems.map((m) => (
+                        <MediaTile key={m.key} label={m.label} url={m.url} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {projects.length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Portfolio projects</h4>
+                    {projects.map((project) => (
+                      <div
+                        key={project.id}
+                        className="rounded-2xl border border-neutral-100 dark:border-neutral-700/80 p-4 bg-neutral-50/50 dark:bg-neutral-900/40"
+                      >
+                        <p className="text-sm font-medium text-black dark:text-white mb-1">{project.title}</p>
+                        {project.description && (
+                          <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-3 line-clamp-3">{project.description}</p>
+                        )}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {(project.imageUrls || []).map((u, i) => (
+                            u?.trim() ? <MediaTile key={`${project.id}-img-${i}`} label={`${project.title} · ${i + 1}`} url={u.trim()} /> : null
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         <div className="lg:col-span-2 bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-100 dark:border-neutral-800 p-6 shadow-soft">
           <div className="flex items-center justify-between mb-4">

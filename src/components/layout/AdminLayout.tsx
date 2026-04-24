@@ -39,6 +39,7 @@ import { useAdminTheme } from '@/context/AdminThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import AdminAiChat from '@/components/admin/AdminAiChat';
+import { useAdminNavPendingBadges } from '@/hooks/useAdminNavPendingBadges';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -116,28 +117,71 @@ const PLATFORM_STYLES: Record<Platform, { dot: string; chip: string }> = {
 // Flat list for active-check lookup
 const allMenuItems = adminMenuGroups.flatMap((g) => g.items);
 
+function formatNavBadgeText(n: number): string {
+  if (n <= 0) return '';
+  return n > 99 ? '99+' : String(n);
+}
+
+function AdminNavBadgePill({ count, active }: { count: number; active: boolean }) {
+  if (count <= 0) return null;
+  const text = formatNavBadgeText(count);
+  return (
+    <span
+      className={cn(
+        'ml-auto shrink-0 min-h-5 min-w-5 px-1.5 inline-flex items-center justify-center rounded-full text-[10px] font-bold tabular-nums leading-none',
+        active
+          ? 'bg-amber-400 text-black dark:bg-amber-300 dark:text-black'
+          : 'bg-amber-500 text-white dark:bg-amber-600',
+      )}
+      aria-hidden
+    >
+      {text}
+    </span>
+  );
+}
+
+function AdminNavBadgeIconDot({ count, active }: { count: number; active: boolean }) {
+  if (count <= 0) return null;
+  const text = count > 9 ? '9+' : String(count);
+  return (
+    <span
+      className={cn(
+        'absolute -top-0.5 -right-0.5 z-10 min-w-3.5 h-3.5 px-0.5 flex items-center justify-center rounded-full text-[8px] font-bold leading-none',
+        active
+          ? 'bg-amber-400 text-black dark:bg-amber-300'
+          : 'bg-amber-500 text-white dark:text-amber-950',
+      )}
+      aria-hidden
+    >
+      {text}
+    </span>
+  );
+}
+
 interface CollapsedNavItemProps {
   item: (typeof allMenuItems)[number];
   active: boolean;
+  pendingCount: number;
 }
 
-const CollapsedNavItem: React.FC<CollapsedNavItemProps> = ({ item, active }) => {
+const CollapsedNavItem: React.FC<CollapsedNavItemProps> = ({ item, active, pendingCount }) => {
   const tooltipId = `admin-collapsed-tooltip-${item.path.replaceAll('/', '-').replaceAll(':', '-')}`;
 
   return (
     <div className="relative group/item flex items-center justify-center w-full">
       <Link
         to={item.path}
-        aria-label={item.name}
+        aria-label={pendingCount > 0 ? `${item.name}, ${pendingCount} pending` : item.name}
         aria-describedby={tooltipId}
         className={cn(
-          'flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400/70 dark:focus-visible:ring-neutral-500/70',
+          'relative flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400/70 dark:focus-visible:ring-neutral-500/70',
           active
             ? 'bg-black dark:bg-white text-white dark:text-black'
             : 'text-neutral-400 dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white',
         )}
       >
-        <item.icon size={16} />
+        <item.icon size={16} className="relative z-0" />
+        <AdminNavBadgeIconDot count={pendingCount} active={active} />
       </Link>
       <span
         id={tooltipId}
@@ -159,6 +203,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   /** Bumping this remounts the current admin route so data hooks run again (same as a soft refresh). */
   const [refreshNonce, setRefreshNonce] = useState(0);
+  const { getCount: getNavPendingCount } = useAdminNavPendingBadges({ refreshKey: refreshNonce });
 
   // Track which groups are collapsed — all open by default
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
@@ -285,12 +330,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     <div className="space-y-0.5 pb-2">
                       {group.items.map((item) => {
                         const active = isActive(item.path);
+                        const pending = getNavPendingCount(item.path);
                         return (
                           <Link
                             key={item.path}
                             to={item.path}
+                            title={pending > 0 ? `${item.name} (${pending} pending)` : item.name}
                             className={cn(
-                              'flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 group text-[13px]',
+                              'flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 group text-[13px] min-w-0',
                               active
                                 ? 'bg-black dark:bg-white text-white dark:text-black font-medium'
                                 : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white',
@@ -305,7 +352,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                   : 'text-neutral-400 dark:text-neutral-500 group-hover:text-black dark:group-hover:text-white',
                               )}
                             />
-                            <span>{item.name}</span>
+                            <span className="flex-1 min-w-0 truncate text-left">{item.name}</span>
+                            <AdminNavBadgePill count={pending} active={active} />
                           </Link>
                         );
                       })}
@@ -410,7 +458,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     </div>
                     <div className="w-full flex flex-col items-center gap-1">
                       {group.items.map((item) => (
-                        <CollapsedNavItem key={item.path} item={item} active={isActive(item.path)} />
+                        <CollapsedNavItem
+                          key={item.path}
+                          item={item}
+                          active={isActive(item.path)}
+                          pendingCount={getNavPendingCount(item.path)}
+                        />
                       ))}
                     </div>
                   </div>

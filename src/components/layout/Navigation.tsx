@@ -4,6 +4,7 @@ import { MenuToggleIcon } from '../ui/menu-toggle-icon';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getLenisFromWindow, getSectionScrollTopReservePx, scrollToPageSection } from '@/lib/sectionScroll';
+import { useAuth } from '@/context/AuthContext';
 
 interface NavigationProps {
   isLoaded: boolean;
@@ -15,6 +16,8 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
   const [isPastHero, setIsPastHero] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated, isAdmin } = useAuth();
+  const showAdminLink = isAuthenticated && isAdmin;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -224,6 +227,16 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                   <span className={`absolute -bottom-1 left-0 w-0 h-px transition-all duration-300 group-hover:w-full ${underlineColor}`} />
                 </button>
               ))}
+              {showAdminLink && (
+                <Link
+                  to="/admin/dashboard"
+                  className={`text-sm font-medium transition-colors duration-300 relative group ${textColorMuted} ${hoverColor}`}
+                  aria-label="Admin dashboard"
+                >
+                  Admin
+                  <span className={`absolute -bottom-1 left-0 w-0 h-px transition-all duration-300 group-hover:w-full ${underlineColor}`} />
+                </Link>
+              )}
             </div>
 
             <div className="flex items-center gap-1 lg:hidden">
@@ -303,6 +316,22 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                       {link.name}
                     </motion.button>
                   ))}
+                  {showAdminLink && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: 0.05 + navLinks.length * 0.04, ease: 'easeOut' }}
+                    >
+                      <Link
+                        to="/admin/dashboard"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 transition-colors py-4 border-b border-neutral-100"
+                        aria-label="Admin dashboard"
+                      >
+                        Admin
+                      </Link>
+                    </motion.div>
+                  )}
                 </div>
               </div>
             </motion.div>
