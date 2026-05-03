@@ -120,6 +120,41 @@ const DEFAULT_APP_STATUS: AppClientStatusPayload = {
   },
 };
 
+/** Insert into text fields, then edit dates/times before saving. */
+const MAINTENANCE_MESSAGE_TEMPLATES: readonly { label: string; text: string }[] = [
+  {
+    label: 'Upgrade ~30 min',
+    text: 'We are upgrading Skillance. Please try again in about 30 minutes.',
+  },
+  {
+    label: 'Scheduled window',
+    text:
+      'Scheduled maintenance is in progress. We expect to be back within an hour. Thank you for your patience.',
+  },
+  {
+    label: 'Temporarily unavailable',
+    text: 'Skillance is temporarily unavailable while we resolve an issue. Please try again soon.',
+  },
+];
+
+const BANNER_MESSAGE_TEMPLATES: readonly { label: string; text: string }[] = [
+  {
+    label: 'Tonight (edit time)',
+    text:
+      'We will have scheduled maintenance tonight at 00:00 SAST. Please finish important actions before then.',
+  },
+  {
+    label: 'Reminder',
+    text:
+      'Reminder: maintenance is coming up. We will share exact times here. You can keep using the app for now.',
+  },
+  {
+    label: 'Minor slowdown',
+    text:
+      'You may notice slower responses for a short while while we improve the service. Thank you for your patience.',
+  },
+];
+
 const AdminSystem: React.FC = () => {
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
   const [loading, setLoading] = useState(true);
@@ -275,6 +310,21 @@ const AdminSystem: React.FC = () => {
 
               <div className="space-y-2">
                 <Label>Message (maintenance)</Label>
+                <p className="text-xs text-neutral-500">Quick templates (click to insert, then edit).</p>
+                <div className="flex flex-wrap gap-2">
+                  {MAINTENANCE_MESSAGE_TEMPLATES.map((t) => (
+                    <Button
+                      key={t.label}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-7 rounded-full border-neutral-200 dark:border-neutral-600 text-xs font-normal"
+                      onClick={() => setAppStatus((s) => ({ ...s, maintenanceMessage: t.text }))}
+                    >
+                      {t.label}
+                    </Button>
+                  ))}
+                </div>
                 <Textarea
                   value={appStatus.maintenanceMessage}
                   onChange={(e) =>
@@ -304,6 +354,26 @@ const AdminSystem: React.FC = () => {
 
                 <div className="space-y-2">
                   <Label>Banner text</Label>
+                  <p className="text-xs text-neutral-500">Quick templates (click to insert, then edit).</p>
+                  <div className="flex flex-wrap gap-2">
+                    {BANNER_MESSAGE_TEMPLATES.map((t) => (
+                      <Button
+                        key={t.label}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 rounded-full border-neutral-200 dark:border-neutral-600 text-xs font-normal"
+                        onClick={() =>
+                          setAppStatus((s) => ({
+                            ...s,
+                            banner: { ...s.banner, message: t.text },
+                          }))
+                        }
+                      >
+                        {t.label}
+                      </Button>
+                    ))}
+                  </div>
                   <Textarea
                     value={appStatus.banner.message}
                     onChange={(e) =>
