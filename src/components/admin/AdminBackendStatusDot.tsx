@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { RefreshCw } from 'lucide-react';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { getApiBaseUrl } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { cn } from '@/lib/utils';
 
 /** Round-trip above this is shown as "slow" (orange). */
@@ -42,10 +43,10 @@ function formatLatency(ms: number | undefined): string {
 }
 
 /**
- * Green / orange / red dot for API reachability and latency; hover shows last measured round-trip.
+ * Green / orange / red dot for API reachability and latency; hover opens a card with last measured round-trip and a manual "Check now" control.
  */
 export function AdminBackendStatusDot({ className }: { className?: string }) {
-  const { data, isPending, isFetching, dataUpdatedAt } = useQuery({
+  const { data, isPending, isFetching, dataUpdatedAt, refetch } = useQuery({
     queryKey: queryKeys.backend.healthPing(),
     queryFn: pingBackendHealth,
     refetchInterval: PING_INTERVAL_MS,
@@ -83,8 +84,8 @@ export function AdminBackendStatusDot({ className }: { className?: string }) {
           : 'bg-emerald-500 dark:bg-emerald-400';
 
   return (
-    <Tooltip delayDuration={250}>
-      <TooltipTrigger asChild>
+    <HoverCard openDelay={200} closeDelay={150}>
+      <HoverCardTrigger asChild>
         <button
           type="button"
           className={cn(
@@ -94,17 +95,18 @@ export function AdminBackendStatusDot({ className }: { className?: string }) {
             isFetching ? 'opacity-70' : 'opacity-100',
             className,
           )}
-          aria-label={`${title}. Last response ${formatLatency(latencyMs)}.`}
+          aria-label={`${title}. Last response ${formatLatency(latencyMs)}. Hover or press for details and refresh.`}
         >
           <span
             className={cn('h-2.5 w-2.5 shrink-0 rounded-full shadow-sm ring-1 ring-black/10 dark:ring-white/15', dotClass)}
           />
         </button>
-      </TooltipTrigger>
-      <TooltipContent
+      </HoverCardTrigger>
+      <HoverCardContent
         side="bottom"
+        align="center"
         sideOffset={8}
-        className="max-w-xs border-neutral-200 bg-white text-left text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+        className="max-w-xs border-neutral-200 bg-white p-3 text-left text-neutral-900 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
       >
         <p className="text-sm font-medium">{title}</p>
         <p className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-400">
@@ -116,7 +118,25 @@ export function AdminBackendStatusDot({ className }: { className?: string }) {
         {data && !data.reachable && data.httpStatus > 0 ? (
           <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">HTTP status: {data.httpStatus}</p>
         ) : null}
-      </TooltipContent>
-    </Tooltip>
+        <div className="mt-3 flex justify-end border-t border-neutral-100 pt-2.5 dark:border-neutral-800">
+          <button
+            type="button"
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-neutral-700',
+              'transition-colors hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800',
+              'disabled:pointer-events-none disabled:opacity-50',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-500 dark:focus-visible:ring-offset-neutral-900',
+            )}
+            disabled={isFetching}
+            onClick={() => {
+              void refetch();
+            }}
+          >
+            <RefreshCw className={cn('h-3.5 w-3.5 shrink-0', isFetching && 'animate-spin')} aria-hidden />
+            Check now
+          </button>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
   );
 }
