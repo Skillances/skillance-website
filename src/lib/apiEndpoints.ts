@@ -61,6 +61,8 @@ export const ApiPaths = {
     freelancerCertificationsPending: '/admin/freelancer-certifications/pending',
     freelancerCertificationVerify: (certificationId: string) =>
       `/admin/freelancer-certifications/${certificationId}/verify`,
+    digitalProductsPending: '/admin/digital-products/pending',
+    digitalProductVerify: (productId: string) => `/admin/digital-products/${productId}/verify`,
     freelancerPoliceClearanceVerify: (id: string) =>
       `/admin/freelancers/${id}/police-clearance/verify`,
     freelancerPhoto: (freelancerId: string, photoType: string) =>

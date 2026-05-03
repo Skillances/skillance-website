@@ -52,7 +52,9 @@ function getFreelancerKycSlice(f: Record<string, any> | null) {
   }
   const u = f.user;
   return {
-    idVerificationStatus: u?.idVerificationStatus ?? f.idVerificationStatus,
+    // Freelancer.kycStatus is the gate for listing / admin ID workflow; User defaults to DB "pending"
+    // for legacy customers who never submitted ID, which incorrectly showed Approve/Reject.
+    idVerificationStatus: f.kycStatus ?? u?.idVerificationStatus ?? f.idVerificationStatus,
     policeClearanceStatus: u?.policeClearanceStatus ?? f.policeClearanceStatus,
     idNumber: u?.idNumber ?? f.idNumber,
     idFrontPhotoUrl: u?.idFrontPhotoUrl ?? f.idFrontPhotoUrl,
