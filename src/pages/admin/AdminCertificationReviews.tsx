@@ -24,6 +24,57 @@ interface PendingCert {
   };
 }
 
+function isImageMime(mime: string | null | undefined): boolean {
+  return typeof mime === 'string' && mime.trim().toLowerCase().startsWith('image/');
+}
+
+function filenameLooksLikeImage(name: string | null | undefined): boolean {
+  if (!name) return false;
+  return /\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(name.trim());
+}
+
+function shouldOfferInlineImagePreview(r: PendingCert): boolean {
+  return isImageMime(r.mimeType) || filenameLooksLikeImage(r.originalFileName);
+}
+
+const CertificationProofAttachment: React.FC<{ row: PendingCert }> = ({ row }) => {
+  const [imageBroken, setImageBroken] = useState(false);
+  const tryInlineImage = shouldOfferInlineImagePreview(row) && !imageBroken;
+
+  return (
+    <div className="space-y-2">
+      {tryInlineImage ? (
+        <a
+          href={row.documentUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block overflow-hidden rounded-md border border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900"
+        >
+          <img
+            src={row.documentUrl}
+            alt={`Certification proof: ${row.name}`}
+            className="max-h-[min(24rem,70vh)] w-full object-contain"
+            loading="lazy"
+            onError={() => setImageBroken(true)}
+          />
+        </a>
+      ) : null}
+      <a
+        href={row.documentUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 text-sky-600 hover:underline dark:text-sky-400"
+      >
+        <FileText className="h-4 w-4 shrink-0" />
+        <span className="break-all">
+          {row.originalFileName || 'Open document'}
+          {row.mimeType ? <span className="text-xs text-neutral-400"> ({row.mimeType})</span> : null}
+        </span>
+      </a>
+    </div>
+  );
+};
+
 const AdminCertificationReviews: React.FC = () => {
   const [rows, setRows] = useState<PendingCert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,16 +164,7 @@ const AdminCertificationReviews: React.FC = () => {
                   <p className="text-xs text-neutral-500">{r.freelancer.user.email}</p>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
-                  <a
-                    href={r.documentUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sky-600 hover:underline"
-                  >
-                    <FileText className="h-4 w-4" />
-                    {r.originalFileName || 'Open document'}
-                    {r.mimeType ? <span className="text-xs text-neutral-400">({r.mimeType})</span> : null}
-                  </a>
+                  <CertificationProofAttachment row={r} />
                   {rejectId === r.id ? (
                     <div className="space-y-2 pt-2">
                       <Textarea
