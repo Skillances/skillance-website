@@ -15,6 +15,11 @@ interface RoleApplicationRow {
   reason: string | null;
   decidedAt: string | null;
   createdAt: string;
+  draftSummary?: {
+    categoryCount: number;
+    locationCount: number;
+    hasFullIdPackage: boolean;
+  } | null;
   user?: {
     id: string;
     email: string;
@@ -96,6 +101,19 @@ const AdminRoleApplications: React.FC = () => {
       key: 'targetRole',
       header: 'Target role',
       render: (r) => <span className="text-sm capitalize">{r.targetRole}</span>,
+    },
+    {
+      key: 'draftSummary',
+      header: 'Apply summary',
+      render: (r) =>
+        r.targetRole === 'freelancer' && r.draftSummary ? (
+          <span className="text-xs text-neutral-600 dark:text-neutral-400">
+            {r.draftSummary.categoryCount} categories, {r.draftSummary.locationCount} locations
+            {r.draftSummary.hasFullIdPackage ? ', ID attached' : ''}
+          </span>
+        ) : (
+          <span className="text-xs text-neutral-400">—</span>
+        ),
     },
     {
       key: 'status',
