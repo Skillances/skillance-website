@@ -230,6 +230,169 @@ const CollapsedNavItem: React.FC<CollapsedNavItemProps> = ({ item, active, pendi
   );
 };
 
+interface AdminSidebarContentProps {
+  isDark: boolean;
+  user: { fullName?: string; email?: string } | null;
+  collapsedGroups: Record<string, boolean>;
+  onToggleGroup: (label: string) => void;
+  isActive: (path: string) => boolean;
+  getNavPendingCount: (path: string) => number;
+  onLogout: () => void;
+}
+
+/** Module-level component so route changes do not remount the nav (preserves sidebar scroll). */
+function AdminSidebarContent({
+  isDark,
+  user,
+  collapsedGroups,
+  onToggleGroup,
+  isActive,
+  getNavPendingCount,
+  onLogout,
+}: AdminSidebarContentProps) {
+  return (
+    <>
+      {/* Logo */}
+      <div className="shrink-0 h-14 flex items-center px-5 border-b border-neutral-100 dark:border-neutral-800">
+        <Link to="/" className="flex items-center gap-2.5">
+          {isDark ? (
+            <picture>
+              <source type="image/webp" srcSet="/skillance-tiny-logo-white.webp" />
+              <img
+                src="/skillance-tiny-logo-white.png"
+                alt="Skillance"
+                width={120}
+                height={24}
+                className="h-7 w-auto shrink-0"
+              />
+            </picture>
+          ) : (
+            <img
+              src="/skillance-tiny-logo-black.png"
+              alt="Skillance"
+              width={120}
+              height={24}
+              className="h-7 w-auto shrink-0"
+            />
+          )}
+          <span className="font-serif text-lg tracking-tight text-black dark:text-white">Skillance</span>
+        </Link>
+      </div>
+
+      {/* Navigation groups */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
+        {adminMenuGroups.map((group) => {
+          const isGroupCollapsed = !!collapsedGroups[group.label];
+          const hasActiveItem = group.items.some((item) => isActive(item.path));
+          const styles = PLATFORM_STYLES[group.platform];
+
+          return (
+            <div key={group.label}>
+              <button
+                type="button"
+                onClick={() => onToggleGroup(group.label)}
+                className="w-full flex items-center justify-between px-2 py-2 mb-1 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/60 transition-colors group"
+              >
+                <span className="flex items-center gap-2 min-w-0">
+                  <span aria-hidden="true" className={cn('h-1.5 w-1.5 rounded-full shrink-0', styles.dot)} />
+                  <span
+                    className={cn(
+                      'text-[10px] font-bold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-md',
+                      styles.chip,
+                    )}
+                  >
+                    {group.label}
+                  </span>
+                  <span
+                    className={cn(
+                      'text-[10px] font-medium truncate transition-colors',
+                      hasActiveItem
+                        ? 'text-neutral-600 dark:text-neutral-300'
+                        : 'text-neutral-400 dark:text-neutral-500',
+                    )}
+                  >
+                    {group.subtitle}
+                  </span>
+                </span>
+                <ChevronDown
+                  size={12}
+                  className={cn(
+                    'text-neutral-300 dark:text-neutral-600 group-hover:text-neutral-400 dark:group-hover:text-neutral-500 transition-transform duration-200 shrink-0',
+                    isGroupCollapsed ? '-rotate-90' : 'rotate-0',
+                  )}
+                />
+              </button>
+
+              <AnimatePresence initial={false}>
+                {!isGroupCollapsed && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="space-y-0.5 pb-2">
+                      {group.items.map((item) => {
+                        const active = isActive(item.path);
+                        const pending = getNavPendingCount(item.path);
+                        return (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            title={pending > 0 ? `${item.name} (${pending} pending)` : item.name}
+                            className={cn(
+                              'flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 group text-[13px] min-w-0',
+                              active
+                                ? 'bg-black dark:bg-white text-white dark:text-black font-medium'
+                                : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white',
+                            )}
+                          >
+                            <item.icon
+                              size={16}
+                              className={cn(
+                                'shrink-0',
+                                active
+                                  ? 'text-white dark:text-black'
+                                  : 'text-neutral-400 dark:text-neutral-500 group-hover:text-black dark:group-hover:text-white',
+                              )}
+                            />
+                            <span className="flex-1 min-w-0 truncate text-left">{item.name}</span>
+                            <AdminNavBadgePill count={pending} active={active} />
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </nav>
+
+      <div className="shrink-0 px-3 pb-4 pt-2 border-t border-neutral-100 dark:border-neutral-800">
+        <div className="flex items-center gap-2.5 px-3 py-2 mb-1">
+          <div className="w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-xs font-semibold text-black dark:text-white shrink-0">
+            {user?.fullName?.charAt(0) || 'A'}
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-black dark:text-white truncate">{user?.fullName || 'Admin'}</p>
+            <p className="text-[10px] text-neutral-400 dark:text-neutral-500 truncate">{user?.email || ''}</p>
+          </div>
+        </div>
+        <button
+          onClick={onLogout}
+          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-neutral-400 dark:text-neutral-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200 w-full text-[13px]"
+        >
+          <LogOut size={15} className="shrink-0" />
+          <span>Logout</span>
+        </button>
+      </div>
+    </>
+  );
+}
+
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const { toggleTheme, isDark } = useAdminTheme();
@@ -283,153 +446,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     setRefreshNonce((n) => n + 1);
   };
 
-  const SidebarContent = () => (
-    <>
-      {/* Logo */}
-      <div className="shrink-0 h-14 flex items-center px-5 border-b border-neutral-100 dark:border-neutral-800">
-        <Link to="/" className="flex items-center gap-2.5">
-          {isDark ? (
-            <picture>
-              <source type="image/webp" srcSet="/skillance-tiny-logo-white.webp" />
-              <img
-                src="/skillance-tiny-logo-white.png"
-                alt="Skillance"
-                width={120}
-                height={24}
-                className="h-7 w-auto shrink-0"
-              />
-            </picture>
-          ) : (
-            <img
-              src="/skillance-tiny-logo-black.png"
-              alt="Skillance"
-              width={120}
-              height={24}
-              className="h-7 w-auto shrink-0"
-            />
-          )}
-          <span className="font-serif text-lg tracking-tight text-black dark:text-white">Skillance</span>
-        </Link>
-      </div>
-
-      {/* Navigation groups */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
-        {adminMenuGroups.map((group) => {
-          const isCollapsed = !!collapsedGroups[group.label];
-          const hasActiveItem = group.items.some((item) => isActive(item.path));
-          const styles = PLATFORM_STYLES[group.platform];
-
-          return (
-            <div key={group.label}>
-              {/* Group header - platform marker + collapsible */}
-              <button
-                type="button"
-                onClick={() => toggleGroup(group.label)}
-                className="w-full flex items-center justify-between px-2 py-2 mb-1 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/60 transition-colors group"
-              >
-                <span className="flex items-center gap-2 min-w-0">
-                  <span
-                    aria-hidden="true"
-                    className={cn('h-1.5 w-1.5 rounded-full shrink-0', styles.dot)}
-                  />
-                  <span
-                    className={cn(
-                      'text-[10px] font-bold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-md',
-                      styles.chip,
-                    )}
-                  >
-                    {group.label}
-                  </span>
-                  <span
-                    className={cn(
-                      'text-[10px] font-medium truncate transition-colors',
-                      hasActiveItem
-                        ? 'text-neutral-600 dark:text-neutral-300'
-                        : 'text-neutral-400 dark:text-neutral-500',
-                    )}
-                  >
-                    {group.subtitle}
-                  </span>
-                </span>
-                <ChevronDown
-                  size={12}
-                  className={cn(
-                    'text-neutral-300 dark:text-neutral-600 group-hover:text-neutral-400 dark:group-hover:text-neutral-500 transition-transform duration-200 shrink-0',
-                    isCollapsed ? '-rotate-90' : 'rotate-0',
-                  )}
-                />
-              </button>
-
-              {/* Group items */}
-              <AnimatePresence initial={false}>
-                {!isCollapsed && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-                    className="overflow-hidden"
-                  >
-                    <div className="space-y-0.5 pb-2">
-                      {group.items.map((item) => {
-                        const active = isActive(item.path);
-                        const pending = getNavPendingCount(item.path);
-                        return (
-                          <Link
-                            key={item.path}
-                            to={item.path}
-                            title={pending > 0 ? `${item.name} (${pending} pending)` : item.name}
-                            className={cn(
-                              'flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 group text-[13px] min-w-0',
-                              active
-                                ? 'bg-black dark:bg-white text-white dark:text-black font-medium'
-                                : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white',
-                            )}
-                          >
-                            <item.icon
-                              size={16}
-                              className={cn(
-                                'shrink-0',
-                                active
-                                  ? 'text-white dark:text-black'
-                                  : 'text-neutral-400 dark:text-neutral-500 group-hover:text-black dark:group-hover:text-white',
-                              )}
-                            />
-                            <span className="flex-1 min-w-0 truncate text-left">{item.name}</span>
-                            <AdminNavBadgePill count={pending} active={active} />
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          );
-        })}
-      </nav>
-
-      {/* Footer */}
-      <div className="shrink-0 px-3 pb-4 pt-2 border-t border-neutral-100 dark:border-neutral-800">
-        <div className="flex items-center gap-2.5 px-3 py-2 mb-1">
-          <div className="w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-xs font-semibold text-black dark:text-white shrink-0">
-            {user?.fullName?.charAt(0) || 'A'}
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs font-medium text-black dark:text-white truncate">{user?.fullName || 'Admin'}</p>
-            <p className="text-[10px] text-neutral-400 dark:text-neutral-500 truncate">{user?.email || ''}</p>
-          </div>
-        </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-neutral-400 dark:text-neutral-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200 w-full text-[13px]"
-        >
-          <LogOut size={15} className="shrink-0" />
-          <span>Logout</span>
-        </button>
-      </div>
-    </>
-  );
+  const sidebarContentProps: AdminSidebarContentProps = {
+    isDark,
+    user,
+    collapsedGroups,
+    onToggleGroup: toggleGroup,
+    isActive,
+    getNavPendingCount,
+    onLogout: handleLogout,
+  };
 
   return (
     <div className={cn('min-h-screen flex', isDark ? 'dark bg-neutral-950 text-white' : 'bg-white text-black')}>
@@ -535,7 +560,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         ) : (
           /* Expanded — full sidebar */
           <div className="flex flex-col h-full">
-            <SidebarContent />
+            <AdminSidebarContent {...sidebarContentProps} />
             {/* Collapse button pinned to top-right of sidebar */}
             <button
               type="button"
@@ -568,7 +593,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <X size={18} />
               </button>
             </div>
-            <SidebarContent />
+            <AdminSidebarContent {...sidebarContentProps} />
           </motion.aside>
         )}
       </AnimatePresence>
