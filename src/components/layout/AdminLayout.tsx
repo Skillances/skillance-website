@@ -542,18 +542,23 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile top bar — only visible on small screens */}
-        <div className="lg:hidden shrink-0 h-12 flex items-center justify-between px-4 border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-950 sticky top-0 z-30">
+        <div className="lg:hidden shrink-0 min-h-12 flex items-center justify-between gap-2 px-3 sm:px-4 border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-950 sticky top-0 z-30">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="p-1.5 -ml-1 text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors"
+            className="p-1.5 -ml-1 text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors shrink-0"
             aria-label="Open menu"
           >
             <Menu size={20} />
           </button>
-          <span className="text-sm font-medium text-black dark:text-white">
-            {allMenuItems.find((item) => isActive(item.path))?.name || 'Admin'}
-          </span>
-          <div className="flex items-center gap-0.5">
+          <div className="flex-1 min-w-0 flex flex-col items-center justify-center text-center leading-tight px-1">
+            <span className="text-xs sm:text-sm font-bold font-serif text-black dark:text-white tracking-tight">
+              Romans 8:18
+            </span>
+            <span className="text-[10px] sm:text-[11px] font-medium text-neutral-500 dark:text-neutral-400 truncate max-w-full">
+              {allMenuItems.find((item) => isActive(item.path))?.name || 'Admin'}
+            </span>
+          </div>
+          <div className="flex items-center gap-0.5 shrink-0">
             <button
               type="button"
               onClick={bumpPageRefresh}
@@ -574,25 +579,33 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
         </div>
 
-        {/* Desktop refresh + theme — top-right corner */}
-        <div className="hidden lg:flex absolute top-3 right-4 z-20 items-center gap-1">
-          <button
-            type="button"
-            onClick={bumpPageRefresh}
-            className="p-2 rounded-xl text-neutral-400 dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-colors"
-            aria-label="Refresh page"
-            title="Refresh"
-          >
-            <RefreshCw size={17} />
-          </button>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="p-2 rounded-xl text-neutral-400 dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-colors"
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {isDark ? <Sun size={17} /> : <Moon size={17} />}
-          </button>
+        {/* Desktop top bar — verse centered, actions right (visible on all admin pages) */}
+        <div className="hidden lg:grid lg:grid-cols-[1fr_auto_1fr] shrink-0 h-12 items-center px-4 xl:px-6 border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-950 sticky top-0 z-30">
+          <span className="text-sm font-medium font-serif text-black dark:text-white truncate min-w-0 justify-self-start pr-2">
+            {allMenuItems.find((item) => isActive(item.path))?.name || 'Admin'}
+          </span>
+          <span className="justify-self-center text-sm font-bold font-serif text-black dark:text-white tracking-tight whitespace-nowrap px-2">
+            Romans 8:18
+          </span>
+          <div className="flex items-center gap-1 justify-self-end">
+            <button
+              type="button"
+              onClick={bumpPageRefresh}
+              className="p-2 rounded-xl text-neutral-400 dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-colors"
+              aria-label="Refresh page"
+              title="Refresh"
+            >
+              <RefreshCw size={17} />
+            </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 rounded-xl text-neutral-400 dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-colors"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {isDark ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
+          </div>
         </div>
 
         {/* Page Content */}
