@@ -101,6 +101,7 @@ const CATEGORY_ORDER: MaintenanceCategory[] = [
 type AppClientStatusPayload = {
   maintenanceMode: boolean;
   maintenanceMessage: string;
+  globalApiBlock: boolean;
   banner: {
     enabled: boolean;
     message: string;
@@ -112,6 +113,7 @@ type AppClientStatusPayload = {
 const DEFAULT_APP_STATUS: AppClientStatusPayload = {
   maintenanceMode: false,
   maintenanceMessage: '',
+  globalApiBlock: false,
   banner: {
     enabled: false,
     message: '',
@@ -174,6 +176,7 @@ const AdminSystem: React.FC = () => {
         setAppStatus({
           ...DEFAULT_APP_STATUS,
           ...d,
+          globalApiBlock: d.globalApiBlock === true,
           banner: { ...DEFAULT_APP_STATUS.banner, ...d.banner },
         });
       }
@@ -294,6 +297,20 @@ const AdminSystem: React.FC = () => {
                 In-app banner and full-screen maintenance for all users. The app refreshes this every few minutes and
                 when returning from the background (short server cache).
               </p>
+
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <Label className="text-neutral-800 dark:text-neutral-100">Block public API (HTTP 503)</Label>
+                  <p className="text-xs text-neutral-500 mt-1 max-w-xl">
+                    Rejects most API calls with a maintenance code so clients can show offline or skeleton UI. Sign-in,
+                    admin routes, and health checks still work. Turn off here to restore traffic (no redeploy).
+                  </p>
+                </div>
+                <Switch
+                  checked={appStatus.globalApiBlock}
+                  onCheckedChange={(v) => setAppStatus((s) => ({ ...s, globalApiBlock: v }))}
+                />
+              </div>
 
               <div className="flex items-center justify-between gap-4">
                 <div>

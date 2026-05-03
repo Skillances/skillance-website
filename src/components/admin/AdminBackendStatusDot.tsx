@@ -8,8 +8,8 @@ import { cn } from '@/lib/utils';
 /** Round-trip above this is shown as "slow" (orange). */
 const SLOW_THRESHOLD_MS = 2000;
 
-/** How often to re-check while admin is open. */
-const PING_INTERVAL_MS = 25_000;
+/** How often to re-check while admin is open (10 minutes). */
+const PING_INTERVAL_MS = 10 * 60 * 1000;
 
 export type BackendPingResult = {
   latencyMs: number;
