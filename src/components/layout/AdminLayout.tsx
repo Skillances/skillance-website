@@ -41,6 +41,8 @@ import { useAdminTheme } from '@/context/AdminThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import AdminAiChat from '@/components/admin/AdminAiChat';
+import { AdminBackendStatusDot } from '@/components/admin/AdminBackendStatusDot';
+import { AdminQueryMonitor } from '@/components/admin/AdminQueryMonitor';
 import { useAdminNavPendingBadges } from '@/hooks/useAdminNavPendingBadges';
 import { useAdminAblyQueue } from '@/hooks/useAdminAblyQueue';
 import { ADMIN_QUEUE_HINT_EVENT } from '@/lib/adminQueueEvents';
@@ -458,6 +460,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   return (
     <div className={cn('min-h-screen flex', isDark ? 'dark bg-neutral-950 text-white' : 'bg-white text-black')}>
+      <AdminQueryMonitor />
       {/* Mobile Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -616,6 +619,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </span>
           </div>
           <div className="flex items-center gap-0.5 shrink-0">
+            <AdminBackendStatusDot />
             <button
               type="button"
               onClick={bumpPageRefresh}
@@ -645,6 +649,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <Romans818TopBarLink textClassName="text-sm" />
           </div>
           <div className="flex items-center gap-1 justify-self-end">
+            <AdminBackendStatusDot />
             <button
               type="button"
               onClick={bumpPageRefresh}

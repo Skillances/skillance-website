@@ -1,10 +1,13 @@
 import { useState, useMemo, useEffect, useRef, useDeferredValue } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import PageTemplate from '../components/layout/PageTemplate';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight, Search, X, ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
-import { fetchServiceCategories, type ServiceCategoryItem } from '@/lib/serviceCategories';
+import { fetchServiceCategories } from '@/lib/serviceCategories';
+import { queryKeys } from '@/lib/queryKeys';
 import { SpecializationTreeList } from '@/components/SpecializationTreeList';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ServicesPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -13,7 +16,15 @@ const ServicesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
-  const [allCategories, setAllCategories] = useState<ServiceCategoryItem[]>([]);
+  const {
+    data: allCategories = [],
+    isPending,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.serviceCategories.items(),
+    queryFn: fetchServiceCategories,
+  });
 
   const toggleExpand = (id: string) => {
     setExpandedIds((prev) => {
@@ -189,20 +200,6 @@ const ServicesPage = () => {
     }
   }, []);
 
-  useEffect(() => {
-    let mounted = true;
-    fetchServiceCategories()
-      .then((items) => {
-        if (mounted) setAllCategories(items);
-      })
-      .catch(() => {
-        // Keep page usable if categories API is unavailable.
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
   function getUnsplashUrl(url: string, width: number): string {
     return url.replace(/w=\d+/, `w=${width}`);
   }
@@ -247,12 +244,34 @@ const ServicesPage = () => {
           </div>
         </div>
 
+        {isError ? (
+          <div
+            role="alert"
+            className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+          >
+            <span>Services could not be loaded from the server.</span>
+            <button
+              type="button"
+              onClick={() => void refetch()}
+              className="shrink-0 px-4 py-2 rounded-full bg-amber-900 text-white text-xs font-semibold hover:bg-amber-800"
+            >
+              Retry
+            </button>
+          </div>
+        ) : null}
+
         {/* Search results — grid view */}
         {isSearching && (
           <div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8"
             style={{ contain: 'layout style paint', willChange: 'contents' }}
           >
+            {isPending ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="min-h-[22rem] rounded-[2.5rem] bg-neutral-100" />
+              ))
+            ) : (
+              <>
             {filteredCategories.map((category) => (
               <div
                 key={category.id}
@@ -328,12 +347,20 @@ const ServicesPage = () => {
                 </button>
               </div>
             )}
+              </>
+            )}
           </div>
         )}
 
         {/* Default view — accordion list */}
         {!isSearching && (
           <div className="space-y-3">
+            {isPending ? (
+              Array.from({ length: 6 }).map((_, skelIdx) => (
+                <Skeleton key={skelIdx} className="h-24 sm:h-28 w-full rounded-[1.75rem] bg-neutral-100" />
+              ))
+            ) : (
+              <>
             {allCategories.map((category) => {
               const subcategories = category.subcategories;
               const specTree = category.specializationTree;
@@ -431,6 +458,8 @@ const ServicesPage = () => {
                 </div>
               );
             })}
+              </>
+            )}
           </div>
         )}
 

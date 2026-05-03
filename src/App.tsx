@@ -26,6 +26,7 @@ import AdminRouteErrorBoundary from './components/common/AdminRouteErrorBoundary
 import { sendClientLog } from './lib/clientLog';
 import { AuthProvider } from './context/AuthContext';
 import { AdminThemeProvider, useAdminTheme } from './context/AdminThemeContext';
+import { QueryProvider } from './providers/QueryProvider';
 import CookieConsent from './components/layout/CookieConsent';
 import LaunchCountdown from './components/layout/LaunchCountdown';
 import ScrollIndicator from './components/layout/ScrollIndicator';
@@ -333,9 +334,11 @@ function AppShell() {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppShell />
-      </Router>
+      <QueryProvider>
+        <Router>
+          <AppShell />
+        </Router>
+      </QueryProvider>
     </AuthProvider>
   );
 }

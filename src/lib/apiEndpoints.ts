@@ -4,6 +4,9 @@
  */
 
 export const ApiPaths = {
+  /** Public health check (no auth). */
+  health: '/health',
+
   auth: {
     login: '/auth/login',
     logout: '/auth/logout',

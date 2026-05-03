@@ -1,0 +1,122 @@
+import { useQuery } from '@tanstack/react-query';
+import { ApiPaths } from '@/lib/apiEndpoints';
+import { getApiBaseUrl } from '@/lib/api';
+import { queryKeys } from '@/lib/queryKeys';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
+
+/** Round-trip above this is shown as "slow" (orange). */
+const SLOW_THRESHOLD_MS = 2000;
+
+/** How often to re-check while admin is open. */
+const PING_INTERVAL_MS = 25_000;
+
+export type BackendPingResult = {
+  latencyMs: number;
+  reachable: boolean;
+  httpStatus: number;
+};
+
+async function pingBackendHealth(): Promise<BackendPingResult> {
+  const base = getApiBaseUrl();
+  const t0 = performance.now();
+  try {
+    const res = await fetch(`${base}${ApiPaths.health}`, {
+      method: 'GET',
+      cache: 'no-store',
+      credentials: 'omit',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    });
+    const latencyMs = Math.round(performance.now() - t0);
+    return { latencyMs, reachable: res.ok, httpStatus: res.status };
+  } catch {
+    const latencyMs = Math.round(performance.now() - t0);
+    return { latencyMs, reachable: false, httpStatus: 0 };
+  }
+}
+
+function formatLatency(ms: number | undefined): string {
+  if (ms === undefined) return '—';
+  if (ms >= 1000) return `${(ms / 1000).toFixed(1)} s`;
+  return `${ms} ms`;
+}
+
+/**
+ * Green / orange / red dot for API reachability and latency; hover shows last measured round-trip.
+ */
+export function AdminBackendStatusDot({ className }: { className?: string }) {
+  const { data, isPending, isFetching, dataUpdatedAt } = useQuery({
+    queryKey: queryKeys.backend.healthPing(),
+    queryFn: pingBackendHealth,
+    refetchInterval: PING_INTERVAL_MS,
+    refetchIntervalInBackground: true,
+    staleTime: 15_000,
+    retry: 1,
+    retryDelay: 800,
+  });
+
+  const latencyMs = data?.latencyMs;
+  const reachable = data?.reachable ?? false;
+
+  const status: 'checking' | 'online' | 'slow' | 'offline' =
+    isPending && !data ? 'checking' : !reachable ? 'offline' : latencyMs !== undefined && latencyMs >= SLOW_THRESHOLD_MS ? 'slow' : 'online';
+
+  const title =
+    status === 'checking'
+      ? 'Checking Skillance API'
+      : status === 'offline'
+        ? 'Skillance API offline or error'
+        : status === 'slow'
+          ? 'Skillance API slow'
+          : 'Skillance API online';
+
+  const lastCheckLabel =
+    dataUpdatedAt > 0 ? new Date(dataUpdatedAt).toLocaleString(undefined, { timeStyle: 'medium', dateStyle: 'short' }) : '—';
+
+  const dotClass =
+    status === 'checking'
+      ? 'bg-neutral-400 dark:bg-neutral-500'
+      : status === 'offline'
+        ? 'bg-red-500 dark:bg-red-500'
+        : status === 'slow'
+          ? 'bg-amber-500 dark:bg-amber-400'
+          : 'bg-emerald-500 dark:bg-emerald-400';
+
+  return (
+    <Tooltip delayDuration={250}>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            'flex items-center justify-center rounded-xl p-1.5 lg:p-2 text-neutral-500 transition-opacity dark:text-neutral-400',
+            'outline-none hover:bg-neutral-100 dark:hover:bg-neutral-800',
+            'focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-500 dark:focus-visible:ring-offset-neutral-950',
+            isFetching ? 'opacity-70' : 'opacity-100',
+            className,
+          )}
+          aria-label={`${title}. Last response ${formatLatency(latencyMs)}.`}
+        >
+          <span
+            className={cn('h-2.5 w-2.5 shrink-0 rounded-full shadow-sm ring-1 ring-black/10 dark:ring-white/15', dotClass)}
+          />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent
+        side="bottom"
+        sideOffset={8}
+        className="max-w-xs border-neutral-200 bg-white text-left text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+      >
+        <p className="text-sm font-medium">{title}</p>
+        <p className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-400">
+          Last response time: <span className="tabular-nums text-neutral-900 dark:text-neutral-100">{formatLatency(latencyMs)}</span>
+        </p>
+        <p className="text-xs text-neutral-600 dark:text-neutral-400">
+          Last check: <span className="tabular-nums text-neutral-900 dark:text-neutral-100">{lastCheckLabel}</span>
+        </p>
+        {data && !data.reachable && data.httpStatus > 0 ? (
+          <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">HTTP status: {data.httpStatus}</p>
+        ) : null}
+      </TooltipContent>
+    </Tooltip>
+  );
+}

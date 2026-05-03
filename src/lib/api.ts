@@ -6,6 +6,11 @@ import { ApiPaths } from '@/lib/apiEndpoints';
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
+/** Base URL for unauthenticated probes (e.g. `/health`). */
+export function getApiBaseUrl(): string {
+  return API_BASE_URL;
+}
+
 let isRefreshing = false;
 let refreshPromise: Promise<any> | null = null;
 

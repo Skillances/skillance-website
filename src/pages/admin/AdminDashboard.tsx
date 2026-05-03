@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthContext';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { Button } from '@/components/ui/button';
 import { Users, Briefcase, ShieldCheck, Download, Calendar, TrendingUp, MessageSquare, Bell, Star, ChevronDown } from 'lucide-react';
-import { get } from '@/lib/api';
-import { ApiPaths } from '@/lib/apiEndpoints';
 import StatsCard from '@/components/admin/dashboard/StatsCard';
 import ActivityFeed from '@/components/admin/dashboard/ActivityFeed';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -17,8 +16,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-
-type TimeframeKey = '24h' | '7d' | '30d' | '90d';
+import { queryKeys } from '@/lib/queryKeys';
+import {
+  fetchAdminDashboardBundle,
+  type TimeframeKey,
+} from '@/lib/adminDashboardBundle';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const TIMEFRAME_OPTIONS: { key: TimeframeKey; label: string }[] = [
   { key: '24h', label: 'Last 24 hours' },
@@ -27,140 +31,30 @@ const TIMEFRAME_OPTIONS: { key: TimeframeKey; label: string }[] = [
   { key: '90d', label: 'Last 90 days' },
 ];
 
-function formatDateLabel(dateStr: string): string {
-  if (!dateStr) return '';
-  const weekMatch = dateStr.match(/^(\d{4})-W(\d{2})$/);
-  if (weekMatch) return `W${weekMatch[2]}`;
-  if (/^\d{4}-\d{2}$/.test(dateStr)) {
-    const d = new Date(dateStr + '-01');
-    return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-  }
-  const d = new Date(dateStr);
-  return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-
-function getTimeframeParams(key: TimeframeKey): { startDate: string; endDate: string; interval: 'daily' | 'weekly' | 'monthly' } {
-  const now = new Date();
-  const endDate = now.toISOString().slice(0, 10);
-  let startDate: string;
-  let interval: 'daily' | 'weekly' | 'monthly' = 'daily';
-  if (key === '24h') {
-    const d = new Date(now);
-    d.setDate(d.getDate() - 1);
-    startDate = d.toISOString().slice(0, 10);
-  } else if (key === '7d') {
-    const d = new Date(now);
-    d.setDate(d.getDate() - 7);
-    startDate = d.toISOString().slice(0, 10);
-  } else if (key === '30d') {
-    const d = new Date(now);
-    d.setDate(d.getDate() - 30);
-    startDate = d.toISOString().slice(0, 10);
-  } else {
-    const d = new Date(now);
-    d.setDate(d.getDate() - 90);
-    startDate = d.toISOString().slice(0, 10);
-    interval = 'weekly';
-  }
-  return { startDate, endDate, interval };
-}
-
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const { isDark } = useAdminTheme();
-  const [dashboardData, setDashboardData] = useState<any>(null);
-  const [growthData, setGrowthData] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activities, setActivities] = useState<any[]>([]);
-  const [websiteMetrics, setWebsiteMetrics] = useState({ unreadMessages: 0, subscribers: 0, pendingReviews: 0 });
   const [timeframe, setTimeframe] = useState<TimeframeKey>('30d');
 
-  const fetchAllData = useCallback(async () => {
-    const { startDate, endDate, interval } = getTimeframeParams(timeframe);
-    const query = `startDate=${startDate}&endDate=${endDate}&interval=${interval}`;
-    try {
-      setIsLoading(true);
-      const [dashboardRes, userGrowthRes, freelancerGrowthRes, securityRes, messagesRes, subscribersRes, reviewsRes] = await Promise.all([
-        get(ApiPaths.admin.dashboard),
-        get(`${ApiPaths.admin.analyticsUserGrowth}?${query}`),
-        get(`${ApiPaths.admin.analyticsFreelancerGrowth}?${query}`),
-          get(`${ApiPaths.admin.securityEvents}?limit=10&orderBy=createdAt&orderDirection=desc`).catch(() => null),
-          get(`${ApiPaths.admin.contactMessages}?status=new&limit=1`).catch(() => null),
-          get(`${ApiPaths.admin.notifySubscribers}?limit=1`).catch(() => null),
-          get(`${ApiPaths.admin.websiteReviews}?status=pending&limit=1`).catch(() => null),
-        ]);
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.admin.dashboard(timeframe),
+    queryFn: () => fetchAdminDashboardBundle(timeframe),
+  });
 
-        if (dashboardRes.success && dashboardRes.data) {
-          setDashboardData(dashboardRes.data);
-        }
-
-        if (userGrowthRes?.success && freelancerGrowthRes?.success) {
-          const userSeries = userGrowthRes.data?.series ?? userGrowthRes.data?.data?.series ?? [];
-          const freelancerSeries = freelancerGrowthRes.data?.series ?? freelancerGrowthRes.data?.data?.series ?? [];
-          const dateMap = new Map();
-          
-          userSeries.forEach((item: any) => {
-            const name = formatDateLabel(item.date);
-            if (!dateMap.has(item.date)) dateMap.set(item.date, { name, date: item.date, users: 0, freelancers: 0 });
-            dateMap.get(item.date)!.users = item.cumulative;
-          });
-
-          freelancerSeries.forEach((item: any) => {
-            const name = formatDateLabel(item.date);
-            if (!dateMap.has(item.date)) dateMap.set(item.date, { name, date: item.date, users: 0, freelancers: 0 });
-            dateMap.get(item.date)!.freelancers = item.cumulative;
-          });
-
-          const sortKey = (d: { date: string }) => {
-            const m = d.date.match(/^(\d{4})-W(\d{2})$/);
-            if (m) return parseInt(m[1], 10) * 100 + parseInt(m[2], 10);
-            const t = new Date(d.date).getTime();
-            return isNaN(t) ? 0 : t;
-          };
-          const sortedData = Array.from(dateMap.values())
-            .sort((a, b) => sortKey(a) - sortKey(b))
-            .slice(-30);
-
-          if (sortedData.length === 0) {
-            const today = new Date();
-            for (let i = 6; i >= 0; i--) {
-              const d = new Date(today);
-              d.setDate(today.getDate() - i);
-              sortedData.push({ name: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), users: 0, freelancers: 0 });
-            }
-          }
-          setGrowthData(sortedData);
-        }
-
-        if (securityRes?.success && securityRes.data?.events) {
-          const mapped = securityRes.data.events.slice(0, 8).map((evt: any) => ({
-            id: evt.id,
-            type: evt.eventType === 'exploit_attempt' || evt.eventType === 'honeypot' ? 'security'
-              : evt.eventType === 'rate_limited' ? 'login'
-              : 'security',
-            title: evt.eventType.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-            description: `${evt.method} ${evt.path} - ${evt.reason}`,
-            timestamp: evt.createdAt,
-          }));
-          setActivities(mapped);
-        }
-
-        setWebsiteMetrics({
-          unreadMessages: messagesRes?.success ? messagesRes.data?.pagination?.total ?? 0 : 0,
-          subscribers: subscribersRes?.success ? subscribersRes.data?.pagination?.total ?? 0 : 0,
-          pendingReviews: reviewsRes?.success ? reviewsRes.data?.pagination?.total ?? 0 : 0,
-        });
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-      } finally {
-        setIsLoading(false);
-      }
-  }, [timeframe]);
-
-  useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData]);
-
+  const dashboardData = data?.dashboardData ?? null;
+  const growthData = data?.growthData ?? [];
+  const activities = data?.activities ?? [];
+  const websiteMetrics = data?.websiteMetrics ?? {
+    unreadMessages: 0,
+    subscribers: 0,
+    pendingReviews: 0,
+  };
   const metrics = dashboardData ? [
     {
       title: 'Total Users',
@@ -265,13 +159,48 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const errMessage =
+    error instanceof Error
+      ? error.message
+      : error && typeof error === 'object' && 'message' in error
+        ? String((error as { message?: unknown }).message)
+        : 'Failed to load dashboard';
+
+  if (isError) {
+    return (
+      <div className="space-y-6 max-w-lg">
+        <Alert variant="destructive">
+          <AlertTitle>Dashboard unavailable</AlertTitle>
+          <AlertDescription>{errMessage}</AlertDescription>
+        </Alert>
+        <Button type="button" onClick={() => void refetch()} variant="outline" className="rounded-full">
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
-      <div className="flex h-[calc(100vh-200px)] items-center justify-center">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-4 text-center">
-          <div className="h-10 w-10 rounded-full border-t-2 border-black animate-spin" />
-          <p className="text-neutral-400 text-sm tracking-wide">Loading dashboard...</p>
-        </motion.div>
+      <div className="space-y-10">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <Skeleton className="h-10 w-64 rounded-lg bg-neutral-100 dark:bg-neutral-800" />
+          <div className="flex gap-3">
+            <Skeleton className="h-10 w-40 rounded-full bg-neutral-100 dark:bg-neutral-800" />
+            <Skeleton className="h-10 w-28 rounded-full bg-neutral-100 dark:bg-neutral-800" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-36 rounded-2xl bg-neutral-100 dark:bg-neutral-800" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={`w-${i}`} className="h-36 rounded-2xl bg-neutral-100 dark:bg-neutral-800" />
+          ))}
+        </div>
+        <Skeleton className="h-96 w-full rounded-2xl bg-neutral-100 dark:bg-neutral-800" />
       </div>
     );
   }

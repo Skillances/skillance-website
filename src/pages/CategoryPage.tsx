@@ -1,12 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import PageTemplate from '../components/layout/PageTemplate';
 import { ArrowUpRight } from 'lucide-react';
 import gsap from 'gsap';
 import { get } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { queryKeys } from '@/lib/queryKeys';
 import { SpecializationTreeList } from '@/components/SpecializationTreeList';
 import type { ServiceSpecializationNode } from '@/lib/serviceCategories';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface CategoryNode {
   id: string;
@@ -48,53 +51,28 @@ const CategoryPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [category, setCategory] = useState<CategoryNode | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const trimmedId = id?.trim() ?? '';
 
-  useEffect(() => {
-    let mounted = true;
-    const loadCategory = async () => {
-      if (!id) {
-        if (mounted) {
-          setCategory(null);
-          setNotFound(true);
-          setIsLoading(false);
-        }
-        return;
-      }
+  const {
+    data: categoriesRoots = [],
+    isPending,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.categories.tree(),
+    queryFn: async () => {
+      const res = await get(ApiPaths.categories.list);
+      const data = Array.isArray(res) ? res : (res?.data ?? []);
+      return Array.isArray(data) ? (data as CategoryNode[]) : [];
+    },
+    enabled: trimmedId.length > 0,
+  });
 
-      try {
-        setIsLoading(true);
-        setNotFound(false);
-        const res = await get(ApiPaths.categories.list);
-        const data = Array.isArray(res) ? res : (res?.data ?? []);
-        if (!mounted) return;
-
-        const categories = Array.isArray(data) ? (data as CategoryNode[]) : [];
-        const found = findCategoryInTree(categories, id);
-
-        if (found) {
-          setCategory(found);
-          setNotFound(false);
-        } else {
-          setCategory(null);
-          setNotFound(true);
-        }
-      } catch {
-        if (!mounted) return;
-        setCategory(null);
-        setNotFound(true);
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    };
-
-    loadCategory();
-    return () => {
-      mounted = false;
-    };
-  }, [id]);
+  const category = useMemo(() => {
+    if (!trimmedId) return null;
+    return findCategoryInTree(categoriesRoots, trimmedId);
+  }, [categoriesRoots, trimmedId]);
 
   const specializationTree = toSpecTree(category?.children);
 
@@ -108,24 +86,75 @@ const CategoryPage = () => {
       );
     }, containerRef);
     return () => ctx.revert();
-  }, [id, category?.id]);
+  }, [trimmedId, category?.id]);
 
-  if (isLoading) {
+  if (!trimmedId) {
     return (
-      <PageTemplate title="Loading Category">
+      <PageTemplate title="Category Not Found">
         <div className="py-32 text-center">
-          <p className="text-neutral-500">Loading category...</p>
+          <p className="text-neutral-500 mb-8">The category you&apos;re looking for doesn&apos;t exist.</p>
+          <button
+            type="button"
+            onClick={() => navigate('/services')}
+            className="px-8 py-4 bg-black text-white rounded-full"
+          >
+            Back to Services
+          </button>
         </div>
       </PageTemplate>
     );
   }
 
-  if (notFound || !category) {
+  if (isError) {
+    const message =
+      error instanceof Error ? error.message : "We couldn't load categories. Please try again.";
+    return (
+      <PageTemplate title="Category">
+        <div className="py-24 max-w-md mx-auto space-y-6 text-center">
+          <p className="text-neutral-700">{message}</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              type="button"
+              onClick={() => void refetch()}
+              className="px-8 py-4 bg-black text-white rounded-full text-sm font-semibold"
+            >
+              Retry
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/services')}
+              className="px-8 py-4 border border-neutral-200 rounded-full text-sm font-semibold"
+            >
+              Back to Services
+            </button>
+          </div>
+        </div>
+      </PageTemplate>
+    );
+  }
+
+  if (isPending) {
+    return (
+      <PageTemplate title="Loading category">
+        <div className="space-y-8 py-8">
+          <Skeleton className="h-10 w-56 rounded-lg bg-neutral-100" />
+          <Skeleton className="h-28 w-full max-w-2xl rounded-2xl bg-neutral-100" />
+          <Skeleton className="h-72 w-full max-w-3xl rounded-2xl bg-neutral-100" />
+        </div>
+      </PageTemplate>
+    );
+  }
+
+  if (!category) {
     return (
       <PageTemplate title="Category Not Found">
         <div className="py-32 text-center">
-          <p className="text-neutral-500 mb-8">The category you're looking for doesn't exist.</p>
-          <button onClick={() => navigate('/services')} className="px-8 py-4 bg-black text-white rounded-full">
+          <p className="text-neutral-500 mb-8">The category you&apos;re looking for doesn&apos;t exist.</p>
+          <button
+            type="button"
+            onClick={() => navigate('/services')}
+            className="px-8 py-4 bg-black text-white rounded-full"
+          >
             Back to Services
           </button>
         </div>
@@ -138,14 +167,15 @@ const CategoryPage = () => {
       <div className="space-y-16" ref={containerRef}>
         {/* Back button and description */}
         <div className="pb-12 border-b border-neutral-100">
-          <button 
+          <button
+            type="button"
             onClick={() => navigate('/services')}
             className="group flex items-center gap-2 text-neutral-400 hover:text-black mb-8 transition-colors"
           >
             <ArrowUpRight className="w-4 h-4 rotate-[225deg]" />
             <span className="text-xs uppercase tracking-widest font-semibold">All Categories</span>
           </button>
-          
+
           <p className="text-xl text-neutral-500 font-light leading-relaxed max-w-3xl">
             {category.description}
           </p>
@@ -177,11 +207,13 @@ const CategoryPage = () => {
 
         {/* CTA */}
         <section className="mt-32 p-12 lg:p-20 bg-neutral-50 rounded-[3rem] text-center">
-          <h3 className="font-serif text-3xl lg:text-4xl mb-6">Can't find exactly what you need?</h3>
+          <h3 className="font-serif text-3xl lg:text-4xl mb-6">Can&apos;t find exactly what you need?</h3>
           <p className="text-neutral-500 mb-10 max-w-xl mx-auto">
-            Our network is growing every day. If you don't see the specific service you're looking for, let us know and we'll help you find the right specialist.
+            Our network is growing every day. If you don&apos;t see the specific service you&apos;re looking for, let us
+            know and we&apos;ll help you find the right specialist.
           </p>
-          <button 
+          <button
+            type="button"
             onClick={() => navigate('/contact')}
             className="px-12 py-5 bg-black text-white rounded-full font-semibold hover:scale-105 transition-transform"
           >
