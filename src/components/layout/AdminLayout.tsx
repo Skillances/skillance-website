@@ -42,6 +42,36 @@ import AdminAiChat from '@/components/admin/AdminAiChat';
 import { useAdminNavPendingBadges } from '@/hooks/useAdminNavPendingBadges';
 import { useAdminAblyQueue } from '@/hooks/useAdminAblyQueue';
 import { ADMIN_QUEUE_HINT_EVENT } from '@/lib/adminQueueEvents';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
+/** Romans 8:18 (ESV wording) shown in admin top bar tooltip */
+const ROMANS_8_18_FULL_VERSE =
+  'For I consider that the sufferings of this present time are not worth comparing with the glory that is to be revealed to us.';
+
+function Romans818TopBarLink({ textClassName }: { textClassName?: string }) {
+  return (
+    <Tooltip delayDuration={200}>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            'font-bold font-serif text-black dark:text-white tracking-tight underline decoration-neutral-400/80 dark:decoration-neutral-500 decoration-dashed underline-offset-4 hover:decoration-solid cursor-help rounded-sm px-1 -mx-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400/70 dark:focus-visible:ring-neutral-500/70',
+            textClassName,
+          )}
+        >
+          Romans 8:18
+        </button>
+      </TooltipTrigger>
+      <TooltipContent
+        side="bottom"
+        sideOffset={8}
+        className="max-w-[min(26rem,calc(100vw-2rem))] px-4 py-3 text-sm leading-relaxed font-serif text-left whitespace-normal"
+      >
+        {ROMANS_8_18_FULL_VERSE}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -551,9 +581,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <Menu size={20} />
           </button>
           <div className="flex-1 min-w-0 flex flex-col items-center justify-center text-center leading-tight px-1">
-            <span className="text-xs sm:text-sm font-bold font-serif text-black dark:text-white tracking-tight">
-              Romans 8:18
-            </span>
+            <Romans818TopBarLink textClassName="text-xs sm:text-sm" />
             <span className="text-[10px] sm:text-[11px] font-medium text-neutral-500 dark:text-neutral-400 truncate max-w-full">
               {allMenuItems.find((item) => isActive(item.path))?.name || 'Admin'}
             </span>
@@ -584,9 +612,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <span className="text-sm font-medium font-serif text-black dark:text-white truncate min-w-0 justify-self-start pr-2">
             {allMenuItems.find((item) => isActive(item.path))?.name || 'Admin'}
           </span>
-          <span className="justify-self-center text-sm font-bold font-serif text-black dark:text-white tracking-tight whitespace-nowrap px-2">
-            Romans 8:18
-          </span>
+          <div className="justify-self-center flex items-center whitespace-nowrap px-2">
+            <Romans818TopBarLink textClassName="text-sm" />
+          </div>
           <div className="flex items-center gap-1 justify-self-end">
             <button
               type="button"
