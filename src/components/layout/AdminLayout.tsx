@@ -34,6 +34,7 @@ import {
   PanelLeftOpen,
   Sparkles,
   RefreshCw,
+  Bug,
 } from 'lucide-react';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -125,6 +126,7 @@ const adminMenuGroups: {
     subtitle: 'skillance.co.za',
     items: [
       { name: 'Contact messages', path: '/admin/contact-messages', icon: Mail },
+      { name: 'Bug reports', path: '/admin/bug-reports', icon: Bug },
       { name: 'Subscribers', path: '/admin/notify-subscribers', icon: BellRing },
       { name: 'Website reviews', path: '/admin/website-reviews', icon: Star },
     ],

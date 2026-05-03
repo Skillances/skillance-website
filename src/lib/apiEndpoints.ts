@@ -31,6 +31,7 @@ export const ApiPaths = {
     testimonials: '/public/testimonials',
     cookieConsent: '/public/cookie-consent',
     stats: '/public/stats',
+    bugReport: '/public/bug-report',
   },
 
   admin: {
@@ -101,6 +102,8 @@ export const ApiPaths = {
     maintenanceRun: (taskId: string) =>
       `/admin/maintenance/run/${encodeURIComponent(taskId)}`,
 
+    appClientStatus: '/admin/app-client-status',
+
     categories: '/admin/categories',
     categoriesStats: '/admin/categories/stats',
     category: (id: string) => `/admin/categories/${id}`,
@@ -113,6 +116,9 @@ export const ApiPaths = {
 
     contactMessages: '/admin/contact-messages',
     contactMessage: (id: string) => `/admin/contact-messages/${id}`,
+
+    bugReports: '/admin/bug-reports',
+    bugReport: (id: string) => `/admin/bug-reports/${id}`,
 
     notifySubscribers: '/admin/notify-subscribers',
     notifySubscribersExport: '/admin/notify-subscribers/export',

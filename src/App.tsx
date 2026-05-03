@@ -49,6 +49,7 @@ const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
 const AdminSystem = lazy(() => import('./pages/admin/AdminSystem'));
 const AdminObservability = lazy(() => import('./pages/admin/AdminObservability'));
 const AdminContactMessages = lazy(() => import('./pages/admin/AdminContactMessages'));
+const AdminBugReports = lazy(() => import('./pages/admin/AdminBugReports'));
 const AdminNotifySubscribers = lazy(() => import('./pages/admin/AdminNotifySubscribers'));
 const AdminWebsiteReviews = lazy(() => import('./pages/admin/AdminWebsiteReviews'));
 const AdminBookingReviews = lazy(() => import('./pages/admin/AdminBookingReviews'));
@@ -268,6 +269,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                             <Route path="compliance" element={<AdminCompliance />} />
                             <Route path="categories" element={<AdminCategories />} />
                             <Route path="contact-messages" element={<AdminContactMessages />} />
+                            <Route path="bug-reports" element={<AdminBugReports />} />
                             <Route path="chat-logs" element={<AdminChatLogs />} />
                             <Route path="notify-subscribers" element={<AdminNotifySubscribers />} />
                             <Route path="website-reviews" element={<AdminWebsiteReviews />} />

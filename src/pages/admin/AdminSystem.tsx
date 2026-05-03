@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { get, post } from '@/lib/api';
+import { get, post, put } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import {
   Wrench,
@@ -13,6 +13,7 @@ import {
   RefreshCw,
   AlertTriangle,
   CheckCircle2,
+  Smartphone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +21,16 @@ import { Badge } from '@/components/ui/badge';
 import PageHeader from '@/components/admin/PageHeader';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import TypedConfirmDialog from '@/components/admin/TypedConfirmDialog';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -87,12 +98,71 @@ const CATEGORY_ORDER: MaintenanceCategory[] = [
   'security',
 ];
 
+type AppClientStatusPayload = {
+  maintenanceMode: boolean;
+  maintenanceMessage: string;
+  banner: {
+    enabled: boolean;
+    message: string;
+    style: 'info' | 'warning';
+    dismissibleSession: boolean;
+  };
+};
+
+const DEFAULT_APP_STATUS: AppClientStatusPayload = {
+  maintenanceMode: false,
+  maintenanceMessage: '',
+  banner: {
+    enabled: false,
+    message: '',
+    style: 'info',
+    dismissibleSession: true,
+  },
+};
+
 const AdminSystem: React.FC = () => {
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [runningTaskId, setRunningTaskId] = useState<string | null>(null);
   const [confirmTask, setConfirmTask] = useState<MaintenanceTask | null>(null);
+  const [appStatus, setAppStatus] = useState<AppClientStatusPayload>(DEFAULT_APP_STATUS);
+  const [appStatusLoading, setAppStatusLoading] = useState(true);
+  const [savingAppStatus, setSavingAppStatus] = useState(false);
+
+  const loadAppStatus = useCallback(async () => {
+    setAppStatusLoading(true);
+    try {
+      const res = await get(ApiPaths.admin.appClientStatus);
+      if (res.success && res.data) {
+        const d = res.data as AppClientStatusPayload;
+        setAppStatus({
+          ...DEFAULT_APP_STATUS,
+          ...d,
+          banner: { ...DEFAULT_APP_STATUS.banner, ...d.banner },
+        });
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to load app status');
+    } finally {
+      setAppStatusLoading(false);
+    }
+  }, []);
+
+  const saveAppStatus = useCallback(async () => {
+    setSavingAppStatus(true);
+    try {
+      const res = await put(ApiPaths.admin.appClientStatus, appStatus);
+      if (res.success) {
+        toast.success('Mobile app status saved');
+        await loadAppStatus();
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save app status');
+    } finally {
+      setSavingAppStatus(false);
+    }
+  }, [appStatus, loadAppStatus]);
 
   const loadTasks = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
@@ -113,7 +183,8 @@ const AdminSystem: React.FC = () => {
 
   useEffect(() => {
     void loadTasks();
-  }, [loadTasks]);
+    void loadAppStatus();
+  }, [loadTasks, loadAppStatus]);
 
   const runTask = useCallback(
     async (task: MaintenanceTask) => {
@@ -160,13 +231,157 @@ const AdminSystem: React.FC = () => {
           variant="outline"
           size="sm"
           className="rounded-full border-neutral-200 dark:border-neutral-600"
-          onClick={() => loadTasks(true)}
+          onClick={() => {
+            void loadTasks(true);
+            void loadAppStatus();
+          }}
           disabled={refreshing || loading}
         >
           {refreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
           Refresh
         </Button>
       </PageHeader>
+
+      <Card className="border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800/80 rounded-2xl shadow-sm">
+        <CardHeader className="border-b border-neutral-100 dark:border-neutral-700/80 pb-4 px-6">
+          <CardTitle className="text-sm font-medium text-neutral-500 dark:text-neutral-400 flex items-center gap-2.5 tracking-wide uppercase">
+            <Smartphone className="h-4 w-4 text-sky-500 dark:text-sky-400" /> Mobile app (iOS / Android)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 space-y-6">
+          {appStatusLoading ? (
+            <div className="flex items-center gap-2 text-neutral-400 text-sm">
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading app status...
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                In-app banner and full-screen maintenance for all users. The app refreshes this every few minutes and
+                when returning from the background (short server cache).
+              </p>
+
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <Label className="text-neutral-800 dark:text-neutral-100">Maintenance mode</Label>
+                  <p className="text-xs text-neutral-500 mt-1 max-w-xl">
+                    Blocks the app with a message (users cannot continue until you turn this off).
+                  </p>
+                </div>
+                <Switch
+                  checked={appStatus.maintenanceMode}
+                  onCheckedChange={(v) => setAppStatus((s) => ({ ...s, maintenanceMode: v }))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Message (maintenance)</Label>
+                <Textarea
+                  value={appStatus.maintenanceMessage}
+                  onChange={(e) =>
+                    setAppStatus((s) => ({ ...s, maintenanceMessage: e.target.value }))
+                  }
+                  placeholder="We are upgrading Skillance. Please try again in 30 minutes."
+                  rows={3}
+                  className="resize-y min-h-[80px]"
+                />
+              </div>
+
+              <div className="border-t border-neutral-100 dark:border-neutral-700 pt-6 space-y-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <Label className="text-neutral-800 dark:text-neutral-100">Banner</Label>
+                    <p className="text-xs text-neutral-500 mt-1 max-w-xl">
+                      Banner at the top of the app. Users can still browse unless maintenance mode is on.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={appStatus.banner.enabled}
+                    onCheckedChange={(v) =>
+                      setAppStatus((s) => ({ ...s, banner: { ...s.banner, enabled: v } }))
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Banner text</Label>
+                  <Textarea
+                    value={appStatus.banner.message}
+                    onChange={(e) =>
+                      setAppStatus((s) => ({
+                        ...s,
+                        banner: { ...s.banner, message: e.target.value },
+                      }))
+                    }
+                    placeholder="Scheduled maintenance tonight 22:00 SAST."
+                    rows={2}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Banner style</Label>
+                    <Select
+                      value={appStatus.banner.style}
+                      onValueChange={(value: 'info' | 'warning') =>
+                        setAppStatus((s) => ({
+                          ...s,
+                          banner: { ...s.banner, style: value },
+                        }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="info">Info (blue)</SelectItem>
+                        <SelectItem value="warning">Warning (orange)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 pt-6 md:pt-8">
+                    <div>
+                      <Label className="text-neutral-800 dark:text-neutral-100">Dismissible</Label>
+                      <p className="text-xs text-neutral-500 mt-1">User can dismiss for this session.</p>
+                    </div>
+                    <Switch
+                      checked={appStatus.banner.dismissibleSession}
+                      onCheckedChange={(v) =>
+                        setAppStatus((s) => ({
+                          ...s,
+                          banner: { ...s.banner, dismissibleSession: v },
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full border-neutral-200 dark:border-neutral-600"
+                  onClick={() => void loadAppStatus()}
+                  disabled={appStatusLoading || savingAppStatus}
+                >
+                  Reset from server
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="rounded-full"
+                  onClick={() => void saveAppStatus()}
+                  disabled={savingAppStatus || appStatusLoading}
+                >
+                  {savingAppStatus ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Save app status
+                </Button>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       {loading && tasks.length === 0 ? (
         <div className="flex items-center justify-center py-20 text-neutral-400">
