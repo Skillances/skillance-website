@@ -37,9 +37,12 @@ import {
   Sparkles,
   RefreshCw,
   Bug,
+  BookOpen,
 } from 'lucide-react';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getApiBaseUrl } from '@/lib/api';
+import { ApiPaths } from '@/lib/apiEndpoints';
 import { cn } from '@/lib/utils';
 import AdminAiChat from '@/components/admin/AdminAiChat';
 import { AdminBackendStatusDot } from '@/components/admin/AdminBackendStatusDot';
@@ -84,11 +87,20 @@ interface AdminLayoutProps {
 
 type Platform = 'both' | 'app' | 'web';
 
+type AdminNavMenuItem = {
+  name: string;
+  /** SPA path, or a unique key when `openBackendApiDocs` is set (not a real route). */
+  path: string;
+  icon: typeof LayoutDashboard;
+  /** Opens authenticated Scalar docs on the backend in a new tab (see VITE_API_BASE_URL). */
+  openBackendApiDocs?: boolean;
+};
+
 const adminMenuGroups: {
   label: string;
   platform: Platform;
   subtitle: string;
-  items: { name: string; path: string; icon: typeof LayoutDashboard }[];
+  items: AdminNavMenuItem[];
 }[] = [
   {
     label: 'Both',
@@ -105,6 +117,12 @@ const adminMenuGroups: {
       { name: 'Compliance', path: '/admin/compliance', icon: Cookie },
       { name: 'AI assistant', path: '/admin/ai', icon: Sparkles },
       { name: 'System', path: '/admin/system', icon: Settings2 },
+      {
+        name: 'API docs',
+        path: '/admin/_/backend-scalar-docs',
+        icon: BookOpen,
+        openBackendApiDocs: true,
+      },
     ],
   },
   {
@@ -138,6 +156,10 @@ const adminMenuGroups: {
     ],
   },
 ];
+
+function backendScalarDocsHref(): string {
+  return `${getApiBaseUrl()}${ApiPaths.admin.apiDocsScalar}`;
+}
 
 const PLATFORM_STYLES: Record<Platform, { dot: string; chip: string }> = {
   both: {
@@ -199,30 +221,58 @@ function AdminNavBadgeIconDot({ count, active }: { count: number; active: boolea
 }
 
 interface CollapsedNavItemProps {
-  item: (typeof allMenuItems)[number];
+  item: AdminNavMenuItem;
   active: boolean;
   pendingCount: number;
+  backendScalarHref?: string;
 }
 
-const CollapsedNavItem: React.FC<CollapsedNavItemProps> = ({ item, active, pendingCount }) => {
+const CollapsedNavItem: React.FC<CollapsedNavItemProps> = ({
+  item,
+  active,
+  pendingCount,
+  backendScalarHref,
+}) => {
   const tooltipId = `admin-collapsed-tooltip-${item.path.replaceAll('/', '-').replaceAll(':', '-')}`;
+
+  const linkClassName = cn(
+    'relative flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400/70 dark:focus-visible:ring-neutral-500/70',
+    active
+      ? 'bg-black dark:bg-white text-white dark:text-black'
+      : 'text-neutral-400 dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white',
+  );
+
+  const commonChildren = (
+    <>
+      <item.icon size={16} className="relative z-0" />
+      <AdminNavBadgeIconDot count={pendingCount} active={active} />
+    </>
+  );
 
   return (
     <div className="relative group/item flex items-center justify-center w-full">
-      <Link
-        to={item.path}
-        aria-label={pendingCount > 0 ? `${item.name}, ${pendingCount} pending` : item.name}
-        aria-describedby={tooltipId}
-        className={cn(
-          'relative flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400/70 dark:focus-visible:ring-neutral-500/70',
-          active
-            ? 'bg-black dark:bg-white text-white dark:text-black'
-            : 'text-neutral-400 dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white',
-        )}
-      >
-        <item.icon size={16} className="relative z-0" />
-        <AdminNavBadgeIconDot count={pendingCount} active={active} />
-      </Link>
+      {backendScalarHref ? (
+        <a
+          href={backendScalarHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={pendingCount > 0 ? `${item.name}, ${pendingCount} pending` : item.name}
+          aria-describedby={tooltipId}
+          title="Opens authenticated backend API docs in a new tab"
+          className={linkClassName}
+        >
+          {commonChildren}
+        </a>
+      ) : (
+        <Link
+          to={item.path}
+          aria-label={pendingCount > 0 ? `${item.name}, ${pendingCount} pending` : item.name}
+          aria-describedby={tooltipId}
+          className={linkClassName}
+        >
+          {commonChildren}
+        </Link>
+      )}
       <span
         id={tooltipId}
         role="tooltip"
@@ -340,18 +390,15 @@ function AdminSidebarContent({
                       {group.items.map((item) => {
                         const active = isActive(item.path);
                         const pending = getNavPendingCount(item.path);
-                        return (
-                          <Link
-                            key={item.path}
-                            to={item.path}
-                            title={pending > 0 ? `${item.name} (${pending} pending)` : item.name}
-                            className={cn(
-                              'flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 group text-[13px] min-w-0',
-                              active
-                                ? 'bg-black dark:bg-white text-white dark:text-black font-medium'
-                                : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white',
-                            )}
-                          >
+                        const scalarHref = item.openBackendApiDocs ? backendScalarDocsHref() : undefined;
+                        const rowClass =
+                          'flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 group text-[13px] min-w-0';
+                        const rowActive =
+                          active
+                            ? 'bg-black dark:bg-white text-white dark:text-black font-medium'
+                            : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white';
+                        const linkBody = (
+                          <>
                             <item.icon
                               size={16}
                               className={cn(
@@ -363,6 +410,31 @@ function AdminSidebarContent({
                             />
                             <span className="flex-1 min-w-0 truncate text-left">{item.name}</span>
                             <AdminNavBadgePill count={pending} active={active} />
+                          </>
+                        );
+                        return scalarHref ? (
+                          <a
+                            key={item.path}
+                            href={scalarHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={
+                              pending > 0
+                                ? `${item.name} (${pending} pending) — opens authenticated backend docs in a new tab`
+                                : 'Opens authenticated backend API docs in a new tab'
+                            }
+                            className={cn(rowClass, rowActive)}
+                          >
+                            {linkBody}
+                          </a>
+                        ) : (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            title={pending > 0 ? `${item.name} (${pending} pending)` : item.name}
+                            className={cn(rowClass, rowActive)}
+                          >
+                            {linkBody}
                           </Link>
                         );
                       })}
@@ -437,6 +509,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   };
 
   const isActive = (path: string) => {
+    if (path === '/admin/_/backend-scalar-docs') return false;
     if (location.pathname === path) return true;
     if (path !== '/admin/dashboard' && location.pathname.startsWith(path + '/')) return true;
     return false;
@@ -536,6 +609,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                           item={item}
                           active={isActive(item.path)}
                           pendingCount={getNavPendingCount(item.path)}
+                          backendScalarHref={item.openBackendApiDocs ? backendScalarDocsHref() : undefined}
                         />
                       ))}
                     </div>

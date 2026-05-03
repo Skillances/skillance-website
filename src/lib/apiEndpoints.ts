@@ -40,6 +40,9 @@ export const ApiPaths = {
   admin: {
     dashboard: '/admin/dashboard',
 
+    /** Scalar OpenAPI UI; requires admin JWT (Bearer or API-host cookie). Not a website SPA route. */
+    apiDocsScalar: '/admin/api-docs',
+
     metricsSnapshot: '/admin/metrics/snapshot',
     metricsHistory: '/admin/metrics/history',
     queryMetrics: '/admin/query-metrics',
