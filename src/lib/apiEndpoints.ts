@@ -10,6 +10,11 @@ export const ApiPaths = {
     refresh: '/auth/refresh',
   },
 
+  /** Backend POST /ably/auth issues subscribe-only TokenRequests (includes admin queue when DB isAdmin). */
+  realtime: {
+    ablyAuth: '/ably/auth',
+  },
+
   users: {
     me: '/users/me',
   },
@@ -30,8 +35,6 @@ export const ApiPaths = {
 
   admin: {
     dashboard: '/admin/dashboard',
-
-    eventsVerificationStream: '/admin/events/verification-stream',
 
     metricsSnapshot: '/admin/metrics/snapshot',
     metricsHistory: '/admin/metrics/history',

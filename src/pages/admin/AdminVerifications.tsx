@@ -11,8 +11,8 @@ import PageHeader from '@/components/admin/PageHeader';
 import DataTable, { type Column } from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import { ADMIN_QUEUE_HINT_EVENT } from '@/lib/adminQueueEvents';
 import { toast } from 'sonner';
-import { consumeAdminVerificationSse } from '@/lib/adminVerificationSse';
 
 interface PendingFreelancer {
   id: string;
@@ -157,33 +157,12 @@ const AdminVerifications: React.FC = () => {
   useEffect(() => { fetchPendingId(); fetchPendingClearance(); }, [fetchPendingId, fetchPendingClearance]);
 
   useEffect(() => {
-    const ac = new AbortController();
-    let cancelled = false;
-    const run = async () => {
-      try {
-        await consumeAdminVerificationSse(
-          (data) => {
-            if (cancelled) return;
-            const t = data.type;
-            if (t === 'id' || t === 'police_clearance') {
-              void fetchPendingId();
-              void fetchPendingClearance();
-            }
-          },
-          ac.signal,
-        );
-      } catch (e: unknown) {
-        if (cancelled || ac.signal.aborted) return;
-        const msg = e instanceof Error ? e.message : String(e);
-        if (msg.includes('abort') || msg.includes('Abort')) return;
-        toast.error('Live verification updates disconnected');
-      }
+    const onHint = () => {
+      void fetchPendingId();
+      void fetchPendingClearance();
     };
-    void run();
-    return () => {
-      cancelled = true;
-      ac.abort();
-    };
+    window.addEventListener(ADMIN_QUEUE_HINT_EVENT, onHint);
+    return () => window.removeEventListener(ADMIN_QUEUE_HINT_EVENT, onHint);
   }, [fetchPendingId, fetchPendingClearance]);
 
   const openAction = (freelancer: PendingFreelancer, type: 'id' | 'clearance', status: 'verified' | 'rejected') => { setActionFreelancer(freelancer); setActionType(type); setActionStatus(status); setRejectionReason(''); setDialogOpen(true); };

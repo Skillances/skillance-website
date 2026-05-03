@@ -40,6 +40,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import AdminAiChat from '@/components/admin/AdminAiChat';
 import { useAdminNavPendingBadges } from '@/hooks/useAdminNavPendingBadges';
+import { useAdminAblyQueue } from '@/hooks/useAdminAblyQueue';
+import { ADMIN_QUEUE_HINT_EVENT } from '@/lib/adminQueueEvents';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -203,7 +205,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   /** Bumping this remounts the current admin route so data hooks run again (same as a soft refresh). */
   const [refreshNonce, setRefreshNonce] = useState(0);
-  const { getCount: getNavPendingCount } = useAdminNavPendingBadges({ refreshKey: refreshNonce });
+  const { getCount: getNavPendingCount, refresh: refreshNavBadges } = useAdminNavPendingBadges({
+    refreshKey: refreshNonce,
+  });
+
+  useAdminAblyQueue(() => {
+    void refreshNavBadges();
+    window.dispatchEvent(new CustomEvent(ADMIN_QUEUE_HINT_EVENT));
+  }, Boolean(user));
 
   // Track which groups are collapsed — all open by default
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});

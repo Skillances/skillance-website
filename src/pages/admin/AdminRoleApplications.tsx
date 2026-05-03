@@ -5,6 +5,7 @@ import PageHeader from '@/components/admin/PageHeader';
 import DataTable, { type Column } from '@/components/admin/DataTable';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { ADMIN_QUEUE_HINT_EVENT } from '@/lib/adminQueueEvents';
 
 interface RoleApplicationRow {
   id: string;
@@ -43,6 +44,14 @@ const AdminRoleApplications: React.FC = () => {
 
   useEffect(() => {
     void load();
+  }, [load]);
+
+  useEffect(() => {
+    const onHint = () => {
+      void load();
+    };
+    window.addEventListener(ADMIN_QUEUE_HINT_EVENT, onHint);
+    return () => window.removeEventListener(ADMIN_QUEUE_HINT_EVENT, onHint);
   }, [load]);
 
   const approve = async (id: string) => {

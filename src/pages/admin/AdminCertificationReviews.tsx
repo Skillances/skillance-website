@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { ADMIN_QUEUE_HINT_EVENT } from '@/lib/adminQueueEvents';
 import { CheckCircle, XCircle, ExternalLink, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -48,6 +49,12 @@ const AdminCertificationReviews: React.FC = () => {
 
   useEffect(() => {
     void load();
+  }, [load]);
+
+  useEffect(() => {
+    const onHint = () => void load();
+    window.addEventListener(ADMIN_QUEUE_HINT_EVENT, onHint);
+    return () => window.removeEventListener(ADMIN_QUEUE_HINT_EVENT, onHint);
   }, [load]);
 
   const verify = async (id: string, status: 'verified' | 'rejected') => {
