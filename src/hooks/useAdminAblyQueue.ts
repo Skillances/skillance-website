@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import Ably, { type ConnectionState, type TokenRequest } from 'ably';
+import Ably, { type ConnectionState, type ConnectionStateChange, type TokenRequest } from 'ably';
 import { apiRequest } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 
@@ -16,9 +16,7 @@ export function useAdminAblyQueue(
   onHint: () => void,
   enabled: boolean,
 ): { connectionState: AdminAblyConnectionState } {
-  const [connectionState, setConnectionState] = useState<AdminAblyConnectionState>(() =>
-    enabled ? 'initialized' : 'inactive',
-  );
+  const [connectionState, setConnectionState] = useState<ConnectionState>('initialized');
   const onHintRef = useRef(onHint);
 
   useEffect(() => {
@@ -27,7 +25,6 @@ export function useAdminAblyQueue(
 
   useEffect(() => {
     if (!enabled) {
-      setConnectionState('inactive');
       return;
     }
 
@@ -60,11 +57,13 @@ export function useAdminAblyQueue(
       onHintRef.current();
     };
 
-    const onConnectionChange = (change: { current: ConnectionState }) => {
+    const onConnectionChange = (change: ConnectionStateChange) => {
       setConnectionState(change.current);
     };
 
-    setConnectionState(realtime.connection.state);
+    queueMicrotask(() => {
+      setConnectionState(realtime.connection.state);
+    });
     realtime.connection.on(onConnectionChange);
 
     ch.subscribe(handler);
@@ -77,8 +76,13 @@ export function useAdminAblyQueue(
         /* ignore */
       }
       realtime.close();
+      queueMicrotask(() => {
+        setConnectionState('initialized');
+      });
     };
   }, [enabled]);
 
-  return { connectionState };
+  return {
+    connectionState: enabled ? connectionState : 'inactive',
+  };
 }
