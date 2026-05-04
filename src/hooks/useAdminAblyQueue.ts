@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Ably, {
   type ConnectionState,
   type ConnectionStateChange,
@@ -21,8 +21,10 @@ export type AdminAblyConnectionState = ConnectionState | 'inactive';
 export function useAdminAblyQueue(
   onHint: () => void,
   enabled: boolean,
-): { connectionState: AdminAblyConnectionState } {
+): { connectionState: AdminAblyConnectionState; reconnect: () => void } {
   const [connectionState, setConnectionState] = useState<ConnectionState>('initialized');
+  /** Increment to tear down and recreate the Realtime client (manual retry when stuck disconnected). */
+  const [reconnectNonce, setReconnectNonce] = useState(0);
   const onHintRef = useRef(onHint);
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export function useAdminAblyQueue(
       return;
     }
 
-    adminRealtimeLog('hook_start', { channel: ADMIN_QUEUE_CHANNEL });
+    adminRealtimeLog('hook_start', { channel: ADMIN_QUEUE_CHANNEL, reconnectNonce });
 
     const realtime = new Ably.Realtime({
       authCallback: async (_tokenParams, callback) => {
@@ -131,9 +133,14 @@ export function useAdminAblyQueue(
         setConnectionState('initialized');
       });
     };
-  }, [enabled]);
+  }, [enabled, reconnectNonce]);
+
+  const reconnect = useCallback(() => {
+    setReconnectNonce((n) => n + 1);
+  }, []);
 
   return {
     connectionState: enabled ? connectionState : 'inactive',
+    reconnect,
   };
 }

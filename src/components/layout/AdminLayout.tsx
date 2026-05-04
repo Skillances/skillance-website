@@ -483,7 +483,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     refreshKey: refreshNonce,
   });
 
-  const { connectionState: ablyConnectionState } = useAdminAblyQueue(() => {
+  const { connectionState: ablyConnectionState, reconnect: reconnectAbly } = useAdminAblyQueue(() => {
     void refreshNavBadges();
     window.dispatchEvent(new CustomEvent(ADMIN_QUEUE_HINT_EVENT));
   }, Boolean(user));
@@ -697,7 +697,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
           <div className="flex items-center gap-0.5 shrink-0">
             <AdminBackendStatusDot />
-            <AdminAblyRealtimeStatusDot connectionState={ablyConnectionState} />
+            <AdminAblyRealtimeStatusDot connectionState={ablyConnectionState} onReconnect={reconnectAbly} />
             <button
               type="button"
               onClick={bumpPageRefresh}
@@ -728,7 +728,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
           <div className="flex items-center gap-1 justify-self-end">
             <AdminBackendStatusDot />
-            <AdminAblyRealtimeStatusDot connectionState={ablyConnectionState} />
+            <AdminAblyRealtimeStatusDot connectionState={ablyConnectionState} onReconnect={reconnectAbly} />
             <button
               type="button"
               onClick={bumpPageRefresh}

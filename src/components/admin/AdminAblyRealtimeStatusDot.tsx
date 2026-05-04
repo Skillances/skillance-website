@@ -69,13 +69,21 @@ function dotClassForState(state: AdminAblyConnectionState): string {
 /** Status dot for admin Ably realtime; green when connected, otherwise reflects recovery or failure. */
 export function AdminAblyRealtimeStatusDot({
   connectionState,
+  onReconnect,
   className,
 }: {
   connectionState: AdminAblyConnectionState;
+  /** When set, shows "Retry connection" for recoverable failure / disconnected states. */
+  onReconnect?: () => void;
   className?: string;
 }) {
   const { title, detail } = describeConnectionState(connectionState);
   const dotClass = dotClassForState(connectionState);
+
+  const showReconnect =
+    typeof onReconnect === 'function' &&
+    connectionState !== 'inactive' &&
+    !['connected', 'initialized', 'connecting'].includes(connectionState as string);
 
   return (
     <HoverCard openDelay={200} closeDelay={150}>
@@ -107,6 +115,18 @@ export function AdminAblyRealtimeStatusDot({
         <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500 tabular-nums">
           Connection state: <span className="text-neutral-900 dark:text-neutral-200">{connectionState}</span>
         </p>
+        {showReconnect ? (
+          <button
+            type="button"
+            className="mt-3 w-full rounded-lg bg-neutral-900 px-3 py-2 text-xs font-semibold text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white"
+            onClick={(e) => {
+              e.preventDefault();
+              onReconnect?.();
+            }}
+          >
+            Retry connection
+          </button>
+        ) : null}
       </HoverCardContent>
     </HoverCard>
   );

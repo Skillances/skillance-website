@@ -28,6 +28,8 @@ export const ApiPaths = {
   },
 
   public: {
+    /** GET: proxy Lottie JSON from public category-images S3 prefix (allowlisted); no auth. */
+    categoryLottie: '/public/category-lottie',
     contact: '/public/contact',
     notify: '/public/notify',
     reviews: '/public/reviews',
