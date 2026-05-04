@@ -56,7 +56,7 @@ const Mission = () => {
             {/* Mission image — visible on desktop below the heading */}
             <div className="scroll-reveal hidden lg:block mt-12 rounded-[2rem] overflow-hidden aspect-[4/3] bg-neutral-100">
               <img
-                src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&q=85&w=900&h=675"
+                src="/images/unsplash/mission.jpg"
                 alt="Two professionals collaborating"
                 width={900}
                 height={675}
@@ -97,7 +97,7 @@ const Mission = () => {
             {/* Mobile mission image */}
             <div className="scroll-reveal lg:hidden rounded-[2rem] overflow-hidden aspect-[4/3] bg-neutral-100">
               <img
-                src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&q=85&w=800&h=600"
+                src="/images/unsplash/mission.jpg"
                 alt="Two professionals collaborating"
                 width={800}
                 height={600}

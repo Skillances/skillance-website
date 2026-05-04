@@ -8,12 +8,6 @@ import { SpecializationTreeList } from '@/components/SpecializationTreeList';
 
 gsap.registerPlugin(ScrollTrigger);
 
-function getUnsplashUrl(url: string, width: number, height?: number): string {
-  let result = url.replace(/w=\d+/, `w=${width}`);
-  if (height) result = result.replace(/h=\d+/, `h=${height}`);
-  return result;
-}
-
 type ServiceCategory = ServiceCategoryItem;
 const HOME_SERVICES_VISIBLE_COUNT = 6;
 const HOME_SERVICES_ROTATE_DAYS = 1;
@@ -123,9 +117,7 @@ const Services = () => {
               >
                 {/* Background Image */}
                 <img
-                  src={getUnsplashUrl(category.image, 800, 1000)}
-                  srcSet={`${getUnsplashUrl(category.image, 480, 600)} 480w, ${getUnsplashUrl(category.image, 800, 1000)} 800w, ${getUnsplashUrl(category.image, 1200, 1500)} 1200w`}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  src={category.image}
                   alt={category.name}
                   width={800}
                   height={1000}
@@ -187,9 +179,7 @@ const Services = () => {
           <div className="relative flex min-h-0 h-full w-full flex-col overflow-hidden bg-white sm:h-auto sm:max-h-[min(85dvh,calc(100dvh-4rem))] sm:max-w-4xl sm:rounded-[2.5rem] sm:shadow-2xl sm:flex-row">
             <div className="hidden sm:flex sm:w-[42%] relative shrink-0 overflow-hidden min-h-0 sm:min-h-[min(420px,42dvh)] sm:max-h-[min(85dvh,calc(100dvh-4rem))] sm:self-stretch">
               <img
-                src={getUnsplashUrl(selectedCategory.image, 800, 1000)}
-                srcSet={`${getUnsplashUrl(selectedCategory.image, 480, 600)} 480w, ${getUnsplashUrl(selectedCategory.image, 800, 1000)} 800w`}
-                sizes="40vw"
+                src={selectedCategory.image}
                 width={800}
                 height={1000}
                 loading="eager"

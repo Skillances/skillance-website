@@ -34,21 +34,21 @@ export interface ServiceCategoryItem {
 }
 
 const CATEGORY_IMAGE_FALLBACKS: Record<string, string> = {
-  // Legacy curated set from commit 3aeffc25... (known-good visual fit).
-  handyman: 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?auto=format&fit=crop&q=80&w=2070',
-  education: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=2070',
-  cleaning: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=2070',
-  petcare: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&q=80&w=2042',
-  fitness: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=2070',
-  automotive: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&q=80&w=2070',
-  personalservices: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=2084',
-  gardening: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=2070',
-  computer: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2072',
-  professionalservices: 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2074',
-  influencer: 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&q=80&w=2070',
-  photography: 'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&q=80&w=2074',
-  videography: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2070',
-  music: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=2070',
+  /** Static JPEGs in `public/images/unsplash/` (same photos as former Unsplash URLs). */
+  handyman: '/images/unsplash/handyman.jpg',
+  education: '/images/unsplash/education.jpg',
+  cleaning: '/images/unsplash/cleaning.jpg',
+  petcare: '/images/unsplash/petcare.jpg',
+  fitness: '/images/unsplash/fitness.jpg',
+  automotive: '/images/unsplash/automotive.jpg',
+  personalservices: '/images/unsplash/personalservices.jpg',
+  gardening: '/images/unsplash/gardening.jpg',
+  computer: '/images/unsplash/computer.jpg',
+  professionalservices: '/images/unsplash/professionalservices.jpg',
+  influencer: '/images/unsplash/influencer.jpg',
+  photography: '/images/unsplash/photography.jpg',
+  videography: '/images/unsplash/videography.jpg',
+  music: '/images/unsplash/music.jpg',
 };
 
 const CATEGORY_IMAGE_ALIASES: Record<string, keyof typeof CATEGORY_IMAGE_FALLBACKS> = {

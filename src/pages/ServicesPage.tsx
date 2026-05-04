@@ -200,10 +200,6 @@ const ServicesPage = () => {
     }
   }, []);
 
-  function getUnsplashUrl(url: string, width: number): string {
-    return url.replace(/w=\d+/, `w=${width}`);
-  }
-
   const isSearching = searchQuery.trim().length > 0;
 
   return (
@@ -279,9 +275,7 @@ const ServicesPage = () => {
               >
                 <div className="aspect-[16/10] overflow-hidden flex-shrink-0">
                   <img
-                    src={getUnsplashUrl(category.image, 800)}
-                    srcSet={`${getUnsplashUrl(category.image, 400)} 400w, ${getUnsplashUrl(category.image, 800)} 800w, ${getUnsplashUrl(category.image, 1200)} 1200w`}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    src={category.image}
                     alt={category.name}
                     width={1600}
                     height={1000}
@@ -380,7 +374,7 @@ const ServicesPage = () => {
                     {/* Image — fixed size, no flex-grow */}
                     <div className="w-24 h-20 sm:w-32 sm:h-24 shrink-0 overflow-hidden rounded-l-[1.75rem]">
                       <img
-                        src={getUnsplashUrl(category.image, 256)}
+                        src={category.image}
                         alt={category.name}
                         width={256}
                         height={192}
