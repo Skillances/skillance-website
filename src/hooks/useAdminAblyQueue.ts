@@ -20,7 +20,10 @@ export function useAdminAblyQueue(
     enabled ? 'initialized' : 'inactive',
   );
   const onHintRef = useRef(onHint);
-  onHintRef.current = onHint;
+
+  useEffect(() => {
+    onHintRef.current = onHint;
+  }, [onHint]);
 
   useEffect(() => {
     if (!enabled) {
