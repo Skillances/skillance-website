@@ -45,6 +45,7 @@ import { getApiBaseUrl } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { cn } from '@/lib/utils';
 import AdminAiChat from '@/components/admin/AdminAiChat';
+import { AdminAblyRealtimeStatusDot } from '@/components/admin/AdminAblyRealtimeStatusDot';
 import { AdminBackendStatusDot } from '@/components/admin/AdminBackendStatusDot';
 import { AdminQueryMonitor } from '@/components/admin/AdminQueryMonitor';
 import { useAdminNavPendingBadges } from '@/hooks/useAdminNavPendingBadges';
@@ -482,7 +483,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     refreshKey: refreshNonce,
   });
 
-  useAdminAblyQueue(() => {
+  const { connectionState: ablyConnectionState } = useAdminAblyQueue(() => {
     void refreshNavBadges();
     window.dispatchEvent(new CustomEvent(ADMIN_QUEUE_HINT_EVENT));
   }, Boolean(user));
@@ -696,6 +697,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
           <div className="flex items-center gap-0.5 shrink-0">
             <AdminBackendStatusDot />
+            <AdminAblyRealtimeStatusDot connectionState={ablyConnectionState} />
             <button
               type="button"
               onClick={bumpPageRefresh}
@@ -726,6 +728,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
           <div className="flex items-center gap-1 justify-self-end">
             <AdminBackendStatusDot />
+            <AdminAblyRealtimeStatusDot connectionState={ablyConnectionState} />
             <button
               type="button"
               onClick={bumpPageRefresh}
