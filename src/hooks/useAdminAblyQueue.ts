@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import Ably, { type ConnectionState, type ConnectionStateChange, type TokenRequest } from 'ably';
+import Ably, {
+  type ConnectionState,
+  type ConnectionStateChange,
+  type Message,
+  type TokenRequest,
+} from 'ably';
 import { apiRequest } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { adminRealtimeLog, adminRealtimeLogsEnabled } from '@/lib/adminRealtimeLog';
 
 const ADMIN_QUEUE_CHANNEL = 'private-admin-queue';
 
@@ -28,6 +34,8 @@ export function useAdminAblyQueue(
       return;
     }
 
+    adminRealtimeLog('hook_start', { channel: ADMIN_QUEUE_CHANNEL });
+
     const realtime = new Ably.Realtime({
       authCallback: async (_tokenParams, callback) => {
         try {
@@ -40,12 +48,21 @@ export function useAdminAblyQueue(
             true,
           );
           if (!res.ok) {
+            const errText = await res.text().catch(() => '');
+            adminRealtimeLog('auth_http_failed', {
+              status: res.status,
+              hint: errText ? '(see Network tab)' : '',
+            });
             callback('Ably auth failed', null);
             return;
           }
           const tokenRequest = (await res.json()) as TokenRequest;
+          adminRealtimeLog('auth_ok');
           callback(null, tokenRequest);
         } catch (e: unknown) {
+          adminRealtimeLog('auth_exception', {
+            message: e instanceof Error ? e.message : String(e),
+          });
           callback(e instanceof Error ? e.message : String(e), null);
         }
       },
@@ -53,12 +70,36 @@ export function useAdminAblyQueue(
 
     const ch = realtime.channels.get(ADMIN_QUEUE_CHANNEL);
 
-    const handler = () => {
+    const handler = (message: Message) => {
+      const data = message.data;
+      let dataSummary: string | undefined;
+      if (data != null && typeof data === 'object' && !Array.isArray(data)) {
+        dataSummary = Object.keys(data as Record<string, unknown>).slice(0, 28).join(',');
+      } else if (data !== undefined && data !== null) {
+        dataSummary = typeof data;
+      }
+      adminRealtimeLog('queue_message', {
+        name: message.name ?? '(unnamed)',
+        ...(dataSummary !== undefined ? { dataKeys: dataSummary } : {}),
+      });
       onHintRef.current();
     };
 
     const onConnectionChange = (change: ConnectionStateChange) => {
       setConnectionState(change.current);
+      if (adminRealtimeLogsEnabled()) {
+        adminRealtimeLog('connection', {
+          state: change.current,
+          previous: change.previous,
+          reason: change.reason ?? '',
+        });
+      }
+    };
+
+    const onChannelFailed = (stateChange: { reason?: string | { message?: string } }) => {
+      const r = stateChange.reason;
+      const msg = typeof r === 'string' ? r : r?.message;
+      adminRealtimeLog('channel_failed', { detail: msg ?? '' });
     };
 
     queueMicrotask(() => {
@@ -66,9 +107,19 @@ export function useAdminAblyQueue(
     });
     realtime.connection.on(onConnectionChange);
 
+    ch.on('failed', onChannelFailed);
+
+    void ch.attach().then(
+      () => adminRealtimeLog('channel_attached'),
+      (err: Error) =>
+        adminRealtimeLog('channel_attach_rejected', { message: err?.message ?? String(err) }),
+    );
+
     ch.subscribe(handler);
 
     return () => {
+      adminRealtimeLog('hook_cleanup');
+      ch.off('failed', onChannelFailed);
       realtime.connection.off(onConnectionChange);
       try {
         ch.unsubscribe(handler);
