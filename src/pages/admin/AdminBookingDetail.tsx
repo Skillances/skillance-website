@@ -289,7 +289,7 @@ const AdminBookingDetail: React.FC = () => {
                 Booking chat
               </CardTitle>
               <p className="text-xs text-neutral-500 dark:text-neutral-400 font-sans font-normal mt-1">
-                Live thread while the booking is active; after completion, history is shown as archived when migrated.
+                Live messages while the booking is active; after completion, migrated chat appears from archived history (the admin API loads history when live rows are cleared).
               </p>
             </CardHeader>
             <CardContent className="p-6">
