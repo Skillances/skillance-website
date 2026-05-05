@@ -44,6 +44,8 @@ This repository contains the source code for the Skillance South Africa website.
    VITE_EMAILJS_SERVICE_ID=your_id
    VITE_EMAILJS_TEMPLATE_ID=your_id
    VITE_EMAILJS_PUBLIC_KEY=your_key
+   # Optional: always show Admin Bookings "Advance session" Dev column (still requires API ALLOW_BOOKING_DEV_TOOLS)
+   # VITE_SHOW_BOOKING_DEV_TOOLS=true
    ```
 4. Start the development server:
    ```bash

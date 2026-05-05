@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { CalendarDays, UserRound, Briefcase, Filter } from 'lucide-react';
+import { CalendarDays, UserRound, Briefcase, Filter, Loader2 } from 'lucide-react';
 import { get } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import PageHeader from '@/components/admin/PageHeader';
@@ -8,6 +8,13 @@ import DataTable, { type Column } from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 import StatsCard from '@/components/admin/dashboard/StatsCard';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import {
+  advanceBookingSessionForDev,
+  fetchBookingDevToolsStatus,
+} from '@/lib/adminBookingDevTools';
+
+const viteShowBookingDevTools = import.meta.env.VITE_SHOW_BOOKING_DEV_TOOLS === 'true';
 
 interface BookingUser {
   id: string;
@@ -87,6 +94,24 @@ const AdminBookings: React.FC = () => {
 
   const [clientOptions, setClientOptions] = useState<Array<{ label: string; value: string }>>([{ label: 'All Clients', value: 'all' }]);
   const [freelancerOptions, setFreelancerOptions] = useState<Array<{ label: string; value: string }>>([{ label: 'All Freelancers', value: 'all' }]);
+  const [bookingDevApiEnabled, setBookingDevApiEnabled] = useState(false);
+  const [advancingBookingId, setAdvancingBookingId] = useState<string | null>(null);
+
+  const showBookingDevActions = viteShowBookingDevTools || bookingDevApiEnabled;
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchBookingDevToolsStatus()
+      .then((s) => {
+        if (!cancelled) setBookingDevApiEnabled(s.enabled);
+      })
+      .catch(() => {
+        if (!cancelled) setBookingDevApiEnabled(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const fetchBookings = useCallback(async () => {
     try {
@@ -172,6 +197,30 @@ const AdminBookings: React.FC = () => {
     setPage(1);
   };
 
+  const handleAdvanceSessionDev = useCallback(
+    async (e: React.MouseEvent, booking: BookingItem) => {
+      e.stopPropagation();
+      try {
+        setAdvancingBookingId(booking.id);
+        const data = await advanceBookingSessionForDev(booking.id);
+        toast.success(`Session advanced. PIN: ${data.sessionPin}`);
+        await fetchBookings();
+      } catch (err: unknown) {
+        const o = err && typeof err === 'object' ? (err as Record<string, unknown>) : {};
+        const msg =
+          typeof o.message === 'string'
+            ? o.message
+            : typeof o.error === 'string'
+              ? o.error
+              : 'Advance session failed';
+        toast.error(msg);
+      } finally {
+        setAdvancingBookingId(null);
+      }
+    },
+    [fetchBookings],
+  );
+
   const filters: FilterConfig[] = [
     {
       key: 'status',
@@ -212,7 +261,8 @@ const AdminBookings: React.FC = () => {
     },
   ];
 
-  const columns: Column<BookingItem>[] = useMemo(() => [
+  const columns: Column<BookingItem>[] = useMemo(() => {
+    const base: Column<BookingItem>[] = [
     {
       key: 'status',
       header: 'Status',
@@ -277,7 +327,39 @@ const AdminBookings: React.FC = () => {
         </span>
       ),
     },
-  ], []);
+    ];
+    if (!showBookingDevActions) {
+      return base;
+    }
+    const canAdvanceStatus = (status: string) => {
+      const s = (status || '').toLowerCase();
+      return s === 'confirmed' || s === 'inprogress';
+    };
+    base.push({
+      key: 'devAdvance',
+      header: 'Dev',
+      render: (booking) => {
+        if (!canAdvanceStatus(booking.status)) {
+          return <span className="text-neutral-400 dark:text-neutral-500 text-xs">--</span>;
+        }
+        const busy = advancingBookingId === booking.id;
+        return (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 text-xs"
+            disabled={busy}
+            title="Advance to in-progress with PIN window open (testing only; requires ALLOW_BOOKING_DEV_TOOLS on API)"
+            onClick={(ev) => void handleAdvanceSessionDev(ev, booking)}
+          >
+            {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Advance session'}
+          </Button>
+        );
+      },
+    });
+    return base;
+  }, [showBookingDevActions, advancingBookingId, handleAdvanceSessionDev]);
 
   const statsCards = stats ? [
     { title: 'Total Bookings', value: String(stats.total ?? 0), icon: CalendarDays, color: '#171717' },
