@@ -38,6 +38,7 @@ import {
   RefreshCw,
   Bug,
   BookOpen,
+  ClipboardList,
 } from 'lucide-react';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -111,6 +112,7 @@ const adminMenuGroups: {
       { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
       { name: 'Analytics', path: '/admin/analytics', icon: TrendingUp },
       { name: 'Finance', path: '/admin/finance', icon: CircleDollarSign },
+      { name: 'Payout queue', path: '/admin/finance/payouts', icon: ClipboardList },
       { name: 'Users', path: '/admin/users', icon: Users },
       { name: 'Observability', path: '/admin/observability', icon: Activity },
       { name: 'Security', path: '/admin/security', icon: ShieldAlert },

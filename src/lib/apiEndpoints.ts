@@ -100,6 +100,7 @@ export const ApiPaths = {
 
     financeSummary: '/admin/finance/summary',
     financeTimeseries: '/admin/finance/timeseries',
+    financePayoutLedger: '/admin/finance/payout-ledger',
 
     securityEvents: '/admin/security/events',
     securityStatistics: '/admin/security/statistics',

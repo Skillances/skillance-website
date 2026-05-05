@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { get } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import PageHeader from '@/components/admin/PageHeader';
@@ -249,6 +250,12 @@ const AdminFinance: React.FC = () => {
     <div className={`space-y-10 transition-opacity ${loading ? 'opacity-60 pointer-events-none' : ''}`}>
       <PageHeader title="Finance" description="Bookings, connection fees, and digital product revenue (ZAR)">
         <div className="flex flex-wrap items-center gap-3">
+          <Link
+            to="/admin/finance/payouts"
+            className="text-sm font-medium text-violet-700 dark:text-violet-300 hover:underline"
+          >
+            Payout queue
+          </Link>
           <Select value={summaryPeriod} onValueChange={(v) => setSummaryPeriod(v as SummaryPeriod)}>
             <SelectTrigger className="w-[160px] bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-600 text-neutral-600 dark:text-neutral-200 rounded-full">
               <SelectValue placeholder="Summary period" />

@@ -45,6 +45,7 @@ const AdminCustomerDetail = lazy(() => import('./pages/admin/AdminCustomerDetail
 const AdminVerifications = lazy(() => import('./pages/admin/AdminVerifications'));
 const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
 const AdminFinance = lazy(() => import('./pages/admin/AdminFinance'));
+const AdminFinancePayoutLedger = lazy(() => import('./pages/admin/AdminFinancePayoutLedger'));
 const AdminSecurity = lazy(() => import('./pages/admin/AdminSecurity'));
 const AdminAuditLogs = lazy(() => import('./pages/admin/AdminAuditLogs'));
 const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'));
@@ -270,6 +271,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                             <Route path="digital-product-reviews" element={<AdminDigitalProductReviews />} />
                             <Route path="portfolio-reviews" element={<AdminPortfolioReviews />} />
                             <Route path="analytics" element={<AdminAnalytics />} />
+                            <Route path="finance/payouts" element={<AdminFinancePayoutLedger />} />
                             <Route path="finance" element={<AdminFinance />} />
                             <Route path="security" element={<AdminSecurity />} />
                             <Route path="audit-logs" element={<AdminAuditLogs />} />
