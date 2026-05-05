@@ -32,12 +32,18 @@ interface AdminBookingChatPanelProps {
   bookingId: string;
   customerUserId: string;
   freelancerUserId: string | undefined;
+  /** Override list max height (detail page gets more vertical space). */
+  messagesScrollClassName?: string;
+  /** Omit outer margin/border when nested inside another admin card. */
+  embedded?: boolean;
 }
 
 const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
   bookingId,
   customerUserId,
   freelancerUserId,
+  messagesScrollClassName = 'max-h-64',
+  embedded = false,
 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -125,7 +131,13 @@ const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
   };
 
   return (
-    <div className="col-span-2 md:col-span-4 mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-600/80">
+    <div
+      className={
+        embedded
+          ? 'space-y-3'
+          : 'col-span-2 md:col-span-4 mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-600/80'
+      }
+    >
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex flex-col gap-0.5 min-w-0">
           <div className="flex items-center gap-2 text-black dark:text-white font-medium text-sm flex-wrap">
@@ -166,7 +178,7 @@ const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
         <p className="text-xs text-neutral-500 dark:text-neutral-400">No messages.</p>
       )}
       {messages.length > 0 && (
-        <ul className="space-y-2 max-h-64 overflow-y-auto rounded-xl border border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-900/40 p-3">
+        <ul className={`space-y-2 overflow-y-auto rounded-xl border border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-900/40 p-3 ${messagesScrollClassName}`}>
           {messages.map((m) => {
             const { primary, shownToUsers, moderated, types } = adminVisibleText(m);
             return (

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CalendarDays, UserRound, Briefcase, Filter, Loader2 } from 'lucide-react';
 import { get } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
@@ -12,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import {
   advanceBookingSessionForDev,
   fetchBookingDevToolsStatus,
+  bookingDevAdvanceAllowedForStatus,
 } from '@/lib/adminBookingDevTools';
 
 const viteShowBookingDevTools = import.meta.env.VITE_SHOW_BOOKING_DEV_TOOLS === 'true';
@@ -51,6 +53,7 @@ const bookingStatusToneMap: Record<string, string> = {
   pending: 'pending',
   confirmed: 'info',
   inProgress: 'info',
+  inprogress: 'info',
   completed: 'success',
   cancelled: 'error',
   rejected: 'rejected',
@@ -79,6 +82,7 @@ const formatMoney = (amount?: number | null) => {
 };
 
 const AdminBookings: React.FC = () => {
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [stats, setStats] = useState<BookingStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -267,12 +271,15 @@ const AdminBookings: React.FC = () => {
       key: 'status',
       header: 'Status',
       sortable: true,
-      render: (booking) => (
-        <StatusBadge
-          status={bookingStatusToneMap[booking.status] || 'info'}
-          label={booking.status || 'unknown'}
-        />
-      ),
+      render: (booking) => {
+        const norm = (booking.status || '').toLowerCase().replace(/_/g, '');
+        return (
+          <StatusBadge
+            status={bookingStatusToneMap[norm] || bookingStatusToneMap[booking.status] || 'info'}
+            label={booking.status || 'unknown'}
+          />
+        );
+      },
     },
     {
       key: 'scheduledDate',
@@ -331,10 +338,7 @@ const AdminBookings: React.FC = () => {
     if (!showBookingDevActions) {
       return base;
     }
-    const canAdvanceStatus = (status: string) => {
-      const s = (status || '').toLowerCase();
-      return s === 'confirmed' || s === 'inprogress';
-    };
+    const canAdvanceStatus = (status: string) => bookingDevAdvanceAllowedForStatus(status);
     base.push({
       key: 'devAdvance',
       header: 'Dev',
@@ -406,6 +410,7 @@ const AdminBookings: React.FC = () => {
         pageSize={pageSize}
         total={total}
         onPageChange={setPage}
+        onRowClick={(row) => navigate(`/admin/bookings/${row.id}`)}
       />
     </div>
   );

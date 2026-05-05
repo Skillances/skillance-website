@@ -88,6 +88,7 @@ export const ApiPaths = {
     customerBookings: (id: string) => `/admin/customers/${id}/bookings`,
 
     bookings: '/admin/bookings',
+    booking: (id: string) => `/admin/bookings/${id}`,
     bookingsStats: '/admin/bookings/stats',
     bookingDevToolsStatus: '/admin/dev/booking-tools-status',
     bookingAdvanceSessionDev: (bookingId: string) =>

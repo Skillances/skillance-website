@@ -40,6 +40,7 @@ const AdminFreelancers = lazy(() => import('./pages/admin/AdminFreelancers'));
 const AdminFreelancerDetail = lazy(() => import('./pages/admin/AdminFreelancerDetail'));
 const AdminCustomers = lazy(() => import('./pages/admin/AdminCustomers'));
 const AdminBookings = lazy(() => import('./pages/admin/AdminBookings'));
+const AdminBookingDetail = lazy(() => import('./pages/admin/AdminBookingDetail'));
 const AdminCustomerDetail = lazy(() => import('./pages/admin/AdminCustomerDetail'));
 const AdminVerifications = lazy(() => import('./pages/admin/AdminVerifications'));
 const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
@@ -260,6 +261,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                             <Route path="freelancers" element={<AdminFreelancers />} />
                             <Route path="freelancers/:freelancerId" element={<AdminFreelancerDetail />} />
                             <Route path="customers" element={<AdminCustomers />} />
+                            <Route path="bookings/:bookingId" element={<AdminBookingDetail />} />
                             <Route path="bookings" element={<AdminBookings />} />
                             <Route path="customers/:customerId" element={<AdminCustomerDetail />} />
                             <Route path="verifications" element={<AdminVerifications />} />

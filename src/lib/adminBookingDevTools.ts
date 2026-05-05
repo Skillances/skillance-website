@@ -29,3 +29,16 @@ export async function advanceBookingSessionForDev(
   }
   return data;
 }
+
+/** Normalizes booking status from the API (e.g. `IN_PROGRESS` -> `inprogress`). */
+export function normalizeBookingStatusKey(status: string | undefined): string {
+  return (status ?? '').toLowerCase().replace(/_/g, '');
+}
+
+/**
+ * Dev-only advance moves a **confirmed** booking to in-progress with PIN window open.
+ * Hidden once the booking is already in session (or terminal states).
+ */
+export function bookingDevAdvanceAllowedForStatus(status: string | undefined): boolean {
+  return normalizeBookingStatusKey(status) === 'confirmed';
+}
