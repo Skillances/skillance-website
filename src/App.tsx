@@ -81,32 +81,23 @@ function ScrollToTop() {
   return null;
 }
 
-function AdminLoadingFallback() {
+/** Lazy-route placeholder in the admin main column only — sidebar/top bar stay mounted. */
+function AdminInlinePageSkeleton() {
   const { isDark } = useAdminTheme();
 
   return (
-    <div className={`min-h-screen flex ${isDark ? 'bg-neutral-950' : 'bg-neutral-50/50'}`}>
-      {/* Sidebar skeleton */}
-      <div className={`hidden lg:flex w-[220px] xl:w-[240px] shrink-0 h-screen border-r flex-col p-4 gap-3 ${
-        isDark ? 'bg-neutral-950 border-neutral-800' : 'bg-white border-neutral-100'
-      }`}>
-        <div className="h-14 flex items-center px-1 mb-2">
-          <div className={`h-7 w-28 rounded-lg animate-pulse ${isDark ? 'bg-neutral-800' : 'bg-neutral-100'}`} />
-        </div>
-        {[44, 36, 36, 36, 44, 36, 36, 36, 36].map((w, i) => (
-          <div key={i} className={`h-8 rounded-xl animate-pulse ${isDark ? 'bg-neutral-800' : 'bg-neutral-100'}`} style={{ width: `${w * 2}px`, animationDelay: `${i * 60}ms` }} />
+    <div className="space-y-6 w-full">
+      <div className={`h-9 w-48 rounded-xl animate-pulse ${isDark ? 'bg-neutral-800' : 'bg-neutral-100'}`} />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className={`h-28 border rounded-2xl animate-pulse ${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-100'}`}
+            style={{ animationDelay: `${i * 50}ms` }}
+          />
         ))}
       </div>
-      {/* Content skeleton */}
-      <div className="flex-1 p-6 lg:p-10 space-y-6">
-        <div className={`h-9 w-48 rounded-xl animate-pulse ${isDark ? 'bg-neutral-800' : 'bg-neutral-100'}`} />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className={`h-28 border rounded-2xl animate-pulse ${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-100'}`} style={{ animationDelay: `${i * 80}ms` }} />
-          ))}
-        </div>
-        <div className={`h-64 border rounded-2xl animate-pulse ${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-100'}`} />
-      </div>
+      <div className={`h-64 border rounded-2xl animate-pulse ${isDark ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-100'}`} />
     </div>
   );
 }
@@ -251,9 +242,9 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
               element={
                 <ProtectedRoute requireAdmin>
                   <AdminThemeProvider>
-                    <Suspense fallback={<AdminLoadingFallback />}>
-                      <AdminRouteErrorBoundary resetPath={location.pathname}>
-                        <AdminLayout>
+                    <AdminRouteErrorBoundary resetPath={location.pathname}>
+                      <AdminLayout>
+                        <Suspense fallback={<AdminInlinePageSkeleton />}>
                           <Routes>
                             <Route path="dashboard" element={<AdminDashboard />} />
                             <Route path="users" element={<AdminUsers />} />
@@ -288,9 +279,9 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                             <Route path="ai" element={<AdminAi />} />
                             <Route path="*" element={<AdminDashboard />} />
                           </Routes>
-                        </AdminLayout>
-                      </AdminRouteErrorBoundary>
-                    </Suspense>
+                        </Suspense>
+                      </AdminLayout>
+                    </AdminRouteErrorBoundary>
                   </AdminThemeProvider>
                 </ProtectedRoute>
               }

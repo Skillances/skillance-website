@@ -52,6 +52,7 @@ import { AdminQueryMonitor } from '@/components/admin/AdminQueryMonitor';
 import { useAdminNavPendingBadges } from '@/hooks/useAdminNavPendingBadges';
 import { useAdminAblyQueue } from '@/hooks/useAdminAblyQueue';
 import { ADMIN_QUEUE_HINT_EVENT } from '@/lib/adminQueueEvents';
+import { prefetchAdminRouteChunks } from '@/lib/prefetchAdminRoutes';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 /** Romans 8:18 (ESV wording) shown in admin top bar tooltip */
@@ -181,6 +182,13 @@ const PLATFORM_STYLES: Record<Platform, { dot: string; chip: string }> = {
 
 // Flat list for active-check lookup
 const allMenuItems = adminMenuGroups.flatMap((g) => g.items);
+
+/** Exact path or descendant segment (`/menu/…`). Dashboard is index-only so child routes won't highlight it as parent. */
+function adminNavMatchesPath(menuPath: string, pathname: string): boolean {
+  if (pathname === menuPath) return true;
+  if (menuPath === '/admin/dashboard') return false;
+  return pathname.startsWith(`${menuPath}/`);
+}
 
 function formatNavBadgeText(n: number): string {
   if (n <= 0) return '';
@@ -485,6 +493,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     refreshKey: refreshNonce,
   });
 
+  useEffect(() => {
+    prefetchAdminRouteChunks();
+  }, []);
+
   const { connectionState: ablyConnectionState, reconnect: reconnectAbly } = useAdminAblyQueue(() => {
     void refreshNavBadges();
     window.dispatchEvent(new CustomEvent(ADMIN_QUEUE_HINT_EVENT));
@@ -513,9 +525,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const isActive = (path: string) => {
     if (path === '/admin/_/backend-scalar-docs') return false;
-    if (location.pathname === path) return true;
-    if (path !== '/admin/dashboard' && location.pathname.startsWith(path + '/')) return true;
-    return false;
+    const pathname = location.pathname;
+    if (!adminNavMatchesPath(path, pathname)) return false;
+    const overshadowedByLongerSibling = allMenuItems.some((item) => {
+      if (item.openBackendApiDocs) return false;
+      if (item.path === path) return false;
+      if (item.path.length <= path.length) return false;
+      return adminNavMatchesPath(item.path, pathname);
+    });
+    return !overshadowedByLongerSibling;
   };
 
   const toggleGroup = (label: string) => {
@@ -755,9 +773,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 bg-neutral-50/50 dark:bg-neutral-900 min-h-screen">
           <motion.div
             key={`${location.pathname}-${refreshNonce}`}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0.85, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
           >
             {children}
           </motion.div>
