@@ -72,7 +72,10 @@ interface AdminBookingDetailRecord {
   createdAt?: string;
   updatedAt?: string;
   totalPrice?: number;
+  /** Stored category id or legacy label (unchanged). */
   category?: string | null;
+  /** Resolved category name when `category` is a category UUID; else mirrored raw ref. */
+  categoryDisplayName?: string | null;
   customer?: BookingCustomer | null;
   freelancer?: BookingFreelancer | null;
 }
@@ -176,7 +179,7 @@ const AdminBookingDetail: React.FC = () => {
         },
         {
           label: 'Category',
-          value: booking.category || '--',
+          value: booking.categoryDisplayName?.trim() || booking.category || '--',
         },
         {
           label: 'Amount',
