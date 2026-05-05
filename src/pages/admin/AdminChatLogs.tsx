@@ -10,7 +10,8 @@ import { toast } from 'sonner';
 
 interface ChatRow {
   id: string;
-  bookingId: string;
+  /** Populated when a booking is linked; may be null for some live threads. */
+  bookingId: string | null;
   updatedAt: string;
   source?: 'live' | 'archived';
   migrationReason?: string | null;
@@ -19,10 +20,25 @@ interface ChatRow {
     scheduledDate: string;
     status: string;
     category: string;
-    customer?: { id: string; fullName?: string | null };
+    /**
+     * After admin API flatten: `id` is the **user** (auth) id; use `customerProfileId` for
+     * `/admin/customers/:id`.
+     */
+    customer?: {
+      id: string;
+      fullName?: string | null;
+      customerProfileId?: string;
+    };
     freelancer?: { id: string; user?: { fullName?: string | null } };
   };
   _count?: { messages: number };
+}
+
+function adminCustomerListId(row: ChatRow): string | null {
+  const c = row.booking?.customer;
+  const profileId = c?.customerProfileId?.trim();
+  if (profileId) return profileId;
+  return c?.id?.trim() ?? null;
 }
 
 const AdminChatLogs: React.FC = () => {
@@ -103,8 +119,8 @@ const AdminChatLogs: React.FC = () => {
           className="text-left text-sm text-black dark:text-white hover:underline truncate max-w-[140px]"
           onClick={(e) => {
             e.stopPropagation();
-            const id = row.booking?.customer?.id;
-            if (id) navigate(`/admin/customers/${id}`);
+            const customerId = adminCustomerListId(row);
+            if (customerId) navigate(`/admin/customers/${customerId}`);
           }}
         >
           {row.booking?.customer?.fullName || '--'}
@@ -164,10 +180,14 @@ const AdminChatLogs: React.FC = () => {
         emptyTitle="No booking chats"
         emptyDescription="Live chats appear after bookings are accepted. Completed bookings may show as archived history."
         onRowClick={(row) => {
-          const customerUserId = row.booking?.customer?.id;
-          if (customerUserId) {
-            navigate(`/admin/customers/${customerUserId}?expandBooking=${row.bookingId}`);
+          const bid = row.bookingId ?? row.booking?.id;
+          if (bid) {
+            navigate(`/admin/bookings/${bid}`);
+            return;
           }
+          toast.message('Open a booking to view transcripts', {
+            description: 'This thread is not tied to a booking row yet.',
+          });
         }}
       />
       {totalPages > 1 && (
