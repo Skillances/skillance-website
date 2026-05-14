@@ -13,6 +13,8 @@ interface ChatMessage {
   detectedTypes?: string[];
   type: string;
   createdAt: string;
+  /** Audit tag when present; may differ from panel booking for older messages. */
+  bookingId?: string | null;
 }
 
 function adminVisibleText(m: ChatMessage): { primary: string; shownToUsers?: string; moderated: boolean; types?: string[] } {
@@ -189,6 +191,14 @@ const AdminBookingChatPanel: React.FC<AdminBookingChatPanelProps> = ({
                 <span className="text-neutral-400 dark:text-neutral-500 mx-1.5">
                   {new Date(m.createdAt).toLocaleString()}
                 </span>
+                {m.bookingId && m.bookingId !== bookingId ? (
+                  <span
+                    className="text-[10px] text-neutral-400 dark:text-neutral-500 font-mono"
+                    title="Message stored with a different booking tag than this panel (legacy or rare edge). New sends use one tag per pair."
+                  >
+                    tag {m.bookingId.slice(0, 8)}…
+                  </span>
+                ) : null}
                 {moderated && (
                   <span className="text-amber-700 dark:text-amber-300 text-[10px] font-medium ml-1">Moderated</span>
                 )}
