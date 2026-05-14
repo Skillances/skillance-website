@@ -17,6 +17,7 @@ import {
   bookingDevAdvanceAllowedForStatus,
   fetchBookingDevToolsStatus,
 } from '@/lib/adminBookingDevTools';
+import { formatBookingScheduledDisplay } from '@/lib/bookingScheduleDisplay';
 
 const viteShowBookingDevTools = import.meta.env.VITE_SHOW_BOOKING_DEV_TOOLS === 'true';
 
@@ -170,12 +171,7 @@ const AdminBookingDetail: React.FC = () => {
         },
         {
           label: 'Scheduled',
-          value: (
-            <span>
-              {formatDateTime(booking.scheduledDate)}
-              {booking.scheduledTime ? ` (${booking.scheduledTime})` : ''}
-            </span>
-          ),
+          value: formatBookingScheduledDisplay(booking.scheduledDate, booking.scheduledTime),
         },
         {
           label: 'Category',

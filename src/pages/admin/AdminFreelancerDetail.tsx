@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from 'sonner';
 import AdminBookingChatPanel from '@/components/admin/AdminBookingChatPanel';
 import { useAdminBackNavigation } from '@/hooks/useAdminBackNavigation';
+import { formatUtcCalendarDate, utcTimeStringToSast } from '@/lib/bookingScheduleDisplay';
 import { resolveCategoryLabel } from '@/lib/utils';
 
 const bookingStatusMap: Record<string, string> = {
@@ -430,7 +431,7 @@ const AdminFreelancerDetail: React.FC = () => {
                             <td className="px-6 py-3 whitespace-nowrap">
                               <div className="flex items-center gap-2">
                                 {isExpanded ? <ChevronDown className="h-3.5 w-3.5 text-neutral-400 shrink-0" /> : <ChevronRight className="h-3.5 w-3.5 text-neutral-400 shrink-0" />}
-                                <span className="text-neutral-600 dark:text-neutral-300">{new Date(b.scheduledDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                <span className="text-neutral-600 dark:text-neutral-300">{formatUtcCalendarDate(b.scheduledDate)}</span>
                               </div>
                             </td>
                             <td className="px-4 py-3">
@@ -451,7 +452,7 @@ const AdminFreelancerDetail: React.FC = () => {
                             <tr className="bg-neutral-50/80 dark:bg-neutral-800/30">
                               <td colSpan={5} className="px-6 py-4">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                                  <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Time</span><span className="text-black dark:text-white">{b.scheduledTime || '--'}</span></div>
+                                  <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Time (SAST)</span><span className="text-black dark:text-white">{b.scheduledTime ? utcTimeStringToSast(String(b.scheduledTime)) : '--'}</span></div>
                                   <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Duration</span><span className="text-black dark:text-white">{b.durationMinutes ? `${b.durationMinutes} min` : '--'}</span></div>
                                   <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Address</span><span className="text-black dark:text-white truncate block">{b.address || '--'}</span></div>
                                   <div><span className="text-neutral-400 dark:text-neutral-500 block mb-0.5">Payment</span><span className="text-black dark:text-white">{b.paymentStatus || '--'}</span></div>

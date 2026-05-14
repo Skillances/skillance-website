@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import PageHeader from '@/components/admin/PageHeader';
 import DataTable, { type Column } from '@/components/admin/DataTable';
 import { toast } from 'sonner';
+import { formatUtcCalendarDate } from '@/lib/bookingScheduleDisplay';
 
 interface ChatRow {
   id: string;
@@ -99,13 +100,7 @@ const AdminChatLogs: React.FC = () => {
       header: 'Booking',
       render: (row) => (
         <span className="text-xs text-black dark:text-white">
-          {row.booking
-            ? new Date(row.booking.scheduledDate).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })
-            : '--'}
+          {row.booking ? formatUtcCalendarDate(row.booking.scheduledDate) : '--'}
           <span className="text-neutral-400 ml-1">({row.booking?.status || '--'})</span>
         </span>
       ),

@@ -8,6 +8,7 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { ArrowLeft } from 'lucide-react';
+import { formatUtcCalendarDate } from '@/lib/bookingScheduleDisplay';
 
 type LedgerBucketFilter = 'all' | 'paid_out' | 'in_dispute' | 'needs_payout' | 'refund_due';
 
@@ -208,7 +209,7 @@ const AdminFinancePayoutLedger: React.FC = () => {
         render: (row) => (
           <div className="space-y-0.5 font-mono text-xs">
             <div className="text-neutral-900 dark:text-neutral-100">{row.bookingId.slice(0, 8)}...</div>
-            <div className="text-neutral-500 text-[11px]">{formatTs(row.scheduledDate)} scheduled</div>
+            <div className="text-neutral-500 text-[11px]">{formatUtcCalendarDate(row.scheduledDate)} scheduled</div>
           </div>
         ),
       },
