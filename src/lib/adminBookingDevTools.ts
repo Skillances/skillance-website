@@ -30,6 +30,27 @@ export async function advanceBookingSessionForDev(
   return data;
 }
 
+export interface AdvanceCompletedBookingForDevResponse {
+  bookingId: string;
+  status: string;
+  completedAt: string;
+  feedbackDeadlineIso: string;
+  removedFreelancerRating: boolean;
+  removedCustomerRating: boolean;
+  removedFreelancerTextReview: boolean;
+}
+
+export async function advanceCompletedBookingForDev(
+  bookingId: string,
+): Promise<AdvanceCompletedBookingForDevResponse> {
+  const res = await post(ApiPaths.admin.bookingAdvanceCompletedDev(bookingId), {});
+  const data = (res as { data?: AdvanceCompletedBookingForDevResponse }).data;
+  if (!data?.bookingId || !data.feedbackDeadlineIso) {
+    throw new Error('Invalid advance-completed response');
+  }
+  return data;
+}
+
 /** Normalizes booking status from the API (e.g. `IN_PROGRESS` -> `inprogress`). */
 export function normalizeBookingStatusKey(status: string | undefined): string {
   return (status ?? '').toLowerCase().replace(/_/g, '');
@@ -41,4 +62,11 @@ export function normalizeBookingStatusKey(status: string | undefined): string {
  */
 export function bookingDevAdvanceAllowedForStatus(status: string | undefined): boolean {
   return normalizeBookingStatusKey(status) === 'confirmed';
+}
+
+/**
+ * Dev-only: reset feedback window and remove per-booking ratings / written review for testing.
+ */
+export function bookingDevAdvanceCompletedAllowedForStatus(status: string | undefined): boolean {
+  return normalizeBookingStatusKey(status) === 'completed';
 }

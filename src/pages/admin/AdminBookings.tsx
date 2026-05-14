@@ -12,8 +12,10 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   advanceBookingSessionForDev,
+  advanceCompletedBookingForDev,
   fetchBookingDevToolsStatus,
   bookingDevAdvanceAllowedForStatus,
+  bookingDevAdvanceCompletedAllowedForStatus,
 } from '@/lib/adminBookingDevTools';
 import { formatBookingScheduledDisplay } from '@/lib/bookingScheduleDisplay';
 
@@ -226,6 +228,34 @@ const AdminBookings: React.FC = () => {
     [fetchBookings],
   );
 
+  const handleAdvanceCompletedDev = useCallback(
+    async (e: React.MouseEvent, booking: BookingItem) => {
+      e.stopPropagation();
+      try {
+        setAdvancingBookingId(booking.id);
+        const data = await advanceCompletedBookingForDev(booking.id);
+        const deadline = new Date(data.feedbackDeadlineIso);
+        const label = Number.isNaN(deadline.getTime())
+          ? data.feedbackDeadlineIso
+          : deadline.toLocaleString();
+        toast.success(`Feedback window reset. Submit feedback by ${label}.`);
+        await fetchBookings();
+      } catch (err: unknown) {
+        const o = err && typeof err === 'object' ? (err as Record<string, unknown>) : {};
+        const msg =
+          typeof o.message === 'string'
+            ? o.message
+            : typeof o.error === 'string'
+              ? o.error
+              : 'Reset feedback failed';
+        toast.error(msg);
+      } finally {
+        setAdvancingBookingId(null);
+      }
+    },
+    [fetchBookings],
+  );
+
   const filters: FilterConfig[] = [
     {
       key: 'status',
@@ -339,15 +369,33 @@ const AdminBookings: React.FC = () => {
     if (!showBookingDevActions) {
       return base;
     }
-    const canAdvanceStatus = (status: string) => bookingDevAdvanceAllowedForStatus(status);
+    const canAdvanceSession = (status: string) => bookingDevAdvanceAllowedForStatus(status);
+    const canAdvanceCompleted = (status: string) => bookingDevAdvanceCompletedAllowedForStatus(status);
     base.push({
       key: 'devAdvance',
       header: 'Dev',
       render: (booking) => {
-        if (!canAdvanceStatus(booking.status)) {
+        const session = canAdvanceSession(booking.status);
+        const completed = canAdvanceCompleted(booking.status);
+        if (!session && !completed) {
           return <span className="text-neutral-400 dark:text-neutral-500 text-xs">--</span>;
         }
         const busy = advancingBookingId === booking.id;
+        if (session) {
+          return (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs"
+              disabled={busy}
+              title="Advance to in-progress with PIN window open (testing only; requires ALLOW_BOOKING_DEV_TOOLS on API)"
+              onClick={(ev) => void handleAdvanceSessionDev(ev, booking)}
+            >
+              {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Advance session'}
+            </Button>
+          );
+        }
         return (
           <Button
             type="button"
@@ -355,16 +403,16 @@ const AdminBookings: React.FC = () => {
             size="sm"
             className="h-8 text-xs"
             disabled={busy}
-            title="Advance to in-progress with PIN window open (testing only; requires ALLOW_BOOKING_DEV_TOOLS on API)"
-            onClick={(ev) => void handleAdvanceSessionDev(ev, booking)}
+            title="Reset completedAt, clear per-booking ratings/review, reopen 24h feedback window (dev only)"
+            onClick={(ev) => void handleAdvanceCompletedDev(ev, booking)}
           >
-            {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Advance session'}
+            {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Reset feedback'}
           </Button>
         );
       },
     });
     return base;
-  }, [showBookingDevActions, advancingBookingId, handleAdvanceSessionDev]);
+  }, [showBookingDevActions, advancingBookingId, handleAdvanceSessionDev, handleAdvanceCompletedDev]);
 
   const statsCards = stats ? [
     { title: 'Total Bookings', value: String(stats.total ?? 0), icon: CalendarDays, color: '#171717' },

@@ -14,7 +14,9 @@ import AdminBookingChatPanel from '@/components/admin/AdminBookingChatPanel';
 import { useAdminBackNavigation } from '@/hooks/useAdminBackNavigation';
 import {
   advanceBookingSessionForDev,
+  advanceCompletedBookingForDev,
   bookingDevAdvanceAllowedForStatus,
+  bookingDevAdvanceCompletedAllowedForStatus,
   fetchBookingDevToolsStatus,
 } from '@/lib/adminBookingDevTools';
 import { formatBookingScheduledDisplay } from '@/lib/bookingScheduleDisplay';
@@ -97,7 +99,8 @@ const AdminBookingDetail: React.FC = () => {
   const [devApiEnabled, setDevApiEnabled] = useState(false);
 
   const showDevAdvance = viteShowBookingDevTools || devApiEnabled;
-  const canAdvanceDev = booking && bookingDevAdvanceAllowedForStatus(booking.status);
+  const canAdvanceSession = Boolean(booking && bookingDevAdvanceAllowedForStatus(booking.status));
+  const canAdvanceCompleted = Boolean(booking && bookingDevAdvanceCompletedAllowedForStatus(booking.status));
 
   const loadBooking = useCallback(async () => {
     if (!bookingId) return;
@@ -151,6 +154,31 @@ const AdminBookingDetail: React.FC = () => {
           : typeof o.error === 'string'
             ? o.error
             : 'Advance session failed';
+      toast.error(msg);
+    } finally {
+      setAdvancing(false);
+    }
+  };
+
+  const handleAdvanceCompletedDev = async () => {
+    if (!bookingId || !booking) return;
+    try {
+      setAdvancing(true);
+      const data = await advanceCompletedBookingForDev(bookingId);
+      const deadline = new Date(data.feedbackDeadlineIso);
+      const label = Number.isNaN(deadline.getTime())
+        ? data.feedbackDeadlineIso
+        : deadline.toLocaleString();
+      toast.success(`Feedback window reset. Submit feedback by ${label}.`);
+      await loadBooking();
+    } catch (err: unknown) {
+      const o = err && typeof err === 'object' ? (err as Record<string, unknown>) : {};
+      const msg =
+        typeof o.message === 'string'
+          ? o.message
+          : typeof o.error === 'string'
+            ? o.error
+            : 'Reset feedback failed';
       toast.error(msg);
     } finally {
       setAdvancing(false);
@@ -263,20 +291,38 @@ const AdminBookingDetail: React.FC = () => {
             description="Session context, related profiles, and booking-scoped chat (live or archived after completion)."
           />
         </div>
-        {showDevAdvance && canAdvanceDev && bookingId && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="shrink-0 h-9"
-            disabled={advancing}
-            title="Dev only: move confirmed booking to in-progress with PIN window (requires ALLOW_BOOKING_DEV_TOOLS on API)"
-            onClick={() => void handleAdvanceDev()}
-          >
-            {advancing ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" /> : null}
-            Advance session (dev)
-          </Button>
-        )}
+        {showDevAdvance && bookingId && (canAdvanceSession || canAdvanceCompleted) ? (
+          <div className="flex flex-wrap gap-2 shrink-0 justify-end">
+            {canAdvanceSession ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="shrink-0 h-9"
+                disabled={advancing}
+                title="Dev only: move confirmed booking to in-progress with PIN window (requires ALLOW_BOOKING_DEV_TOOLS on API)"
+                onClick={() => void handleAdvanceDev()}
+              >
+                {advancing ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" /> : null}
+                Advance session (dev)
+              </Button>
+            ) : null}
+            {canAdvanceCompleted ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="shrink-0 h-9"
+                disabled={advancing}
+                title="Dev only: reset completedAt, clear ratings/review for this booking, reopen 24h feedback window"
+                onClick={() => void handleAdvanceCompletedDev()}
+              >
+                {advancing ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" /> : null}
+                Reset feedback (dev)
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       {loading && (

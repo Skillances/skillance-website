@@ -93,6 +93,8 @@ export const ApiPaths = {
     bookingDevToolsStatus: '/admin/dev/booking-tools-status',
     bookingAdvanceSessionDev: (bookingId: string) =>
       `/admin/bookings/${bookingId}/dev/advance-session`,
+    bookingAdvanceCompletedDev: (bookingId: string) =>
+      `/admin/bookings/${bookingId}/dev/advance-completed`,
 
     roleApplications: '/admin/role-applications',
     roleApplicationApprove: (id: string) => `/admin/role-applications/${id}/approve`,
