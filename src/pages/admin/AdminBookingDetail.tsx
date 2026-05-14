@@ -45,12 +45,19 @@ const formatDateTime = (input?: string | null) => {
 };
 
 const formatMoney = (amount?: unknown) => {
-  if (typeof amount !== 'number') return '--';
+  if (amount == null || amount === '') return '--';
+  const n =
+      typeof amount === 'number'
+          ? amount
+          : typeof amount === 'string'
+              ? Number.parseFloat(amount)
+              : Number(amount);
+  if (!Number.isFinite(n)) return '--';
   return new Intl.NumberFormat('en-ZA', {
     style: 'currency',
     currency: 'ZAR',
     maximumFractionDigits: 2,
-  }).format(amount);
+  }).format(n);
 };
 
 type BookingCustomer = {
