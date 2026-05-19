@@ -7,6 +7,7 @@ import Services from '../components/sections/Services';
 import HowItWorks from '../components/sections/HowItWorks';
 import TrustSafety from '../components/sections/TrustSafety';
 import Stats from '../components/sections/Stats';
+import MarketplaceSection, { MarketplaceDivider } from '../components/sections/MarketplaceSection';
 import Testimonials from '../components/sections/Testimonials';
 import FAQ from '../components/sections/FAQ';
 import Reviews from '../components/sections/Reviews';
@@ -113,6 +114,8 @@ const Home = () => {
       <Services />
       <TrustSafety />
       <Stats />
+      <MarketplaceDivider />
+      <MarketplaceSection />
       <Testimonials />
       <FAQ />
       <Reviews />
