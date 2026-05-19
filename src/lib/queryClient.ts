@@ -6,7 +6,7 @@ export function createQueryClient(): QueryClient {
       queries: {
         staleTime: 30_000,
         gcTime: 5 * 60_000,
-        retry: (failureCount, error) => {
+        retry: (failureCount: number, error: unknown) => {
           if (failureCount >= 2) return false;
           const msg =
             error instanceof Error

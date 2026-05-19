@@ -4,10 +4,17 @@ import PageTemplate from '../components/layout/PageTemplate';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight, Search, X, ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
-import { fetchServiceCategories } from '@/lib/serviceCategories';
+import {
+  fetchServiceCategories,
+  type ServiceCategoryItem,
+} from '@/lib/serviceCategories';
 import { queryKeys } from '@/lib/queryKeys';
 import { SpecializationTreeList } from '@/components/SpecializationTreeList';
 import { Skeleton } from '@/components/ui/skeleton';
+
+type ServiceCategoryWithMatches = ServiceCategoryItem & {
+  matchedSpecializations: string[];
+};
 
 const ServicesPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -21,7 +28,7 @@ const ServicesPage = () => {
     isPending,
     isError,
     refetch,
-  } = useQuery({
+  } = useQuery<ServiceCategoryItem[]>({
     queryKey: queryKeys.serviceCategories.items(),
     queryFn: fetchServiceCategories,
   });
@@ -35,11 +42,11 @@ const ServicesPage = () => {
     });
   };
 
-  const filteredCategories = useMemo(() => {
+  const filteredCategories = useMemo((): ServiceCategoryWithMatches[] => {
     if (!deferredSearchQuery.trim()) {
-      return allCategories.map(cat => ({
+      return allCategories.map((cat: ServiceCategoryItem) => ({
         ...cat,
-        matchedSpecializations: [] as string[]
+        matchedSpecializations: [] as string[],
       }));
     }
 
@@ -147,7 +154,7 @@ const ServicesPage = () => {
       'pro': ['professional', 'expert', 'specialist'],
     };
 
-    return allCategories.map(cat => {
+    return allCategories.map((cat: ServiceCategoryItem) => {
       const categoryName = cat.name.toLowerCase();
       const categoryDesc = cat.description.toLowerCase();
       const allText = `${categoryName} ${categoryDesc}`;
@@ -162,7 +169,7 @@ const ServicesPage = () => {
       if (categoryMatches) {
         matchedSpecializations.push(...cat.subcategories.slice(0, 3));
       } else {
-        cat.subcategories.forEach(sub => {
+        cat.subcategories.forEach((sub: string) => {
           const subName = sub.toLowerCase();
           const matches = queryWords.some(word => {
             if (subName.includes(word)) return true;
@@ -179,7 +186,7 @@ const ServicesPage = () => {
         ...cat,
         matchedSpecializations: matchedSpecializations.slice(0, 3)
       };
-    }).filter(cat => cat.matchedSpecializations.length > 0 || queryWords.some(word => {
+    }).filter((cat: ServiceCategoryWithMatches) => cat.matchedSpecializations.length > 0 || queryWords.some(word => {
       const catText = `${cat.name.toLowerCase()} ${cat.description.toLowerCase()}`;
       if (catText.includes(word)) return true;
       const synonymsList = synonyms[word] || [];
@@ -268,7 +275,7 @@ const ServicesPage = () => {
               ))
             ) : (
               <>
-            {filteredCategories.map((category) => (
+            {filteredCategories.map((category: ServiceCategoryWithMatches) => (
               <div
                 key={category.id}
                 className="service-item group relative bg-neutral-50 rounded-[2.5rem] overflow-hidden hover:bg-neutral-100 transition-colors duration-500 flex flex-col"
@@ -301,7 +308,7 @@ const ServicesPage = () => {
                     <div className="mb-3 pb-3 border-b border-neutral-100">
                       <p className="text-[9px] uppercase tracking-[0.1em] text-neutral-400 font-semibold mb-1">Matched:</p>
                       <div className="flex flex-wrap gap-1">
-                        {category.matchedSpecializations.map((spec) => (
+                        {category.matchedSpecializations.map((spec: string) => (
                           <span key={spec} className="text-[9px] bg-black text-white px-2 py-0.5 rounded-full">
                             {spec}
                           </span>
@@ -355,7 +362,7 @@ const ServicesPage = () => {
               ))
             ) : (
               <>
-            {allCategories.map((category) => {
+            {allCategories.map((category: ServiceCategoryItem) => {
               const subcategories = category.subcategories;
               const specTree = category.specializationTree;
               const isExpanded = expandedIds.has(category.id);
@@ -425,7 +432,7 @@ const ServicesPage = () => {
                             <SpecializationTreeList nodes={specTree} />
                           ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 pb-2">
-                              {subcategories.map((sub) => (
+                              {subcategories.map((sub: string) => (
                                 <div
                                   key={sub}
                                   className="flex items-center gap-2 py-2 px-3 rounded-xl bg-neutral-50 hover:bg-neutral-100 transition-colors"

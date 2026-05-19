@@ -1,9 +1,18 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+  type ComponentProps,
+  type ComponentType,
+} from 'react';
 import { useIsFetching } from '@tanstack/react-query';
+import type { ReactQueryDevtools as ReactQueryDevtoolsComponent } from '@tanstack/react-query-devtools';
 
-const ReactQueryDevtools = lazy(() =>
-  import('@tanstack/react-query-devtools').then((d) => ({ default: d.ReactQueryDevtools })),
-);
+const ReactQueryDevtools = lazy(async () => {
+  const mod = await import('@tanstack/react-query-devtools');
+  return { default: mod.ReactQueryDevtools };
+}) as ComponentType<ComponentProps<typeof ReactQueryDevtoolsComponent>>;
 
 const SLOW_FETCH_MS = 6000;
 

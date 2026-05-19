@@ -2,7 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Ably, {
   type ConnectionState,
   type ConnectionStateChange,
+  type ErrorInfo,
   type Message,
+  type TokenParams,
   type TokenRequest,
 } from 'ably';
 import { apiRequest } from '@/lib/api';
@@ -39,7 +41,13 @@ export function useAdminAblyQueue(
     adminRealtimeLog('hook_start', { channel: ADMIN_QUEUE_CHANNEL, reconnectNonce });
 
     const realtime = new Ably.Realtime({
-      authCallback: async (_tokenParams, callback) => {
+      authCallback: async (
+        _tokenParams: TokenParams,
+        callback: (
+          error: ErrorInfo | string | null,
+          tokenRequestOrDetails: TokenRequest | string | null,
+        ) => void,
+      ) => {
         try {
           const res = await apiRequest(
             ApiPaths.realtime.ablyAuth,
