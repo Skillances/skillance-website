@@ -5,7 +5,7 @@
 ## At a glance
 
 - Country: South Africa (all major metros — Johannesburg, Pretoria, Cape Town, Durban, Port Elizabeth/Gqeberha, Bloemfontein, East London, and surrounding areas).
-- Legal entity: RIMITSO MANAGEMENT SERVICES (PTY) LTD, trading as Skillance.
+- Legal entity: RIMITSO MANAGEMENT SERVICES (PTY) LTD, trading as Skillance. Registered office: 6 DWARS STREET, KRUGERSDORP, KRUGERSDORP, GAUTENG, 1739.
 - Website: https://skillance.co.za
 - App: available on iOS App Store and Google Play (search "Skillance").
 - Service fee: 8–9% including VAT on confirmed bookings; shown line-by-line at checkout.
@@ -94,6 +94,7 @@ Plain-text markdown versions of the main pages are available at `/{page}.md`. Th
 
 ## Contact
 
+- Registered office: 6 DWARS STREET, KRUGERSDORP, KRUGERSDORP, GAUTENG, 1739 (RIMITSO MANAGEMENT SERVICES (PTY) LTD)
 - Customer & freelancer support: support@skillance.co.za
 - General / press / partnerships / investment: services@skillance.co.za
 - Fraud reports: fraud@skillance.co.za

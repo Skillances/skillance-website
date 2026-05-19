@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import PageTemplate from '../../components/layout/PageTemplate';
+import { CorporateLegalAddressInline } from '../../components/corporate/CorporateLegalAddress';
 
 const RefundPolicy = () => {
   return (
@@ -12,7 +13,8 @@ const RefundPolicy = () => {
             <Link to="/terms" className="text-black underline underline-offset-4 hover:no-underline">Terms of Service</Link>{' '}
             and applies to bookings made through Skillance. Skillance is{' '}
             <strong className="text-black">owned by and part of RIMITSO MANAGEMENT SERVICES (PTY) LTD</strong> (Rimitso
-            Management Services). All amounts are in South African
+            Management Services). Registered office:{' '}
+            <CorporateLegalAddressInline className="text-black" />. All amounts are in South African
             Rand (ZAR) and inclusive of VAT where applicable.
           </p>
         </div>
@@ -187,7 +189,8 @@ const RefundPolicy = () => {
         <section className="space-y-3">
           <h2 className="text-2xl font-serif text-black mb-2">12. Contact</h2>
           <p className="leading-relaxed">
-            For refund and dispute enquiries:{' '}
+            RIMITSO MANAGEMENT SERVICES (PTY) LTD. Registered office:{' '}
+            <CorporateLegalAddressInline className="text-black" />. For refund and dispute enquiries:{' '}
             <a href="mailto:services@skillance.co.za" className="text-black underline underline-offset-4 hover:no-underline">
               services@skillance.co.za
             </a>{' '}

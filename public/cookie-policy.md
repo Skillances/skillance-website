@@ -17,7 +17,7 @@ This page is for transparency and operational clarity. It does not constitute le
 
 ## 2. Responsible party
 
-The operator responsible for this site is **RIMITSO MANAGEMENT SERVICES (PTY) LTD**. The Skillance brand and site are **owned by and part of** Rimitso Management Services. For privacy and cookie-related questions, contact services@skillance.co.za.
+The operator responsible for this site is **RIMITSO MANAGEMENT SERVICES (PTY) LTD**. The Skillance brand and site are **owned by and part of** Rimitso Management Services. **Registered office:** 6 DWARS STREET, KRUGERSDORP, KRUGERSDORP, GAUTENG, 1739. For privacy and cookie-related questions, contact services@skillance.co.za.
 
 ## 3. What we mean by cookies and similar technologies
 

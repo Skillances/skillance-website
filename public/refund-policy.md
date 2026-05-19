@@ -5,7 +5,7 @@
 Canonical page: https://skillance.co.za/refund-policy
 Last updated: 19 April 2026
 
-This Refund Policy forms part of our Terms of Service (https://skillance.co.za/terms) and applies to bookings made through Skillance. **Skillance is owned by and part of** **RIMITSO MANAGEMENT SERVICES (PTY) LTD** (Rimitso Management Services). All amounts are in South African Rand (ZAR) and inclusive of VAT where applicable.
+This Refund Policy forms part of our Terms of Service (https://skillance.co.za/terms) and applies to bookings made through Skillance. **Skillance is owned by and part of** **RIMITSO MANAGEMENT SERVICES (PTY) LTD** (Rimitso Management Services). **Registered office:** 6 DWARS STREET, KRUGERSDORP, KRUGERSDORP, GAUTENG, 1739. All amounts are in South African Rand (ZAR) and inclusive of VAT where applicable.
 
 ---
 
@@ -82,6 +82,8 @@ Skillance bookings and the R50 connection fee are processed through our payment 
 Refund and dispute processes may be refused or reversed where we have reasonable grounds to suspect fraud, chargeback abuse, collusion, or attempts to avoid platform fees. We may withhold payouts, freeze escrow, suspend accounts, and cooperate with payment providers and law enforcement as appropriate.
 
 ## 12. Contact
+
+RIMITSO MANAGEMENT SERVICES (PTY) LTD. Registered office: 6 DWARS STREET, KRUGERSDORP, KRUGERSDORP, GAUTENG, 1739.
 
 For refund and dispute enquiries:
 - Email: services@skillance.co.za

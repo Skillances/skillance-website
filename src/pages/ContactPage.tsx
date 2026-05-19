@@ -7,6 +7,7 @@ import { Send, MapPin, Mail, Phone } from 'lucide-react';
 import { post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { useFormRateLimit } from '@/hooks/useFormRateLimit';
+import { CorporateLegalAddress } from '../components/corporate/CorporateLegalAddress';
 
 const ContactPage = () => {
   const [searchParams] = useSearchParams();
@@ -180,8 +181,11 @@ const ContactPage = () => {
                 <MapPin className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-serif text-xl text-black mb-1">Our Studio</h4>
-                <p className="text-neutral-500 font-light">Centurion, Gauteng <br />South Africa </p>
+                <h4 className="font-serif text-xl text-black mb-1">Registered office</h4>
+                <CorporateLegalAddress
+                  showCompanyName
+                  className="text-neutral-500 font-light"
+                />
               </div>
             </div>
 

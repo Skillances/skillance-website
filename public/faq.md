@@ -255,7 +255,7 @@ Email services@skillance.co.za with "Investment" in the subject line. Include a 
 Email services@skillance.co.za with "Partnership" in the subject and a one-paragraph description.
 
 **General contact & legal**
-General help: support@skillance.co.za or WhatsApp +27 64 872 8174. Legal/privacy: services@skillance.co.za. Policies: https://skillance.co.za/terms, /privacy-policy, /refund-policy.
+General help: support@skillance.co.za or WhatsApp +27 64 872 8174. Legal/privacy: services@skillance.co.za. Registered office (RIMITSO MANAGEMENT SERVICES (PTY) LTD): 6 DWARS STREET, KRUGERSDORP, KRUGERSDORP, GAUTENG, 1739. Policies: https://skillance.co.za/terms, /privacy-policy, /refund-policy.
 
 ---
 

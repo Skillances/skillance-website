@@ -13,6 +13,8 @@ This Privacy Policy explains how personal information is processed through the S
 
 The responsible party under the Protection of Personal Information Act, 2013 ("POPIA") is **RIMITSO MANAGEMENT SERVICES (PTY) LTD** (Rimitso Management Services). The Skillance platform and brand are **owned by and part of** Rimitso. Rimitso trades as Skillance and is a company registered in the Republic of South Africa.
 
+**Registered office:** 6 DWARS STREET, KRUGERSDORP, KRUGERSDORP, GAUTENG, 1739.
+
 For privacy queries, to exercise POPIA rights, or to contact our information officer, email services@skillance.co.za or WhatsApp +27 64 872 8174.
 
 ## 2. Scope
@@ -116,7 +118,7 @@ We may update this policy to reflect changes to the Platform, our practices, or 
 
 ## 15. Contact
 
-RIMITSO MANAGEMENT SERVICES (PTY) LTD. Skillance is owned by and part of Rimitso Management Services.
+RIMITSO MANAGEMENT SERVICES (PTY) LTD. Skillance is owned by and part of Rimitso Management Services. Registered office: 6 DWARS STREET, KRUGERSDORP, KRUGERSDORP, GAUTENG, 1739.
 - Email: services@skillance.co.za
 - WhatsApp: +27 64 872 8174
 

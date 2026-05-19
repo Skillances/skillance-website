@@ -1,6 +1,9 @@
 import { Facebook, Instagram, Linkedin } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { CORPORATE_OWNERSHIP_SENTENCE } from '../../constants/corporate';
+import {
+  CORPORATE_LEGAL_ADDRESS_ONE_LINE,
+  CORPORATE_OWNERSHIP_SENTENCE,
+} from '../../constants/corporate';
 
 const Footer = () => {
   const location = useLocation();
@@ -143,14 +146,19 @@ const Footer = () => {
             © {new Date().getFullYear()} Skillance. All rights reserved.
           </p>
           <div className="flex flex-col items-center md:items-end gap-3 text-center md:text-right">
-            <a
-              href="https://bizportal.gov.za/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-neutral-400 hover:text-white transition-colors max-w-md leading-snug"
-            >
-              {CORPORATE_OWNERSHIP_SENTENCE}
-            </a>
+            <div className="text-sm text-neutral-400 max-w-md leading-snug space-y-1">
+              <a
+                href="https://bizportal.gov.za/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors block"
+              >
+                {CORPORATE_OWNERSHIP_SENTENCE}
+              </a>
+              <p className="text-neutral-500">
+                Registered office: {CORPORATE_LEGAL_ADDRESS_ONE_LINE}
+              </p>
+            </div>
             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
               <a
                 href="https://wa.me/27648728174"

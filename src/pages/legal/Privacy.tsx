@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import PageTemplate from '../../components/layout/PageTemplate';
+import { CorporateLegalAddressInline } from '../../components/corporate/CorporateLegalAddress';
 
 const Privacy = () => {
   return (
@@ -23,6 +24,9 @@ const Privacy = () => {
             <strong className="text-black">RIMITSO MANAGEMENT SERVICES (PTY) LTD</strong> (Rimitso Management Services).
             Skillance is <strong className="text-black">owned by and part of</strong> Rimitso. Rimitso trades as Skillance
             and is a company registered in the Republic of South Africa.
+          </p>
+          <p className="leading-relaxed">
+            Registered office: <CorporateLegalAddressInline className="text-black" />.
           </p>
           <p className="leading-relaxed">
             For privacy queries, to exercise POPIA rights, or to contact our information officer, email{' '}
@@ -288,7 +292,8 @@ const Privacy = () => {
         <section className="space-y-3">
           <h2 className="text-2xl font-serif text-black mb-2">15. Contact</h2>
           <p className="leading-relaxed">
-            RIMITSO MANAGEMENT SERVICES (PTY) LTD. Skillance is owned by and part of Rimitso Management Services. Email{' '}
+            RIMITSO MANAGEMENT SERVICES (PTY) LTD. Skillance is owned by and part of Rimitso Management Services.
+            Registered office: <CorporateLegalAddressInline className="text-black" />. Email{' '}
             <a href="mailto:services@skillance.co.za" className="text-black underline underline-offset-4 hover:no-underline">
               services@skillance.co.za
             </a>{' '}

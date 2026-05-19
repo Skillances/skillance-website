@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import PageTemplate from '../../components/layout/PageTemplate';
+import { CorporateLegalAddressInline } from '../../components/corporate/CorporateLegalAddress';
 import { COOKIE_POLICY_VERSION } from '@/constants/cookieConsent';
 
 const CookiePolicy = () => {
@@ -42,7 +43,8 @@ const CookiePolicy = () => {
           <h2 className="text-2xl font-serif text-black mb-2">2. Responsible party</h2>
           <p className="leading-relaxed">
             The operator responsible for this site is <strong className="text-black">RIMITSO MANAGEMENT SERVICES (PTY) LTD</strong>
-            . Skillance is <strong className="text-black">owned by and part of</strong> Rimitso Management Services. For
+            . Skillance is <strong className="text-black">owned by and part of</strong> Rimitso Management Services.
+            Registered office: <CorporateLegalAddressInline className="text-black" />. For
             privacy and cookie-related questions, contact us at{' '}
             <a href="mailto:services@skillance.co.za" className="text-black underline underline-offset-4 hover:no-underline">
               services@skillance.co.za

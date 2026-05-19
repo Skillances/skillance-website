@@ -732,7 +732,7 @@ export const PUBLIC_FAQ: FaqNode = {
           label: 'General contact & legal',
           kind: 'leaf',
           answer:
-            'General help: support@skillance.co.za or WhatsApp +27 64 872 8174. Legal/privacy: services@skillance.co.za. Policies: skillance.co.za/terms, /privacy-policy, /refund-policy.',
+            'General help: support@skillance.co.za or WhatsApp +27 64 872 8174. Legal/privacy: services@skillance.co.za. Registered office (RIMITSO MANAGEMENT SERVICES (PTY) LTD): 6 DWARS STREET, KRUGERSDORP, KRUGERSDORP, GAUTENG, 1739. Policies: skillance.co.za/terms, /privacy-policy, /refund-policy.',
         },
       ],
     },
