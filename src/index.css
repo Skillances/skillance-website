@@ -6,6 +6,7 @@
 
 @layer base {
   :root {
+    --section-scroll-margin: 136px;
     --background: 0 0% 100%;
     --foreground: 0 0% 8%;
     --card: 0 0% 100%;
@@ -35,6 +36,11 @@
   }
   html {
     scroll-behavior: initial;
+  }
+
+  main section[id],
+  main .section-scroll-anchor {
+    scroll-margin-top: var(--section-scroll-margin);
   }
   
   html.lenis,

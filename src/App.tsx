@@ -31,6 +31,7 @@ import CookieConsent from './components/layout/CookieConsent';
 import LaunchCountdown from './components/layout/LaunchCountdown';
 import ScrollIndicator from './components/layout/ScrollIndicator';
 import PublicFaqBot from './components/layout/PublicFaqBot';
+import { syncSectionScrollMarginCss } from './lib/sectionScroll';
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
@@ -194,12 +195,18 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
       };
       rafId = requestAnimationFrame(raf);
 
+      const updateScrollMargin = () => syncSectionScrollMarginCss();
+      updateScrollMargin();
+      window.addEventListener('resize', updateScrollMargin);
+
       // Refresh ScrollTrigger once layout has settled
       const refreshTimeout = setTimeout(() => {
+        updateScrollMargin();
         ScrollTrigger.refresh();
       }, 300);
 
       return () => {
+        window.removeEventListener('resize', updateScrollMargin);
         clearTimeout(refreshTimeout);
         cancelAnimationFrame(rafId);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

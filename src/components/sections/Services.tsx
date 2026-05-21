@@ -89,7 +89,6 @@ const Services = () => {
       id="services" 
       ref={sectionRef} 
       className="py-24 lg:py-32 2xl:py-24 bg-white overflow-hidden"
-      style={{ scrollMarginTop: '152px' }}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}

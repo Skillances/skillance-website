@@ -20,7 +20,7 @@ const Home = () => {
     const hashTarget = location.hash.startsWith('#') ? location.hash.slice(1) : null;
     const storedTarget = sessionStorage.getItem('skillance_scroll_to');
     const target = hashTarget || storedTarget;
-    const targetReserve = hashTarget ? 0 : getSectionScrollTopReservePx();
+    const targetReserve = getSectionScrollTopReservePx();
 
     if (!target) {
       window.scrollTo({ top: 0, behavior: 'auto' });
@@ -60,7 +60,7 @@ const Home = () => {
           const currentLenis = getLenisFromWindow();
           const exactTop = Math.max(
             0,
-            after.getBoundingClientRect().top + getViewportScrollY(currentLenis)
+            computeSectionScrollTop(after, currentLenis) - getSectionScrollTopReservePx()
           );
           if (currentLenis) currentLenis.scrollTo(exactTop, { immediate: true, force: true });
           window.scrollTo({ top: exactTop, behavior: 'auto' });
