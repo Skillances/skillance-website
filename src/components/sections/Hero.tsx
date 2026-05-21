@@ -2,29 +2,50 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AnimatePresence, motion } from 'framer-motion';
-
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { EASE_OUT } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Custom inline word rotates
 const InlineWordRotate = ({ words }: { words: string[] }) => {
   const [index, setIndex] = useState(0);
-  
+  const [paused, setPaused] = useState(false);
+  const reducedMotion = usePrefersReducedMotion();
+
   useEffect(() => {
+    if (reducedMotion || paused) return;
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % words.length);
-    }, 2500);
+    }, 2800);
     return () => clearInterval(interval);
-  }, [words]);
-  
+  }, [words, reducedMotion, paused]);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const hero = document.getElementById('home');
+    if (!hero) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setPaused(!entry.isIntersecting),
+      { threshold: 0.15 }
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [reducedMotion]);
+
+  if (reducedMotion) {
+    return (
+      <span className="italic text-center w-full block">{words[0]}</span>
+    );
+  }
+
   return (
     <AnimatePresence mode="wait">
-        <motion.span
+      <motion.span
         key={words[index]}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.5, ease: "easeInOut" }}
+        initial={{ opacity: 0, transform: 'translateY(6px)' }}
+        animate={{ opacity: 1, transform: 'translateY(0)' }}
+        exit={{ opacity: 0, transform: 'translateY(-4px)' }}
+        transition={{ duration: 0.28, ease: EASE_OUT }}
         className="italic text-center w-full block"
       >
         {words[index]}
@@ -37,36 +58,40 @@ const Hero = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Parallax effect on hero image
-      gsap.to(imageRef.current, {
-        yPercent: 20,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: true,
-        },
-      });
+      if (!reducedMotion && imageRef.current) {
+        gsap.to(imageRef.current, {
+          yPercent: 12,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
+      }
 
-      // Text reveal animation
-      gsap.fromTo(textRef.current,
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1.2,
-          ease: 'power3.out',
-          delay: 2, // Wait for loader to finish
-        }
-      );
+      if (textRef.current) {
+        gsap.fromTo(
+          textRef.current,
+          reducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: reducedMotion ? 0.2 : 0.7,
+            ease: 'power3.out',
+            delay: reducedMotion ? 0 : 0.15,
+          }
+        );
+      }
     }, heroRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <section
@@ -74,8 +99,7 @@ const Hero = () => {
       ref={heroRef}
       className="relative h-screen w-full overflow-hidden"
     >
-      {/* Background Image with Parallax */}
-      <div 
+      <div
         ref={imageRef}
         className="absolute inset-0 w-full h-[120%] -top-[10%]"
       >
@@ -89,10 +113,7 @@ const Hero = () => {
             media="(max-width: 1023px)"
             srcSet="/hero-image-portrait.jpg"
           />
-          <source
-            type="image/webp"
-            srcSet="/hero-image.webp"
-          />
+          <source type="image/webp" srcSet="/hero-image.webp" />
           <img
             src="/hero-image.jpg"
             alt="Skillance"
@@ -101,23 +122,27 @@ const Hero = () => {
             className="w-full h-full object-cover"
           />
         </picture>
-        {/* Multi-layer overlay for depth and text legibility */}
         <div className="absolute inset-0 bg-black/35" />
-        {/* Bottom vignette — makes text pop */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
-        {/* Subtle radial vignette at edges */}
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 120% 100% at 50% 50%, transparent 50%, rgba(0,0,0,0.35) 100%)' }} />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 120% 100% at 50% 50%, transparent 50%, rgba(0,0,0,0.35) 100%)',
+          }}
+        />
       </div>
 
-      {/* Content - Minimal like Hinge */}
-      <div 
+      <div
         ref={textRef}
         className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6"
       >
         <h1 className="font-serif text-[2.5rem] sm:text-6xl lg:text-7xl xl:text-8xl text-white leading-[1.1] max-w-4xl flex flex-col items-center gap-2 sm:gap-3">
           <span>The</span>
           <span className="relative flex items-center justify-center min-w-[11ch] h-[1.2em]">
-            <InlineWordRotate words={['marketplace', 'platform', 'community', 'network', 'ecosystem']} />
+            <InlineWordRotate
+              words={['marketplace', 'platform', 'community', 'network', 'ecosystem']}
+            />
           </span>
           <span className="italic">designed for trust.</span>
         </h1>
@@ -125,6 +150,5 @@ const Hero = () => {
     </section>
   );
 };
-
 
 export default Hero;

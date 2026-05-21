@@ -54,7 +54,7 @@ export function scrollToPageSection(
 ): void {
   const reserve = getSectionScrollTopReservePx();
   const immediate = options?.immediate ?? false;
-  const duration = options?.duration ?? (immediate ? 0 : 1);
+  const duration = options?.duration ?? (immediate ? 0 : 0.85);
 
   if (lenis) {
     lenis.scrollTo(element, {

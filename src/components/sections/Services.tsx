@@ -5,6 +5,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { X, ArrowUpRight } from 'lucide-react';
 import { fetchServiceCategories, type ServiceCategoryItem } from '@/lib/serviceCategories';
 import { SpecializationTreeList } from '@/components/SpecializationTreeList';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { revealFromTo } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,41 +27,19 @@ const Services = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [serviceCategories, setServiceCategories] = useState<ServiceCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo('.services-header',
-        { opacity: 0, y: 50 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1.2,
-          ease: 'expo.out',
-          scrollTrigger: {
-            trigger: '.services-header',
-            start: 'top 85%',
-          },
-        }
-      );
-
-      gsap.fromTo('.service-card-wrapper',
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          stagger: 0.15,
-          ease: 'power4.out',
-          scrollTrigger: {
-            trigger: '.services-grid',
-            start: 'top 75%',
-          },
-        }
-      );
+      revealFromTo('.services-header', '.services-header', reducedMotion);
+      revealFromTo('.service-card-wrapper', '.services-grid', reducedMotion, {
+        stagger: 0.06,
+        start: 'top 75%',
+      });
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [reducedMotion]);
 
   useEffect(() => {
     if (!selectedCategory) return;
@@ -112,7 +92,7 @@ const Services = () => {
             <div key={category.name} className="service-card-wrapper group">
               <button
                 onClick={() => setSelectedCategory(category)}
-                className="relative w-full aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-neutral-200 flex flex-col justify-end p-8 lg:p-10 transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                className="relative w-full aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-neutral-200 flex flex-col justify-end p-8 lg:p-10 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] motion-hover-lift"
               >
                 {/* Background Image */}
                 <img
@@ -122,7 +102,7 @@ const Services = () => {
                   height={1000}
                   loading="lazy"
                   decoding="async"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                 />
 
                 {/* Gradient overlay — two-layer for depth */}
@@ -135,11 +115,11 @@ const Services = () => {
                     <h3 className="font-serif text-3xl lg:text-[2rem] xl:text-4xl text-white leading-tight">
                       {category.name}
                     </h3>
-                    <div className="shrink-0 w-9 h-9 rounded-full border border-white/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-500">
+                    <div className="shrink-0 w-9 h-9 rounded-full border border-white/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-[transform,opacity] duration-300 ease-out">
                       <ArrowUpRight className="w-4 h-4 text-white" />
                     </div>
                   </div>
-                  <p className="text-white/65 text-sm font-light leading-relaxed transform translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-75">
+                  <p className="text-white/65 text-sm font-light leading-relaxed transform translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-[transform,opacity] duration-300 ease-out delay-75">
                     {category.description}
                   </p>
                 </div>
@@ -153,7 +133,7 @@ const Services = () => {
           <p className="text-neutral-500 font-serif text-2xl italic">and many more...</p>
           <button 
             onClick={() => window.location.href = '/services'}
-            className="group flex items-center gap-4 px-10 py-5 bg-black text-white rounded-full text-sm font-semibold hover:bg-neutral-800 transition-all hover:scale-[1.05]"
+            className="group flex items-center gap-4 px-10 py-5 bg-black text-white rounded-full text-sm font-semibold hover:bg-neutral-800 motion-ui motion-press motion-hover-lift"
           >
             Explore all categories
             <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
@@ -227,7 +207,7 @@ const Services = () => {
               </div>
 
               <div className="p-6 sm:px-10 sm:pb-10 sm:pt-4 bg-white border-t border-neutral-100 shrink-0">
-                <button className="w-full bg-black text-white py-4 rounded-full text-sm font-semibold hover:bg-neutral-800 transition-all hover:scale-[1.02] shadow-lg shadow-black/10">
+                <button className="w-full bg-black text-white py-4 rounded-full text-sm font-semibold hover:bg-neutral-800 motion-ui motion-press shadow-lg shadow-black/10">
                   Book a {selectedCategory.name} Expert
                 </button>
               </div>

@@ -1,38 +1,26 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { revealFromTo } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Mission = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const elements = contentRef.current?.querySelectorAll('.scroll-reveal');
-      if (elements) {
-        elements.forEach((el) => {
-          gsap.fromTo(el,
-            { opacity: 0, y: 60 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 1,
-              ease: 'power3.out',
-              scrollTrigger: {
-                trigger: el,
-                start: 'top 85%',
-                toggleActions: 'play none none reverse',
-              },
-            }
-          );
-        });
-      }
+      elements?.forEach((el) => {
+        revealFromTo(el, el, reducedMotion);
+      });
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <section
@@ -80,7 +68,7 @@ const Mission = () => {
             </p>
             <button
               onClick={() => document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-              className="scroll-reveal inline-flex items-center gap-2 text-sm font-medium text-black hover:text-neutral-600 transition-colors group uw:text-2xl uw:gap-6"
+              className="scroll-reveal inline-flex items-center gap-2 text-sm font-medium text-black hover:text-neutral-600 motion-ui motion-press transition-colors group uw:text-2xl uw:gap-6"
             >
               See how it works
               <svg

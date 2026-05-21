@@ -5,6 +5,8 @@ import { post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 import { toast } from 'sonner';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { revealFromTo } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,27 +18,15 @@ const CTA = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { canSubmit, secondsRemaining, startCooldown, startCooldownFromRetryAfter } = useFormRateLimit(60_000);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo('.cta-content',
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '.cta-content',
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
+      revealFromTo('.cta-content', '.cta-content', reducedMotion);
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [reducedMotion]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

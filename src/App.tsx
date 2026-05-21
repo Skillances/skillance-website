@@ -32,6 +32,7 @@ import LaunchCountdown from './components/layout/LaunchCountdown';
 import ScrollIndicator from './components/layout/ScrollIndicator';
 import PublicFaqBot from './components/layout/PublicFaqBot';
 import { syncSectionScrollMarginCss } from './lib/sectionScroll';
+import { getPrefersReducedMotion, LENIS_DURATION } from './lib/motion';
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
@@ -170,11 +171,11 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   useEffect(() => {
     if (isLoaded) {
       // Initialize Lenis for smooth scrolling
+      const reducedMotion = getPrefersReducedMotion();
       const lenis = new Lenis({
-        duration: 1.2,
+        duration: reducedMotion ? 0 : LENIS_DURATION,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         autoRaf: false,
-        // Let wheel/trackpad scroll native overflow regions (Services accordions, modals, etc.).
         allowNestedScroll: true,
       });
 
@@ -219,7 +220,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   return (
     <div 
       ref={mainRef} 
-      className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : 'bg-white'} transition-opacity duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[opacity] ${
+      className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : 'bg-white'} transition-opacity duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[opacity] ${
         isLoaded ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >

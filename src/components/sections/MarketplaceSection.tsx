@@ -6,6 +6,8 @@ import {
   MarketplaceGradientText,
   MarketplaceNewMark,
 } from '@/components/marketplace/MarketplaceAccent';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { revealFromTo, scrollRevealFrom, scrollRevealTo } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -108,98 +110,35 @@ const MarketplaceSection = () => {
   const stepsContainerRef = useRef<HTMLDivElement>(null);
 
   const activeSteps = activeTab === 'buyer' ? buyerSteps : sellerSteps;
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        '.mkt-header',
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '.mkt-header',
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-
-      gsap.fromTo(
-        '.mkt-card',
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '.mkt-cards-grid',
-            start: 'top 80%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-
-      gsap.fromTo(
-        '.mkt-hiw-header',
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '.mkt-hiw-header',
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-
-      gsap.fromTo(
-        '.mkt-cta',
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '.mkt-cta',
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
+      revealFromTo('.mkt-header', '.mkt-header', reducedMotion);
+      revealFromTo('.mkt-card', '.mkt-cards-grid', reducedMotion, {
+        stagger: 0.06,
+        start: 'top 80%',
+      });
+      revealFromTo('.mkt-hiw-header', '.mkt-hiw-header', reducedMotion);
+      revealFromTo('.mkt-cta', '.mkt-cta', reducedMotion);
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [reducedMotion]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const stepEls = gsap.utils.toArray<HTMLElement>('.mkt-step-item');
       stepEls.forEach((el, i) => {
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 50 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.7,
-            delay: i * 0.1,
-            ease: 'power2.out',
-          }
-        );
+        gsap.fromTo(el, scrollRevealFrom(reducedMotion), {
+          ...scrollRevealTo(reducedMotion),
+          delay: reducedMotion ? 0 : i * 0.05,
+        });
       });
     }, stepsContainerRef);
 
     return () => ctx.revert();
-  }, [activeTab]);
+  }, [activeTab, reducedMotion]);
 
   return (
     <section
@@ -258,7 +197,7 @@ const MarketplaceSection = () => {
               <button
                 type="button"
                 onClick={() => setActiveTab('buyer')}
-                className={`px-8 py-3.5 rounded-full text-sm font-medium transition-all duration-500 ${
+                className={`px-8 py-3.5 rounded-full text-sm font-medium motion-ui motion-press ${
                   activeTab === 'buyer'
                     ? 'bg-black text-white shadow-xl shadow-black/10'
                     : 'text-neutral-500 hover:text-black'
@@ -269,7 +208,7 @@ const MarketplaceSection = () => {
               <button
                 type="button"
                 onClick={() => setActiveTab('seller')}
-                className={`px-8 py-3.5 rounded-full text-sm font-medium transition-all duration-500 ${
+                className={`px-8 py-3.5 rounded-full text-sm font-medium motion-ui motion-press ${
                   activeTab === 'seller'
                     ? 'bg-black text-white shadow-xl shadow-black/10'
                     : 'text-neutral-500 hover:text-black'

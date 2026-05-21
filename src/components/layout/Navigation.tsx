@@ -161,7 +161,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
 
       <nav
         id="site-primary-nav"
-        className="fixed top-8 left-0 right-0 z-50 py-5 transition-all duration-500"
+        className="fixed top-8 left-0 right-0 z-50 py-5 transition-[background-color,border-color,backdrop-filter,-webkit-backdrop-filter] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
         style={{
           backgroundColor: isPastHero || location.pathname !== '/'
             ? (isDarkSection ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.85)')
@@ -173,7 +173,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
       >
         {(isPastHero || location.pathname !== '/') && (
           <div
-            className="absolute inset-0 pointer-events-none transition-opacity duration-500"
+            className="absolute inset-0 pointer-events-none transition-opacity duration-300 ease-out"
             style={{
               filter: 'url(#nav-grain)',
               opacity: 0.04,
@@ -189,10 +189,10 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                 <button
                   key={link.name}
                   onClick={(e) => link.href.startsWith('/#') ? handleLinkClick(link.href, e) : navigate(link.href)}
-                  className={`text-sm font-medium transition-colors duration-300 relative group ${textColorMuted} ${hoverColor}`}
+                  className={`text-sm font-medium motion-ui motion-press transition-colors relative group ${textColorMuted} ${hoverColor}`}
                 >
                   {link.name}
-                  <span className={`absolute -bottom-1 left-0 w-0 h-px transition-all duration-300 group-hover:w-full ${underlineColor}`} />
+                  <span className={`absolute -bottom-1 left-0 w-0 h-px transition-[width] duration-200 ease-out group-hover:w-full ${underlineColor}`} />
                 </button>
               ))}
             </div>
@@ -200,7 +200,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
             {/* Centered Logo */}
             <Link
               to="/"
-              className={`flex items-center gap-3 font-serif text-2xl font-medium tracking-tight transition-colors duration-300 ${textColor}`}
+              className={`flex items-center gap-3 font-serif text-2xl font-medium tracking-tight motion-ui transition-colors ${textColor}`}
             >
               {isDarkSection ? (
                 <picture>
@@ -236,10 +236,10 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                 <button
                   key={link.name}
                   onClick={(e) => link.href.startsWith('/#') ? handleLinkClick(link.href, e) : navigate(link.href)}
-                  className={`text-sm font-medium transition-colors duration-300 relative group ${textColorMuted} ${hoverColor}`}
+                  className={`text-sm font-medium motion-ui motion-press transition-colors relative group ${textColorMuted} ${hoverColor}`}
                 >
                   {link.name}
-                  <span className={`absolute -bottom-1 left-0 w-0 h-px transition-all duration-300 group-hover:w-full ${underlineColor}`} />
+                  <span className={`absolute -bottom-1 left-0 w-0 h-px transition-[width] duration-200 ease-out group-hover:w-full ${underlineColor}`} />
                 </button>
               ))}
               {showAdminLink && (
@@ -249,7 +249,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                   aria-label="Admin dashboard"
                 >
                   Admin
-                  <span className={`absolute -bottom-1 left-0 w-0 h-px transition-all duration-300 group-hover:w-full ${underlineColor}`} />
+                  <span className={`absolute -bottom-1 left-0 w-0 h-px transition-[width] duration-200 ease-out group-hover:w-full ${underlineColor}`} />
                 </Link>
               )}
             </div>
@@ -280,7 +280,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
           >
             {/* Backdrop */}
             <motion.div
@@ -291,10 +291,10 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
             {/* Panel */}
             <motion.div
               className="absolute top-9 right-0 w-full sm:w-80 h-[calc(100%-2.25rem)] bg-white shadow-2xl overflow-y-auto"
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+              initial={{ transform: 'translateX(100%)' }}
+              animate={{ transform: 'translateX(0)' }}
+              exit={{ transform: 'translateX(100%)' }}
+              transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
             >
               {/* Mobile Header */}
               <div className="flex items-center justify-between px-6 py-[22px] border-b border-neutral-100">
@@ -320,9 +320,9 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
               <div className="p-6">
                 <div className="flex flex-col gap-1">
                   <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: 0.05, ease: 'easeOut' }}
+                    initial={{ opacity: 0, transform: 'translateX(12px)' }}
+                    animate={{ opacity: 1, transform: 'translateX(0)' }}
+                    transition={{ duration: 0.22, delay: 0.04, ease: [0.23, 1, 0.32, 1] }}
                     className="pb-4 mb-2 border-b border-neutral-100"
                   >
                     <MarketplaceNewMark
@@ -339,25 +339,25 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                   {navLinks.map((link, i) => (
                     <motion.button
                       key={link.name}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: 0.09 + i * 0.04, ease: 'easeOut' }}
+                      initial={{ opacity: 0, transform: 'translateX(12px)' }}
+                      animate={{ opacity: 1, transform: 'translateX(0)' }}
+                      transition={{ duration: 0.22, delay: 0.06 + i * 0.035, ease: [0.23, 1, 0.32, 1] }}
                       onClick={(e) => link.href.startsWith('/#') ? handleLinkClick(link.href, e) : (setIsMobileMenuOpen(false), navigate(link.href))}
-                      className="text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 transition-colors py-4 border-b border-neutral-100 text-left"
+                      className="text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100 text-left"
                     >
                       {link.name}
                     </motion.button>
                   ))}
                   {showAdminLink && (
                     <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: 0.05 + navLinks.length * 0.04, ease: 'easeOut' }}
+                      initial={{ opacity: 0, transform: 'translateX(12px)' }}
+                      animate={{ opacity: 1, transform: 'translateX(0)' }}
+                      transition={{ duration: 0.22, delay: 0.06 + navLinks.length * 0.035, ease: [0.23, 1, 0.32, 1] }}
                     >
                       <Link
                         to="/admin/dashboard"
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="block text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 transition-colors py-4 border-b border-neutral-100"
+                        className="block text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100"
                         aria-label="Admin dashboard"
                       >
                         Admin

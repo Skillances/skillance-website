@@ -5,6 +5,8 @@ import { get, post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 import { toast } from 'sonner';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { revealFromTo } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -33,6 +35,7 @@ const Reviews = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { canSubmit, secondsRemaining, startCooldown, startCooldownFromRetryAfter } = useFormRateLimit(60_000);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     get(ApiPaths.public.reviews)
@@ -46,24 +49,11 @@ const Reviews = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo('.reviews-content',
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '.reviews-content',
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
+      revealFromTo('.reviews-content', '.reviews-content', reducedMotion);
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [reducedMotion]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,7 +139,7 @@ const Reviews = () => {
                           key={role}
                           type="button"
                           onClick={() => setUserRole(role)}
-                          className={`flex-1 px-4 py-3 rounded-xl border text-sm font-medium transition-all duration-300 ${
+                          className={`flex-1 px-4 py-3 rounded-xl border text-sm font-medium motion-ui motion-press ${
                             userRole === role
                               ? 'border-black bg-black text-white'
                               : 'border-neutral-200 hover:border-neutral-300'

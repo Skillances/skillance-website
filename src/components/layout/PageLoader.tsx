@@ -43,7 +43,7 @@ const PageLoader = ({ onComplete }: PageLoaderProps) => {
             onComplete();
             setIsVisible(false);
           }}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
           className="fixed inset-0 z-[105] bg-white flex items-center justify-center overflow-hidden"
         >
           <div className="w-full max-w-2xl px-8">

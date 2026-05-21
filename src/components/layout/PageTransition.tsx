@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { EASE_OUT } from '@/lib/motion';
 
 interface PageTransitionProps {
   children: React.ReactNode;
@@ -6,23 +7,22 @@ interface PageTransitionProps {
   routeKey: string;
 }
 
+const enter = { opacity: 0, transform: 'translateY(24px)' };
+const center = { opacity: 1, transform: 'translateY(0)' };
+const exit = { opacity: 0, transform: 'translateY(-16px)' };
+
 /**
- * Fast vertical scroll-wipe transition — feels like the page instantly
- * scrolls away upward and the new one rushes in from below.
- * Enter: 320ms — new page slides up from +32px, fades in.
- * Exit:  160ms — current page slides out upward to -20px, fades out.
- * Both use the same expo-out curve so the rhythm is identical.
- * Only transform + opacity → no layout reflow, GPU-composited.
+ * Route transition — transform + opacity only (GPU-friendly).
  */
 const PageTransition = ({ children, routeKey }: PageTransitionProps) => (
   <motion.div
     key={routeKey}
-    initial={{ opacity: 0, y: 32 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
+    initial={enter}
+    animate={center}
+    exit={exit}
     transition={{
-      duration: 0.32,
-      ease: [0.22, 1, 0.36, 1],
+      duration: 0.28,
+      ease: EASE_OUT,
     }}
     style={{ willChange: 'opacity, transform' }}
   >

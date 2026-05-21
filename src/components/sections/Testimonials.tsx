@@ -3,6 +3,8 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { get } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { revealFromTo } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,6 +23,7 @@ const Testimonials = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -40,24 +43,11 @@ const Testimonials = () => {
     if (testimonials.length === 0) return;
 
     const ctx = gsap.context(() => {
-      gsap.fromTo('.testimonials-content',
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '.testimonials-content',
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
+      revealFromTo('.testimonials-content', '.testimonials-content', reducedMotion);
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [testimonials]);
+  }, [testimonials, reducedMotion]);
 
   if (testimonials.length === 0) return null;
 
@@ -101,7 +91,7 @@ const Testimonials = () => {
             {testimonials.map((testimonial, index) => (
               <div
                 key={testimonial.id}
-                className={`transition-all duration-700 ${
+                className={`transition-[opacity,transform] duration-500 ease-out ${
                   index === currentIndex 
                     ? 'opacity-100 translate-y-0' 
                     : 'opacity-0 translate-y-4 absolute inset-0 pointer-events-none'
@@ -131,7 +121,7 @@ const Testimonials = () => {
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
-                  className={`h-1 rounded-full transition-all duration-500 ${
+                  className={`h-1 rounded-full transition-[width,background-color] duration-300 ease-out ${
                     index === currentIndex ? 'w-12 bg-white' : 'w-6 bg-neutral-700 hover:bg-neutral-600'
                   }`}
                   aria-label={`Go to testimonial ${index + 1}`}

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { revealFromTo, scrollRevealFrom, scrollRevealTo } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -57,48 +59,28 @@ const HowItWorks = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const activeSteps = activeTab === 'client' ? clientSteps : freelancerSteps;
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Header animation
-      gsap.fromTo('.how-header',
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '.how-header',
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
+      revealFromTo('.how-header', '.how-header', reducedMotion);
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [reducedMotion]);
 
   useEffect(() => {
-    // Re-animate steps when tab changes
     const ctx = gsap.context(() => {
-      const stepsElements = gsap.utils.toArray('.step-item');
-      stepsElements.forEach((step: any, i) => {
-        gsap.fromTo(step,
-          { opacity: 0, y: 50 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            delay: i * 0.1,
-            ease: 'power2.out',
-          }
-        );
+      const stepsElements = gsap.utils.toArray<HTMLElement>('.step-item');
+      stepsElements.forEach((step, i) => {
+        gsap.fromTo(step, scrollRevealFrom(reducedMotion), {
+          ...scrollRevealTo(reducedMotion),
+          delay: reducedMotion ? 0 : i * 0.05,
+        });
       });
     }, containerRef);
     return () => ctx.revert();
-  }, [activeTab]);
+  }, [activeTab, reducedMotion]);
 
   return (
     <section
@@ -121,7 +103,7 @@ const HowItWorks = () => {
           <div className="flex bg-neutral-50 p-1.5 rounded-full border border-neutral-100 p-1.5 mt-4">
             <button
               onClick={() => setActiveTab('client')}
-              className={`px-8 py-3.5 rounded-full text-sm font-medium transition-all duration-500 ${
+              className={`px-8 py-3.5 rounded-full text-sm font-medium motion-ui motion-press ${
                 activeTab === 'client' 
                   ? 'bg-black text-white shadow-xl shadow-black/10' 
                   : 'text-neutral-500 hover:text-black'
@@ -131,7 +113,7 @@ const HowItWorks = () => {
             </button>
             <button
               onClick={() => setActiveTab('pro')}
-              className={`px-8 py-3.5 rounded-full text-sm font-medium transition-all duration-500 ${
+              className={`px-8 py-3.5 rounded-full text-sm font-medium motion-ui motion-press ${
                 activeTab === 'pro' 
                   ? 'bg-black text-white shadow-xl shadow-black/10' 
                   : 'text-neutral-500 hover:text-black'

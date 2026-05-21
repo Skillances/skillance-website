@@ -27,6 +27,10 @@
     --input: 0 0% 90%;
     --ring: 200 85% 55%;
     --radius: 0.5rem;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+    --duration-ui: 200ms;
+    --duration-press: 160ms;
   }
 }
 
@@ -77,6 +81,34 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .motion-ui {
+    transition-property: transform, opacity, background-color, color, border-color;
+    transition-duration: var(--duration-ui);
+    transition-timing-function: var(--ease-out);
+  }
+
+  .motion-press:active {
+    transform: scale(0.97);
+    transition-duration: var(--duration-press);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .motion-hover-lift:hover {
+      transform: scale(1.02);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-hover-lift:hover {
+    transform: none;
+  }
+
+  .animate-fade-in,
+  .animate-slide-up {
+    animation-duration: 0.2s;
   }
 }
 

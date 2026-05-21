@@ -3,6 +3,8 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { get } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { revealFromTo } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,6 +40,7 @@ const Stats = () => {
   const [animatedValues, setAnimatedValues] = useState<number[]>(defaultStats.map(() => 0));
   const hasAnimated = useRef(false);
   const statsReady = useRef(false);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     get(ApiPaths.public.stats)
@@ -65,20 +68,7 @@ const Stats = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo('.stats-header',
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '.stats-header',
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
+      revealFromTo('.stats-header', '.stats-header', reducedMotion);
 
       const len = stats.length;
       const anim: Record<string, number> = {};
@@ -113,7 +103,7 @@ const Stats = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [stats]);
+  }, [reducedMotion, stats.length]);
 
   return (
     <section
