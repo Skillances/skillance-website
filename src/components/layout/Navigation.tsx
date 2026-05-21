@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getLenisFromWindow, getSectionScrollTopReservePx, scrollToPageSection } from '@/lib/sectionScroll';
 import { useAuth } from '@/context/AuthContext';
-import { MarketplaceNewMark } from '@/components/marketplace/MarketplaceAccent';
+import { MarketplaceNewMark, type MarketplaceNavTheme } from '@/components/marketplace/MarketplaceAccent';
 
 interface NavigationProps {
   isLoaded: boolean;
@@ -143,8 +143,8 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
   const hoverColor = isDarkSection ? 'hover:text-white' : 'hover:text-black';
   const underlineColor = isDarkSection ? 'bg-white' : 'bg-black';
 
-  const marketplaceNavTheme = {
-    surface: (isDarkSection ? 'dark' : 'light') as const,
+  const marketplaceNavTheme: MarketplaceNavTheme = {
+    surface: isDarkSection ? 'dark' : 'light',
     mutedClass: textColorMuted,
     hoverClass: hoverColor,
     underlineClass: underlineColor,
