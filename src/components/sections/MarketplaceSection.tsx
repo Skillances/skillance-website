@@ -14,21 +14,21 @@ gsap.registerPlugin(ScrollTrigger);
 const featureCards = [
   {
     number: '01',
-    title: 'Publish in minutes',
+    title: 'List with your services',
     description:
-      'Upload your material, set a price, and go live. Your listing reaches learners on Skillance right away.',
+      'Offer courses, guides, templates, materials, or products that support the work you already sell on Skillance — all from one professional profile.',
   },
   {
     number: '02',
-    title: 'Browse and filter',
+    title: 'Find what fits the job',
     description:
-      'Discover courses, documents, and training packs. Filter by topic, format, and price to find what fits your goals.',
+      'Customers discover add-ons and resources from verified service professionals, not random sellers on a classifieds board.',
   },
   {
     number: '03',
     title: 'Safe & transparent',
     description:
-      'Only 5% fee on successful sales. No listing fees, no subscriptions — just straightforward digital commerce.',
+      'Only 5% fee on successful sales. No listing fees, no subscriptions — the same straightforward commerce as the rest of Skillance.',
   },
 ];
 
@@ -39,19 +39,19 @@ const buyerSteps = [
     number: '01',
     title: 'Browse & discover',
     description:
-      'Search the marketplace. Filter by category, format, and price to find courses, documents, and training material that match your needs.',
+      'Find resources and products listed by the same professionals you book for services — guides, kits, courses, documents, and more.',
   },
   {
     number: '02',
     title: 'Preview & purchase',
     description:
-      'Review listings, message sellers in the app, and checkout securely when you are ready to buy.',
+      'See what is included, message the professional in the app, and checkout securely when you are ready.',
   },
   {
     number: '03',
-    title: 'Access your content',
+    title: 'Use with your booking',
     description:
-      'Get instant digital delivery. Your purchase is recorded so you can return to your materials anytime.',
+      'Get what you need alongside the service — digital delivery where it applies, with your purchase kept on record in Skillance.',
   },
 ];
 
@@ -60,13 +60,13 @@ const sellerSteps = [
     number: '01',
     title: 'Create your listing',
     description:
-      'Add your course, document pack, or training material, write a clear description, set your price, and publish — often in under two minutes.',
+      'Attach a course, document pack, template, material, or product to your service profile. Set the price and publish in minutes.',
   },
   {
     number: '02',
     title: 'Receive enquiries',
     description:
-      'Learners message you directly. Answer questions, clarify what is included, and support buyers — all in one place.',
+      'Customers message you directly. Explain how the item supports your service and answer questions before they buy.',
   },
   {
     number: '03',
@@ -94,7 +94,7 @@ export const MarketplaceDivider = () => (
         </p>
       </div>
       <p className="text-sm text-neutral-400 text-center sm:text-right max-w-xs">
-        Courses, documents, and training — inside the Skillance app.
+        Service add-ons and professional resources — in the Skillance app.
       </p>
     </div>
   </div>
@@ -215,13 +215,13 @@ const MarketplaceSection = () => {
             Skillance Marketplace
           </p>
           <h2 className="font-serif text-4xl sm:text-6xl lg:text-7xl text-black leading-[1.05] mb-8">
-            Courses, documents, and{' '}
-            <span className="italic">training material.</span>
+            Your services — and{' '}
+            <span className="italic">what goes with them.</span>
           </h2>
           <p className="text-xl text-neutral-500 font-light leading-relaxed max-w-xl">
-            Skillance Marketplace is where professionals list and discover digital
-            learning — courses, document packs, and training resources. Clear listings,
-            secure delivery, and straightforward payouts — built for knowledge, not clutter.
+            Skillance is built for booking trusted professionals. Marketplace extends that:
+            sell courses, documents, training material, kits, and other products tied to the
+            services you already offer — not a second-hand goods site or open classifieds board.
           </p>
         </div>
 
@@ -264,7 +264,7 @@ const MarketplaceSection = () => {
                     : 'text-neutral-500 hover:text-black'
                 }`}
               >
-                For Buyers
+                For Customers
               </button>
               <button
                 type="button"
@@ -275,7 +275,7 @@ const MarketplaceSection = () => {
                     : 'text-neutral-500 hover:text-black'
                 }`}
               >
-                For Sellers
+                For Professionals
               </button>
             </div>
           </div>
@@ -324,10 +324,11 @@ const MarketplaceSection = () => {
         <div className="mkt-cta rounded-[2rem] bg-neutral-900 px-10 py-12 lg:py-16 flex flex-col lg:flex-row items-center justify-between gap-8">
           <div>
             <h3 className="font-serif text-3xl sm:text-4xl text-white mb-3">
-              Start publishing today.
+              Extend what you sell.
             </h3>
             <p className="text-neutral-400 font-light leading-relaxed max-w-md">
-              Download the Skillance app to list your first course or resource. Available on iOS and Android — free to download, free to list.
+              Download the Skillance app to list your first service-linked product or resource.
+              Available on iOS and Android — free to download, free to list.
             </p>
           </div>
           <div className="flex flex-wrap gap-4 shrink-0">
