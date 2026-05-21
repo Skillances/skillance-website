@@ -1,306 +1,265 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import {
-  MarketplaceGradientText,
-  MarketplaceNewMark,
-} from '@/components/marketplace/MarketplaceAccent';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import { revealFromTo, scrollRevealFrom, scrollRevealTo } from '@/lib/motion';
+import { revealFromTo } from '@/lib/motion';
+import {
+  ShoppingBag,
+  Tag,
+  Shield,
+  Search,
+  MessageCircle,
+  CheckCircle,
+  Camera,
+  Users,
+  Package,
+} from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ─── Feature Cards ────────────────────────────────────────────────────────────
-
-const featureCards = [
+const features = [
   {
-    number: '01',
-    title: 'List with your services',
+    icon: Tag,
+    title: 'List anything local',
     description:
-      'Offer courses, guides, templates, materials, or products that support the work you already sell on Skillance — all from one professional profile.',
+      'Post furniture, electronics, vehicles, and more with photos, price, condition, and location — free to list in the Marketplace app.',
   },
   {
-    number: '02',
-    title: 'Find what fits the job',
+    icon: Search,
+    title: 'Browse near you',
     description:
-      'Customers discover add-ons and resources from verified service professionals, not random sellers on a classifieds board.',
+      'Search and filter listings in your area, save favorites, and open full detail pages before you reach out to a seller.',
   },
   {
-    number: '03',
-    title: 'Safe & transparent',
+    icon: Shield,
+    title: 'One trusted account',
     description:
-      'Only 5% fee on successful sales. No listing fees, no subscriptions — the same straightforward commerce as the rest of Skillance.',
+      'Buyers and sellers use the same Skillance login as the services app. Verified profiles help you know who you are dealing with.',
   },
 ];
 
-// ─── How It Works Steps ───────────────────────────────────────────────────────
-
 const buyerSteps = [
   {
-    number: '01',
+    icon: Search,
     title: 'Browse & discover',
     description:
-      'Find resources and products listed by the same professionals you book for services — guides, kits, courses, documents, and more.',
+      'Open Skillance Marketplace, search by category or keyword, and explore listings with photos, price, and location.',
   },
   {
-    number: '02',
-    title: 'Preview & purchase',
+    icon: MessageCircle,
+    title: 'View & connect',
     description:
-      'See what is included, message the professional in the app, and checkout securely when you are ready.',
+      'Open a listing to see the full description and seller profile. Agree pickup or delivery directly with the seller (in-app messaging is on the way).',
   },
   {
-    number: '03',
-    title: 'Use with your booking',
+    icon: CheckCircle,
+    title: 'Meet & complete',
     description:
-      'Get what you need alongside the service — digital delivery where it applies, with your purchase kept on record in Skillance.',
+      'Inspect the item in person when you can, pay as you and the seller agree, and complete the deal locally.',
   },
 ];
 
 const sellerSteps = [
   {
-    number: '01',
-    title: 'Create your listing',
+    icon: Camera,
+    title: 'Create a listing',
     description:
-      'Attach a course, document pack, template, material, or product to your service profile. Set the price and publish in minutes.',
+      'Snap photos, set your price and condition, add a short description, and publish — your listing goes live in the Marketplace app.',
   },
   {
-    number: '02',
-    title: 'Receive enquiries',
+    icon: Users,
+    title: 'Get interest',
     description:
-      'Customers message you directly. Explain how the item supports your service and answer questions before they buy.',
+      'Buyers browse your listing, save it to favorites, and reach out when they are ready to buy.',
   },
   {
-    number: '03',
-    title: 'Get paid',
+    icon: Package,
+    title: 'Close the sale',
     description:
-      'Complete the sale and receive payment. We charge just 5% on success — no listing fees, no monthly subscriptions.',
+      'Arrange handover or delivery with the buyer, then mark the listing sold when the item has changed hands.',
   },
 ];
 
-// ─── Divider Banner ───────────────────────────────────────────────────────────
-
-export const MarketplaceDivider = () => (
-  <div
-    id="marketplace-intro"
-    className="section-scroll-anchor w-full bg-neutral-900 py-10 px-6 lg:px-8 overflow-hidden"
-  >
-    <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-      <div className="flex flex-col sm:flex-row items-center gap-5">
-        <MarketplaceNewMark variant="badge" />
-        <p className="font-serif text-2xl sm:text-3xl text-white text-center sm:text-left">
-          Introducing:{' '}
-          <MarketplaceGradientText className="italic">
-            Skillance Marketplace
-          </MarketplaceGradientText>
-        </p>
-      </div>
-      <p className="text-sm text-neutral-400 text-center sm:text-right max-w-xs">
-        Service add-ons and professional resources — in the Skillance app.
-      </p>
-    </div>
-  </div>
-);
-
-// ─── Main Section ─────────────────────────────────────────────────────────────
-
 const MarketplaceSection = () => {
-  const [activeTab, setActiveTab] = useState<'buyer' | 'seller'>('buyer');
   const sectionRef = useRef<HTMLDivElement>(null);
-  const stepsContainerRef = useRef<HTMLDivElement>(null);
-
-  const activeSteps = activeTab === 'buyer' ? buyerSteps : sellerSteps;
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<'buyer' | 'seller'>('buyer');
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      revealFromTo('.mkt-header', '.mkt-header', reducedMotion);
-      revealFromTo('.mkt-card', '.mkt-cards-grid', reducedMotion, {
-        stagger: 0.06,
-        start: 'top 80%',
+      const elements = contentRef.current?.querySelectorAll('.scroll-reveal');
+      elements?.forEach((el) => {
+        revealFromTo(el, el, reducedMotion);
       });
-      revealFromTo('.mkt-hiw-header', '.mkt-hiw-header', reducedMotion);
-      revealFromTo('.mkt-cta', '.mkt-cta', reducedMotion);
     }, sectionRef);
 
     return () => ctx.revert();
   }, [reducedMotion]);
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const stepEls = gsap.utils.toArray<HTMLElement>('.mkt-step-item');
-      stepEls.forEach((el, i) => {
-        gsap.fromTo(el, scrollRevealFrom(reducedMotion), {
-          ...scrollRevealTo(reducedMotion),
-          delay: reducedMotion ? 0 : i * 0.05,
-        });
-      });
-    }, stepsContainerRef);
-
-    return () => ctx.revert();
-  }, [activeTab, reducedMotion]);
+  const steps = activeTab === 'buyer' ? buyerSteps : sellerSteps;
 
   return (
     <section
       id="marketplace"
       ref={sectionRef}
-      className="py-24 lg:py-32 2xl:py-24 bg-white overflow-hidden"
+      className="py-32 lg:py-40 bg-white overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-
-        {/* Hero blurb */}
-        <div className="mkt-header max-w-3xl mb-24">
-          <p className="text-sm uppercase tracking-[0.4em] text-neutral-500 mb-8 font-medium">
-            Skillance Marketplace
-          </p>
-          <h2 className="font-serif text-4xl sm:text-6xl lg:text-7xl text-black leading-[1.05] mb-8">
-            Your services — and{' '}
-            <span className="italic">what goes with them.</span>
-          </h2>
-          <p className="text-xl text-neutral-500 font-light leading-relaxed max-w-xl">
-            Skillance is built for booking trusted professionals. Marketplace extends that:
-            sell courses, documents, training material, kits, and other products tied to the
-            services you already offer — not a second-hand goods site or open classifieds board.
-          </p>
-        </div>
-
-        {/* Feature cards — editorial grid, no icons */}
-        <div className="mkt-cards-grid grid md:grid-cols-3 gap-px bg-neutral-100 rounded-[2rem] overflow-hidden border border-neutral-100 mb-28">
-          {featureCards.map((card) => (
-            <div
-              key={card.title}
-              className="mkt-card bg-white p-8 lg:p-12 flex flex-col gap-6 group hover:bg-neutral-50/80 transition-colors duration-500"
-            >
-              <span className="font-serif text-4xl lg:text-5xl text-neutral-200 group-hover:text-neutral-400 transition-colors duration-500">
-                {card.number}
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 uw:max-w-[120rem] uw:px-20">
+        <div ref={contentRef}>
+          {/* Header */}
+          <div className="text-center mb-20 uw:mb-32">
+            <div className="scroll-reveal inline-flex items-center gap-2 px-4 py-2 bg-neutral-100 rounded-full mb-6 uw:px-8 uw:py-4 uw:mb-12">
+              <ShoppingBag className="w-4 h-4 text-neutral-600 uw:w-8 uw:h-8" />
+              <span className="text-sm font-medium text-neutral-700 uw:text-xl">
+                Skillance Marketplace
               </span>
-              <div>
-                <h3 className="font-serif text-2xl lg:text-3xl text-black mb-3">{card.title}</h3>
-                <p className="text-neutral-500 leading-relaxed font-light">{card.description}</p>
-              </div>
             </div>
-          ))}
-        </div>
-
-        {/* How it works — matches site HowItWorks section */}
-        <div className="mb-28">
-          <div className="mkt-hiw-header flex flex-col items-center mb-16">
-            <p className="text-sm uppercase tracking-[0.3em] text-neutral-500 mb-6 font-medium">
-              How it works
-            </p>
-            <h2 className="font-serif text-3xl sm:text-5xl text-black leading-[1.1] mb-10 text-center max-w-2xl">
-              Simple steps to{' '}
-              <span className="italic">get started.</span>
+            <h2 className="scroll-reveal font-serif text-4xl sm:text-5xl lg:text-6xl text-black leading-[1.1] mb-6 uw:text-[10rem] uw:mb-12">
+              Buy and sell from people{' '}
+              <span className="italic">you can trust.</span>
             </h2>
+            <p className="scroll-reveal text-lg text-neutral-600 max-w-2xl mx-auto uw:text-3xl uw:max-w-5xl">
+              A dedicated classifieds app for local goods — separate from booking freelancers on
+              Skillance Personal, with the same secure Skillance account.
+            </p>
+          </div>
 
-            <div className="flex bg-neutral-50 p-1.5 rounded-full border border-neutral-100">
+          {/* Feature Cards */}
+          <div className="grid md:grid-cols-3 gap-8 mb-24 uw:gap-16 uw:mb-40">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="scroll-reveal p-8 bg-neutral-50 rounded-2xl uw:p-16 uw:rounded-3xl"
+              >
+                <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center mb-6 uw:w-24 uw:h-24 uw:rounded-2xl uw:mb-12">
+                  <feature.icon className="w-6 h-6 text-white uw:w-12 uw:h-12" />
+                </div>
+                <h3 className="font-serif text-xl text-black mb-3 uw:text-4xl uw:mb-6">
+                  {feature.title}
+                </h3>
+                <p className="text-neutral-600 leading-relaxed uw:text-2xl">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* How It Works */}
+          <div className="mb-24 uw:mb-40">
+            <div className="text-center mb-12 uw:mb-24">
+              <h3 className="scroll-reveal font-serif text-3xl sm:text-4xl text-black mb-4 uw:text-7xl uw:mb-8">
+                How it works
+              </h3>
+              <p className="scroll-reveal text-neutral-600 uw:text-2xl">
+                Whether you are clearing out the garage or hunting for a deal nearby.
+              </p>
+            </div>
+
+            {/* Tab Switcher */}
+            <div className="scroll-reveal flex justify-center gap-4 mb-12 uw:gap-8 uw:mb-24">
               <button
-                type="button"
                 onClick={() => setActiveTab('buyer')}
-                className={`px-8 py-3.5 rounded-full text-sm font-medium motion-ui motion-press ${
+                className={`px-6 py-3 rounded-full text-sm font-medium transition-all uw:px-12 uw:py-6 uw:text-xl ${
                   activeTab === 'buyer'
-                    ? 'bg-black text-white shadow-xl shadow-black/10'
-                    : 'text-neutral-500 hover:text-black'
+                    ? 'bg-black text-white'
+                    : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
                 }`}
               >
-                For Customers
+                For Buyers
               </button>
               <button
-                type="button"
                 onClick={() => setActiveTab('seller')}
-                className={`px-8 py-3.5 rounded-full text-sm font-medium motion-ui motion-press ${
+                className={`px-6 py-3 rounded-full text-sm font-medium transition-all uw:px-12 uw:py-6 uw:text-xl ${
                   activeTab === 'seller'
-                    ? 'bg-black text-white shadow-xl shadow-black/10'
-                    : 'text-neutral-500 hover:text-black'
+                    ? 'bg-black text-white'
+                    : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
                 }`}
               >
-                For Professionals
+                For Sellers
               </button>
+            </div>
+
+            {/* Steps */}
+            <div className="grid md:grid-cols-3 gap-8 uw:gap-16">
+              {steps.map((step, index) => (
+                <div key={index} className="scroll-reveal text-center">
+                  <div className="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-6 uw:w-32 uw:h-32 uw:rounded-3xl uw:mb-12">
+                    <step.icon className="w-8 h-8 text-black uw:w-16 uw:h-16" />
+                  </div>
+                  <div className="text-sm text-neutral-400 mb-2 uw:text-xl uw:mb-4">
+                    Step {index + 1}
+                  </div>
+                  <h4 className="font-serif text-xl text-black mb-3 uw:text-4xl uw:mb-6">
+                    {step.title}
+                  </h4>
+                  <p className="text-neutral-600 leading-relaxed uw:text-2xl">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div ref={stepsContainerRef}>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              >
-                {activeSteps.map((step) => (
-                  <div
-                    key={step.number + activeTab}
-                    className="mkt-step-item border-b border-neutral-100 py-12 sm:py-16 lg:py-20 group hover:bg-neutral-50/50 transition-colors duration-500 rounded-3xl -mx-4 px-4"
-                  >
-                    <div className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-start">
-                      <div className="lg:col-span-2">
-                        <span className="font-serif text-5xl lg:text-7xl text-neutral-500 block group-hover:text-black transition-colors duration-500 opacity-80 group-hover:opacity-100">
-                          {step.number}
-                        </span>
-                      </div>
-
-                      <div className="lg:col-span-4 lg:pt-4">
-                        <h3 className="font-serif text-3xl lg:text-4xl text-black">
-                          {step.title}
-                        </h3>
-                      </div>
-
-                      <div className="lg:col-span-6 lg:pt-4">
-                        <p className="text-lg sm:text-xl text-neutral-500 leading-relaxed font-light max-w-xl group-hover:text-neutral-600 transition-colors duration-500">
-                          {step.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* CTA strip */}
-        <div className="mkt-cta rounded-[2rem] bg-neutral-900 px-10 py-12 lg:py-16 flex flex-col lg:flex-row items-center justify-between gap-8">
-          <div>
-            <h3 className="font-serif text-3xl sm:text-4xl text-white mb-3">
-              Extend what you sell.
+          {/* CTA */}
+          <div className="scroll-reveal text-center p-12 bg-black rounded-3xl uw:p-24 uw:rounded-[3rem]">
+            <h3 className="font-serif text-3xl sm:text-4xl text-white mb-4 uw:text-7xl uw:mb-8">
+              {activeTab === 'buyer' ? 'Find your next local deal.' : 'List your first item today.'}
             </h3>
-            <p className="text-neutral-400 font-light leading-relaxed max-w-md">
-              Download the Skillance app to list your first service-linked product or resource.
-              Available on iOS and Android — free to download, free to list.
+            <p className="text-neutral-400 mb-8 max-w-xl mx-auto uw:text-2xl uw:max-w-3xl uw:mb-16">
+              {activeTab === 'buyer'
+                ? 'Download Skillance Marketplace to browse classifieds near you — same login as Skillance Personal.'
+                : 'Download Skillance Marketplace to publish listings, manage photos, and mark items sold when you are done.'}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center uw:gap-8">
+              <a
+                href="#"
+                className="inline-flex items-center justify-center gap-3 px-6 py-3 bg-white text-black rounded-xl hover:bg-neutral-100 transition-colors uw:px-12 uw:py-6 uw:rounded-2xl"
+              >
+                <svg className="w-6 h-6 uw:w-12 uw:h-12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                </svg>
+                <div className="text-left">
+                  <div className="text-xs text-neutral-500 uw:text-lg">Download on the</div>
+                  <div className="text-sm font-medium uw:text-2xl">App Store</div>
+                </div>
+              </a>
+              <a
+                href="#"
+                className="inline-flex items-center justify-center gap-3 px-6 py-3 bg-white text-black rounded-xl hover:bg-neutral-100 transition-colors uw:px-12 uw:py-6 uw:rounded-2xl"
+              >
+                <svg className="w-6 h-6 uw:w-12 uw:h-12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 0 1 0 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z" />
+                </svg>
+                <div className="text-left">
+                  <div className="text-xs text-neutral-500 uw:text-lg">Get it on</div>
+                  <div className="text-sm font-medium uw:text-2xl">Google Play</div>
+                </div>
+              </a>
+            </div>
+            <p className="mt-6 text-sm text-neutral-500 uw:text-xl uw:mt-12">
+              Need to book a freelancer? Use the Skillance Personal app — marketplace listings live
+              in Skillance Marketplace only.
             </p>
           </div>
-          <div className="flex flex-wrap gap-4 shrink-0">
-            <a
-              href="#"
-              className="flex items-center gap-3 px-6 py-3 bg-white text-black rounded-xl hover:bg-neutral-100 transition-colors"
-            >
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
-              </svg>
-              <div className="text-left">
-                <div className="text-[10px] opacity-70">GET IT ON</div>
-                <div className="text-sm font-medium">Google Play</div>
-              </div>
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 px-6 py-3 bg-white text-black rounded-xl hover:bg-neutral-100 transition-colors"
-            >
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M13,3.5C13.73,2.67 14.94,2.04 15.94,2C16.07,3.17 15.6,4.35 14.9,5.19C14.21,6.04 13.07,6.7 11.95,6.61C11.8,5.37 12.36,4.26 13,3.5Z" />
-              </svg>
-              <div className="text-left">
-                <div className="text-[10px] opacity-70">Download on</div>
-                <div className="text-sm font-medium">App Store</div>
-              </div>
-            </a>
-          </div>
         </div>
-
       </div>
     </section>
   );
 };
+
+export const MarketplaceDivider = () => (
+  <div className="relative py-16 lg:py-20 bg-neutral-50 overflow-hidden uw:py-32">
+    <div className="max-w-7xl mx-auto px-6 lg:px-8 uw:max-w-[120rem] uw:px-20">
+      <div className="flex items-center gap-6 uw:gap-12">
+        <div className="flex-1 h-px bg-neutral-200" />
+        <p className="text-sm text-neutral-500 whitespace-nowrap uw:text-xl">
+          Local classifieds in Skillance Marketplace — same account, separate app from services.
+        </p>
+        <div className="flex-1 h-px bg-neutral-200" />
+      </div>
+    </div>
+  </div>
+);
 
 export default MarketplaceSection;

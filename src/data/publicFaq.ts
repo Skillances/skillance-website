@@ -54,10 +54,10 @@ export const PUBLIC_FAQ: FaqNode = {
             },
             {
               id: 'customer.about.diff',
-              label: 'How is Skillance different from a classifieds site?',
+              label: 'How is Skillance Personal different from a classifieds site?',
               kind: 'leaf',
               answer:
-                'We verify every freelancer\'s ID, contact details and category fit before they can take bookings. Pricing, reviews and in-app messaging (once a booking is accepted) all live inside Skillance, so both sides know what they\'re getting into and there\'s a record if anything goes wrong.',
+                'Skillance Personal is built for booking verified freelancers — not peer-to-peer item sales. For local buy-and-sell classifieds, use the separate Skillance Marketplace app (same login). On Personal we verify freelancer IDs, show upfront pricing, hold payments in escrow, and keep messaging and reviews tied to completed bookings.',
             },
             {
               id: 'customer.about.free',
@@ -685,10 +685,17 @@ export const PUBLIC_FAQ: FaqNode = {
             },
             {
               id: 'other.about.diff',
-              label: 'How is it different from classifieds?',
+              label: 'How is Skillance Personal different from Skillance Marketplace?',
               kind: 'leaf',
               answer:
-                'ID-verified freelancers, transparent pricing, escrow, and in-app messaging after a booking is accepted — so there\'s a clear record and support path if something goes wrong.',
+                'Skillance Personal is for booking verified freelancers — search, book, pay with escrow, and leave reviews. Skillance Marketplace is a separate app for local buy-and-sell classifieds (furniture, electronics, and similar goods) with listings, favorites, and the same Skillance login. Services bookings and item listings are not mixed in one app.',
+            },
+            {
+              id: 'other.about.marketplace',
+              label: 'What is Skillance Marketplace?',
+              kind: 'leaf',
+              answer:
+                'Skillance Marketplace is our classifieds app: browse listings near you, post items with photos and price, save favorites, and agree pickup or payment directly with the seller. It uses your existing Skillance account but is separate from booking freelancers on Skillance Personal.',
             },
             {
               id: 'other.about.where',
