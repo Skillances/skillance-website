@@ -78,7 +78,7 @@ const Privacy = () => {
               connection fee payments (R50, non-refundable), session PIN evidence, session duration, disputes, cancellations.
             </li>
             <li>
-              <strong className="text-black">Payment data:</strong> processed by our payment provider (currently WalletDoc);
+              <strong className="text-black">Payment data:</strong> processed by our payment provider (TBC);
               we store limited transaction metadata (such as amounts, status, last-4 where provided) but not full card
               numbers.
             </li>
@@ -144,7 +144,7 @@ const Privacy = () => {
               information are shared between the customer and the Freelancer involved in a booking.
             </li>
             <li>
-              <strong className="text-black">Payment processing:</strong> WalletDoc processes payments, refunds, and the R50
+              <strong className="text-black">Payment processing:</strong> Our payment provider (TBC) processes payments, refunds, and the R50
               connection fee and may share limited transaction data with us.
             </li>
             <li>

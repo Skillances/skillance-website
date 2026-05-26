@@ -23,7 +23,7 @@ const RefundPolicy = () => {
           <h2 className="text-2xl font-serif text-black mb-2">1. How the money flow works</h2>
           <p className="leading-relaxed">
             Skillance is a commission-based marketplace. Customer payments are processed by our third-party payment provider
-            (currently WalletDoc) and held in <strong className="text-black">escrow</strong> until a booking completes and
+            (TBC) and held in <strong className="text-black">escrow</strong> until a booking completes and
             the <strong className="text-black">24-hour dispute window</strong> has passed without a valid dispute. Freelancer
             payouts are <em>booking total minus the platform commission</em> (typically{' '}
             <strong className="text-black">8–9% including VAT</strong> on the booking total, unless a different rate is agreed
