@@ -8,6 +8,7 @@ This repository contains the source code for the Skillance South Africa website.
 
 ### Key Features
 - **Modern UI/UX**: Premium dark theme with smooth animations and responsive design.
+- **Web product app**: Full Skillance services experience at `/app` (browse, book, chat, freelancer dashboard) — separate from marketing chrome.
 - **Admin Dashboard**: Comprehensive management panel for users, freelancers, and platform analytics.
 - **SEO Optimized**: Fully compliant with modern SEO standards, including structured data, meta tags, and optimized assets.
 - **Secure Authentication**: Robust authentication flow with protected routes and role-based access control.
@@ -38,9 +39,18 @@ This repository contains the source code for the Skillance South Africa website.
    npm install
    ```
 3. Set up environment variables:
-   Create a `.env` file in the root directory and add the following:
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` — at minimum set `VITE_API_BASE_URL`. Firebase values match the Flutter app project (`skillance-4ec9d`); add a **Web app** in Firebase Console and set `VITE_FIREBASE_APP_ID` for Google sign-in on `/app`.
    ```env
    VITE_API_BASE_URL=your_api_url
+   # Product app — Firebase web (Google sign-in)
+   VITE_FIREBASE_API_KEY=
+   VITE_FIREBASE_AUTH_DOMAIN=
+   VITE_FIREBASE_PROJECT_ID=
+   VITE_FIREBASE_APP_ID=
+   VITE_FIREBASE_MESSAGING_SENDER_ID=
    VITE_EMAILJS_SERVICE_ID=your_id
    VITE_EMAILJS_TEMPLATE_ID=your_id
    VITE_EMAILJS_PUBLIC_KEY=your_key
@@ -51,8 +61,15 @@ This repository contains the source code for the Skillance South Africa website.
    ```bash
    npm run dev
    ```
+5. Open the product at `http://localhost:5173/app`
 
-## 🔐 Security & Access Control
+## Web product (`/app`)
+
+Marketing stays on `/`. The product lives under `/app/*` with its own mobile-friendly shell. Admin remains at `/admin/*`; staff login stays at `/login`.
+
+See [docs/superpowers/specs/2026-07-28-web-app-product-port-design.md](docs/superpowers/specs/2026-07-28-web-app-product-port-design.md).
+
+## Security & Access Control
 
 The website includes a protected admin section accessible via the "Admin Login" link in the footer.
 - **Auth Flow**: Uses JWT with automatic token refresh.

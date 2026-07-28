@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -146,6 +147,12 @@ const Hero = () => {
           </span>
           <span className="italic">designed for trust.</span>
         </h1>
+        <Link
+          to="/app"
+          className="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-sm font-medium text-black hover:bg-white/90 transition-colors"
+        >
+          Open Skillance
+        </Link>
       </div>
     </section>
   );

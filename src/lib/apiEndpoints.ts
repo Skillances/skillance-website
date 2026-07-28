@@ -11,6 +11,10 @@ export const ApiPaths = {
     login: '/auth/login',
     logout: '/auth/logout',
     refresh: '/auth/refresh',
+    registerCustomer: '/auth/register/customer',
+    registerFreelancer: '/auth/register/freelancer',
+    google: '/auth/google',
+    forgotPassword: '/auth/forgot-password',
   },
 
   /** Backend POST /ably/auth issues subscribe-only TokenRequests (includes admin queue when DB isAdmin). */
@@ -20,11 +24,91 @@ export const ApiPaths = {
 
   users: {
     me: '/users/me',
+    preferredView: '/users/me/preferred-view',
+    roleApplications: '/users/me/role-applications',
+    syncCustomerProfile: '/users/me/sync-customer-profile',
+    settings: (userId: string) => `/users/${userId}/settings`,
   },
 
   categories: {
     list: '/categories',
     featured: '/categories/featured',
+    freelancerCounts: '/categories/freelancer-counts',
+    byId: (id: string) => `/categories/${id}`,
+  },
+
+  freelancers: {
+    list: '/freelancers',
+    search: '/freelancers/search',
+    byId: (id: string) => `/freelancers/${id}`,
+    byUserId: (userId: string) => `/freelancers/user/${userId}`,
+    apply: '/freelancers/apply',
+    applicationStatus: '/freelancers/application-status',
+    bookings: (id: string) => `/freelancers/${id}/bookings`,
+    availability: (id: string) => `/freelancers/${id}/availability`,
+    portfolio: (id: string) => `/freelancers/${id}/portfolio`,
+    serviceLocations: (id: string) => `/freelancers/${id}/service-locations`,
+    dashboardStats: (id: string) => `/freelancers/${id}/dashboard/stats`,
+    dashboardEarningsTrend: (id: string) => `/freelancers/${id}/dashboard/earnings-trend`,
+    dashboardActivity: (id: string) => `/freelancers/${id}/dashboard/activity`,
+    profileCompletionMe: '/freelancers/profile-completion/me',
+    update: (id: string) => `/freelancers/${id}`,
+    reviews: (id: string) => `/freelancers/${id}/reviews`,
+  },
+
+  bookings: {
+    create: '/bookings',
+    my: '/bookings/my',
+    byId: (id: string) => `/bookings/${id}`,
+    accept: (id: string) => `/bookings/${id}/accept`,
+    decline: (id: string) => `/bookings/${id}/decline`,
+    cancel: (id: string) => `/bookings/${id}/cancel`,
+    dismiss: (id: string) => `/bookings/${id}/dismiss`,
+    sessionStatus: (id: string) => `/bookings/${id}/session-status`,
+    connectionFee: (id: string) => `/bookings/${id}/connection-fee`,
+    connectionFeeConfirm: (id: string) => `/bookings/${id}/connection-fee/confirm`,
+    verifyPin: (id: string) => `/bookings/${id}/verify-pin`,
+    getPin: (id: string) => `/bookings/${id}/pin`,
+  },
+
+  chat: {
+    list: '/chats',
+    byBookingId: (bookingId: string) => `/chats/booking/${bookingId}`,
+    messages: (chatId: string) => `/chats/${chatId}/messages`,
+    markRead: (chatId: string) => `/chats/${chatId}/read`,
+  },
+
+  favorites: {
+    list: '/favorites',
+    add: '/favorites',
+    status: (freelancerId: string) => `/favorites/${freelancerId}/status`,
+    remove: (freelancerId: string) => `/favorites/${freelancerId}`,
+  },
+
+  recurring: {
+    requests: '/recurring-bookings/requests',
+    pendingRequests: '/recurring-bookings/requests/pending',
+    requestAccept: (id: string) => `/recurring-bookings/requests/${id}/accept`,
+    requestReject: (id: string) => `/recurring-bookings/requests/${id}/reject`,
+    series: '/recurring-bookings/series',
+    seriesById: (id: string) => `/recurring-bookings/series/${id}`,
+    seriesPause: (id: string) => `/recurring-bookings/series/${id}/pause`,
+    seriesResume: (id: string) => `/recurring-bookings/series/${id}/resume`,
+    seriesCancel: (id: string) => `/recurring-bookings/series/${id}/cancel`,
+  },
+
+  geocoding: {
+    geocode: '/geocoding/geocode',
+    reverse: '/geocoding/reverse',
+    autocomplete: '/geocoding/place-autocomplete',
+  },
+
+  invoices: {
+    create: '/invoices',
+    byBookingId: (bookingId: string) => `/invoices/booking/${bookingId}`,
+    send: (id: string) => `/invoices/${id}/send`,
+    accept: (id: string) => `/invoices/${id}/accept`,
+    decline: (id: string) => `/invoices/${id}/decline`,
   },
 
   public: {

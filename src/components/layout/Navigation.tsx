@@ -237,6 +237,16 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                   <span className={`absolute -bottom-1 left-0 w-0 h-px transition-[width] duration-200 ease-out group-hover:w-full ${underlineColor}`} />
                 </Link>
               )}
+              <Link
+                to="/app"
+                className={`text-sm font-medium px-4 py-2 rounded-full transition-colors ${
+                  isDarkSection
+                    ? 'bg-white text-black hover:bg-white/90'
+                    : 'bg-black text-white hover:bg-neutral-800'
+                }`}
+              >
+                Open app
+              </Link>
             </div>
 
             <div className="flex items-center gap-1 lg:hidden">
@@ -332,6 +342,20 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                       </Link>
                     </motion.div>
                   )}
+                  <motion.div
+                    initial={{ opacity: 0, transform: 'translateX(12px)' }}
+                    animate={{ opacity: 1, transform: 'translateX(0)' }}
+                    transition={{ duration: 0.22, delay: 0.1 + navLinks.length * 0.035, ease: [0.23, 1, 0.32, 1] }}
+                    className="pt-6"
+                  >
+                    <Link
+                      to="/app"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="inline-flex w-full items-center justify-center rounded-full bg-black px-6 py-3.5 text-base font-medium text-white"
+                    >
+                      Open app
+                    </Link>
+                  </motion.div>
                 </div>
               </div>
             </motion.div>

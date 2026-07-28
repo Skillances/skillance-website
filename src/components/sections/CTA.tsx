@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { post } from '@/lib/api';
@@ -69,7 +70,7 @@ const CTA = () => {
       <div className="max-w-4xl mx-auto px-6 lg:px-8">
         <div className="cta-content text-center">
           <p className="text-sm uppercase tracking-widest text-neutral-500 mb-6">
-            Coming Soon
+            Now live on web
           </p>
           
           <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-black leading-[1.1] mb-6">
@@ -77,10 +78,18 @@ const CTA = () => {
             <span className="italic">perfect match?</span>
           </h2>
 
-          <p className="text-lg text-neutral-600 max-w-xl mx-auto mb-12">
-            Join thousands who've discovered trusted local experts through Skillance. 
-            Be the first to know when we launch.
+          <p className="text-lg text-neutral-600 max-w-xl mx-auto mb-8">
+            Browse verified freelancers, book services, and manage everything from your browser.
           </p>
+
+          <Link
+            to="/app"
+            className="inline-flex items-center justify-center rounded-full bg-black px-8 py-4 text-white font-medium hover:bg-neutral-800 transition-colors mb-12"
+          >
+            Open Skillance
+          </Link>
+
+          <p className="text-sm text-neutral-500 mb-4">Or join the launch list for updates</p>
 
           {!isSubmitted ? (
             <div className="max-w-md mx-auto mb-12">

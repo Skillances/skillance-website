@@ -20,6 +20,7 @@ import ServicesPage from './pages/ServicesPage';
 import ContactPage from './pages/ContactPage';
 import CategoryPage from './pages/CategoryPage';
 import LoginPage from './pages/LoginPage';
+import AppRoutes from './pages/app/AppRoutes';
 import AdminLayout from './components/layout/AdminLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminRouteErrorBoundary from './components/common/AdminRouteErrorBoundary';
@@ -33,6 +34,8 @@ import ScrollIndicator from './components/layout/ScrollIndicator';
 import PublicFaqBot from './components/layout/PublicFaqBot';
 import { syncSectionScrollMarginCss } from './lib/sectionScroll';
 import { getPrefersReducedMotion, LENIS_DURATION } from './lib/motion';
+import { isAppRoute } from './lib/appRoutes';
+import { Toaster } from './components/ui/sonner';
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
@@ -108,8 +111,10 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   const mainRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAppProductRoute = isAppRoute(location.pathname);
   const isLoginPage = location.pathname === '/login';
-  const routeAnimationKey = isAdminRoute ? '/admin' : location.pathname;
+  const isMarketingRoute = !isAdminRoute && !isAppProductRoute && !isLoginPage;
+  const routeAnimationKey = isAdminRoute ? '/admin' : isAppProductRoute ? '/app' : location.pathname;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -169,7 +174,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && isMarketingRoute) {
       // Initialize Lenis for smooth scrolling
       const reducedMotion = getPrefersReducedMotion();
       const lenis = new Lenis({
@@ -215,21 +220,26 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
         lenis.destroy();
       };
     }
-  }, [isLoaded]);
+  }, [isLoaded, isMarketingRoute]);
 
   return (
     <div 
       ref={mainRef} 
-      className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : 'bg-white'} transition-opacity duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[opacity] ${
+      className={`relative min-h-screen ${
+        isAdminRoute ? 'bg-neutral-950' : isAppProductRoute ? 'bg-neutral-50' : 'bg-white'
+      } transition-opacity duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[opacity] ${
         isLoaded ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
       <ScrollToTop />
-      {!isAdminRoute && !isLoginPage && <Navigation isLoaded={isLoaded} />}
+      {isMarketingRoute && <Navigation isLoaded={isLoaded} />}
       <main>
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={routeAnimationKey}>
-            {/* Public Routes */}
+            {/* Product app — separate chrome via AppLayout */}
+            <Route path="/app/*" element={<AppRoutes />} />
+
+            {/* Public marketing routes */}
             <Route path="/" element={<PageTransition routeKey="/"><Home /></PageTransition>} />
             <Route path="/help-center" element={<PageTransition routeKey="/help-center"><HelpCenter /></PageTransition>} />
             <Route path="/privacy-policy" element={<PageTransition routeKey="/privacy-policy"><Privacy /></PageTransition>} />
@@ -297,8 +307,8 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
           </Routes>
         </AnimatePresence>
       </main>
-      {!isAdminRoute && !isLoginPage && <Footer />}
-      {isLoaded && !isAdminRoute && !isLoginPage && (
+      {isMarketingRoute && <Footer />}
+      {isLoaded && isMarketingRoute && (
         <>
           <CookieConsent />
           <LaunchCountdown />
@@ -306,6 +316,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
           <PublicFaqBot />
         </>
       )}
+      <Toaster richColors position="top-center" />
     </div>
   );
 }
@@ -313,8 +324,9 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
 function AppShell() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAppProductRoute = isAppRoute(location.pathname);
   const isLoginPage = location.pathname === '/login';
-  const shouldShowLoader = !isAdminRoute && !isLoginPage;
+  const shouldShowLoader = !isAdminRoute && !isAppProductRoute && !isLoginPage;
 
   const [isLoaded, setIsLoaded] = useState(false);
 

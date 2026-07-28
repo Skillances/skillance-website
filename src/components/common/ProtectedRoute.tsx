@@ -5,43 +5,47 @@ import { useAuth } from '@/context/AuthContext';
 interface ProtectedRouteProps {
   children: ReactNode;
   requireAdmin?: boolean;
+  /** Where to send unauthenticated users. Defaults to `/login` (admin). */
+  loginPath?: string;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin = false }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requireAdmin = false,
+  loginPath = '/login',
+}) => {
   const { isAuthenticated, isAdmin, isLoading } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-text-secondary">Loading...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-neutral-300 border-t-neutral-900 mx-auto mb-3" />
+          <p className="text-sm text-neutral-500">Loading...</p>
         </div>
       </div>
     );
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to={loginPath} state={{ from: location }} replace />;
   }
 
   if (requireAdmin && !isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-neutral-50">
         <div className="max-w-md w-full text-center">
-          <h1 className="text-2xl font-bold mb-4" style={{ fontFamily: 'var(--font-family-poppins)' }}>
-            Access Denied
-          </h1>
-          <p className="text-text-secondary mb-6">
+          <h1 className="text-2xl font-semibold mb-3 text-neutral-900">Access denied</h1>
+          <p className="text-neutral-600 mb-6">
             You do not have permission to access this page. Admin privileges are required.
           </p>
-          <button
-            onClick={() => window.location.href = '/'}
-            className="inline-block px-6 py-3 rounded-md text-white font-medium bg-black hover:bg-neutral-800 transition-colors"
+          <a
+            href="/"
+            className="inline-block px-6 py-3 rounded-full text-white font-medium bg-neutral-900 hover:bg-neutral-800 transition-colors"
           >
-            Return to Home
-          </button>
+            Return to home
+          </a>
         </div>
       </div>
     );

@@ -220,6 +220,27 @@ export async function put(endpoint: string, data: any) {
   return response.json();
 }
 
+export async function patch(endpoint: string, data?: unknown) {
+  const response = await apiRequest(endpoint, {
+    method: 'PATCH',
+    body: data !== undefined ? JSON.stringify(data) : undefined,
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Request failed' }));
+    throw error;
+  }
+
+  if (response.status === 204) {
+    return { success: true };
+  }
+  const text = await response.text();
+  if (!text.trim()) {
+    return { success: true };
+  }
+  return JSON.parse(text);
+}
+
 export async function del(endpoint: string) {
   const response = await apiRequest(endpoint, {
     method: 'DELETE',
@@ -238,6 +259,7 @@ export default {
   post,
   get,
   put,
+  patch,
   delete: del,
   storeTokens,
   clearTokens,
