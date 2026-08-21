@@ -11,7 +11,7 @@ This Refund Policy forms part of our Terms of Service (https://skillance.co.za/t
 
 ## 1. How the money flow works
 
-Skillance is a commission-based marketplace. Customer payments are processed by our third-party payment provider (currently WalletDoc) and held in **escrow** until a booking completes and the **24-hour dispute window** has passed without a valid dispute. Freelancer payouts are *booking total minus the platform commission* (typically **8–9% including VAT** on the booking total, unless a different rate is agreed in writing).
+Skillance is a commission-based marketplace. Customer payments are processed by our third-party payment provider (TBC) and held in **escrow** until a booking completes and the **24-hour dispute window** has passed without a valid dispute. Freelancer payouts are *booking total minus the platform commission* (typically **8–9% including VAT** on the booking total, unless a different rate is agreed in writing).
 
 Bookings use one of two pricing modes:
 

@@ -5,7 +5,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getLenisFromWindow, getSectionScrollTopReservePx, scrollToPageSection } from '@/lib/sectionScroll';
 import { useAuth } from '@/context/AuthContext';
-import { MarketplaceNewMark, type MarketplaceNavTheme } from '@/components/marketplace/MarketplaceAccent';
 
 interface NavigationProps {
   isLoaded: boolean;
@@ -42,8 +41,6 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
         { id: 'how-it-works', dark: false },
         { id: 'trust-safety', dark: true },
         { id: 'stats', dark: false },
-        { id: 'marketplace-intro', dark: true },
-        { id: 'marketplace', dark: false },
         { id: 'testimonials', dark: true },
         { id: 'faq', dark: true },
         { id: 'reviews', dark: false },
@@ -143,13 +140,6 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
   const hoverColor = isDarkSection ? 'hover:text-white' : 'hover:text-black';
   const underlineColor = isDarkSection ? 'bg-white' : 'bg-black';
 
-  const marketplaceNavTheme: MarketplaceNavTheme = {
-    surface: isDarkSection ? 'dark' : 'light',
-    mutedClass: textColorMuted,
-    hoverClass: hoverColor,
-    underlineClass: underlineColor,
-  };
-
   return (
     <>
       <svg className="absolute w-0 h-0" aria-hidden="true">
@@ -227,11 +217,6 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
 
             {/* Right Navigation */}
             <div className="hidden lg:flex items-center gap-6 flex-1 justify-end">
-              <MarketplaceNewMark
-                variant="nav"
-                navTheme={marketplaceNavTheme}
-                onClick={(e) => handleLinkClick('/#marketplace-intro', e)}
-              />
               {navLinks.slice(3).map((link) => (
                 <button
                   key={link.name}
@@ -319,23 +304,6 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
 
               <div className="p-6">
                 <div className="flex flex-col gap-1">
-                  <motion.div
-                    initial={{ opacity: 0, transform: 'translateX(12px)' }}
-                    animate={{ opacity: 1, transform: 'translateX(0)' }}
-                    transition={{ duration: 0.22, delay: 0.04, ease: [0.23, 1, 0.32, 1] }}
-                    className="pb-4 mb-2 border-b border-neutral-100"
-                  >
-                    <MarketplaceNewMark
-                      variant="nav"
-                      navTheme={{
-                        surface: 'light',
-                        mutedClass: 'text-neutral-600',
-                        hoverClass: 'hover:text-black',
-                        underlineClass: 'bg-black',
-                      }}
-                      onClick={(e) => handleLinkClick('/#marketplace-intro', e)}
-                    />
-                  </motion.div>
                   {navLinks.map((link, i) => (
                     <motion.button
                       key={link.name}

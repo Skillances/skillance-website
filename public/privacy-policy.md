@@ -27,7 +27,7 @@ This policy applies to personal information we collect when you visit our websit
 - **Freelancer profile data:** bio, skills, rates, categories, portfolio content, service locations, availability, and public ratings and reviews from completed bookings.
 - **Identity and safety data:** government-issued ID or passport (and photos of the document) and a selfie for verification. Freelancers may also optionally upload a police clearance certificate to display an extra trust badge on their profile — it is not required to register or take bookings. This is "special" or sensitive personal information under POPIA and is handled accordingly.
 - **Booking and commerce data:** bookings, invoices, platform commission on completed bookings (8–9% including VAT unless otherwise agreed), connection fee payments (R50, non-refundable), session PIN evidence, session duration, disputes, cancellations.
-- **Payment data:** processed by our payment provider (currently WalletDoc); we store limited transaction metadata (such as amounts, status, last-4 where provided) but not full card numbers.
+- **Payment data:** processed by our payment provider (TBC); we store limited transaction metadata (such as amounts, status, last-4 where provided) but not full card numbers.
 - **Communications:** in-app chat messages, support emails, WhatsApp conversations when you contact us, notification preferences.
 - **Reviews and ratings.**
 - **Location:** city and approximate coordinates; precise device location only when you enable proximity search or a feature that requires it, based on your device permissions.
@@ -56,7 +56,7 @@ The Platform is intended for adults. You must be at least 18 years old to create
 We do not sell your personal information. We share information only as needed to run the Platform and as described here:
 
 - **Between users:** profile details, reviews, and booking-relevant information are shared between the customer and the Freelancer involved in a booking.
-- **Payment processing:** WalletDoc processes payments, refunds, and the R50 connection fee and may share limited transaction data with us.
+- **Payment processing:** Our payment provider (TBC) processes payments, refunds, and the R50 connection fee and may share limited transaction data with us.
 - **Infrastructure and analytics operators:** cloud hosting, database, search, error reporting, analytics (Google), tag manager (Google Tag Manager with Consent Mode), maps (Mapbox), realtime messaging (Ably and/or Pusher-compatible services), email delivery, and push notification services.
 - **Identity and verification services** where we use them to help verify Freelancers.
 - **Professional advisers** (accountants, auditors, insurers, lawyers) under duties of confidentiality.

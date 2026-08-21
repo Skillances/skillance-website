@@ -128,7 +128,7 @@ const Terms = () => {
           <h2 className="text-2xl font-serif text-black mb-2">7. Bookings, pricing modes, and payments</h2>
           <p className="leading-relaxed">
             All prices on the Platform are displayed in South African Rand (ZAR) and, where applicable, include VAT. Payments
-            are processed through our third-party payment provider (currently WalletDoc). Skillance does not store full card
+            are processed through our third-party payment provider (TBC). Skillance does not store full card
             details.
           </p>
           <p className="leading-relaxed">Bookings follow one of two pricing modes, determined by the Freelancer&apos;s category configuration:</p>

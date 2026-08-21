@@ -44,7 +44,7 @@ Freelancers are responsible for their own tax registration, returns, and complia
 
 ## 7. Bookings, pricing modes, and payments
 
-All prices on the Platform are displayed in South African Rand (ZAR) and, where applicable, include VAT. Payments are processed through our third-party payment provider (currently WalletDoc). Skillance does not store full card details.
+All prices on the Platform are displayed in South African Rand (ZAR) and, where applicable, include VAT. Payments are processed through our third-party payment provider (TBC). Skillance does not store full card details.
 
 Bookings follow one of two pricing modes:
 

@@ -17,7 +17,7 @@ Canonical page: https://skillance.co.za/trust-safety
 
 ## Payments and escrow
 
-- **Escrow first.** When a customer confirms a booking, the payment is held by our licensed South African payment partner (currently WalletDoc). Freelancers only receive their share after the customer confirms the job is complete (or the short dispute window closes).
+- **Escrow first.** When a customer confirms a booking, the payment is held by our licensed South African payment partner (TBC). Freelancers only receive their share after the customer confirms the job is complete (or the short dispute window closes).
 - **Card and EFT only.** Payments are processed through regulated channels — card (Visa/Mastercard) and instant EFT. Skillance never stores full card numbers.
 - **No cash in-app.** Off-app payments void Skillance protections and are against our Terms.
 - **VAT and transparency.** All amounts shown are VAT-inclusive where applicable, and the service fee (8–9% including VAT) is itemised before checkout.
