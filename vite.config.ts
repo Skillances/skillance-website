@@ -9,7 +9,7 @@ import {
 } from "./functions/lib/homepageMarkdown"
 
 const DEFAULT_S3_CATEGORY_BASE =
-  "https://skillance-public.s3.af-south-1.amazonaws.com/category-images"
+  "https://stskillance53be9f.blob.core.windows.net/public/category-images"
 
 /**
  * Dev-only: fetch S3 JSON via the Vite server so the browser does not need CORS for localhost.

@@ -6,7 +6,7 @@ import { ApiPaths } from '@/lib/apiEndpoints';
  */
 export const PUBLIC_S3_CATEGORY_IMAGES_BASE =
   (import.meta.env.VITE_PUBLIC_S3_CATEGORY_BASE as string | undefined)?.replace(/\/+$/, '') ||
-  'https://skillance-public.s3.af-south-1.amazonaws.com/category-images';
+  'https://stskillance53be9f.blob.core.windows.net/public/category-images';
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
