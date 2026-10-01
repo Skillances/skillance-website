@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, X } from 'lucide-react';
 import SearchBar from '@/components/marketplace/SearchBar';
@@ -7,6 +7,10 @@ import FreelancerResults from '@/components/marketplace/FreelancerResults';
 import { MkButton, MkDialog, MkInput, MkPageHeader, MkSelect } from '@/components/marketplace/ui';
 import { categoryLabel, useCategories, type CategoryNode } from '@/lib/marketplace/categories';
 import { useBrowserLocation, type SearchBody } from '@/lib/marketplace/search';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+
+/** Wait until typing pauses before hitting POST /freelancers/search. */
+const SEARCH_DEBOUNCE_MS = 400;
 
 /** Open upper bound when only a minimum rate is given (the API needs both ends). */
 const PRICE_CEILING = 100_000;
@@ -23,26 +27,22 @@ function readFilters(p: URLSearchParams): Filters {
   };
 }
 
-function CategoryOptions({ roots }: { roots: CategoryNode[] }) {
-  return (
-    <>
-      {roots.map((r) =>
-        r.children && r.children.length > 0 ? (
-          <optgroup key={r.id} label={r.name}>
-            <option value={r.id}>All {r.name}</option>
-            {r.children.map((c) => (
-              <option key={c.id} value={`${r.id}:${c.id}`}>
-                {c.name}
-              </option>
-            ))}
-          </optgroup>
-        ) : (
-          <option key={r.id} value={r.id}>
-            {r.name}
+function categoryOptionNodes(roots: CategoryNode[]): ReactNode {
+  return roots.map((r) =>
+    r.children && r.children.length > 0 ? (
+      <optgroup key={r.id} label={r.name}>
+        <option value={r.id}>All {r.name}</option>
+        {r.children.map((c) => (
+          <option key={c.id} value={`${r.id}:${c.id}`}>
+            {c.name}
           </option>
-        ),
-      )}
-    </>
+        ))}
+      </optgroup>
+    ) : (
+      <option key={r.id} value={r.id}>
+        {r.name}
+      </option>
+    ),
   );
 }
 
@@ -84,12 +84,35 @@ export default function SearchPage() {
   const body = buildSearchBody(q, filters, loc);
   const activeCount = [filters.cat, filters.rating, filters.min || filters.max, loc.status === 'granted' ? filters.dist : ''].filter(Boolean).length;
 
-  const update = (next: Partial<Filters> & { q?: string }) => {
+  const [queryDraft, setQueryDraft] = useState(q);
+  const [seenQ, setSeenQ] = useState(q);
+  if (q !== seenQ) {
+    setSeenQ(q);
+    if (queryDraft.trim() !== q) setQueryDraft(q);
+  }
+  const debouncedQuery = useDebouncedValue(queryDraft, SEARCH_DEBOUNCE_MS);
+
+  const update = (next: Partial<Filters> & { q?: string }, replace = false) => {
     const merged = { q, ...filters, ...next };
     const out = new URLSearchParams();
     for (const [k, v] of Object.entries(merged)) if (v) out.set(k, v);
-    setParams(out, { replace: false });
+    setParams(out, { replace });
   };
+
+  useEffect(() => {
+    const next = debouncedQuery.trim();
+    // Skip a stale debounce after the URL changes from outside, such as back or forward.
+    if (next !== queryDraft.trim() || next === q) return;
+    setParams(
+      (prev) => {
+        const out = new URLSearchParams(prev);
+        if (next) out.set('q', next);
+        else out.delete('q');
+        return out;
+      },
+      { replace: true },
+    );
+  }, [debouncedQuery, queryDraft, q, setParams]);
 
   const applyDraft = () => {
     const min = draft.min ? Number(draft.min) : null;
@@ -107,7 +130,13 @@ export default function SearchPage() {
     <>
       <MkPageHeader title="Search" subtitle={q ? `Results for "${q}"` : 'Find a freelancer for any job.'} />
       <div className="space-y-3">
-        <SearchBar key={q} initial={q} onSubmit={(v) => update({ q: v })} autoFocus={!q} />
+        <SearchBar
+          live
+          value={queryDraft}
+          onChange={setQueryDraft}
+          onSubmit={(v) => update({ q: v }, true)}
+          autoFocus={!q}
+        />
         <div className="flex flex-wrap items-center gap-2">
           <MkButton
             variant="secondary"
@@ -155,7 +184,7 @@ export default function SearchPage() {
         <div className="space-y-4">
           <MkSelect label="Category" value={draft.cat} onChange={(e) => setDraft({ ...draft, cat: e.target.value })}>
             <option value="">All categories</option>
-            <CategoryOptions roots={categories.data ?? []} />
+            {categoryOptionNodes(categories.data ?? [])}
           </MkSelect>
           <MkSelect label="Minimum rating" value={draft.rating} onChange={(e) => setDraft({ ...draft, rating: e.target.value })}>
             <option value="">Any rating</option>

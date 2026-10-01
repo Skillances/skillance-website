@@ -24,6 +24,7 @@ import {
 } from '@/components/marketplace/ui';
 import { apiErrorMessage, apiFieldErrors, listFrom } from '@/lib/marketplace/apiHelpers';
 import { compressImage } from '@/lib/marketplace/image';
+import { publicAssetUrl } from '@/lib/publicAssetUrl';
 
 type Project = {
   id: string;
@@ -208,7 +209,7 @@ function Portfolio({ freelancerId }: { freelancerId: string }) {
               return (
                 <div className="flex gap-3 rounded-2xl border border-mk-border p-3">
                   {p.imageUrls[0] ? (
-                    <img src={p.imageUrls[0]} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
+                    <img src={publicAssetUrl(p.imageUrls[0])} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
                   ) : (
                     <span className="h-20 w-20 shrink-0 rounded-xl bg-mk-muted" />
                   )}

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import PageHeader from '@/components/admin/PageHeader';
 import { resolveCategoryLabel } from '@/lib/utils';
+import { publicAssetUrl } from '@/lib/publicAssetUrl';
 import DetailCard, { type DetailField } from '@/components/admin/DetailCard';
 import StatusBadge from '@/components/admin/StatusBadge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -589,7 +590,7 @@ const AdminUserDetail: React.FC = () => {
                         )}
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           {(project.imageUrls || []).map((u, i) => (
-                            u?.trim() ? <MediaTile key={`${project.id}-img-${i}`} label={`${project.title} · ${i + 1}`} url={u.trim()} /> : null
+                            u?.trim() ? <MediaTile key={`${project.id}-img-${i}`} label={`${project.title} · ${i + 1}`} url={publicAssetUrl(u.trim()) ?? u.trim()} /> : null
                           ))}
                         </div>
                       </div>

@@ -23,6 +23,7 @@ import { categoryLabel, useCategories } from '@/lib/marketplace/categories';
 import { listingPriceLabel, money, rateLabel } from '@/lib/marketplace/pricing';
 import { isIdVerified } from '@/lib/marketplace/search';
 import { formatZar, mkMotion } from '@/lib/marketplace/theme';
+import { publicAssetUrl } from '@/lib/publicAssetUrl';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/utils';
 
@@ -58,6 +59,21 @@ type Review = {
 };
 
 type Project = { id: string; title: string; description?: string | null; imageUrls?: string[] };
+
+function WorkPhoto({ src, alt }: { src: string; alt: string }) {
+  const [failed, setFailed] = useState(false);
+  const url = publicAssetUrl(src);
+  if (!url || failed) return null;
+  return (
+    <img
+      src={url}
+      alt={alt}
+      className="aspect-[4/3] w-full bg-mk-muted object-cover"
+      loading="lazy"
+      onError={() => setFailed(true)}
+    />
+  );
+}
 type Product = { id: string; title: string; description?: string | null; price: string | number; fileType?: string };
 
 /** The site's own public profile URL (not the app QR deep link). */
@@ -89,12 +105,44 @@ function ProfileSkeleton() {
   );
 }
 
+function HeartBurst() {
+  return (
+    <span className="pointer-events-none absolute inset-0" aria-hidden="true">
+      <motion.span
+        className="absolute inset-0 rounded-full border-2 border-mk-error"
+        initial={{ scale: 0.55, opacity: 0.55 }}
+        animate={{ scale: 2, opacity: 0 }}
+        transition={{ duration: 0.42, ease: mkMotion.ease }}
+      />
+      {Array.from({ length: 6 }, (_, i) => {
+        const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
+        return (
+          <motion.span
+            key={i}
+            className="absolute left-1/2 top-1/2 h-1.5 w-1.5 rounded-full bg-mk-error"
+            style={{ marginLeft: -3, marginTop: -3 }}
+            initial={{ x: 0, y: 0, scale: 0.6, opacity: 1 }}
+            animate={{
+              x: Math.cos(angle) * 16,
+              y: Math.sin(angle) * 16,
+              scale: 0.15,
+              opacity: 0,
+            }}
+            transition={{ duration: 0.38, ease: mkMotion.ease }}
+          />
+        );
+      })}
+    </span>
+  );
+}
+
 function FavoriteButton({ freelancerId }: { freelancerId: string }) {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const qc = useQueryClient();
   const reduced = usePrefersReducedMotion();
+  const [play, setPlay] = useState<{ id: number; kind: 'save' | 'remove' } | null>(null);
   const status = useQuery({
     queryKey: ['marketplace', 'favorite', freelancerId],
     enabled: isAuthenticated,
@@ -130,18 +178,33 @@ function FavoriteButton({ freelancerId }: { freelancerId: string }) {
           navigate('/login', { state: { from: location } });
           return;
         }
-        toggle.mutate(!on);
+        const next = !on;
+        setPlay({ id: Date.now(), kind: next ? 'save' : 'remove' });
+        toggle.mutate(next);
       }}
     >
-      <motion.span
-        key={on ? 'on' : 'off'}
-        initial={reduced ? false : { scale: 0.8 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: mkMotion.control, ease: mkMotion.ease }}
-        className="inline-flex"
-      >
-        <Heart className={cn('h-5 w-5', on && 'text-mk-error')} fill={on ? 'currentColor' : 'none'} aria-hidden="true" />
-      </motion.span>
+      <span className="relative inline-flex">
+        {!reduced && play?.kind === 'save' && <HeartBurst key={play.id} />}
+        <motion.span
+          key={play?.id ?? 'rest'}
+          initial={reduced || !play ? false : { scale: play.kind === 'save' ? 0.72 : 0.92 }}
+          animate={{ scale: 1 }}
+          transition={
+            reduced || !play
+              ? { duration: 0 }
+              : play.kind === 'save'
+                ? { type: 'spring', duration: 0.45, bounce: 0.42 }
+                : { duration: 0.16, ease: mkMotion.ease }
+          }
+          className="inline-flex"
+        >
+          <Heart
+            className={cn('h-5 w-5 transition-colors duration-150 motion-reduce:transition-none', on && 'text-mk-error')}
+            fill={on ? 'currentColor' : 'none'}
+            aria-hidden="true"
+          />
+        </motion.span>
+      </span>
     </MkIconButton>
   );
 }
@@ -306,6 +369,7 @@ function ProfileBody({
   bookAction: ReactNode;
 }) {
   const name = p.fullName || 'Skillance freelancer';
+  const coverUrl = publicAssetUrl(p.coverPhotoUrl);
   const verified = isIdVerified(p);
   const cats = p.categoryIds ?? [];
   const shownCats = showAllCats ? cats : cats.slice(0, 5);
@@ -314,16 +378,24 @@ function ProfileBody({
 
   return (
     <div className="pb-24 lg:pb-0">
-      {/* Cover with share and favorite */}
-      <div className="relative -mx-4 h-36 overflow-hidden bg-mk-muted sm:mx-0 sm:h-44 sm:rounded-2xl">
-        {p.coverPhotoUrl && <img src={p.coverPhotoUrl} alt="" className="h-full w-full object-cover" />}
-        <div className="absolute right-3 top-3 flex gap-2">
-          <MkIconButton label="Copy profile link" className="bg-mk-surface shadow-mk-avatar" onClick={onShare}>
-            <Share2 className="h-5 w-5" aria-hidden="true" />
-          </MkIconButton>
-          {favorite}
+      {/* Cover clips the photo only. The avatar sits outside that box so the full circle stays visible. */}
+      <div className="relative -mx-4 sm:mx-0">
+        <div className="relative h-36 overflow-hidden bg-mk-muted sm:h-44 sm:rounded-2xl">
+          {coverUrl && <img src={coverUrl} alt="" className="h-full w-full object-cover" />}
+          <div className="absolute right-3 top-3 flex gap-2">
+            <MkIconButton label="Copy profile link" className="bg-mk-surface shadow-mk-avatar" onClick={onShare}>
+              <Share2 className="h-5 w-5" aria-hidden="true" />
+            </MkIconButton>
+            {favorite}
+          </div>
+        </div>
+        <div className="absolute bottom-0 left-4 z-10 translate-y-1/2 sm:left-5">
+          <span className="inline-flex rounded-full border-4 border-mk-background bg-mk-surface shadow-mk-avatar">
+            <MkAvatar src={publicAssetUrl(p.profilePhotoUrl)} name={name} size={88} />
+          </span>
         </div>
       </div>
+      <div className="h-14" aria-hidden="true" />
 
       {!verified && (
         <div className="mt-4 flex gap-3 rounded-2xl border border-mk-border p-3.5 text-[14px]" role="note">
@@ -332,12 +404,6 @@ function ProfileBody({
         </div>
       )}
 
-      {/* Header */}
-      <div className="-mt-10 flex items-end gap-4 px-1 sm:-mt-12">
-        <span className="rounded-full border-4 border-mk-surface shadow-mk-avatar">
-          <MkAvatar src={p.profilePhotoUrl} name={name} size={88} />
-        </span>
-      </div>
       <div className="mt-3">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-[24px] font-bold leading-tight tracking-tight">{name}</h1>
@@ -430,9 +496,7 @@ function ProfileBody({
               {(portfolio.data ?? []).map((proj) => (
                 <li key={proj.id}>
                   <MkCard className="overflow-hidden p-0">
-                    {proj.imageUrls?.[0] && (
-                      <img src={proj.imageUrls[0]} alt={proj.title} className="aspect-[4/3] w-full object-cover" loading="lazy" />
-                    )}
+                    {proj.imageUrls?.[0] && <WorkPhoto src={proj.imageUrls[0]} alt={proj.title} />}
                     <div className="p-3.5">
                       <p className="font-mk-display text-[14px] font-semibold">{proj.title}</p>
                       {proj.description && <p className="mt-1 line-clamp-2 text-[13px] text-mk-text-secondary">{proj.description}</p>}

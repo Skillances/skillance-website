@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { ADMIN_QUEUE_HINT_EVENT } from '@/lib/adminQueueEvents';
 import { CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { publicAssetUrl } from '@/lib/publicAssetUrl';
 
 interface PendingPortfolioRow {
   id: string;
@@ -122,13 +123,13 @@ const AdminPortfolioReviews: React.FC = () => {
                       {r.imageUrls.map((url, i) => (
                         <a
                           key={`${r.id}-img-${i}`}
-                          href={url}
+                          href={publicAssetUrl(url) ?? url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden bg-neutral-50 dark:bg-neutral-900"
                         >
                           <img
-                            src={url}
+                            src={publicAssetUrl(url)}
                             alt=""
                             className="w-28 h-28 object-cover"
                             loading="lazy"

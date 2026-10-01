@@ -3,9 +3,13 @@
  * (src/lib/marketplace/theme.ts). Motion respects prefers-reduced-motion.
  */
 import {
+  Children,
+  Fragment,
   forwardRef,
+  isValidElement,
   useId,
   type ButtonHTMLAttributes,
+  type ChangeEvent,
   type InputHTMLAttributes,
   type ReactNode,
   type SelectHTMLAttributes,
@@ -14,11 +18,12 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import * as SelectPrimitive from '@radix-ui/react-select';
 import * as SwitchPrimitive from '@radix-ui/react-switch';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertCircle, ArrowLeft, Loader2, RotateCw, Star, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Check, ChevronDown, Loader2, RotateCw, Star, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { mkMotion } from '@/lib/marketplace/theme';
+import { marketplaceCssVars, mkMotion } from '@/lib/marketplace/theme';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 /* ------------------------------------------------------------------ Buttons */
@@ -212,28 +217,160 @@ export const MkTextarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes
   },
 );
 
-export const MkSelect = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement> & FieldExtras>(
-  function MkSelect({ label, error, hint, optional, id, className, children, ...rest }, ref) {
+/** Radix items cannot use an empty string. Mapped back to "" for existing onChange handlers. */
+const SELECT_EMPTY = '__mk_empty__';
+
+type SelectOption = { value: string; label: string; disabled: boolean };
+type SelectGroup = { label?: string; options: SelectOption[] };
+
+function optionText(node: ReactNode): string {
+  if (node == null || typeof node === 'boolean') return '';
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(optionText).join('');
+  if (isValidElement<{ children?: ReactNode }>(node)) return optionText(node.props.children);
+  return '';
+}
+
+function readOption(node: ReactNode): SelectOption | null {
+  if (!isValidElement<{ value?: string | number; disabled?: boolean; children?: ReactNode }>(node)) return null;
+  if (node.type !== 'option') return null;
+  return {
+    value: node.props.value == null ? '' : String(node.props.value),
+    label: optionText(node.props.children).trim(),
+    disabled: Boolean(node.props.disabled),
+  };
+}
+
+/** Reads `<option>` and `<optgroup>` children, including fragments and arrays. */
+function parseSelectChildren(children: ReactNode): { placeholder?: string; groups: SelectGroup[] } {
+  const groups: SelectGroup[] = [];
+  const loose: SelectOption[] = [];
+  let placeholder: string | undefined;
+
+  const flush = () => {
+    if (loose.length > 0) groups.push({ options: loose.splice(0, loose.length) });
+  };
+
+  const walk = (nodes: ReactNode) => {
+    Children.forEach(nodes, (child) => {
+      if (!isValidElement<{ children?: ReactNode; label?: string }>(child)) return;
+      if (child.type === Fragment) {
+        walk(child.props.children);
+        return;
+      }
+      if (child.type === 'optgroup') {
+        flush();
+        const options: SelectOption[] = [];
+        Children.forEach(child.props.children, (opt) => {
+          const parsed = readOption(opt);
+          if (parsed) options.push(parsed);
+        });
+        groups.push({ label: child.props.label, options });
+        return;
+      }
+      const parsed = readOption(child);
+      if (parsed) loose.push(parsed);
+    });
+  };
+
+  walk(children);
+  flush();
+
+  for (const group of groups) {
+    group.options = group.options.filter((opt) => {
+      if (opt.disabled && opt.value === '') {
+        placeholder = opt.label;
+        return false;
+      }
+      return true;
+    });
+  }
+
+  return { placeholder, groups: groups.filter((group) => group.options.length > 0) };
+}
+
+function toItemValue(value: string): string {
+  return value === '' ? SELECT_EMPTY : value;
+}
+
+export const MkSelect = forwardRef<HTMLButtonElement, SelectHTMLAttributes<HTMLSelectElement> & FieldExtras>(
+  function MkSelect({ label, error, hint, optional, id, className, children, value, defaultValue, onChange, disabled, name }, ref) {
     const auto = useId();
     const fid = id ?? auto;
+    const { placeholder, groups } = parseSelectChildren(children);
+    const current = String(value ?? defaultValue ?? '');
+    const hasEmptyChoice = groups.some((group) => group.options.some((opt) => opt.value === ''));
+    const radixValue = current === '' ? (hasEmptyChoice ? SELECT_EMPTY : '') : current;
+    const describedBy = error ? `${fid}-error` : hint ? `${fid}-hint` : undefined;
+
+    const choose = (next: string) => {
+      const mapped = next === SELECT_EMPTY ? '' : next;
+      onChange?.({ target: { value: mapped }, currentTarget: { value: mapped } } as ChangeEvent<HTMLSelectElement>);
+    };
+
     return (
       <FieldShell id={fid} label={label} error={error} hint={hint} optional={optional}>
-        <select
-          ref={ref}
-          id={fid}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? `${fid}-error` : hint ? `${fid}-hint` : undefined}
-          className={cn(controlClass, 'h-12 appearance-none pr-10', className)}
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23757575' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'right 14px center',
-          }}
-          {...rest}
+        {name ? <input type="hidden" name={name} value={current} /> : null}
+        <SelectPrimitive.Root
+          value={radixValue}
+          onValueChange={choose}
+          disabled={disabled}
         >
-          {children}
-        </select>
+          <SelectPrimitive.Trigger
+            ref={ref}
+            id={fid}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={describedBy}
+            className={cn(controlClass, 'flex h-12 items-center justify-between gap-2 text-left', className)}
+          >
+            <SelectPrimitive.Value placeholder={placeholder} className="truncate data-[placeholder]:text-mk-text-tertiary" />
+            <SelectPrimitive.Icon className="shrink-0 text-mk-text-tertiary">
+              <ChevronDown className="h-4 w-4" aria-hidden="true" />
+            </SelectPrimitive.Icon>
+          </SelectPrimitive.Trigger>
+          <SelectPrimitive.Portal>
+            <SelectPrimitive.Content
+              position="popper"
+              sideOffset={6}
+              collisionPadding={12}
+              className={cn(
+                'mk-scope z-[100] max-h-72 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-mk-border bg-mk-surface p-1 shadow-mk-card',
+                'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-[0.98]',
+                'motion-reduce:animate-none',
+              )}
+              style={marketplaceCssVars()}
+            >
+              <SelectPrimitive.Viewport className="max-h-64 overflow-y-auto p-1">
+                {groups.map((group, index) => (
+                  <SelectPrimitive.Group key={group.label ?? `group-${index}`}>
+                    {group.label ? (
+                      <SelectPrimitive.Label className="px-3 pb-1 pt-2 text-[12px] font-semibold text-mk-text-tertiary">
+                        {group.label}
+                      </SelectPrimitive.Label>
+                    ) : null}
+                    {group.options.map((opt) => (
+                      <SelectPrimitive.Item
+                        key={`${group.label ?? ''}:${opt.value}`}
+                        value={toItemValue(opt.value)}
+                        disabled={opt.disabled}
+                        className={cn(
+                          'relative flex cursor-pointer select-none items-center rounded-lg py-2.5 pl-3 pr-9 text-left text-[15px] text-mk-text-primary outline-none',
+                          'data-[highlighted]:bg-mk-muted data-[state=checked]:font-semibold',
+                          'data-[disabled]:pointer-events-none data-[disabled]:opacity-40',
+                        )}
+                      >
+                        <SelectPrimitive.ItemText>{opt.label}</SelectPrimitive.ItemText>
+                        <SelectPrimitive.ItemIndicator className="absolute right-3">
+                          <Check className="h-4 w-4" aria-hidden="true" />
+                        </SelectPrimitive.ItemIndicator>
+                      </SelectPrimitive.Item>
+                    ))}
+                  </SelectPrimitive.Group>
+                ))}
+              </SelectPrimitive.Viewport>
+            </SelectPrimitive.Content>
+          </SelectPrimitive.Portal>
+        </SelectPrimitive.Root>
       </FieldShell>
     );
   },
