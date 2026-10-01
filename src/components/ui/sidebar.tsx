@@ -609,6 +609,7 @@ function SidebarMenuSkeleton({
 }) {
   // Random width between 50 to 90%.
   const width = React.useMemo(() => {
+    // eslint-disable-next-line react-hooks/purity -- shadcn skeleton: random width computed once per mount via useMemo([])
     return `${Math.floor(Math.random() * 40) + 50}%`
   }, [])
 
@@ -723,5 +724,6 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  // eslint-disable-next-line react-refresh/only-export-components -- shadcn variant/helper export colocated with component
   useSidebar,
 }

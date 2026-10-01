@@ -130,7 +130,7 @@ const AdminWebsiteReviews: React.FC = () => {
       header: 'Status',
       render: (r) => (
         <div className="flex flex-col gap-1">
-          <StatusBadge status={r.status as any} label={r.status} />
+          <StatusBadge status={r.status as string} label={r.status} />
           {r.isFeatured && (
             <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-600 dark:text-amber-400">
               <Quote className="h-2.5 w-2.5" /> Testimonial

@@ -11,8 +11,13 @@ export function getApiBaseUrl(): string {
   return API_BASE_URL;
 }
 
+type TokenPair = { accessToken: string; refreshToken: string };
+
+/** Fetch options accepted by {@link apiRequest}; headers are merged with auth defaults. */
+type ApiRequestOptions = Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+
 let isRefreshing = false;
-let refreshPromise: Promise<any> | null = null;
+let refreshPromise: Promise<TokenPair> | null = null;
 
 export function getAccessToken() {
   return localStorage.getItem('accessToken');
@@ -38,7 +43,7 @@ function responseIndicatesIpBlocked(status: number, body: { code?: string }) {
   return (status === 403 || status === 404) && body?.code === 'ip_blocked';
 }
 
-async function refreshAccessToken() {
+async function refreshAccessToken(): Promise<TokenPair> {
   if (isRefreshing && refreshPromise) {
     return refreshPromise;
   }
@@ -94,14 +99,18 @@ async function refreshAccessToken() {
   return refreshPromise;
 }
 
-export async function apiRequest(endpoint: string, options: any = {}, retryOn401 = true): Promise<any> {
+export async function apiRequest(
+  endpoint: string,
+  options: ApiRequestOptions = {},
+  retryOn401 = true,
+): Promise<Response> {
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = `${API_BASE_URL}${normalizedEndpoint}`;
   const token = getAccessToken();
   const refreshToken = getRefreshToken();
   const hasStoredSession = Boolean(token || refreshToken);
 
-  const headers: any = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...options.headers,
   };
@@ -112,7 +121,7 @@ export async function apiRequest(endpoint: string, options: any = {}, retryOn401
 
   headers['X-Requested-With'] = 'XMLHttpRequest';
 
-  const config = {
+  const config: RequestInit = {
     ...options,
     headers,
     credentials: 'include',
@@ -138,20 +147,16 @@ export async function apiRequest(endpoint: string, options: any = {}, retryOn401
         throw new Error('Authentication required');
       }
 
-      try {
-        const { accessToken } = await refreshAccessToken();
-        headers.Authorization = `Bearer ${accessToken}`;
-        response = await fetch(url, {
-          ...config,
-          headers,
-        });
+      const { accessToken } = await refreshAccessToken();
+      headers.Authorization = `Bearer ${accessToken}`;
+      response = await fetch(url, {
+        ...config,
+        headers,
+      });
 
-        if (response.status === 401) {
-          clearTokens();
-          throw new Error('Authentication required');
-        }
-      } catch (refreshError) {
-        throw refreshError;
+      if (response.status === 401) {
+        clearTokens();
+        throw new Error('Authentication required');
       }
     } else if (response.status === 401) {
       // Public pages can call public endpoints without auth state.
@@ -164,15 +169,17 @@ export async function apiRequest(endpoint: string, options: any = {}, retryOn401
     }
 
     return response;
-  } catch (error: any) {
-    if (error.message === 'Authentication required' || error.message.includes('Token refresh')) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message === 'Authentication required' || message.includes('Token refresh')) {
       throw error;
     }
-    throw new Error(`Network error: ${error.message}`);
+    throw new Error(`Network error: ${message}`);
   }
 }
 
-export async function post(endpoint: string, data: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
+export async function post(endpoint: string, data: unknown): Promise<any> {
   const response = await apiRequest(endpoint, {
     method: 'POST',
     body: JSON.stringify(data),
@@ -193,7 +200,8 @@ export async function post(endpoint: string, data: any) {
   return JSON.parse(text);
 }
 
-export async function get(endpoint: string) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
+export async function get(endpoint: string): Promise<any> {
   const response = await apiRequest(endpoint, {
     method: 'GET',
   });
@@ -206,7 +214,8 @@ export async function get(endpoint: string) {
   return response.json();
 }
 
-export async function put(endpoint: string, data: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
+export async function put(endpoint: string, data: unknown): Promise<any> {
   const response = await apiRequest(endpoint, {
     method: 'PUT',
     body: JSON.stringify(data),
@@ -220,7 +229,23 @@ export async function put(endpoint: string, data: any) {
   return response.json();
 }
 
-export async function del(endpoint: string) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
+export async function patch(endpoint: string, data: unknown): Promise<any> {
+  const response = await apiRequest(endpoint, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Request failed' }));
+    throw error;
+  }
+
+  return response.json();
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
+export async function del(endpoint: string): Promise<any> {
   const response = await apiRequest(endpoint, {
     method: 'DELETE',
   });
@@ -238,6 +263,7 @@ export default {
   post,
   get,
   put,
+  patch,
   delete: del,
   storeTokens,
   clearTokens,

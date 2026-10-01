@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getLenisFromWindow, getSectionScrollTopReservePx, scrollToPageSection } from '@/lib/sectionScroll';
 import { useAuth } from '@/context/AuthContext';
+import { landingPath } from '@/lib/marketplace/session';
 
 interface NavigationProps {
   isLoaded: boolean;
@@ -16,8 +17,15 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
   const [isPastHero, setIsPastHero] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, isAdmin } = useAuth();
-  const showAdminLink = isAuthenticated && isAdmin;
+  const { isAuthenticated, isAdmin, isLoading: authLoading, user } = useAuth();
+  // Admin keeps its link; other signed-in users get Account; signed-out visitors get Sign in.
+  const sessionLink = authLoading
+    ? null
+    : isAuthenticated && isAdmin
+      ? { to: '/admin/dashboard', label: 'Admin', aria: 'Admin dashboard' }
+      : isAuthenticated && user
+        ? { to: landingPath(user), label: 'Account', aria: 'Your Skillance account' }
+        : { to: '/login', label: 'Sign in', aria: 'Sign in' };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -227,13 +235,13 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                   <span className={`absolute -bottom-1 left-0 w-0 h-px transition-[width] duration-200 ease-out group-hover:w-full ${underlineColor}`} />
                 </button>
               ))}
-              {showAdminLink && (
+              {sessionLink && (
                 <Link
-                  to="/admin/dashboard"
+                  to={sessionLink.to}
                   className={`text-sm font-medium transition-colors duration-300 relative group ${textColorMuted} ${hoverColor}`}
-                  aria-label="Admin dashboard"
+                  aria-label={sessionLink.aria}
                 >
-                  Admin
+                  {sessionLink.label}
                   <span className={`absolute -bottom-1 left-0 w-0 h-px transition-[width] duration-200 ease-out group-hover:w-full ${underlineColor}`} />
                 </Link>
               )}
@@ -316,19 +324,19 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                       {link.name}
                     </motion.button>
                   ))}
-                  {showAdminLink && (
+                  {sessionLink && (
                     <motion.div
                       initial={{ opacity: 0, transform: 'translateX(12px)' }}
                       animate={{ opacity: 1, transform: 'translateX(0)' }}
                       transition={{ duration: 0.22, delay: 0.06 + navLinks.length * 0.035, ease: [0.23, 1, 0.32, 1] }}
                     >
                       <Link
-                        to="/admin/dashboard"
+                        to={sessionLink.to}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className="block text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100"
-                        aria-label="Admin dashboard"
+                        aria-label={sessionLink.aria}
                       >
-                        Admin
+                        {sessionLink.label}
                       </Link>
                     </motion.div>
                   )}

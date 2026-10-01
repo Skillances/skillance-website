@@ -1,15 +1,9 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useCallback, useContext, useState, useEffect, type ReactNode } from 'react';
 import { post, get, clearTokens, storeTokens } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { isStaff, toMarketplaceUser, type MarketplaceUser } from '@/lib/marketplace/session';
 
-interface User {
-  id: string;
-  fullName: string;
-  email: string;
-  isAdmin: boolean;
-  /** Canonical landing role from API; `admin` for staff (marketplace stats exclude this). */
-  primaryRole?: string;
-}
+type User = MarketplaceUser;
 
 interface AuthContextType {
   user: User | null;
@@ -21,11 +15,16 @@ interface AuthContextType {
     password: string,
     options?: { rememberMe?: boolean },
   ) => Promise<{ success: boolean; user: User }>;
+  /** Stores tokens and the user from an auth response `data` envelope (register, Google sign-in). */
+  startSession: (data: unknown) => User;
+  /** Re-reads `GET /users/me` and updates the session. Returns the fresh user, or null. */
+  refreshUser: () => Promise<User | null>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook is colocated with its provider
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -34,11 +33,27 @@ export const useAuth = () => {
   return context;
 };
 
+type ApiErrorLike = { message?: string; retryAfter?: number; errors?: { message?: string }[] };
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const applyUser = useCallback((next: User) => {
+    localStorage.setItem('user', JSON.stringify(next));
+    setUser(next);
+    setIsAuthenticated(true);
+    setIsAdmin(isStaff(next));
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    const response = await get(ApiPaths.users.me);
+    const next = response?.success ? toMarketplaceUser(response.data) : null;
+    if (next) applyUser(next);
+    return next;
+  }, [applyUser]);
 
   useEffect(() => {
     let cancelled = false;
@@ -55,23 +70,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const response = await get(ApiPaths.users.me);
         if (cancelled) return;
 
-        if (response?.success && response?.data?.user) {
-          const { user: userData } = response.data;
-          const staff =
-            userData.isAdmin === true || String(userData.primaryRole).toLowerCase() === 'admin';
-          const authUser: User = {
-            id: userData.id,
-            fullName: userData.fullName ?? '',
-            email: userData.email ?? '',
-            isAdmin: staff,
-            primaryRole: userData.primaryRole,
-          };
-          setUser(authUser);
-          setIsAuthenticated(true);
-          setIsAdmin(staff);
-          localStorage.setItem('user', JSON.stringify(authUser));
+        const normalizedUser = response?.success ? toMarketplaceUser(response.data) : null;
+        if (normalizedUser) {
+          applyUser(normalizedUser);
         }
-      } catch (error) {
+      } catch {
         if (cancelled) return;
         clearTokens();
         setUser(null);
@@ -88,7 +91,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [applyUser]);
+
+  const startSession = useCallback(
+    (data: unknown) => {
+      const envelope = (data ?? {}) as { accessToken?: string; refreshToken?: string };
+      const normalizedUser = toMarketplaceUser(data);
+      if (!envelope.accessToken || !normalizedUser) {
+        throw new Error('Sign-in response was incomplete. Please sign in.');
+      }
+      storeTokens(envelope.accessToken, envelope.refreshToken ?? '');
+      applyUser(normalizedUser);
+      return normalizedUser;
+    },
+    [applyUser],
+  );
 
   const login = async (
     email: string,
@@ -97,7 +114,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   ) => {
     try {
       const sanitizedEmail = email.trim().toLowerCase();
-      
+
       if (!sanitizedEmail || !password) {
         throw new Error('Email and password are required');
       }
@@ -109,46 +126,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
 
       if (response.success && response.data) {
-        const { user: userData, accessToken, refreshToken } = response.data;
-
-        storeTokens(accessToken, refreshToken);
-        const staff =
-          userData.isAdmin === true || String(userData.primaryRole).toLowerCase() === 'admin';
-        const normalizedUser: User = {
-          id: userData.id,
-          fullName: userData.fullName ?? '',
-          email: userData.email ?? '',
-          isAdmin: staff,
-          primaryRole: userData.primaryRole,
-        };
-        localStorage.setItem('user', JSON.stringify(normalizedUser));
-
-        setUser(normalizedUser);
-        setIsAuthenticated(true);
-        setIsAdmin(staff);
-
+        const normalizedUser = startSession(response.data);
         return { success: true, user: normalizedUser };
       } else {
         throw new Error(response.message || 'Login failed');
       }
-    } catch (error: any) {
+    } catch (caught: unknown) {
+      const error = (caught ?? {}) as ApiErrorLike;
       if (error.retryAfter) {
-        const rateLimitError: any = new Error(error.message || 'Too many login attempts');
+        const rateLimitError = new Error(error.message || 'Too many login attempts') as Error & {
+          retryAfter?: number;
+        };
         rateLimitError.retryAfter = error.retryAfter;
         throw rateLimitError;
       }
-      
+
       if (error.errors) {
         const firstError = error.errors[0];
         throw new Error(firstError?.message || 'Validation failed');
       }
-      
-      if (error.message?.includes('Invalid email or password') || 
+
+      if (error.message?.includes('Invalid email or password') ||
           error.message?.includes('Invalid credentials') ||
           error.message?.includes('User not found')) {
         throw new Error('Invalid email or password');
       }
-      
+
       throw new Error(error.message || 'Login failed. Please try again.');
     }
   };
@@ -156,7 +159,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const logout = async () => {
     try {
       await post(ApiPaths.auth.logout, {}).catch(() => {});
-    } catch (error) {
     } finally {
       clearTokens();
       localStorage.removeItem('user');
@@ -175,6 +177,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     isAdmin,
     isLoading,
     login,
+    startSession,
+    refreshUser,
     logout,
   };
 

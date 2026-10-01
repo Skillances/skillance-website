@@ -124,7 +124,7 @@ const AdminSecurity: React.FC = () => {
   const [total, setTotal] = useState(0);
   const pageSize = 50;
   const [ipDialogOpen, setIpDialogOpen] = useState(false);
-  const [ipHistory, setIpHistory] = useState<any[]>([]);
+  const [ipHistory, setIpHistory] = useState<SecurityEvent[]>([]);
   const [ipAddress, setIpAddress] = useState('');
   const [ipBlocked, setIpBlocked] = useState(false);
   const [ipLoading, setIpLoading] = useState(false);
@@ -195,7 +195,7 @@ const AdminSecurity: React.FC = () => {
       params.set('endDate', endDate.toISOString());
       const res = await get(`${ApiPaths.admin.securityStatistics}?${params.toString()}`);
       if (res.success) setStats(res.data);
-    } catch {}
+    } catch { /* ignore */ }
   }, [startDate, endDate]);
 
   const fetchCriticalStats = useCallback(async () => {
@@ -211,7 +211,7 @@ const AdminSecurity: React.FC = () => {
           honeypotTriggers: res.data.honeypotTriggers ?? 0,
         });
       }
-    } catch {}
+    } catch { /* ignore */ }
   }, []);
   const fetchByCountry = useCallback(async () => {
     try {
@@ -223,7 +223,8 @@ const AdminSecurity: React.FC = () => {
       } else {
         setByCountry([]);
       }
-    } catch (err: any) {
+    } catch (caught) {
+      const err = caught as { message?: string; status?: number; statusCode?: number } | null | undefined;
       setByCountry([]);
       const is404 = err?.status === 404 || err?.statusCode === 404;
       setByCountryError(!is404);
@@ -327,7 +328,8 @@ const AdminSecurity: React.FC = () => {
         setIpBlocked(true);
         handleRefresh();
       }
-    } catch (err: any) {
+    } catch (caught) {
+      const err = caught as { message?: string; status?: number; statusCode?: number } | null | undefined;
       toast.error(err?.message ?? 'Failed to block IP');
     }
   };
@@ -341,7 +343,8 @@ const AdminSecurity: React.FC = () => {
         setIpBlocked(false);
         handleRefresh();
       }
-    } catch (err: any) {
+    } catch (caught) {
+      const err = caught as { message?: string; status?: number; statusCode?: number } | null | undefined;
       toast.error(err?.message ?? 'Failed to unblock IP');
     }
   };
@@ -355,7 +358,8 @@ const AdminSecurity: React.FC = () => {
         if (ipAddress === ip) setIpBlocked(false);
         handleRefresh();
       }
-    } catch (err: any) {
+    } catch (caught) {
+      const err = caught as { message?: string; status?: number; statusCode?: number } | null | undefined;
       toast.error(err?.message ?? 'Failed to unblock IP');
     }
   };
@@ -451,7 +455,7 @@ const AdminSecurity: React.FC = () => {
 
   const columns: Column<SecurityEvent>[] = [
     { key: 'createdAt', header: 'Time', sortable: true, render: (e) => <span className="text-neutral-400 dark:text-neutral-500 text-xs">{new Date(e.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span> },
-    { key: 'eventType', header: 'Type', sortable: true, render: (e) => <StatusBadge status={(eventTypeColors[e.eventType] || 'info') as any} label={e.eventType.replace(/_/g, ' ')} /> },
+    { key: 'eventType', header: 'Type', sortable: true, render: (e) => <StatusBadge status={(eventTypeColors[e.eventType] || 'info') as string} label={e.eventType.replace(/_/g, ' ')} /> },
     { key: 'ipAddress', header: 'IP Address', sortable: true, render: (e) => <button onClick={(ev) => { ev.stopPropagation(); viewIpHistory(e.ipAddress); }} className="text-black dark:text-white underline hover:text-neutral-600 dark:hover:text-neutral-300 font-mono text-xs transition-colors" aria-label={`View history for ${e.ipAddress}`}>{e.ipAddress}</button> },
     { key: 'method', header: 'Method', render: (e) => <span className="text-neutral-600 dark:text-neutral-400 font-mono text-xs">{e.method}</span> },
     { key: 'path', header: 'Path', render: (e) => <span className="text-neutral-500 dark:text-neutral-400 text-xs truncate max-w-[200px] block">{e.path}</span> },
@@ -817,9 +821,9 @@ const AdminSecurity: React.FC = () => {
             <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 bg-neutral-100 rounded-xl" />)}</div>
           ) : ipHistory.length > 0 ? (
             <div className="space-y-2 max-h-[400px] overflow-y-auto">
-              {ipHistory.map((evt: any) => (
+              {ipHistory.map((evt) => (
                 <div key={evt.id} className={`flex items-start gap-3 p-3 rounded-xl border ${isCriticalEvent(evt.eventType) ? 'bg-red-50/50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50' : 'bg-neutral-50 dark:bg-neutral-800/50 border-neutral-100 dark:border-neutral-700'}`}>
-                  <div className="shrink-0 mt-0.5"><StatusBadge status={(eventTypeColors[evt.eventType] || 'info') as any} label={evt.eventType.replace(/_/g, ' ')} /></div>
+                  <div className="shrink-0 mt-0.5"><StatusBadge status={(eventTypeColors[evt.eventType] || 'info') as string} label={evt.eventType.replace(/_/g, ' ')} /></div>
                   <div className="min-w-0 flex-1"><p className="text-xs text-neutral-600 dark:text-neutral-300">{evt.reason}</p><p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-1 font-mono">{evt.method} {evt.path}</p></div>
                   <span className="text-[10px] text-neutral-400 dark:text-neutral-500 shrink-0">{new Date(evt.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                 </div>

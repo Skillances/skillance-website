@@ -166,12 +166,12 @@ const AdminVerifications: React.FC = () => {
   }, [fetchPendingId, fetchPendingClearance]);
 
   const openAction = (freelancer: PendingFreelancer, type: 'id' | 'clearance', status: 'verified' | 'rejected') => { setActionFreelancer(freelancer); setActionType(type); setActionStatus(status); setRejectionReason(''); setDialogOpen(true); };
-  const handleAction = async () => { if (!actionFreelancer) return; try { setActionLoading(true); if (actionType === 'id') { const body: any = { status: actionStatus }; if (actionStatus === 'rejected' && rejectionReason) body.rejectionReason = rejectionReason; await put(ApiPaths.admin.freelancerVerifyId(actionFreelancer.id), body); } else { await post(ApiPaths.admin.freelancerPoliceClearanceVerify(actionFreelancer.id), { status: actionStatus }); } toast.success(`${actionType === 'id' ? 'ID' : 'Police clearance'} ${actionStatus === 'verified' ? 'approved' : 'rejected'}`); setDialogOpen(false); fetchPendingId(); fetchPendingClearance(); } catch (err: any) { toast.error(err?.message || 'Action failed'); } finally { setActionLoading(false); } };
+  const handleAction = async () => { if (!actionFreelancer) return; try { setActionLoading(true); if (actionType === 'id') { const body: { status: typeof actionStatus; rejectionReason?: string } = { status: actionStatus }; if (actionStatus === 'rejected' && rejectionReason) body.rejectionReason = rejectionReason; await put(ApiPaths.admin.freelancerVerifyId(actionFreelancer.id), body); } else { await post(ApiPaths.admin.freelancerPoliceClearanceVerify(actionFreelancer.id), { status: actionStatus }); } toast.success(`${actionType === 'id' ? 'ID' : 'Police clearance'} ${actionStatus === 'verified' ? 'approved' : 'rejected'}`); setDialogOpen(false); fetchPendingId(); fetchPendingClearance(); } catch (caught) { const err = caught as { message?: string } | null | undefined; toast.error(err?.message || 'Action failed'); } finally { setActionLoading(false); } };
 
   const idColumns: Column<PendingFreelancer>[] = [
     { key: 'fullName', header: 'Freelancer', render: (f) => (<div><p className="text-black dark:text-white font-medium text-sm">{f.fullName ?? f.user?.fullName ?? 'Unknown'}</p><p className="text-neutral-400 dark:text-neutral-500 text-xs">{f.email ?? f.user?.email ?? ''}</p></div>) },
     { key: 'idNumber', header: 'ID Number', render: (f) => <span className="font-mono text-xs text-neutral-600">{f.idNumber || '--'}</span> },
-    { key: 'status', header: 'Status', render: (f) => <StatusBadge status={f.idVerificationStatus as any} /> },
+    { key: 'status', header: 'Status', render: (f) => <StatusBadge status={f.idVerificationStatus as string} /> },
     { key: 'createdAt', header: 'Submitted', render: (f) => <span className="text-neutral-400 text-xs">{new Date(f.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span> },
     { key: 'actions', header: 'Actions', render: (f) => (
       <div className="flex items-center gap-1">
@@ -184,7 +184,7 @@ const AdminVerifications: React.FC = () => {
 
   const clearanceColumns: Column<PendingFreelancer>[] = [
     { key: 'fullName', header: 'Freelancer', render: (f) => (<div><p className="text-black dark:text-white font-medium text-sm">{f.fullName ?? f.user?.fullName ?? 'Unknown'}</p><p className="text-neutral-400 dark:text-neutral-500 text-xs">{f.email ?? f.user?.email ?? ''}</p></div>) },
-    { key: 'status', header: 'Status', render: (f) => <StatusBadge status={((f.user?.policeClearanceStatus ?? f.policeClearanceStatus) || 'pending') as any} /> },
+    { key: 'status', header: 'Status', render: (f) => <StatusBadge status={((f.user?.policeClearanceStatus ?? f.policeClearanceStatus) || 'pending') as string} /> },
     { key: 'createdAt', header: 'Submitted', render: (f) => <span className="text-neutral-400 text-xs">{new Date(f.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span> },
     { key: 'actions', header: 'Actions', render: (f) => (
       <div className="flex items-center gap-1">

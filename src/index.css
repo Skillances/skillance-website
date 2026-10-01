@@ -223,3 +223,57 @@
 .loader-logo {
   will-change: opacity, transform;
 }
+
+/* Marketplace shell (customer and freelancer app). Tokens: src/lib/marketplace/theme.ts */
+.mk-scope {
+  font-family: var(--mk-font-body);
+  color: var(--mk-text-primary);
+  background-color: var(--mk-background);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mk-scope h1,
+.mk-scope h2,
+.mk-scope h3,
+.mk-scope h4,
+.mk-scope h5,
+.mk-scope h6 {
+  font-family: var(--mk-font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.mk-scope :focus-visible {
+  outline: 2px solid var(--mk-primary);
+  outline-offset: 2px;
+}
+
+/* Native scrolling for lists and chat inside the marketplace shell. */
+.mk-scope .mk-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@keyframes mk-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.mk-skeleton {
+  background: linear-gradient(90deg, var(--mk-muted) 25%, var(--mk-divider) 37%, var(--mk-muted) 63%);
+  background-size: 400% 100%;
+  animation: mk-shimmer 1.4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mk-skeleton {
+    animation: none;
+  }
+}
+
+@media print {
+  .mk-no-print {
+    display: none !important;
+  }
+}

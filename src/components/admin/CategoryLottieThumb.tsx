@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import Lottie from 'lottie-react';
+import Lottie, { type LottieRefCurrentProps } from 'lottie-react';
 import { cn } from '@/lib/utils';
 import { fetchCategoryLottieJsonCached, getCategoryLottieFromCache } from '@/lib/lottieBrowserCache';
 
 /**
  * True when a category image URL points to Lottie JSON (S3 uses .json for lottie uploads).
  */
+// eslint-disable-next-line react-refresh/only-export-components -- small helper colocated with its components
 export function isLottieImageUrl(url: string): boolean {
   try {
     const path = new URL(url).pathname.toLowerCase();
@@ -44,13 +45,14 @@ export function CategoryLottieThumb({ src, size = 32, className }: CategoryLotti
   const [inView, setInView] = useState(false);
   const [data, setData] = useState<unknown | null>(() => getCategoryLottieFromCache(src));
   const [failed, setFailed] = useState(false);
-  const lottieRef = useRef<any>(null);
+  const lottieRef = useRef<LottieRefCurrentProps | null>(null);
 
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
     const cached = getCategoryLottieFromCache(src);
     if (cached !== null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset visibility when src changes; preserves existing behavior
       setInView(true);
       return;
     }
@@ -69,6 +71,7 @@ export function CategoryLottieThumb({ src, size = 32, className }: CategoryLotti
     if (!inView) return;
 
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset load state when src/inView changes; preserves existing behavior
     setFailed(false);
 
     const cached = getCategoryLottieFromCache(src);

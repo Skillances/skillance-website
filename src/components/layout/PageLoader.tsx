@@ -16,6 +16,7 @@ const PageLoader = ({ onComplete }: PageLoaderProps) => {
     
     if (hasLoaded) {
       onComplete();
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- loader already shown this session; hide immediately
       setIsVisible(false); // Immediate hide if loaded
       return;
     }

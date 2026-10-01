@@ -63,7 +63,7 @@ const UserTypeCell: React.FC<{ user: UserItem }> = ({ user }) => {
   }
 
   const status = roles.freelancer ? 'freelancer' : 'customer';
-  return <StatusBadge status={status as any} />;
+  return <StatusBadge status={status as string} />;
 };
 
 interface UserStats {
@@ -111,7 +111,7 @@ const AdminUsers: React.FC = () => {
         setUsers(res.data.users);
         setTotal(res.data.pagination.total);
       }
-    } catch (err) {
+    } catch {
       toast.error('Failed to load users');
     } finally {
       setIsLoading(false);

@@ -515,6 +515,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   // Close mobile menu on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- close mobile menu on navigation
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 

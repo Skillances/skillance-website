@@ -52,6 +52,7 @@ const TypedConfirmDialog: React.FC<TypedConfirmDialogProps> = ({
 
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset typed phrase each time the dialog opens
       setValue('');
       setTimeout(() => inputRef.current?.focus(), 30);
     }

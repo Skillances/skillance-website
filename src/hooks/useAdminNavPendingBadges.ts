@@ -90,6 +90,7 @@ export function useAdminNavPendingBadges(options: Options = {}) {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch; state is set after await
     void load();
   }, [load, location.pathname, refreshKey]);
 

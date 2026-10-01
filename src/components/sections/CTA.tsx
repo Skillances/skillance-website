@@ -45,7 +45,8 @@ const CTA = () => {
         setIsSubmitted(true);
       }
       startCooldown();
-    } catch (err: any) {
+    } catch (caught) {
+      const err = caught as { statusCode?: number; retryAfter?: number; message?: string } | null | undefined;
       if (err?.statusCode === 429 || err?.retryAfter) {
         const msg = err?.message || 'Too many attempts. Please try again later.';
         setError(msg);

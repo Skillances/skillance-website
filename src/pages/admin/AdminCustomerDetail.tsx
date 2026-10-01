@@ -24,6 +24,39 @@ const bookingStatusMap: Record<string, string> = {
   rejected: 'rejected',
 };
 
+interface AdminBookingRow {
+  id: string;
+  status: string;
+  category?: string | null;
+  scheduledDate?: string | null;
+  scheduledTime?: string | null;
+  durationMinutes?: number | null;
+  totalPrice?: number | string | null;
+  address?: string | null;
+  notes?: string | null;
+  paymentStatus?: string | null;
+  confirmedAt?: string | null;
+  startedAt?: string | null;
+  completedAt?: string | null;
+  cancelledAt?: string | null;
+  cancelledBy?: string | null;
+  cancellationReason?: string | null;
+  customerId?: string | null;
+  customer?: { fullName?: string | null; profilePhotoUrl?: string | null } | null;
+  freelancer?: { id: string; userId: string; user?: { id?: string; fullName?: string | null; profilePhotoUrl?: string | null } | null } | null;
+}
+
+interface AdminCustomer {
+  id: string;
+  email: string;
+  fullName: string;
+  tag?: string | null;
+  phoneNumber?: string | null;
+  firebaseUid?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const AdminCustomerDetail: React.FC = () => {
   const { customerId } = useParams<{ customerId: string }>();
   const navigate = useNavigate();
@@ -34,11 +67,11 @@ const AdminCustomerDetail: React.FC = () => {
   useEffect(() => {
     processedExpandBookingRef.current = null;
   }, [customerId]);
-  const [customer, setCustomer] = useState<any>(null);
+  const [customer, setCustomer] = useState<AdminCustomer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<AdminBookingRow[]>([]);
   const [bookingsTotal, setBookingsTotal] = useState(0);
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [bookingsOffset, setBookingsOffset] = useState(0);
@@ -214,7 +247,7 @@ const AdminCustomerDetail: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {bookings.map((b: any) => {
+                    {bookings.map((b: AdminBookingRow) => {
                       const isExpanded = expandedBooking === b.id;
                       const flName = b.freelancer?.user?.fullName || 'Unknown';
                       const flPhoto = b.freelancer?.user?.profilePhotoUrl;
@@ -242,7 +275,7 @@ const AdminCustomerDetail: React.FC = () => {
                               </div>
                             </td>
                             <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{resolveCategoryLabel(String(b.category ?? ''), categoryMap)}</td>
-                            <td className="px-4 py-3"><StatusBadge status={(bookingStatusMap[b.status] || b.status) as any} label={b.status} /></td>
+                            <td className="px-4 py-3"><StatusBadge status={(bookingStatusMap[b.status] || b.status) as string} label={b.status} /></td>
                             <td className="px-6 py-3 text-right font-medium text-black dark:text-white tabular-nums">R{Number(b.totalPrice).toFixed(0)}</td>
                           </tr>
                           {isExpanded && (

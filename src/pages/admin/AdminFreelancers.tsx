@@ -53,7 +53,7 @@ const AdminFreelancers: React.FC = () => {
     }
   }, [page, pageSize, sortKey, sortDirection, verificationFilter, searchDebounced, categoryIdFilter]);
 
-  const fetchStats = useCallback(async () => { try { const res = await get(ApiPaths.admin.freelancersStats); if (res.success) setStats(res.data); } catch {} }, []);
+  const fetchStats = useCallback(async () => { try { const res = await get(ApiPaths.admin.freelancersStats); if (res.success) setStats(res.data); } catch { /* ignore */ } }, []);
   useEffect(() => { fetchStats(); }, [fetchStats]);
   useEffect(() => { fetchFreelancers(); }, [fetchFreelancers]);
 
@@ -89,8 +89,8 @@ const AdminFreelancers: React.FC = () => {
       </div>
       );
     }},
-    { key: 'idVerificationStatus', header: 'ID Verification', render: (f) => <StatusBadge status={((f.user?.idVerificationStatus ?? f.idVerificationStatus) || 'not_submitted') as any} /> },
-    { key: 'policeClearanceStatus', header: 'Police Clearance', render: (f) => <StatusBadge status={((f.user?.policeClearanceStatus ?? f.policeClearanceStatus) || 'not_submitted') as any} /> },
+    { key: 'idVerificationStatus', header: 'ID Verification', render: (f) => <StatusBadge status={((f.user?.idVerificationStatus ?? f.idVerificationStatus) || 'not_submitted') as string} /> },
+    { key: 'policeClearanceStatus', header: 'Police Clearance', render: (f) => <StatusBadge status={((f.user?.policeClearanceStatus ?? f.policeClearanceStatus) || 'not_submitted') as string} /> },
     { key: 'rating', header: 'Rating', sortable: true, render: (f) => <span className="text-neutral-600 dark:text-neutral-400">{f.rating ? `${Number(f.rating).toFixed(1)}` : '--'}</span> },
     { key: 'createdAt', header: 'Joined', sortable: true, render: (f) => <span className="text-neutral-400 dark:text-neutral-500 text-xs">{new Date(f.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span> },
   ];

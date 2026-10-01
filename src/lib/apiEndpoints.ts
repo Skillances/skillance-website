@@ -154,4 +154,124 @@ export const ApiPaths = {
     aiConfig: '/admin/ai/config',
     aiChat: '/admin/ai/chat',
   },
+  /** Customer and freelancer marketplace (website app shell). */
+  marketplace: {
+    registerCustomer: '/auth/register/customer',
+    registerFreelancer: '/auth/register/freelancer',
+    forgotPassword: '/auth/forgot-password',
+    google: '/auth/google',
+    preferredView: '/users/me/preferred-view',
+    roleApplications: '/users/me/role-applications',
+    syncCustomerProfile: '/users/me/sync-customer-profile',
+    deleteAccount: '/users/me/delete-account',
+    exportAccount: '/users/me/export',
+    user: (userId: string) => `/users/${userId}`,
+    userSettings: (userId: string) => `/users/${userId}/settings`,
+    acknowledgePolicyWarning: (warningId: string) =>
+      `/users/me/policy-warnings/${warningId}/acknowledge`,
+
+    freelancers: '/freelancers',
+    searchFreelancers: '/freelancers/search',
+    applyFreelancer: '/freelancers/apply',
+    freelancerApplicationStatus: '/freelancers/application-status',
+    myProfileCompletion: '/freelancers/profile-completion/me',
+    freelancer: (id: string) => `/freelancers/${id}`,
+    freelancerByUser: (userId: string) => `/freelancers/user/${userId}`,
+    freelancerIdVerification: (userId: string) =>
+      `/freelancers/user/${userId}/id-verification`,
+    freelancerCertificationsHub: (userId: string) =>
+      `/freelancers/user/${userId}/certifications-hub`,
+    freelancerPoliceClearance: (userId: string) =>
+      `/freelancers/user/${userId}/police-clearance`,
+    freelancerAvailabilityContext: (userId: string) =>
+      `/freelancers/user/${userId}/availability-context`,
+    freelancerProfileCompletion: (id: string) => `/freelancers/${id}/profile-completion`,
+    freelancerCategoryLimitRequests: (id: string) =>
+      `/freelancers/${id}/category-limit-requests`,
+    freelancerBookings: (id: string) => `/freelancers/${id}/bookings`,
+    freelancerAvailability: (id: string) => `/freelancers/${id}/availability`,
+    freelancerAvailabilityValidate: (id: string) =>
+      `/freelancers/${id}/availability/validate`,
+    freelancerPortfolio: (id: string) => `/freelancers/${id}/portfolio`,
+    freelancerPortfolioProject: (id: string, projectId: string) =>
+      `/freelancers/${id}/portfolio/${projectId}`,
+    freelancerServiceLocations: (id: string) => `/freelancers/${id}/service-locations`,
+    freelancerServiceLocation: (id: string, locationId: string) =>
+      `/freelancers/${id}/service-locations/${locationId}`,
+    freelancerPoliceClearanceUpload: (id: string) =>
+      `/freelancers/${id}/police-clearance`,
+    freelancerCertifications: (id: string) => `/freelancers/${id}/certifications`,
+    freelancerCertification: (id: string, certificationId: string) =>
+      `/freelancers/${id}/certifications/${certificationId}`,
+    freelancerDashboardStats: (id: string) => `/freelancers/${id}/dashboard/stats`,
+    freelancerEarningsTrend: (id: string) =>
+      `/freelancers/${id}/dashboard/earnings-trend`,
+    freelancerDashboardPerformance: (id: string) =>
+      `/freelancers/${id}/dashboard/performance`,
+    freelancerDashboardActivity: (id: string) =>
+      `/freelancers/${id}/dashboard/activity`,
+    freelancerReviews: (id: string) => `/freelancers/${id}/reviews`,
+    customerRating: (userId: string) => `/users/${userId}/customer-rating`,
+
+    bookings: '/bookings',
+    myBookings: '/bookings/my',
+    booking: (id: string) => `/bookings/${id}`,
+    bookingAccept: (id: string) => `/bookings/${id}/accept`,
+    bookingDecline: (id: string) => `/bookings/${id}/decline`,
+    bookingDismiss: (id: string) => `/bookings/${id}/dismiss`,
+    bookingCancel: (id: string) => `/bookings/${id}/cancel`,
+    bookingSessionStatus: (id: string) => `/bookings/${id}/session-status`,
+    bookingLocation: (id: string) => `/bookings/${id}/location`,
+    bookingConnectionFee: (id: string) => `/bookings/${id}/connection-fee`,
+    bookingConnectionFeeConfirm: (id: string) =>
+      `/bookings/${id}/connection-fee/confirm`,
+    bookingPin: (id: string) => `/bookings/${id}/pin`,
+    bookingVerifyPin: (id: string) => `/bookings/${id}/verify-pin`,
+    bookingRateFreelancer: (id: string) => `/bookings/${id}/rate-freelancer`,
+    bookingReviewText: (id: string) => `/bookings/${id}/review-text`,
+    bookingRateCustomer: (id: string) => `/bookings/${id}/rate-customer`,
+    bookingFeedbackStatus: (id: string) => `/bookings/${id}/feedback-status`,
+
+    invoices: '/invoices',
+    invoiceSend: (invoiceId: string) => `/invoices/${invoiceId}/send`,
+    invoiceAccept: (invoiceId: string) => `/invoices/${invoiceId}/accept`,
+    invoiceDecline: (invoiceId: string) => `/invoices/${invoiceId}/decline`,
+    invoiceByBooking: (bookingId: string) => `/invoices/booking/${bookingId}`,
+
+    disputes: '/disputes',
+    disputeByBooking: (bookingId: string) => `/disputes/booking/${bookingId}`,
+
+    favorites: '/favorites',
+    favoriteStatus: (freelancerId: string) => `/favorites/${freelancerId}/status`,
+    favoriteStatusBatch: '/favorites/status',
+    favoriteRemove: (freelancerId: string) => `/favorites/${freelancerId}`,
+
+    chats: '/chats',
+    chatByBooking: (bookingId: string) => `/chats/booking/${bookingId}`,
+    chatMessages: (chatId: string) => `/chats/${chatId}/messages`,
+    chatRead: (chatId: string) => `/chats/${chatId}/read`,
+
+    recurringRequests: '/recurring-bookings/requests',
+    recurringRequestAccept: (id: string) => `/recurring-bookings/requests/${id}/accept`,
+    recurringRequestReject: (id: string) => `/recurring-bookings/requests/${id}/reject`,
+    recurringPending: '/recurring-bookings/requests/pending',
+    recurringSeries: '/recurring-bookings/series',
+    recurringSeriesById: (id: string) => `/recurring-bookings/series/${id}`,
+    recurringSeriesPause: (id: string) => `/recurring-bookings/series/${id}/pause`,
+    recurringSeriesResume: (id: string) => `/recurring-bookings/series/${id}/resume`,
+    recurringSeriesCancel: (id: string) => `/recurring-bookings/series/${id}/cancel`,
+
+    products: '/products',
+    myProducts: '/products/mine',
+    purchasedProducts: '/products/purchased',
+    freelancerProducts: (freelancerId: string) => `/products/freelancer/${freelancerId}`,
+    product: (productId: string) => `/products/${productId}`,
+    productPurchase: (productId: string) => `/products/${productId}/purchase`,
+    productView: (productId: string) => `/products/${productId}/view`,
+
+    calendarSyncExport: '/calendar-sync/export',
+    geocode: '/geocoding/geocode',
+    reverseGeocode: '/geocoding/reverse',
+    placeAutocomplete: '/geocoding/places/autocomplete',
+  },
 } as const;

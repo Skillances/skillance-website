@@ -80,7 +80,8 @@ const Reviews = () => {
           setComment('');
           setIsAnonymous(false);
         }, 3000);
-      } catch (err: any) {
+      } catch (caught) {
+        const err = caught as { statusCode?: number; retryAfter?: number; message?: string } | null | undefined;
         if (err?.statusCode === 429 || err?.retryAfter) {
           toast.error(err?.message || 'Too many attempts. Please try again later.');
           if (err?.retryAfter) startCooldownFromRetryAfter(err.retryAfter);

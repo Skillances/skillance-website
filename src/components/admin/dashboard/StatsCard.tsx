@@ -30,6 +30,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
   const isNegative = change?.startsWith("-");
   const isNeutral = !isPositive && !isNegative;
 
+  /* eslint-disable react-hooks/purity -- decorative placeholder sparkline when no data is provided */
   const chartData =
     data.length > 0
       ? data
@@ -40,6 +41,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
               ? 100 - i * 2 + Math.random() * 5
               : 100 + Math.random() * 10,
         }));
+  /* eslint-enable react-hooks/purity */
 
   return (
     <motion.div

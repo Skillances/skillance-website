@@ -17,16 +17,17 @@ function readStored(): AdminTheme {
   try {
     const s = localStorage.getItem(STORAGE_KEY);
     if (s === 'dark' || s === 'light') return s;
-  } catch {}
+  } catch { /* ignore */ }
   return 'light';
 }
 
 function writeStored(t: AdminTheme) {
   try {
     localStorage.setItem(STORAGE_KEY, t);
-  } catch {}
+  } catch { /* ignore */ }
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook colocated with its provider
 export function useAdminTheme() {
   const ctx = useContext(AdminThemeContext);
   if (!ctx) {

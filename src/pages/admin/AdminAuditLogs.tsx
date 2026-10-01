@@ -199,7 +199,7 @@ const AdminAuditLogs: React.FC = () => {
       params.set('endDate', endDate.toISOString());
       const res = await get(`${ApiPaths.admin.auditLogsStats}?${params.toString()}`);
       if (res.success) setStats(res.data);
-    } catch {}
+    } catch { /* ignore */ }
   }, [startDate, endDate]);
 
   useEffect(() => {

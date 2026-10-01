@@ -7,8 +7,34 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
         serif: ['Playfair Display', 'Georgia', 'serif'],
+        // Marketplace shell only; values come from src/lib/marketplace/theme.ts via CSS variables.
+        'mk-display': 'var(--mk-font-display)',
+        'mk-body': 'var(--mk-font-body)',
       },
       colors: {
+        // Marketplace shell only; values come from src/lib/marketplace/theme.ts via CSS variables.
+        mk: {
+          'primary': 'var(--mk-primary)',
+          'secondary': 'var(--mk-secondary)',
+          'background': 'var(--mk-background)',
+          'surface': 'var(--mk-surface)',
+          'muted': 'var(--mk-muted)',
+          'text-primary': 'var(--mk-text-primary)',
+          'text-secondary': 'var(--mk-text-secondary)',
+          'text-tertiary': 'var(--mk-text-tertiary)',
+          'border': 'var(--mk-border)',
+          'divider': 'var(--mk-divider)',
+          'accent': 'var(--mk-accent)',
+          'on-primary': 'var(--mk-on-primary)',
+          'success': 'var(--mk-success)',
+          'warning': 'var(--mk-warning)',
+          'error': 'var(--mk-error)',
+          'info': 'var(--mk-info)',
+          'rating': 'var(--mk-rating)',
+          'booking-upcoming': 'var(--mk-booking-upcoming)',
+          'booking-in-progress': 'var(--mk-booking-in-progress)',
+          'booking-neutral': 'var(--mk-booking-neutral)',
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -72,6 +98,10 @@ module.exports = {
         'soft': '0 4px 20px rgba(0, 0, 0, 0.08)',
         'soft-lg': '0 8px 40px rgba(0, 0, 0, 0.12)',
         'modal': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        'mk-card': 'var(--mk-shadow-card)',
+        'mk-hero': 'var(--mk-shadow-hero)',
+        'mk-avatar': 'var(--mk-shadow-avatar)',
+        'mk-nested': 'var(--mk-shadow-nested)',
       },
       keyframes: {
         "accordion-down": {

@@ -48,14 +48,22 @@ function formatAnalyticsChartLabel(raw: string | undefined | null, interval: str
   return s;
 }
 
+type RawSeriesPoint = { date?: string | null; count?: number; cumulative?: number };
+type GrowthPoint = { name: string; count?: number; cumulative?: number };
+type RawCategoryTrend = { categoryName?: string; name?: string; count?: number; freelancerCount?: number };
+type CategoryTrendPoint = { name: string; count: number };
+type RawVerificationTrend = { date: string; pending?: number; verified?: number; rejected?: number };
+type VerificationTrendPoint = { name: string; pending: number; verified: number; rejected: number };
+type UserDistribution = { customers?: number; freelancers?: number };
+
 const AdminAnalytics: React.FC = () => {
   const { isDark } = useAdminTheme();
   const [interval, setInterval] = useState<string>('daily');
-  const [userGrowth, setUserGrowth] = useState<any[]>([]);
-  const [freelancerGrowth, setFreelancerGrowth] = useState<any[]>([]);
-  const [categoryTrends, setCategoryTrends] = useState<any[]>([]);
-  const [verificationTrends, setVerificationTrends] = useState<any[]>([]);
-  const [userDistribution, setUserDistribution] = useState<any>(null);
+  const [userGrowth, setUserGrowth] = useState<GrowthPoint[]>([]);
+  const [freelancerGrowth, setFreelancerGrowth] = useState<GrowthPoint[]>([]);
+  const [categoryTrends, setCategoryTrends] = useState<CategoryTrendPoint[]>([]);
+  const [verificationTrends, setVerificationTrends] = useState<VerificationTrendPoint[]>([]);
+  const [userDistribution, setUserDistribution] = useState<UserDistribution | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -72,7 +80,7 @@ const AdminAnalytics: React.FC = () => {
         if (ugRes.success) {
           const series = ugRes.data?.data?.series || ugRes.data?.series || [];
           setUserGrowth(
-            series.map((d: any) => ({
+            series.map((d: RawSeriesPoint) => ({
               name: formatAnalyticsChartLabel(d.date, interval),
               count: d.count,
               cumulative: d.cumulative,
@@ -82,15 +90,15 @@ const AdminAnalytics: React.FC = () => {
         if (fgRes.success) {
           const series = fgRes.data?.data?.series || fgRes.data?.series || [];
           setFreelancerGrowth(
-            series.map((d: any) => ({
+            series.map((d: RawSeriesPoint) => ({
               name: formatAnalyticsChartLabel(d.date, interval),
               count: d.count,
               cumulative: d.cumulative,
             })),
           );
         }
-        if (ctRes.success) { const rawData = ctRes.data || []; const grouped: Record<string, number> = {}; rawData.forEach((d: any) => { const name = d.categoryName || d.name || 'Unknown'; grouped[name] = (grouped[name] || 0) + (d.count || d.freelancerCount || 0); }); setCategoryTrends(Object.entries(grouped).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 10)); }
-        if (vtRes.success) { setVerificationTrends((vtRes.data || []).map((d: any) => ({ name: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), pending: d.pending || 0, verified: d.verified || 0, rejected: d.rejected || 0 }))); }
+        if (ctRes.success) { const rawData = ctRes.data || []; const grouped: Record<string, number> = {}; rawData.forEach((d: RawCategoryTrend) => { const name = d.categoryName || d.name || 'Unknown'; grouped[name] = (grouped[name] || 0) + (d.count || d.freelancerCount || 0); }); setCategoryTrends(Object.entries(grouped).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 10)); }
+        if (vtRes.success) { setVerificationTrends((vtRes.data || []).map((d: RawVerificationTrend) => ({ name: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), pending: d.pending || 0, verified: d.verified || 0, rejected: d.rejected || 0 }))); }
         if (udRes.success) setUserDistribution(udRes.data);
       } catch { toast.error('Failed to load analytics'); }
       finally { setLoading(false); }

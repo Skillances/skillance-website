@@ -38,8 +38,73 @@ function sanitizeHttpImageUrl(url: string | null | undefined): string | null {
   }
 }
 
+interface AdminBookingRow {
+  id: string;
+  status: string;
+  category?: string | null;
+  scheduledDate?: string | null;
+  scheduledTime?: string | null;
+  durationMinutes?: number | null;
+  totalPrice?: number | string | null;
+  address?: string | null;
+  notes?: string | null;
+  paymentStatus?: string | null;
+  confirmedAt?: string | null;
+  startedAt?: string | null;
+  completedAt?: string | null;
+  cancelledAt?: string | null;
+  cancelledBy?: string | null;
+  cancellationReason?: string | null;
+  customerId: string;
+  customer?: { fullName?: string | null; profilePhotoUrl?: string | null } | null;
+  freelancer?: { user?: { id?: string; fullName?: string | null; profilePhotoUrl?: string | null } | null } | null;
+}
+
+interface AdminFreelancerUser {
+  id?: string;
+  email?: string | null;
+  fullName?: string | null;
+  tag?: string | null;
+  phoneNumber?: string | null;
+  city?: string | null;
+  profilePhotoUrl?: string | null;
+  idVerificationStatus?: string;
+  policeClearanceStatus?: string;
+  idNumber?: string;
+  idFrontPhotoUrl?: string;
+  idBackPhotoUrl?: string;
+  selfiePhotoUrl?: string;
+  policeClearanceDocumentUrl?: string;
+}
+
+interface AdminFreelancer {
+  id: string;
+  userId: string;
+  isVerified?: boolean;
+  rating?: number | string | null;
+  totalReviews?: number | null;
+  responseRate?: number | null;
+  totalBookingsCompleted?: number | null;
+  coverPhotoUrl?: string | null;
+  categoryIds?: string[] | null;
+  categoryRates?: { id: string; categoryId: string; hourlyRate: number | string }[] | null;
+  createdAt: string;
+  updatedAt: string;
+  user?: AdminFreelancerUser | null;
+  /** Legacy KYC fields kept on the freelancer for older payloads. */
+  kycStatus?: string;
+  idVerificationStatus?: string;
+  policeClearanceStatus?: string;
+  idNumber?: string;
+  idFrontPhotoUrl?: string;
+  idBackPhotoUrl?: string;
+  selfiePhotoUrl?: string;
+  policeClearancePhotoUrl?: string;
+  policeClearanceDocumentUrl?: string;
+}
+
 /** KYC document fields live on `user` in the admin API; keep fallbacks for older payloads. */
-function getFreelancerKycSlice(f: Record<string, any> | null) {
+function getFreelancerKycSlice(f: AdminFreelancer | null) {
   if (!f) {
     return {
       idVerificationStatus: undefined as string | undefined,
@@ -69,7 +134,7 @@ function getFreelancerKycSlice(f: Record<string, any> | null) {
 const AdminFreelancerDetail: React.FC = () => {
   const { freelancerId } = useParams<{ freelancerId: string }>();
   const goBack = useAdminBackNavigation();
-  const [freelancer, setFreelancer] = useState<any>(null);
+  const [freelancer, setFreelancer] = useState<AdminFreelancer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -92,7 +157,7 @@ const AdminFreelancerDetail: React.FC = () => {
   const [clearanceLoading, setClearanceLoading] = useState(false);
 
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<AdminBookingRow[]>([]);
   const [bookingsTotal, setBookingsTotal] = useState(0);
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [bookingsOffset, setBookingsOffset] = useState(0);
@@ -206,8 +271,8 @@ const AdminFreelancerDetail: React.FC = () => {
   const fetchFreelancer = async () => { try { setIsLoading(true); const res = await get(ApiPaths.admin.freelancer(freelancerId!)); if (res.success) setFreelancer(res.data); } catch { toast.error('Failed to load freelancer'); } finally { setIsLoading(false); } };
   useEffect(() => { if (freelancerId) fetchFreelancer(); }, [freelancerId]);
 
-  const handleVerifyId = async () => { try { setVerifyIdLoading(true); const body: any = { status: verifyIdAction }; if (verifyIdAction === 'rejected' && rejectionReason) body.rejectionReason = rejectionReason; await put(ApiPaths.admin.freelancerVerifyId(freelancerId!), body); toast.success(`ID ${verifyIdAction === 'verified' ? 'approved' : 'rejected'} successfully`); setVerifyIdOpen(false); setRejectionReason(''); fetchFreelancer(); } catch (err: any) { toast.error(err?.message || 'Failed to verify ID'); } finally { setVerifyIdLoading(false); } };
-  const handleVerifyClearance = async () => { try { setClearanceLoading(true); await post(ApiPaths.admin.freelancerPoliceClearanceVerify(freelancerId!), { status: clearanceAction }); toast.success(`Police clearance ${clearanceAction === 'verified' ? 'approved' : 'rejected'} successfully`); setVerifyClearanceOpen(false); fetchFreelancer(); } catch (err: any) { toast.error(err?.message || 'Failed to verify clearance'); } finally { setClearanceLoading(false); } };
+  const handleVerifyId = async () => { try { setVerifyIdLoading(true); const body: { status: typeof verifyIdAction; rejectionReason?: string } = { status: verifyIdAction }; if (verifyIdAction === 'rejected' && rejectionReason) body.rejectionReason = rejectionReason; await put(ApiPaths.admin.freelancerVerifyId(freelancerId!), body); toast.success(`ID ${verifyIdAction === 'verified' ? 'approved' : 'rejected'} successfully`); setVerifyIdOpen(false); setRejectionReason(''); fetchFreelancer(); } catch (caught) { const err = caught as { message?: string; status?: number; statusCode?: number } | null | undefined; toast.error(err?.message || 'Failed to verify ID'); } finally { setVerifyIdLoading(false); } };
+  const handleVerifyClearance = async () => { try { setClearanceLoading(true); await post(ApiPaths.admin.freelancerPoliceClearanceVerify(freelancerId!), { status: clearanceAction }); toast.success(`Police clearance ${clearanceAction === 'verified' ? 'approved' : 'rejected'} successfully`); setVerifyClearanceOpen(false); fetchFreelancer(); } catch (caught) { const err = caught as { message?: string; status?: number; statusCode?: number } | null | undefined; toast.error(err?.message || 'Failed to verify clearance'); } finally { setClearanceLoading(false); } };
 
   const [deletePhotoLoading, setDeletePhotoLoading] = useState<string | null>(null);
   const handleDeletePhoto = async (photoType: string) => {
@@ -216,7 +281,8 @@ const AdminFreelancerDetail: React.FC = () => {
       await del(ApiPaths.admin.freelancerPhoto(freelancerId!, photoType));
       toast.success('Photo removed');
       fetchFreelancer();
-    } catch (err: any) {
+    } catch (caught) {
+      const err = caught as { message?: string; status?: number; statusCode?: number } | null | undefined;
       toast.error(err?.message || 'Failed to delete photo');
     } finally {
       setDeletePhotoLoading(null);
@@ -235,8 +301,8 @@ const AdminFreelancerDetail: React.FC = () => {
     { label: 'Rating', value: freelancer.rating ? `${Number(freelancer.rating).toFixed(1)} / 5 (${freelancer.totalReviews || 0} reviews)` : 'No ratings' },
   ];
   const verificationFields: DetailField[] = [
-    { label: 'ID Verification', value: <StatusBadge status={(kyc.idVerificationStatus || 'not_submitted') as any} /> },
-    { label: 'Police Clearance', value: <StatusBadge status={(kyc.policeClearanceStatus || 'not_submitted') as any} /> },
+    { label: 'ID Verification', value: <StatusBadge status={(kyc.idVerificationStatus || 'not_submitted') as string} /> },
+    { label: 'Police Clearance', value: <StatusBadge status={(kyc.policeClearanceStatus || 'not_submitted') as string} /> },
     { label: 'Overall Verified', value: freelancer.isVerified ? <StatusBadge status="verified" /> : <StatusBadge status="pending" label="Not Verified" /> },
     { label: 'ID Number', value: kyc.idNumber ? <span className="font-mono text-xs">{kyc.idNumber}</span> : '--' },
   ];
@@ -371,7 +437,7 @@ const AdminFreelancerDetail: React.FC = () => {
         <CardContent className="p-6">
           {freelancer.categoryRates && freelancer.categoryRates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {freelancer.categoryRates.map((cr: any) => (
+              {freelancer.categoryRates.map((cr) => (
                 <div key={cr.id} className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-neutral-100 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
                   <span className="text-sm font-medium text-black dark:text-white truncate">{resolveCategoryLabel(cr.categoryId, categoryMap)}</span>
                   <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-300 tabular-nums shrink-0">R{Number(cr.hourlyRate).toFixed(0)}/hr</span>
@@ -420,7 +486,7 @@ const AdminFreelancerDetail: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {bookings.map((b: any) => {
+                    {bookings.map((b: AdminBookingRow) => {
                       const isExpanded = expandedBooking === b.id;
                       return (
                         <React.Fragment key={b.id}>
@@ -445,7 +511,7 @@ const AdminFreelancerDetail: React.FC = () => {
                               </div>
                             </td>
                             <td className="px-4 py-3 text-neutral-500 dark:text-neutral-400">{resolveCategoryLabel(String(b.category ?? ''), categoryMap)}</td>
-                            <td className="px-4 py-3"><StatusBadge status={(bookingStatusMap[b.status] || b.status) as any} label={b.status} /></td>
+                            <td className="px-4 py-3"><StatusBadge status={(bookingStatusMap[b.status] || b.status) as string} label={b.status} /></td>
                             <td className="px-6 py-3 text-right font-medium text-black dark:text-white tabular-nums">R{Number(b.totalPrice).toFixed(0)}</td>
                           </tr>
                           {isExpanded && (

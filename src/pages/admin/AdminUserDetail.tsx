@@ -297,7 +297,7 @@ const UserTypeValue: React.FC<{ user: UserData }> = ({ user }) => {
     );
   }
   const status = roles.freelancer ? 'freelancer' : 'customer';
-  return <StatusBadge status={status as any} />;
+  return <StatusBadge status={status as string} />;
 };
 
 const AdminUserDetail: React.FC = () => {
@@ -368,7 +368,7 @@ const AdminUserDetail: React.FC = () => {
       } else {
         toast.error((res as { message?: string }).message || 'Failed to send warning');
       }
-    } catch (e: any) { toast.error(e?.message || 'Failed to send warning'); } finally { setPolicyBusy(false); }
+    } catch (caught) { const e = caught as { message?: string; status?: number; statusCode?: number } | null | undefined; toast.error(e?.message || 'Failed to send warning'); } finally { setPolicyBusy(false); }
   };
 
   const submitBan = async () => {
@@ -384,7 +384,7 @@ const AdminUserDetail: React.FC = () => {
       } else {
         toast.error((res as { message?: string }).message || 'Failed to ban');
       }
-    } catch (e: any) { toast.error(e?.message || 'Failed to ban'); } finally { setPolicyBusy(false); }
+    } catch (caught) { const e = caught as { message?: string; status?: number; statusCode?: number } | null | undefined; toast.error(e?.message || 'Failed to ban'); } finally { setPolicyBusy(false); }
   };
 
   const submitUnban = async () => {
@@ -398,7 +398,7 @@ const AdminUserDetail: React.FC = () => {
       } else {
         toast.error((res as { message?: string }).message || 'Failed to unban');
       }
-    } catch (e: any) { toast.error(e?.message || 'Failed to unban'); } finally { setPolicyBusy(false); }
+    } catch (caught) { const e = caught as { message?: string; status?: number; statusCode?: number } | null | undefined; toast.error(e?.message || 'Failed to unban'); } finally { setPolicyBusy(false); }
   };
 
   const handleSave = async () => {
@@ -421,7 +421,7 @@ const AdminUserDetail: React.FC = () => {
         setEditOpen(false);
         toast.success('User updated successfully');
       }
-    } catch (err: any) { toast.error(err?.message || 'Failed to update user'); }
+    } catch (caught) { const err = caught as { message?: string; status?: number; statusCode?: number } | null | undefined; toast.error(err?.message || 'Failed to update user'); }
     finally { setSaving(false); }
   };
 

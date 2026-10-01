@@ -33,6 +33,9 @@ import ScrollIndicator from './components/layout/ScrollIndicator';
 import PublicFaqBot from './components/layout/PublicFaqBot';
 import { syncSectionScrollMarginCss } from './lib/sectionScroll';
 import { getPrefersReducedMotion, LENIS_DURATION } from './lib/motion';
+import MarketplaceLayout from './components/marketplace/MarketplaceLayout';
+import RequireAuth from './components/marketplace/RequireAuth';
+import { isMarketplacePath, isMarketplaceShellPath } from './lib/marketplace/routes';
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
@@ -65,6 +68,39 @@ const AdminCategoryLimitRequests = lazy(() => import('./pages/admin/AdminCategor
 const AdminCertificationReviews = lazy(() => import('./pages/admin/AdminCertificationReviews'));
 const AdminDigitalProductReviews = lazy(() => import('./pages/admin/AdminDigitalProductReviews'));
 const AdminPortfolioReviews = lazy(() => import('./pages/admin/AdminPortfolioReviews'));
+
+const RegisterPage = lazy(() => import('./pages/marketplace/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/marketplace/ForgotPasswordPage'));
+const CustomerHomePage = lazy(() => import('./pages/marketplace/CustomerHomePage'));
+const SearchPage = lazy(() => import('./pages/marketplace/SearchPage'));
+const CategoryResultsPage = lazy(() => import('./pages/marketplace/CategoryResultsPage'));
+const FreelancerProfilePage = lazy(() => import('./pages/marketplace/FreelancerProfilePage'));
+const BookFreelancerPage = lazy(() => import('./pages/marketplace/BookFreelancerPage'));
+const BookingsPage = lazy(() => import('./pages/marketplace/BookingsPage'));
+const BookingDetailPage = lazy(() => import('./pages/marketplace/BookingDetailPage'));
+const ChatListPage = lazy(() => import('./pages/marketplace/ChatListPage'));
+const ChatThreadPage = lazy(() => import('./pages/marketplace/ChatThreadPage'));
+const FreelancerDashboardPage = lazy(() => import('./pages/marketplace/FreelancerDashboardPage'));
+const FreelancerJobsPage = lazy(() => import('./pages/marketplace/FreelancerJobsPage'));
+const WorkProfilePage = lazy(() => import('./pages/marketplace/WorkProfilePage'));
+const WorkLocationsPage = lazy(() => import('./pages/marketplace/WorkLocationsPage'));
+const WorkAvailabilityPage = lazy(() => import('./pages/marketplace/WorkAvailabilityPage'));
+const WorkPortfolioPage = lazy(() => import('./pages/marketplace/WorkPortfolioPage'));
+const WorkCertificationsPage = lazy(() => import('./pages/marketplace/WorkCertificationsPage'));
+const WorkVerificationPage = lazy(() => import('./pages/marketplace/WorkVerificationPage'));
+const WorkPoliceClearancePage = lazy(() => import('./pages/marketplace/WorkPoliceClearancePage'));
+const WorkProductsPage = lazy(() => import('./pages/marketplace/WorkProductsPage'));
+const WorkEarningsPage = lazy(() => import('./pages/marketplace/WorkEarningsPage'));
+const WorkInvoicesPage = lazy(() => import('./pages/marketplace/WorkInvoicesPage'));
+const DocumentsPage = lazy(() => import('./pages/marketplace/DocumentsPage'));
+const DocumentViewerPage = lazy(() => import('./pages/marketplace/DocumentViewerPage'));
+const FavoritesPage = lazy(() => import('./pages/marketplace/FavoritesPage'));
+const RecurringPage = lazy(() => import('./pages/marketplace/RecurringPage'));
+const AccountPage = lazy(() => import('./pages/marketplace/AccountPage'));
+const EditAccountPage = lazy(() => import('./pages/marketplace/EditAccountPage'));
+const SettingsPage = lazy(() => import('./pages/marketplace/SettingsPage'));
+const ApplyFreelancerPage = lazy(() => import('./pages/marketplace/ApplyFreelancerPage'));
+const BugReportPage = lazy(() => import('./pages/marketplace/BugReportPage'));
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -109,7 +145,16 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isLoginPage = location.pathname === '/login';
-  const routeAnimationKey = isAdminRoute ? '/admin' : location.pathname;
+  // Marketplace (customer and freelancer app) and its auth pages: no marketing chrome, native scroll.
+  const isMarketplaceRoute = isMarketplacePath(location.pathname);
+  const hideMarketingChrome = isAdminRoute || isLoginPage || isMarketplaceRoute;
+  const useLenisScroll = !isMarketplaceRoute;
+  // One key for the whole shell so the layout stays mounted; it animates its own page enters.
+  const routeAnimationKey = isAdminRoute
+    ? '/admin'
+    : isMarketplaceShellPath(location.pathname)
+      ? '/marketplace'
+      : location.pathname;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -169,7 +214,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && useLenisScroll) {
       // Initialize Lenis for smooth scrolling
       const reducedMotion = getPrefersReducedMotion();
       const lenis = new Lenis({
@@ -215,7 +260,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
         lenis.destroy();
       };
     }
-  }, [isLoaded]);
+  }, [isLoaded, useLenisScroll]);
 
   return (
     <div 
@@ -225,7 +270,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
       }`}
     >
       <ScrollToTop />
-      {!isAdminRoute && !isLoginPage && <Navigation isLoaded={isLoaded} />}
+      {!hideMarketingChrome && <Navigation isLoaded={isLoaded} />}
       <main>
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={routeAnimationKey}>
@@ -243,6 +288,45 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
             <Route path="/contact" element={<PageTransition routeKey="/contact"><ContactPage /></PageTransition>} />
             <Route path="/category/:id" element={<PageTransition routeKey={location.pathname}><CategoryPage /></PageTransition>} />
             <Route path="/login" element={<PageTransition routeKey="/login"><LoginPage /></PageTransition>} />
+            <Route path="/register" element={<Suspense fallback={null}><RegisterPage /></Suspense>} />
+            <Route path="/forgot-password" element={<Suspense fallback={null}><ForgotPasswordPage /></Suspense>} />
+
+            {/* Marketplace app shell. Public browse pages first, then signed-in pages. */}
+            <Route element={<MarketplaceLayout />}>
+              <Route path="/home" element={<CustomerHomePage />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/browse/category/:categoryId" element={<CategoryResultsPage />} />
+              <Route path="/freelancers/:freelancerId" element={<FreelancerProfilePage />} />
+
+              <Route path="/freelancers/:freelancerId/book" element={<RequireAuth><BookFreelancerPage /></RequireAuth>} />
+              <Route path="/bookings" element={<RequireAuth><BookingsPage /></RequireAuth>} />
+              <Route path="/bookings/:bookingId" element={<RequireAuth><BookingDetailPage /></RequireAuth>} />
+              <Route path="/chats" element={<RequireAuth><ChatListPage /></RequireAuth>} />
+              <Route path="/chats/:chatId" element={<RequireAuth><ChatThreadPage /></RequireAuth>} />
+              <Route path="/favorites" element={<RequireAuth><FavoritesPage /></RequireAuth>} />
+              <Route path="/documents" element={<RequireAuth><DocumentsPage /></RequireAuth>} />
+              <Route path="/documents/:productId" element={<RequireAuth><DocumentViewerPage /></RequireAuth>} />
+              <Route path="/recurring" element={<RequireAuth><RecurringPage /></RequireAuth>} />
+              <Route path="/account" element={<RequireAuth><AccountPage /></RequireAuth>} />
+              <Route path="/account/edit" element={<RequireAuth><EditAccountPage /></RequireAuth>} />
+              <Route path="/account/settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
+              <Route path="/account/apply-freelancer" element={<RequireAuth><ApplyFreelancerPage /></RequireAuth>} />
+              <Route path="/account/bug-report" element={<RequireAuth><BugReportPage /></RequireAuth>} />
+              <Route path="/account/*" element={<Navigate to="/account" replace />} />
+              <Route path="/work" element={<RequireAuth><FreelancerDashboardPage /></RequireAuth>} />
+              <Route path="/work/jobs" element={<RequireAuth><FreelancerJobsPage /></RequireAuth>} />
+              <Route path="/work/profile" element={<RequireAuth><WorkProfilePage /></RequireAuth>} />
+              <Route path="/work/locations" element={<RequireAuth><WorkLocationsPage /></RequireAuth>} />
+              <Route path="/work/availability" element={<RequireAuth><WorkAvailabilityPage /></RequireAuth>} />
+              <Route path="/work/portfolio" element={<RequireAuth><WorkPortfolioPage /></RequireAuth>} />
+              <Route path="/work/certifications" element={<RequireAuth><WorkCertificationsPage /></RequireAuth>} />
+              <Route path="/work/verification" element={<RequireAuth><WorkVerificationPage /></RequireAuth>} />
+              <Route path="/work/police-clearance" element={<RequireAuth><WorkPoliceClearancePage /></RequireAuth>} />
+              <Route path="/work/products" element={<RequireAuth><WorkProductsPage /></RequireAuth>} />
+              <Route path="/work/earnings" element={<RequireAuth><WorkEarningsPage /></RequireAuth>} />
+              <Route path="/work/invoices" element={<RequireAuth><WorkInvoicesPage /></RequireAuth>} />
+              <Route path="/work/*" element={<Navigate to="/work" replace />} />
+            </Route>
 
             {/* Admin Routes — no transition wrapper (has its own layout) */}
             <Route
@@ -297,8 +381,8 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
           </Routes>
         </AnimatePresence>
       </main>
-      {!isAdminRoute && !isLoginPage && <Footer />}
-      {isLoaded && !isAdminRoute && !isLoginPage && (
+      {!hideMarketingChrome && <Footer />}
+      {isLoaded && !hideMarketingChrome && (
         <>
           <CookieConsent />
           <LaunchCountdown />
@@ -314,7 +398,7 @@ function AppShell() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isLoginPage = location.pathname === '/login';
-  const shouldShowLoader = !isAdminRoute && !isLoginPage;
+  const shouldShowLoader = !isAdminRoute && !isLoginPage && !isMarketplacePath(location.pathname);
 
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -322,11 +406,10 @@ function AppShell() {
     setIsLoaded(true);
   };
 
-  useEffect(() => {
-    if (!shouldShowLoader) {
-      setIsLoaded(true);
-    }
-  }, [shouldShowLoader]);
+  // Routes without the marketing loader are ready immediately (state adjusted during render).
+  if (!shouldShowLoader && !isLoaded) {
+    setIsLoaded(true);
+  }
 
   return (
     <>

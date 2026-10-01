@@ -66,7 +66,8 @@ const ContactPage = () => {
         toast.success('Message received!');
       }
       startCooldown();
-    } catch (error: any) {
+    } catch (caught) {
+      const error = caught as { statusCode?: number; retryAfter?: number; message?: string } | null | undefined;
       if (error?.statusCode === 429 || error?.retryAfter) {
         toast.error(error?.message || 'Too many attempts. Please try again later.');
         if (error?.retryAfter) startCooldownFromRetryAfter(error.retryAfter);

@@ -50,7 +50,7 @@ const DEFAULT_CENTER = createCoordinates(10, 20);
 
 const SecurityWorldMap: React.FC<SecurityWorldMapProps> = ({ data, ipFocus = null }) => {
   const [tooltip, setTooltip] = useState<{ x: number; y: number; name: string; count: number } | null>(null);
-  const [geoData, setGeoData] = useState<any>(null);
+  const [geoData, setGeoData] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     fetch(GEO_URL)
