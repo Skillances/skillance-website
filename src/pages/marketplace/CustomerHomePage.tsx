@@ -8,6 +8,7 @@ import { MkButton, MkEmpty, MkSectionTitle, MkSkeleton } from '@/components/mark
 import { useCategories } from '@/lib/marketplace/categories';
 import { useBrowserLocation } from '@/lib/marketplace/search';
 import { apiErrorMessage } from '@/lib/marketplace/apiHelpers';
+import { CategoryMark } from '@/components/marketplace/CategoryMark';
 
 const NEARBY_KM = 50;
 
@@ -65,11 +66,7 @@ export default function CustomerHomePage() {
                   to={`/browse/category/${encodeURIComponent(c.id)}`}
                   className="group flex min-h-[76px] items-center gap-3 rounded-2xl border border-mk-border bg-mk-surface p-3 transition-[box-shadow,transform] duration-200 ease-out hover:shadow-mk-card active:scale-[0.98] motion-reduce:active:scale-100"
                 >
-                  {c.imageUrl ? (
-                    <img src={c.imageUrl} alt="" className="h-12 w-12 shrink-0 rounded-xl bg-mk-muted object-cover" loading="lazy" />
-                  ) : (
-                    <span className="h-12 w-12 shrink-0 rounded-xl bg-mk-muted" aria-hidden="true" />
-                  )}
+                  <CategoryMark url={c.imageUrl} />
                   <span className="min-w-0 flex-1 font-mk-display text-[14px] font-semibold leading-snug">{c.name}</span>
                   <ChevronRight className="h-4 w-4 shrink-0 text-mk-text-tertiary transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transform-none" aria-hidden="true" />
                 </Link>
