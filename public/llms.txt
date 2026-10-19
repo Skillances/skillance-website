@@ -60,9 +60,14 @@
 
 Skillance is a South African marketplace for booking local providers whose identity has been checked.
 
+## Beyond the App
+
+Beyond the App (https://skillance.co.za/beyond) is Skillance's software studio: custom web apps, mobile apps, business systems, and integrations. It is a separate part of this website from the marketplace, where customers book a local provider. Project enquiries go to services@skillance.co.za. Client work is published by an admin and the list is empty until then.
+
 ## Key pages
 
 - [Home](https://skillance.co.za/): Overview, featured categories, and how it works.
+- [Beyond the App](https://skillance.co.za/beyond): Custom software studio. Separate from the marketplace.
 - [All services](https://skillance.co.za/services): Full category browser with subcategories and specializations.
 - [FAQ](https://skillance.co.za/faq): Detailed answers for customers and freelancers.
 - [Help Center](https://skillance.co.za/help-center): Support articles and contact routes.
