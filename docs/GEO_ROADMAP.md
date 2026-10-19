@@ -36,15 +36,15 @@ Goal: give each top-level category a rich, crawlable URL instead of the JS-rende
 - `/services/music`
 
 **Each page includes:**
-- Query-shaped `<h1>`: *"Hire verified [category] in South Africa"*
+- Query-shaped `<h1>`: *"Book a [category] in [area]"* (publish only once the area is confirmed)
 - Intro paragraph ~120 words answering the top-of-funnel question
 - Subcategory grid (Plumbers, Electricians, etc.) with per-subcategory blurbs
 - "How it works in 3 steps" (search → book → pay)
-- Verification, pricing, and escrow summary (short)
+- ID-check summary (identity document matched to the profile photo; does not assess skills)
 - 5–8 FAQ accordion items with category-specific `FAQPage` JSON-LD
 - `BreadcrumbList` JSON-LD: Home → Services → Category
 - `Service` JSON-LD (already defined in `@graph`) linked by `mainEntity`
-- CTA: "Browse [category] near me" + App Store / Play Store badges
+- CTA: "Browse [category] near me". No app-store badges until the listings are live. The app line is "coming soon".
 - Internal links: to siblings (3–4) and to top city pages (below)
 
 ### C.2 Subcategory pages (spoke)
@@ -147,7 +147,7 @@ Move `sitemap.xml` from a static file to a build step that reads the category / 
 
 ### T.4 Dynamic OG images
 
-Each content page wants a unique `og:image` (e.g. "Verified plumbers in Johannesburg · Skillance"). Can be generated with `@vercel/og` during ISR / build.
+Each content page wants a unique `og:image` (e.g. "Book a plumber in [area] · Skillance"). Can be generated with `@vercel/og` during ISR / build. Do not claim a city until the launch area is confirmed.
 
 ### T.5 Canonical discipline
 
@@ -173,7 +173,7 @@ These are what make the difference between "we have great structured data" and "
 4. **Comparison content on third-party sites** — blog posts like "Top 5 South African freelancer platforms in 2026" where Skillance is #1. Pitch these to SA tech bloggers.
 5. **Reddit / X / community presence** — answer in `r/southafrica`, `r/askSouthAfrica`, LinkedIn SA tech groups when people ask "where do I find a tutor". Don't spam; be helpful and link once.
 6. **Direct submission to AI indexes** — submit the site to Perplexity's business listing, Bing Webmaster Tools (feeds ChatGPT Search), IndexNow, and Yandex Webmaster.
-7. **Brand consistency** — every mention of Skillance across the web should spell it the same, carry the same tagline ("South African on-demand marketplace for verified freelancers"), and point to `skillance.co.za`.
+7. **Brand consistency** — every mention of Skillance across the web should spell it the same, carry the same tagline ("A South African marketplace for booking local, ID-checked providers"), and point to `skillance.co.za`.
 
 ---
 

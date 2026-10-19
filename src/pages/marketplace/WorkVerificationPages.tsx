@@ -340,7 +340,7 @@ function IdVerification({ freelancerId }: { freelancerId: string }) {
           {status === 'verified'
             ? 'Your identity is verified. Customers see the ID verified badge on your profile.'
             : status === 'pending'
-              ? 'Thanks. Our team is checking your documents. This usually takes one to two working days.'
+              ? 'Thanks. Our team is checking your documents.'
               : status === 'rejected'
                 ? q.data?.idVerificationRejectionReason || 'Your documents could not be approved. Please upload them again.'
                 : 'Verify your identity to appear in search and build trust with customers.'}

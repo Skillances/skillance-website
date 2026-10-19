@@ -11,45 +11,46 @@ const clientSteps = [
   {
     number: '01',
     title: 'Discover',
-    description: 'Browse through our verified professionals or search with precise filters to find the perfect match for your needs.',
+    description: 'Browse local, ID-checked providers and filter by what you need.',
   },
   {
     number: '02',
-    title: 'Review & Verify',
-    description: 'Explore detailed profiles, past portfolios, and read verified reviews from our community of satisfied clients.',
+    title: 'Profiles',
+    description: 'Explore profiles and portfolios, and read reviews from other customers.',
   },
   {
     number: '03',
-    title: 'Secure Booking',
-    description: 'Message professionals directly and book securely through our protected payment gateway. Your funds are held safely until work is done.',
+    title: 'Book',
+    description: 'Book in the app. Once the provider accepts, you can message them about the details.',
   },
   {
     number: '04',
-    title: 'Quality Delivery',
-    description: 'Collaborate seamlessly and approve the final work when you are 100% satisfied. Simple, safe, and professional.',
+    title: 'Review',
+    description: 'When the job is done, leave a review to help others choose.',
   },
 ];
 
 const freelancerSteps = [
   {
     number: '01',
-    title: 'Create Profile',
-    description: 'Showcase your expertise. Build a professional portfolio and undergo our verification process to build trust.',
+    title: 'Create profile',
+    description:
+      'Register as a provider, upload your identity document and a clear profile photo, and choose your service categories.',
   },
   {
     number: '02',
-    title: 'Receive Leads',
-    description: 'Get matched with high-quality projects. We handle the discovery, so you can focus on your craft.',
+    title: 'Get found',
+    description: 'Customers nearby can open your profile and send a booking request.',
   },
   {
     number: '03',
-    title: 'Secure Payments',
-    description: 'No more chasing invoices. Our milestone-based payment system ensures you get paid fairly and on time for every job.',
+    title: 'Book',
+    description: 'Once you accept a booking, you can message the customer about the details.',
   },
   {
     number: '04',
-    title: 'Grow Business',
-    description: 'Build your reputation through our verified review system and scale your professional career with stable opportunities.',
+    title: 'Review',
+    description: 'When the job is done, customers can leave a review.',
   },
 ];
 

@@ -7,6 +7,7 @@ import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 import { toast } from 'sonner';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { revealFromTo } from '@/lib/motion';
+import { SHOW_PUBLIC_WEBSITE_REVIEWS } from '@/lib/featureFlags';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,6 +23,11 @@ interface Review {
 }
 
 const Reviews = () => {
+  if (!SHOW_PUBLIC_WEBSITE_REVIEWS) return null;
+  return <PublicWebsiteReviews />;
+};
+
+function PublicWebsiteReviews() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   

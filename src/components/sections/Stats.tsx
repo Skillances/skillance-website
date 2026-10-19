@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { get } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { SHOW_PUBLIC_STATS } from '@/lib/featureFlags';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { revealFromTo } from '@/lib/motion';
 
@@ -14,96 +15,145 @@ interface Stat {
   label: string;
 }
 
-function parseUsersCount(data: unknown): number | null {
-  if (!data || typeof data !== 'object') return null;
-  const raw = (data as Record<string, unknown>).usersCount;
-  if (typeof raw === 'number' && Number.isFinite(raw)) {
-    return Math.max(0, Math.floor(raw));
-  }
+function parseFiniteNumber(raw: unknown): number | null {
+  if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
   if (typeof raw === 'string' && raw.trim() !== '') {
     const n = Number(raw);
-    if (Number.isFinite(n)) return Math.max(0, Math.floor(n));
+    if (Number.isFinite(n)) return n;
   }
   return null;
 }
 
-const defaultStats: Stat[] = [
-  { value: 0, suffix: '', label: 'current user count on Skillance' },
-  { value: 100, suffix: '%', label: 'of professionals are verified before joining' },
-  { value: 1, suffix: 'K+', label: 'successful service bookings completed' },
-  { value: 4.8, suffix: '', label: 'average rating from satisfied customers' },
-];
+function parseUsersCount(data: Record<string, unknown>): number | null {
+  const n = parseFiniteNumber(data.usersCount);
+  if (n === null) return null;
+  return Math.max(0, Math.floor(n));
+}
+
+function formatStat(stat: Stat, animated: number): string {
+  if (stat.suffix === '%') return `${animated}${stat.suffix}`;
+  if (!Number.isInteger(stat.value)) return animated.toFixed(1);
+  return Math.round(animated).toLocaleString('en-ZA');
+}
+
+function statsFromPayload(data: unknown): Stat[] {
+  if (!data || typeof data !== 'object') return [];
+  const record = data as Record<string, unknown>;
+  const next: Stat[] = [];
+
+  const users = parseUsersCount(record);
+  if (users !== null) {
+    next.push({ value: users, suffix: '', label: 'people on Skillance' });
+  }
+
+  const verified = parseFiniteNumber(record.verifiedPercent);
+  if (verified !== null) {
+    next.push({
+      value: verified,
+      suffix: '%',
+      label: 'of providers verified',
+    });
+  }
+
+  const bookings = parseFiniteNumber(record.bookingsCount);
+  if (bookings !== null) {
+    next.push({
+      value: Math.max(0, Math.floor(bookings)),
+      suffix: '',
+      label: 'bookings',
+    });
+  }
+
+  const rating = parseFiniteNumber(record.avgRating);
+  if (rating !== null) {
+    next.push({ value: rating, suffix: '', label: 'average rating' });
+  }
+
+  return next;
+}
 
 const Stats = () => {
+  if (!SHOW_PUBLIC_STATS) return null;
+  return <LiveStats />;
+};
+
+/**
+ * Renders only numbers returned by `/public/stats`. If the request fails or a
+ * field is missing, that counter is omitted. Nothing is filled in from a
+ * hardcoded fallback.
+ *
+ * The animation effect depends on the live values. An earlier version listed
+ * only `stats.length`, so the scroll trigger kept the first render's numbers
+ * and never picked up the API response.
+ */
+function LiveStats() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [stats, setStats] = useState<Stat[]>(defaultStats);
-  const [animatedValues, setAnimatedValues] = useState<number[]>(defaultStats.map(() => 0));
+  const [stats, setStats] = useState<Stat[] | null>(null);
+  const [animatedValues, setAnimatedValues] = useState<number[]>([]);
   const hasAnimated = useRef(false);
-  const statsReady = useRef(false);
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
+    let cancelled = false;
     get(ApiPaths.public.stats)
       .then((res) => {
-        if (res.success && res.data) {
-          const { verifiedPercent, bookingsCount, avgRating } = res.data;
-          const bookingsDisplay = bookingsCount >= 1000 ? bookingsCount / 1000 : bookingsCount;
-          const bookingsSuffix = bookingsCount >= 1000 ? 'K+' : '+';
-          const usersParsed = parseUsersCount(res.data);
-          const userCount = usersParsed ?? 0;
-
-          setStats([
-            { value: userCount, suffix: '', label: 'current user count on Skillance' },
-            { value: verifiedPercent, suffix: '%', label: 'of professionals are verified before joining' },
-            { value: bookingsDisplay, suffix: bookingsSuffix, label: 'successful service bookings completed' },
-            { value: avgRating, suffix: '', label: 'average rating from satisfied customers' },
-          ]);
-        }
+        if (cancelled || !res.success || !res.data) return;
+        const next = statsFromPayload(res.data);
+        if (next.length === 0) return;
+        setStats(next);
+        setAnimatedValues(next.map(() => 0));
       })
-      .catch(() => {})
-      .finally(() => {
-        statsReady.current = true;
-      });
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
+    if (!stats || stats.length === 0) return;
+
+    hasAnimated.current = false;
+    const current = stats;
+
     const ctx = gsap.context(() => {
       revealFromTo('.stats-header', '.stats-header', reducedMotion);
 
-      const len = stats.length;
       const anim: Record<string, number> = {};
-      for (let i = 0; i < len; i += 1) {
+      current.forEach((_, i) => {
         anim[`v${i}`] = 0;
-      }
+      });
+
+      const play = () => {
+        if (hasAnimated.current) return;
+        hasAnimated.current = true;
+        const endValues = Object.fromEntries(
+          current.map((s, i) => [`v${i}`, s.value]),
+        ) as Record<string, number>;
+        gsap.to(anim, {
+          duration: reducedMotion ? 0 : 2,
+          ease: 'power2.out',
+          ...endValues,
+          onUpdate: () => {
+            setAnimatedValues(
+              current.map((s, i) =>
+                Number(anim[`v${i}`].toFixed(Number.isInteger(s.value) ? 0 : 1)),
+              ),
+            );
+          },
+        });
+      };
 
       ScrollTrigger.create({
         trigger: '.stats-container',
         start: 'top 80%',
-        onEnter: () => {
-          if (!hasAnimated.current) {
-            hasAnimated.current = true;
-            const endValues = Object.fromEntries(
-              stats.map((s, i) => [`v${i}`, s.value]),
-            ) as Record<string, number>;
-            gsap.to(anim, {
-              duration: 2,
-              ease: 'power2.out',
-              ...endValues,
-              onUpdate: () => {
-                setAnimatedValues(
-                  stats.map((s, i) =>
-                    Number(anim[`v${i}`].toFixed(s.value % 1 === 0 ? 0 : 1)),
-                  ),
-                );
-              },
-            });
-          }
-        },
+        onEnter: play,
       });
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [reducedMotion, stats.length]);
+  }, [reducedMotion, stats]);
+
+  if (!stats || stats.length === 0) return null;
 
   return (
     <section
@@ -113,25 +163,18 @@ const Stats = () => {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-          {/* Left - Header */}
           <div className="stats-header">
             <h2 className="font-serif text-4xl sm:text-5xl text-black leading-[1.1]">
               Skillance{' '}
               <span className="italic">by the numbers</span>
             </h2>
-            <p className="text-neutral-500 text-lg mt-4 max-w-md">
-              Trusted metrics from our platform
-            </p>
           </div>
 
-          {/* Right - Stats */}
           <div className="stats-container space-y-12">
             {stats.map((stat, index) => (
-              <div key={index} className="flex items-baseline gap-4">
+              <div key={stat.label} className="flex items-baseline gap-4">
                 <span className="font-serif text-5xl sm:text-7xl lg:text-8xl text-black tabular-nums">
-                  {index === 0
-                    ? Math.round(animatedValues[index] ?? 0).toLocaleString('en-ZA')
-                    : `${animatedValues[index] ?? 0}${stat.suffix}`}
+                  {formatStat(stat, animatedValues[index] ?? 0)}
                 </span>
                 <span className="text-neutral-500 text-lg max-w-[220px]">
                   {stat.label}
@@ -143,6 +186,6 @@ const Stats = () => {
       </div>
     </section>
   );
-};
+}
 
 export default Stats;

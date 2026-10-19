@@ -155,7 +155,7 @@ const ContactPage = () => {
               </div>
               <h3 className="font-serif text-3xl lg:text-4xl text-black mb-4">Message received.</h3>
               <p className="text-neutral-500 font-light leading-relaxed">
-                Thank you for reaching out. A specialist from our team will evaluate your request and respond within 24 hours.
+                Thank you for reaching out. Support hours are Mon-Fri 09:00-17:00.
               </p>
               <button 
                 onClick={() => setIsSubmitted(false)}

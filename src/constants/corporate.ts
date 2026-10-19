@@ -8,6 +8,10 @@ export const CORPORATE_LEGAL_NAME = 'RIMITSO MANAGEMENT SERVICES (PTY) LTD';
 export const CORPORATE_OWNERSHIP_SENTENCE =
   'Skillance is owned by and part of Rimitso Management Services (Pty) Ltd.';
 
+/** ECT Act footer line. No registration number until the certificate is confirmed. */
+export const CORPORATE_FOOTER_LINE =
+  'Skillance is a trading name of Rimitso Management Services (Pty) Ltd, 6 Dwars Street, Krugersdorp, 1739.';
+
 /** Registered office of RIMITSO MANAGEMENT SERVICES (PTY) LTD (CIPC / legal record). */
 export const CORPORATE_LEGAL_ADDRESS_ONE_LINE =
   '6 DWARS STREET, KRUGERSDORP, KRUGERSDORP, GAUTENG, 1739';
