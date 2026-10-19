@@ -39,6 +39,7 @@ import {
   Bug,
   BookOpen,
   ClipboardList,
+  AppWindow,
 } from 'lucide-react';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -157,6 +158,7 @@ const adminMenuGroups: {
       { name: 'Bug reports', path: '/admin/bug-reports', icon: Bug },
       { name: 'Subscribers', path: '/admin/notify-subscribers', icon: BellRing },
       { name: 'Website reviews', path: '/admin/website-reviews', icon: Star },
+      { name: 'Beyond work', path: '/admin/beyond-work', icon: AppWindow },
     ],
   },
 ];
