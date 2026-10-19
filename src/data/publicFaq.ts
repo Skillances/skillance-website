@@ -50,35 +50,35 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'What is Skillance?',
               kind: 'leaf',
               answer:
-                'Skillance is a South African marketplace that connects customers with local, verified freelancers for on-demand services — think plumbers, tutors, cleaners, designers and more. You search, you book, the freelancer shows up, and you pay through the app.',
+                'Skillance is a South African marketplace that connects customers with local freelancers whose identity document has been checked and matched to their profile photo — plumbers, tutors, cleaners, designers and more. You search and book in the app. The Skillance app for iOS and Android is coming soon.',
             },
             {
               id: 'customer.about.diff',
               label: 'How is Skillance Personal different from a classifieds site?',
               kind: 'leaf',
               answer:
-                'Skillance Personal is built for booking verified freelancers — not peer-to-peer item sales. For local buy-and-sell classifieds, use the separate Skillance Marketplace app (same login). On Personal we verify freelancer IDs, show upfront pricing, hold payments in escrow, and keep messaging and reviews tied to completed bookings.',
+                'Skillance Personal is built for booking ID-checked freelancers — not peer-to-peer item sales. For local buy-and-sell classifieds, use the separate Skillance Marketplace app (same login). Before a provider can take bookings, we check their identity document and match it to their profile photo. This confirms who they are. It doesn\'t assess their skills. Messaging and reviews stay tied to bookings.',
             },
             {
               id: 'customer.about.free',
               label: 'Is it free to use as a customer?',
               kind: 'leaf',
               answer:
-                'Creating an account and browsing freelancers is free. In-app messaging opens after the freelancer accepts your booking. You pay when you confirm a booking request, and the freelancer\'s price is shown up-front.',
+                'Creating an account and browsing freelancers is free. In-app messaging opens after the freelancer accepts your booking. The freelancer\'s price and the service fee are shown before you confirm a booking.',
             },
             {
               id: 'customer.about.fees',
               label: 'Are there hidden fees?',
               kind: 'leaf',
               answer:
-                'No. You\'ll see the freelancer\'s price and the Skillance service fee before you confirm a booking. VAT (where applicable) is included in the total shown at checkout.',
+                'No. You\'ll see the freelancer\'s price and the Skillance service fee before you confirm a booking.',
             },
             {
               id: 'customer.about.ops',
               label: 'Where you operate & who runs Skillance',
               kind: 'leaf',
               answer:
-                'Skillance is owned by and part of Rimitso Management Services (Pty) Ltd (legal name: RIMITSO MANAGEMENT SERVICES (PTY) LTD). We launch in South Africa with freelancers in major metros — use Nearby in the app to see who is close. Billing, data handling and support follow South African consumer and data-protection law (POPIA).',
+                'Skillance is a trading name of Rimitso Management Services (Pty) Ltd, 6 Dwars Street, Krugersdorp, 1739. We\'re launching first in one area. Tell us your area and we\'ll let you know if we reach you.',
             },
           ],
         },
@@ -97,14 +97,14 @@ export const PUBLIC_FAQ: FaqNode = {
                   label: 'Quick step-by-step',
                   kind: 'leaf',
                   answer:
-                    'Open the Skillance app → pick a category or search → view freelancer profiles, ratings and prices → tap "Book", choose a date/time and describe the job → submit your request. The freelancer is notified and either accepts or declines. After they accept, in-app messaging opens on that booking so you can coordinate details.',
+                    'Open the Skillance app → pick a category or search → view freelancer profiles, ratings and prices → tap "Book", choose a date/time and describe the job → submit your request. The freelancer is notified and either accepts or declines. After they accept, in-app messaging opens on that booking so you can coordinate details. At the start of the session, the customer shows a session PIN and the provider submits it to confirm the session has begun. The PIN does not mark the job as complete.',
                 },
                 {
                   id: 'customers.book.accept',
                   label: 'How long until a freelancer accepts?',
                   kind: 'leaf',
                   answer:
-                    'Most bookings are accepted within a few minutes during working hours. If nobody accepts within 24 hours, the booking expires automatically and no money is held.',
+                    'Most bookings are accepted within a few minutes during working hours. If nobody accepts within 24 hours, the booking expires automatically.',
                 },
                 {
                   id: 'customers.book.multiple',
@@ -197,14 +197,14 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'What\'s the Skillance service fee?',
               kind: 'leaf',
               answer:
-                'Skillance charges a service fee of 8–9% including VAT on each confirmed booking. The exact line items (including any connection fee) are shown at checkout before you confirm — there are no surprise deductions. The fee pays for the platform, payment processing, support and freelancer verification.',
+                'Skillance charges a service fee of 8–9% on each confirmed booking. The exact amount, including any connection fee, is shown before you book.',
             },
             {
               id: 'cpay.methods',
               label: 'What payment methods are supported?',
               kind: 'leaf',
               answer:
-                'Cards (Visa / Mastercard) and instant-EFT via our South African payment provider. Cash is not supported in-app — paying in cash outside the booking voids Skillance\'s protection.',
+                'Payments aren\'t live yet. We\'ll explain exactly how paying works here before bookings open.',
             },
             {
               id: 'cpay.refunds',
@@ -249,18 +249,11 @@ export const PUBLIC_FAQ: FaqNode = {
               ],
             },
             {
-              id: 'cpay.vat',
-              label: 'Are prices VAT-inclusive?',
-              kind: 'leaf',
-              answer:
-                'Yes. All prices and service fees shown in the app are VAT-inclusive where applicable, in line with South African Consumer Protection Act requirements. Your invoice/receipt breaks down the VAT portion.',
-            },
-            {
               id: 'cpay.escrow',
-              label: 'Does Skillance hold my money?',
+              label: 'How do payments work?',
               kind: 'leaf',
               answer:
-                'Yes. When you confirm a booking, the payment is held by our licensed payment partner. The freelancer only receives funds after you confirm the job is complete (or the grace period expires). This protects both sides.',
+                'Payments aren\'t live yet. We\'ll explain exactly how paying works here before bookings open.',
             },
           ],
         },
@@ -274,7 +267,7 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'How do you verify freelancers?',
               kind: 'leaf',
               answer:
-                'Every freelancer goes through South African ID verification and profile-photo matching before they can take bookings. Skillance doesn\'t require trade certifications — we\'re a ratings-and-reviews marketplace, so anyone can register and customers judge quality from public reviews left by previous clients. A verified badge appears on profiles once ID verification is complete.',
+                'Before a provider can take bookings, we check their identity document and match it to their profile photo. This confirms who they are. It doesn\'t assess their skills. We don\'t check trade qualifications or references, so reviews from customers are an important guide.',
             },
             {
               id: 'cs.privacy',
@@ -283,10 +276,10 @@ export const PUBLIC_FAQ: FaqNode = {
               children: [
                 {
                   id: 'csp.popia',
-                  label: 'POPIA compliance',
+                  label: 'Your personal information',
                   kind: 'leaf',
                   answer:
-                    'Skillance is POPIA-compliant. We only collect personal information that\'s necessary to run the marketplace, we store it securely, and we never sell it. Full details live in our Privacy Policy at skillance.co.za/privacy-policy.',
+                    'We collect the personal information we need to run the marketplace. Full details are in our Privacy Policy at skillance.co.za/privacy-policy.',
                 },
                 {
                   id: 'csp.share',
@@ -321,7 +314,7 @@ export const PUBLIC_FAQ: FaqNode = {
                   label: 'About a specific booking',
                   kind: 'leaf',
                   answer:
-                    'Open the booking → tap the 3-dot menu → "Report". A support agent will review the chat log, the booking timeline, and the freelancer/customer account, and will come back to you within one working day.',
+                    'Open the booking → tap the 3-dot menu → "Report". Email support@skillance.co.za if you need help. Support hours are Mon-Fri 09:00-17:00.',
                 },
                 {
                   id: 'csr.freelancer',
@@ -335,14 +328,14 @@ export const PUBLIC_FAQ: FaqNode = {
                   label: 'General question for support',
                   kind: 'leaf',
                   answer:
-                    'Use the "Contact support" link at the bottom of the app or email support@skillance.co.za. South African business hours response times apply.',
+                    'Use the "Contact support" link at the bottom of the app or email support@skillance.co.za. Support hours are Mon-Fri 09:00-17:00.',
                 },
                 {
                   id: 'csr.fraud',
                   label: 'I think I\'ve been scammed',
                   kind: 'leaf',
                   answer:
-                    'Don\'t engage further — open the booking and tap "Report", then email fraud@skillance.co.za with any screenshots. We freeze funds during investigation. Also consider reporting to SAPS if you shared banking details.',
+                    'Don\'t engage further — open the booking and tap "Report", then email fraud@skillance.co.za with any screenshots and our team will investigate. Also consider reporting to SAPS if you shared banking details.',
                 },
               ],
             },
@@ -351,7 +344,7 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'What happens if there\'s a dispute?',
               kind: 'leaf',
               answer:
-                'If you and the freelancer can\'t agree, open a dispute from the booking. The funds stay frozen while our disputes team reviews the chat, payment history, and evidence from both sides. Decisions reference South African consumer law and our published Terms.',
+                'If you and the freelancer can\'t agree, open a dispute from the booking. Our team reviews the chat, booking timeline and both sides\' submissions. Outcomes follow our Terms.',
             },
             {
               id: 'cs.delete',
@@ -383,21 +376,21 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'What is Skillance for me?',
               kind: 'leaf',
               answer:
-                'Skillance is a South African marketplace: customers book you for on-demand work, pay through the app, and you get verified exposure, escrow protection, and payouts after jobs complete. You\'re an independent contractor — not an employee of Skillance.',
+                'Skillance is a South African marketplace: customers book you for local work, and you build your reputation through reviews. You\'re an independent contractor — not an employee of Skillance.',
             },
             {
               id: 'fl.about.listfee',
               label: 'Is listing free? What does Skillance charge?',
               kind: 'leaf',
               answer:
-                'Signing up and listing services is free. Skillance only earns when you do — we deduct a service fee of 8–9% including VAT from confirmed bookings. Exact line items appear before the customer checks out. See Payments & payouts in this menu for timing and escrow.',
+                'Skillance charges a service fee of 8–9% on confirmed bookings. The exact amount is shown before the customer books.',
             },
             {
               id: 'fl.about.download',
               label: 'Does the app cost anything to download?',
               kind: 'leaf',
               answer:
-                'Skillance is free to download and install from the App Store and Google Play. Standard mobile-data charges from your network apply when you use it.',
+                'The Skillance app for iOS and Android is coming soon. Standard mobile-data charges from your network apply when you use it.',
             },
             {
               id: 'fl.about.cancelpolicy',
@@ -423,14 +416,14 @@ export const PUBLIC_FAQ: FaqNode = {
                   label: 'Quick step-by-step',
                   kind: 'leaf',
                   answer:
-                    'Download the Skillance app → choose "Join as a freelancer" → fill in your details, upload your SA ID and a profile photo → pick one or more service categories → set your rates and availability → submit for verification. Most profiles are reviewed within 24–72 hours.',
+                    'Register as a provider, upload your identity document and a clear profile photo, and choose your service categories. Once your ID check is approved, you can start taking bookings. The Skillance app for iOS and Android is coming soon.',
                 },
                 {
                   id: 'freelancers.join.docs',
                   label: 'What documents do I need?',
                   kind: 'leaf',
                   answer:
-                    'A South African ID or valid work permit and a clear profile photo. That\'s it to get listed — Skillance doesn\'t gate registration on trade certifications or qualifications. You build your reputation through ratings and reviews from real jobs. Banking details are captured later so you can receive payouts.',
+                    'An identity document and a clear profile photo. That\'s it to get listed — Skillance doesn\'t check trade qualifications or references. You build your reputation through reviews from customers.',
                 },
                 {
                   id: 'freelancers.join.categories',
@@ -451,14 +444,14 @@ export const PUBLIC_FAQ: FaqNode = {
                   label: 'ID verification',
                   kind: 'leaf',
                   answer:
-                    'We check that the photo on your SA ID matches your profile photo and that the ID number is valid. This protects customers and keeps the platform compliant with POPIA and local consumer law.',
+                    'We check that the photo on your ID document matches your profile photo and that the ID number is valid.',
                 },
                 {
                   id: 'freelancers.verify.reviews',
                   label: 'Ratings & reviews (how customers judge you)',
                   kind: 'leaf',
                   answer:
-                    'Skillance doesn\'t require trade certifications or qualifications to register — we\'re a ratings-and-reviews marketplace. After each completed booking, customers rate you 1–5 stars and leave a public review on your profile. New freelancers start with no reviews; the quickest way to build a strong profile is to take early bookings, do great work, and ask satisfied customers to leave a review. Your rating is the signal customers use most when choosing who to book.',
+                    'Skillance doesn\'t check trade qualifications or references. After a booking, customers can rate you 1–5 stars and leave a public review on your profile. New freelancers start with no reviews. Reviews from customers are a guide for the next person choosing who to book. We moderate reviews under our Terms.',
                 },
                 {
                   id: 'freelancers.verify.reject',
@@ -472,7 +465,7 @@ export const PUBLIC_FAQ: FaqNode = {
                   label: 'How long does verification take?',
                   kind: 'leaf',
                   answer:
-                    'Typically 24–72 hours during weekdays. You\'ll get an in-app notification and an email once the review is done. You can see the status in your freelancer dashboard at any time.',
+                    'You\'ll get an in-app notification and an email once the review is done. You can see the status in your freelancer dashboard. We don\'t promise how long the check takes.',
                 },
               ],
             },
@@ -481,7 +474,7 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'How and when do I get paid?',
               kind: 'leaf',
               answer:
-                'After a customer confirms the job is complete, the payment (minus the Skillance service fee) is queued for payout. Payouts go to the bank account on your profile on a weekly schedule — most freelancers receive funds within 3–5 working days of a completed booking.',
+                'Payments aren\'t live yet. We\'ll explain exactly how paying works here before bookings open.',
             },
             {
               id: 'freelancers.control',
@@ -501,7 +494,7 @@ export const PUBLIC_FAQ: FaqNode = {
         },
         {
           id: 'freelancer.payments',
-          label: 'Payments, fees & escrow',
+          label: 'Payments & fees',
           kind: 'branch',
           children: [
             {
@@ -509,40 +502,33 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'What\'s the Skillance service fee on my jobs?',
               kind: 'leaf',
               answer:
-                'Skillance charges a service fee of 8–9% including VAT on each confirmed booking. It\'s deducted before your payout. The customer sees the full breakdown at checkout; there are no surprise deductions on your side beyond what\'s shown there.',
+                'Skillance charges a service fee of 8–9% on each confirmed booking. The exact amount is shown before the customer books.',
             },
             {
               id: 'fpay.payouts',
               label: 'When do payouts reach my bank?',
               kind: 'leaf',
               answer:
-                'After the customer confirms completion (and any dispute window closes), your share is queued for payout on our weekly schedule — most freelancers see money within 3–5 working days. Keep your banking details up to date in your profile.',
+                'Payments aren\'t live yet. We\'ll explain exactly how paying works here before bookings open.',
             },
             {
               id: 'fpay.methods',
               label: 'How do customers pay?',
               kind: 'leaf',
               answer:
-                'Customers pay with card or instant-EFT through our South African payment partner. Cash in-app isn\'t supported — if someone tries to take you off-platform, you lose Skillance\'s escrow and dispute protections.',
-            },
-            {
-              id: 'fpay.vat',
-              label: 'Are amounts VAT-inclusive?',
-              kind: 'leaf',
-              answer:
-                'Yes. Prices and the platform service fee are shown VAT-inclusive where applicable. Invoices and receipts break out VAT as required for South African consumers.',
+                'Don\'t accept payment outside the app. Report it to support@skillance.co.za.',
             },
             {
               id: 'fpay.after',
-              label: 'Escrow, disputes & customer refunds',
+              label: 'Disputes',
               kind: 'branch',
               children: [
                 {
                   id: 'fpay.after.escrow',
-                  label: 'How does escrow work for my bookings?',
+                  label: 'How do payments work for my bookings?',
                   kind: 'leaf',
                   answer:
-                    'The customer\'s payment is held by our licensed partner until the job is completed and undisputed (or the grace period passes). You don\'t receive the payout until that release happens — that\'s what protects you from non-payment.',
+                    'Payments aren\'t live yet. We\'ll explain exactly how paying works here before bookings open.',
                 },
                 {
                   id: 'fpay.after.refund',
@@ -572,7 +558,7 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'How does Skillance verify freelancers?',
               kind: 'leaf',
               answer:
-                'Every freelancer goes through South African ID verification and profile-photo matching before they can take bookings. Skillance doesn\'t require trade certifications — the platform runs on ratings and reviews, so anyone can register and build a reputation through real bookings. A verified badge appears on your profile once ID verification is complete.',
+                'Before a provider can take bookings, we check their identity document and match it to their profile photo. This confirms who they are. It doesn\'t assess their skills. We don\'t check trade qualifications or references.',
             },
             {
               id: 'fs.privacy',
@@ -581,10 +567,10 @@ export const PUBLIC_FAQ: FaqNode = {
               children: [
                 {
                   id: 'fsp.popia',
-                  label: 'POPIA compliance',
+                  label: 'Your personal information',
                   kind: 'leaf',
                   answer:
-                    'Skillance is POPIA-compliant. We only collect what we need to run the marketplace and pay you, we store it securely, and we never sell it. Full details: skillance.co.za/privacy-policy.',
+                    'We collect the personal information we need to run the marketplace. Full details are in our Privacy Policy at skillance.co.za/privacy-policy.',
                 },
                 {
                   id: 'fsp.share',
@@ -619,7 +605,7 @@ export const PUBLIC_FAQ: FaqNode = {
                   label: 'About a specific booking',
                   kind: 'leaf',
                   answer:
-                    'Open the booking → menu → Report. Include timings, PIN/session notes, and chat context. We usually respond within one business day.',
+                    'Open the booking → menu → Report. Include timings, session notes, and chat context. The session PIN is entered at the start: the customer shows it and the provider submits it to confirm the session has begun. It does not mark the job as complete. Email support@skillance.co.za. Support hours are Mon-Fri 09:00-17:00.',
                 },
                 {
                   id: 'fsr.customer',
@@ -633,14 +619,14 @@ export const PUBLIC_FAQ: FaqNode = {
                   label: 'General support',
                   kind: 'leaf',
                   answer:
-                    'Use Contact support in the app or email support@skillance.co.za during South African business hours.',
+                    'Use Contact support in the app or email support@skillance.co.za. Support hours are Mon-Fri 09:00-17:00.',
                 },
                 {
                   id: 'fsr.fraud',
                   label: 'I think I\'m being scammed',
                   kind: 'leaf',
                   answer:
-                    'Stop the job, don\'t accept off-app payments, and report the booking immediately. Email fraud@skillance.co.za with screenshots. We can freeze escrow while we investigate.',
+                    'Stop the job, don\'t accept off-app payments, and report the booking immediately. Email fraud@skillance.co.za with screenshots and our team will investigate.',
                 },
               ],
             },
@@ -649,7 +635,7 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'What happens in a dispute?',
               kind: 'leaf',
               answer:
-                'Funds stay in escrow while our team reviews chat, PIN evidence, and both sides\' submissions. Outcomes follow our Terms and South African consumer law. Respond promptly with clear evidence.',
+                'Our team reviews the chat, booking timeline and both sides\' submissions. Outcomes follow our Terms. The session PIN is entered at the start of the session, when the customer shows it and the provider submits it to confirm the session has begun. It does not mark the job as complete.',
             },
             {
               id: 'fs.delete',
@@ -681,14 +667,14 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'What is Skillance?',
               kind: 'leaf',
               answer:
-                'Skillance is a South African marketplace connecting customers with verified freelancers for on-demand services — home help, tutoring, creative work, wellness, and more — with in-app booking, escrow payments, and reviews.',
+                'Skillance is a South African marketplace connecting customers with ID-checked freelancers for on-demand services — home help, tutoring, creative work, wellness, and more — with in-app booking and reviews.',
             },
             {
               id: 'other.about.diff',
               label: 'How is Skillance Personal different from Skillance Marketplace?',
               kind: 'leaf',
               answer:
-                'Skillance Personal is for booking verified freelancers — search, book, pay with escrow, and leave reviews. Skillance Marketplace is a separate app for local buy-and-sell classifieds (furniture, electronics, and similar goods) with listings, favorites, and the same Skillance login. Services bookings and item listings are not mixed in one app.',
+                'Skillance Personal is for booking ID-checked freelancers — search, book and leave reviews. Skillance Marketplace is a separate app for local buy-and-sell classifieds (furniture, electronics, and similar goods) with listings, favorites, and the same Skillance login. Services bookings and item listings are not mixed in one app.',
             },
             {
               id: 'other.about.marketplace',
@@ -702,7 +688,7 @@ export const PUBLIC_FAQ: FaqNode = {
               label: 'Where does Skillance operate?',
               kind: 'leaf',
               answer:
-                'We launch in South Africa with coverage across major metros. Availability grows as more freelancers join each area.',
+                'We\'re launching first in one area. Tell us your area and we\'ll let you know if we reach you.',
             },
             {
               id: 'other.about.who',

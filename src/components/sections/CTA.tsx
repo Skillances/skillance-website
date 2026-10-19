@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { WAITLIST_CONSENT_API_ENABLED } from '@/lib/featureFlags';
 import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 import { toast } from 'sonner';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -10,9 +12,20 @@ import { revealFromTo } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const LAUNCH_NOTICE = "We'll email you when Skillance launches in your area.";
+const POPIA_NOTICE =
+  'Skillance (Rimitso Management Services (Pty) Ltd) collects your email address and the area you enter. We use them to send that launch email and, only if you tick the second box, occasional product updates and offers. You can opt out at any time using the unsubscribe link in any email, or by emailing support@skillance.co.za.';
+const NOTICE_VERSION = 'waitlist-v1';
+const CONSENT_LABEL =
+  'I agree to Skillance using my email and area to email me when it launches in my area.';
+const MARKETING_LABEL = 'Also send me occasional product updates and offers.';
+
 const CTA = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState('');
+  const [area, setArea] = useState('');
+  const [consent, setConsent] = useState(false);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [alreadyOnWaitlist, setAlreadyOnWaitlist] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,14 +43,31 @@ const CTA = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !canSubmit) return;
+    if (!email || !area.trim() || !consent || !canSubmit) return;
 
     setIsLoading(true);
     setError('');
     setAlreadyOnWaitlist(false);
 
     try {
-      const res = await post(ApiPaths.public.notify, { email });
+      const liveFields = { email, source: 'homepage-cta' as const };
+      const res = await post(
+        ApiPaths.public.notify,
+        WAITLIST_CONSENT_API_ENABLED
+          ? {
+              ...liveFields,
+              area: area.trim(),
+              consent: true,
+              marketingOptIn,
+              noticeVersion: NOTICE_VERSION,
+              consentNotice: POPIA_NOTICE,
+              consentCheckbox: CONSENT_LABEL,
+              marketingCheckbox: MARKETING_LABEL,
+              consentAt: new Date().toISOString(),
+              userAgent: navigator.userAgent,
+            }
+          : liveFields,
+      );
       if (res?.data?.alreadySubscribed) {
         setAlreadyOnWaitlist(true);
         setError('This email is already on the waitlist.');
@@ -61,6 +91,8 @@ const CTA = () => {
     }
   };
 
+  const submitBlocked = isLoading || !canSubmit || !consent || !area.trim();
+
   return (
     <section
       id="cta"
@@ -74,33 +106,70 @@ const CTA = () => {
           </p>
           
           <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-black leading-[1.1] mb-6">
-            Ready to find your{' '}
-            <span className="italic">perfect match?</span>
+            Be the first to{' '}
+            <span className="italic">know.</span>
           </h2>
 
           <p className="text-lg text-neutral-600 max-w-xl mx-auto mb-12">
-            Join thousands who've discovered trusted local experts through Skillance. 
-            Be the first to know when we launch.
+            Be the first to know when Skillance opens in your area.
           </p>
 
           {!isSubmitted ? (
-            <div className="max-w-md mx-auto mb-12">
-              <form
-                onSubmit={handleSubmit}
-                className="flex flex-col sm:flex-row gap-4"
-              >
+            <div className="max-w-md mx-auto mb-12 text-left">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); setError(''); setAlreadyOnWaitlist(false); }}
                   placeholder="Enter your email"
-                  className="flex-1 px-6 py-4 bg-white rounded-full text-black placeholder-neutral-400 border border-neutral-200 focus:border-black focus:outline-none transition-colors"
+                  aria-label="Email address"
+                  className="w-full px-6 py-4 bg-white rounded-full text-black placeholder-neutral-400 border border-neutral-200 focus:border-black focus:outline-none transition-colors"
                   required
                   disabled={isLoading || !canSubmit}
                 />
+                <input
+                  type="text"
+                  value={area}
+                  onChange={(e) => { setArea(e.target.value); setError(''); }}
+                  placeholder="Your suburb or town"
+                  aria-label="Your suburb or town"
+                  className="w-full px-6 py-4 bg-white rounded-full text-black placeholder-neutral-400 border border-neutral-200 focus:border-black focus:outline-none transition-colors"
+                  required
+                  disabled={isLoading || !canSubmit}
+                />
+
+                <p className="text-sm text-neutral-600 leading-relaxed px-2">
+                  {LAUNCH_NOTICE} {POPIA_NOTICE}{' '}
+                  <Link to="/privacy-policy" className="underline underline-offset-4 text-black">
+                    Privacy Policy
+                  </Link>
+                  .
+                </p>
+
+                <label className="flex items-start gap-3 px-2 text-sm text-neutral-700">
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                    required
+                    className="mt-1 h-4 w-4 shrink-0 accent-black"
+                  />
+                  <span>{CONSENT_LABEL}</span>
+                </label>
+
+                <label className="flex items-start gap-3 px-2 text-sm text-neutral-700">
+                  <input
+                    type="checkbox"
+                    checked={marketingOptIn}
+                    onChange={(e) => setMarketingOptIn(e.target.checked)}
+                    className="mt-1 h-4 w-4 shrink-0 accent-black"
+                  />
+                  <span>{MARKETING_LABEL}</span>
+                </label>
+
                 <button
                   type="submit"
-                  disabled={isLoading || !canSubmit}
+                  disabled={submitBlocked}
                   className="px-8 py-4 bg-black text-white rounded-full text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Sending...' : !canSubmit ? `Try again in ${secondsRemaining}s` : 'Notify Me'}
@@ -115,37 +184,14 @@ const CTA = () => {
           ) : (
             <div className="max-w-md mx-auto mb-12 py-4">
               <p className="text-lg text-neutral-600">
-                Thanks! We'll be in touch soon.
+                Thanks! We&apos;ll email you when Skillance launches in your area.
               </p>
             </div>
           )}
 
-          <p className="text-sm text-neutral-500 mb-8">
-            Available for iOS and Android soon
+          <p className="text-sm text-neutral-500">
+            The Skillance app for iOS and Android is coming soon.
           </p>
-
-          {/* App Store Buttons */}
-          <div className="flex flex-wrap justify-center gap-4">
-            <button className="flex items-center gap-3 px-6 py-3 bg-black text-white rounded-xl hover:bg-neutral-800 transition-colors">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
-              </svg>
-              <div className="text-left">
-                <div className="text-[10px] opacity-70">GET IT ON</div>
-                <div className="text-sm font-medium">Google Play</div>
-              </div>
-            </button>
-
-            <button className="flex items-center gap-3 px-6 py-3 bg-black text-white rounded-xl hover:bg-neutral-800 transition-colors">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M13,3.5C13.73,2.67 14.94,2.04 15.94,2C16.07,3.17 15.6,4.35 14.9,5.19C14.21,6.04 13.07,6.7 11.95,6.61C11.8,5.37 12.36,4.26 13,3.5Z" />
-              </svg>
-              <div className="text-left">
-                <div className="text-[10px] opacity-70">Download on</div>
-                <div className="text-sm font-medium">App Store</div>
-              </div>
-            </button>
-          </div>
         </div>
       </div>
     </section>

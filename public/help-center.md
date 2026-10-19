@@ -8,10 +8,11 @@ Canonical page: https://skillance.co.za/help-center
 
 ## Quick answers
 
-- **What is Skillance?** A South African marketplace (owned by and part of Rimitso Management Services (Pty) Ltd) that connects customers with ID-verified local freelancers for on-demand services (home repairs, tutoring, cleaning, pet care, wellness, creative, and more). Book, pay, and chat through the app; payments are held in escrow until the job is complete.
-- **Where does Skillance work?** Across South Africa, with strongest coverage in Johannesburg, Pretoria, Cape Town, Durban, Gqeberha, Bloemfontein, and East London.
-- **Is it free?** Browsing and creating an account is free. A transparent 8–9% (VAT-inclusive) platform fee is applied at checkout.
-- **How do I get help?** See https://skillance.co.za/faq for detailed answers, or email support@skillance.co.za.
+- **What is Skillance?** A South African marketplace (a trading name of Rimitso Management Services (Pty) Ltd) for booking local providers. Before a provider can take bookings, we check their identity document and match it to their profile photo. This confirms who they are. It doesn't assess their skills.
+- **Where does Skillance work?** Skillance is launching first in one area. Tell us your area and we'll let you know if we reach you.
+- **Is it free?** Browsing and creating an account is free. Skillance charges a service fee of 8–9% on confirmed bookings. The exact amount is shown before you book.
+- **How do I get help?** See https://skillance.co.za/faq for detailed answers, or email support@skillance.co.za. Support hours are Mon-Fri 09:00-17:00.
+- **Session PIN.** The customer shows a session PIN at the start of the session, and the provider submits it to confirm the session has begun. The PIN does not mark the job as complete.
 
 ## Full FAQ
 
@@ -29,7 +30,8 @@ The full FAQ (customer, freelancer, and partnerships sections) lives at:
 
 ## Contact
 
-- Customer & freelancer support: support@skillance.co.za
+- Customer and freelancer support: support@skillance.co.za
+- Support hours: Mon-Fri 09:00-17:00
 - General / press / partnerships / investment: services@skillance.co.za
 - Fraud reports: fraud@skillance.co.za
 - WhatsApp: +27 64 872 8174

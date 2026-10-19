@@ -20,6 +20,7 @@ export const ApiPaths = {
 
   users: {
     me: '/users/me',
+    consents: '/users/me/consents',
   },
 
   categories: {

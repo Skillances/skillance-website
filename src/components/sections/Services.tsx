@@ -81,8 +81,8 @@ const Services = () => {
             <span className="italic">limitless possibilities.</span>
           </h2>
           <p className="text-xl text-neutral-500 font-light leading-relaxed max-w-xl">
-            From essential home maintenance to specialized personal growth, 
-            discover trusted professionals for every chapter of your life.
+            From essential home maintenance to personal services,
+            book local providers in one place.
           </p>
         </div>
 

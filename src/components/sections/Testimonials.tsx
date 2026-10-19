@@ -5,6 +5,7 @@ import { get } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { revealFromTo } from '@/lib/motion';
+import { SHOW_PUBLIC_WEBSITE_REVIEWS } from '@/lib/featureFlags';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,6 +21,11 @@ interface Testimonial {
 }
 
 const Testimonials = () => {
+  if (!SHOW_PUBLIC_WEBSITE_REVIEWS) return null;
+  return <PublicTestimonials />;
+};
+
+function PublicTestimonials() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);

@@ -244,7 +244,7 @@ const AdminFinancePayoutLedger: React.FC = () => {
       },
       {
         key: 'escrow',
-        header: 'Escrow',
+        header: 'Payment status',
         render: (row) => (
           <div className="text-xs space-y-0.5">
             <div>{row.escrowStatus ?? '--'}</div>

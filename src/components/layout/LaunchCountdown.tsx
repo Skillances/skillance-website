@@ -32,7 +32,7 @@ const LaunchCountdown = () => {
             <span>To be Announced</span>
           </motion.div>
           <span className="hidden lg:inline opacity-40 lowercase italic tracking-normal border-l border-white/20 pl-6">
-            Coming Soon to South Africa
+            Coming soon
           </span>
         </motion.div>
       </motion.button>
