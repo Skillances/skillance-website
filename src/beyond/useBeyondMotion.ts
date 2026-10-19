@@ -15,6 +15,27 @@ export function useBeyondMotion(scopeRef: RefObject<HTMLElement | null>, routeKe
 
     const reducedMotion = getPrefersReducedMotion();
     const ctx = gsap.context(() => {
+      const heroStagger = root.querySelector<HTMLElement>('.by-hero-stagger');
+      if (heroStagger) {
+        const items = Array.from(heroStagger.children) as HTMLElement[];
+        if (reducedMotion) {
+          gsap.set(items, { opacity: 1 });
+        } else {
+          gsap.fromTo(
+            items,
+            { opacity: 0, y: 22 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.72,
+              ease: 'power3.out',
+              stagger: 0.09,
+              delay: 0.12,
+            }
+          );
+        }
+      }
+
       root.querySelectorAll<HTMLElement>('.by-reveal').forEach((el) => {
         revealFromTo(el, el, reducedMotion);
       });
