@@ -154,7 +154,7 @@ const AdminNotifySubscribers: React.FC = () => {
   return (
     <div>
       <PageHeader
-        title={<>Notify <span className="italic">Subscribers</span></>}
+        title="Subscribers"
         description="People who signed up for launch notifications"
       >
         <Button

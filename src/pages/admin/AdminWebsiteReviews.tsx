@@ -238,7 +238,7 @@ const AdminWebsiteReviews: React.FC = () => {
   return (
     <div>
       <PageHeader
-        title={<>Website <span className="italic">Reviews</span></>}
+        title="Website reviews"
         description="Manage reviews submitted through the public website. Feature approved reviews to show them in the testimonials section."
       />
 
