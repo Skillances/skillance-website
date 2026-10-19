@@ -138,7 +138,7 @@ const AdminAi: React.FC = () => {
   return (
     <div className="space-y-10">
       <PageHeader
-        title={<>AI <span className="italic">Assistant</span></>}
+        title="AI assistant"
         description="Configure the internal Claude-powered assistant that appears on admin pages."
       >
         <div className="flex items-center gap-2">

@@ -236,7 +236,7 @@ const AdminBookingReviews: React.FC = () => {
   return (
     <div>
       <PageHeader
-        title={<>Booking <span className="italic">Reviews</span></>}
+        title="Booking reviews"
         description="Customer reviews left on completed bookings. Hiding soft-deletes a review so it no longer appears publicly; restore brings it back."
       />
 

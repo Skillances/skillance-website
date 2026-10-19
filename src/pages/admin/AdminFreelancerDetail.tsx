@@ -336,7 +336,7 @@ const AdminFreelancerDetail: React.FC = () => {
 
   return (
     <div className="space-y-10">
-      <PageHeader title={nameWithBadges} description={`Freelancer profile - ${freelancer.user?.email}`}>
+      <PageHeader showTitle title={nameWithBadges} description={`Freelancer profile - ${freelancer.user?.email}`}>
         <Button variant="outline" size="sm" onClick={() => goBack('/admin/freelancers')} className="border-neutral-200 text-neutral-500 hover:text-black hover:border-neutral-300 rounded-full"><ArrowLeft className="mr-2 h-4 w-4" /> Back</Button>
       </PageHeader>
 

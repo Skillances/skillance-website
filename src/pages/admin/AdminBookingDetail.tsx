@@ -287,6 +287,7 @@ const AdminBookingDetail: React.FC = () => {
             Back
           </Button>
           <PageHeader
+            showTitle
             title="Booking detail"
             description="Session context, related profiles, and booking-scoped chat (live or archived after completion)."
           />

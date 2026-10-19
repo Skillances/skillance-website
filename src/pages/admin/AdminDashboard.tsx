@@ -215,10 +215,8 @@ const AdminDashboard: React.FC = () => {
         className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8"
       >
         <div className="min-w-0">
-          <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-black dark:text-white leading-tight tracking-tight">
-            Dashboard
-          </h1>
-          <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1.5 leading-relaxed max-w-lg font-light">
+          <h1 className="sr-only">Dashboard</h1>
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm leading-relaxed max-w-lg font-light">
             Welcome, <span className="text-black dark:text-white font-medium">{user?.fullName || 'Administrator'}</span>. {TIMEFRAME_OPTIONS.find((o) => o.key === timeframe)?.label ?? 'Latest data'}.
           </p>
         </div>

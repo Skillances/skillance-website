@@ -180,7 +180,7 @@ const AdminContactMessages: React.FC = () => {
   return (
     <div>
       <PageHeader
-        title={<>Contact <span className="italic">Messages</span></>}
+        title="Contact messages"
         description="Messages from the website Get in Touch form (separate from app bug reports)"
       />
 
