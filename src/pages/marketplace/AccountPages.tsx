@@ -22,6 +22,7 @@ import { get, post, put } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { useAuth } from '@/context/AuthContext';
 import ApplicationStatusCard, { type ApplicationStatus } from '@/components/marketplace/ApplicationStatusCard';
+import MyConsents from '@/components/marketplace/MyConsents';
 import PlaceAddressField, { type PlacePick } from '@/components/marketplace/PlaceAddressField';
 import { MkCategoryRatePicker, MkPhotoPicker } from '@/components/marketplace/forms';
 import {
@@ -374,6 +375,8 @@ export function SettingsPage() {
           ))}
         </ul>
       </MkCard>
+
+      <MyConsents />
 
       <MkCard className="space-y-3">
         <MkSectionTitle>Your data</MkSectionTitle>

@@ -27,6 +27,7 @@ import { bookingKeys, fetchFreelancerBookings } from '@/lib/marketplace/bookings
 import { useCategories } from '@/lib/marketplace/categories';
 import { formatZar } from '@/lib/marketplace/theme';
 import { formatDateTime, sastNow } from '@/lib/marketplace/time';
+import { POLICE_CLEARANCE_ENABLED } from '@/lib/featureFlags';
 import { cn } from '@/lib/utils';
 
 type Stats = {
@@ -54,7 +55,9 @@ const TOOLS = [
   { to: '/work/portfolio', label: 'Previous work', icon: Images },
   { to: '/work/certifications', label: 'Certifications', icon: Award },
   { to: '/work/verification', label: 'ID verification', icon: BadgeCheck },
-  { to: '/work/police-clearance', label: 'Police clearance', icon: ShieldCheck },
+  ...(POLICE_CLEARANCE_ENABLED
+    ? [{ to: '/work/police-clearance', label: 'Police clearance', icon: ShieldCheck }]
+    : []),
   { to: '/work/products', label: 'Digital products', icon: Package },
   { to: '/work/invoices', label: 'Invoices', icon: Receipt },
 ];
