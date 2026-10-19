@@ -35,6 +35,12 @@ export const ApiPaths = {
     notify: '/public/notify',
     reviews: '/public/reviews',
     testimonials: '/public/testimonials',
+    /**
+     * Published Beyond the App clients and portfolio pieces.
+     * The admin content type is not on the API yet. See the Beyond the App PR.
+     * GET returns `{ success: true, data: BeyondWorkItem[] }`, published only, displayOrder ascending.
+     */
+    beyondWork: '/public/beyond-work',
     cookieConsent: '/public/cookie-consent',
     stats: '/public/stats',
     bugReport: '/public/bug-report',

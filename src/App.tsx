@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense, type ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import PageTransition from './components/layout/PageTransition';
@@ -36,6 +36,7 @@ import { getPrefersReducedMotion, LENIS_DURATION } from './lib/motion';
 import MarketplaceLayout from './components/marketplace/MarketplaceLayout';
 import RequireAuth from './components/marketplace/RequireAuth';
 import { isMarketplacePath, isMarketplaceShellPath } from './lib/marketplace/routes';
+import { isBeyondPath } from './lib/beyond/routes';
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
@@ -101,6 +102,34 @@ const EditAccountPage = lazy(() => import('./pages/marketplace/EditAccountPage')
 const SettingsPage = lazy(() => import('./pages/marketplace/SettingsPage'));
 const ApplyFreelancerPage = lazy(() => import('./pages/marketplace/ApplyFreelancerPage'));
 const BugReportPage = lazy(() => import('./pages/marketplace/BugReportPage'));
+const BeyondApp = lazy(() => import('./beyond/BeyondApp'));
+
+function RouteShell({ beyond, children }: { beyond: boolean; children: ReactNode }) {
+  if (beyond) return children;
+  return <main>{children}</main>;
+}
+
+function BeyondRouteFallback() {
+  return (
+    <div role="status" aria-live="polite" style={{ minHeight: '100dvh', background: '#F3EEE6' }}>
+      <span
+        style={{
+          position: 'absolute',
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: 'hidden',
+          clip: 'rect(0 0 0 0)',
+          whiteSpace: 'nowrap',
+          border: 0,
+        }}
+      >
+        Loading Beyond the App
+      </span>
+    </div>
+  );
+}
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -147,14 +176,17 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   const isLoginPage = location.pathname === '/login';
   // Marketplace (customer and freelancer app) and its auth pages: no marketing chrome, native scroll.
   const isMarketplaceRoute = isMarketplacePath(location.pathname);
-  const hideMarketingChrome = isAdminRoute || isLoginPage || isMarketplaceRoute;
-  const useLenisScroll = !isMarketplaceRoute;
+  const isBeyondRoute = isBeyondPath(location.pathname);
+  const hideMarketingChrome = isAdminRoute || isLoginPage || isMarketplaceRoute || isBeyondRoute;
+  const useLenisScroll = !isMarketplaceRoute && !isBeyondRoute;
   // One key for the whole shell so the layout stays mounted; it animates its own page enters.
   const routeAnimationKey = isAdminRoute
     ? '/admin'
     : isMarketplaceShellPath(location.pathname)
       ? '/marketplace'
-      : location.pathname;
+      : isBeyondRoute
+        ? '/beyond'
+        : location.pathname;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -268,10 +300,11 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
       className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : 'bg-white'} transition-opacity duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[opacity] ${
         isLoaded ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
+      style={isBeyondRoute ? { background: '#F3EEE6' } : undefined}
     >
       <ScrollToTop />
       {!hideMarketingChrome && <Navigation isLoaded={isLoaded} />}
-      <main>
+      <RouteShell beyond={isBeyondRoute}>
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={routeAnimationKey}>
             {/* Public Routes */}
@@ -286,6 +319,14 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
             <Route path="/trust-safety" element={<PageTransition routeKey="/trust-safety"><TrustSafetyPage /></PageTransition>} />
             <Route path="/services" element={<PageTransition routeKey="/services"><ServicesPage /></PageTransition>} />
             <Route path="/contact" element={<PageTransition routeKey="/contact"><ContactPage /></PageTransition>} />
+            <Route
+              path="/beyond/*"
+              element={
+                <Suspense fallback={<BeyondRouteFallback />}>
+                  <BeyondApp />
+                </Suspense>
+              }
+            />
             <Route path="/category/:id" element={<PageTransition routeKey={location.pathname}><CategoryPage /></PageTransition>} />
             <Route path="/login" element={<PageTransition routeKey="/login"><LoginPage /></PageTransition>} />
             <Route path="/register" element={<Suspense fallback={null}><RegisterPage /></Suspense>} />
@@ -380,7 +421,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
             />
           </Routes>
         </AnimatePresence>
-      </main>
+      </RouteShell>
       {!hideMarketingChrome && <Footer />}
       {isLoaded && !hideMarketingChrome && (
         <>
@@ -398,7 +439,8 @@ function AppShell() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isLoginPage = location.pathname === '/login';
-  const shouldShowLoader = !isAdminRoute && !isLoginPage && !isMarketplacePath(location.pathname);
+  const shouldShowLoader =
+    !isAdminRoute && !isLoginPage && !isMarketplacePath(location.pathname) && !isBeyondPath(location.pathname);
 
   const [isLoaded, setIsLoaded] = useState(false);
 
