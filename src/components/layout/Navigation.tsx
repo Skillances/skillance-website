@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getLenisFromWindow, getSectionScrollTopReservePx, scrollToPageSection } from '@/lib/sectionScroll';
 import { useAuth } from '@/context/AuthContext';
 import { landingPath } from '@/lib/marketplace/session';
+import ExperienceSwitcher from '@/components/experience/ExperienceSwitcher';
 
 interface NavigationProps {
   isLoaded: boolean;
@@ -195,7 +196,8 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
               ))}
             </div>
 
-            {/* Centered Logo */}
+            {/* Centered logo. The switcher hangs under it without growing the link row. */}
+            <div className="relative flex items-center">
             <Link
               to="/"
               className={`flex items-center gap-3 font-serif text-2xl font-medium tracking-tight motion-ui transition-colors ${textColor}`}
@@ -222,6 +224,10 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
               )}
               Skillance
             </Link>
+            <div className="experience-switch-anchor hidden lg:block">
+              <ExperienceSwitcher appearance={isDarkSection ? 'quiet-dark' : 'quiet-light'} />
+            </div>
+            </div>
 
             {/* Right Navigation */}
             <div className="hidden lg:flex items-center gap-6 flex-1 justify-end">
@@ -311,7 +317,8 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
               </div>
 
               <div className="p-6">
-                <div className="flex flex-col gap-1">
+                <ExperienceSwitcher appearance="quiet-light" density="comfortable" />
+                <div className="flex flex-col gap-1 mt-6">
                   {navLinks.map((link, i) => (
                     <motion.button
                       key={link.name}
