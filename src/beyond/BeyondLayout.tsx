@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from '@/beyond/components/Header';
 import StudioFooter from '@/beyond/components/StudioFooter';
+import { useBeyondMotion } from '@/beyond/useBeyondMotion';
+import { useBeyondScroll } from '@/beyond/useBeyondScroll';
 import '@/beyond/beyond.css';
 
 const FONT_LINK_ID = 'by-fonts';
@@ -21,7 +23,10 @@ function useBeyondFonts() {
 
 export default function BeyondLayout() {
   const { pathname } = useLocation();
+  const scopeRef = useRef<HTMLDivElement>(null);
   useBeyondFonts();
+  useBeyondScroll(true);
+  useBeyondMotion(scopeRef, pathname);
 
   useEffect(() => {
     document.body.classList.add('by-active');
@@ -29,7 +34,7 @@ export default function BeyondLayout() {
   }, []);
 
   return (
-    <div className="by-scope">
+    <div className="by-scope" ref={scopeRef}>
       <a className="by-skip" href="#beyond-content">
         Skip to content
       </a>

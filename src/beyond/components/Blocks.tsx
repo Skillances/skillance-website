@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import BeyondFigure from '@/beyond/components/BeyondFigure';
 import { OWN_PLATFORM } from '@/beyond/content';
 
 export function PageIntro({ kicker, title, lede }: { kicker: string; title: string; lede: string }) {
@@ -35,7 +36,8 @@ export function TeamSoon({ headingId }: { headingId?: string }) {
 export function OwnPlatform({ showWorkLink = true }: { showWorkLink?: boolean }) {
   return (
     <div className="by-band">
-      <div className="by-wrap by-band-inner">
+      <div className="by-wrap by-band-inner by-split by-split-band">
+        <div className="by-band-copy by-reveal">
         <p className="by-kicker">{OWN_PLATFORM.kicker}</p>
         <h2>{OWN_PLATFORM.title}</h2>
         <p>{OWN_PLATFORM.body}</p>
@@ -49,6 +51,12 @@ export function OwnPlatform({ showWorkLink = true }: { showWorkLink?: boolean })
             Open the marketplace
           </Link>
         </div>
+        </div>
+        <BeyondFigure
+          webpSrc="/beyond/studio-accent.webp"
+          alt="Software engineering workspace"
+          className="by-figure-band by-reveal"
+        />
       </div>
     </div>
   );

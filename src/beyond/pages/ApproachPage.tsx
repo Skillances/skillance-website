@@ -1,3 +1,4 @@
+import BeyondFigure from '@/beyond/components/BeyondFigure';
 import EnquiryLink from '@/beyond/components/EnquiryLink';
 import { PageIntro, TeamSoon } from '@/beyond/components/Blocks';
 import { PAGES, STEPS, TECH } from '@/beyond/content';
@@ -13,6 +14,13 @@ export default function ApproachPage() {
         title="How a project actually runs."
         lede="Discovery, design, build, launch, and support. We do not publish a standard timeline or a price list."
       />
+      <div className="by-wrap by-band-offset">
+        <BeyondFigure
+          webpSrc="/beyond/approach.webp"
+          alt="Team collaborating on a software project"
+          className="by-figure-inline by-reveal"
+        />
+      </div>
 
       <section className="by-section" aria-labelledby="approach-steps">
         <h2 id="approach-steps" className="by-sr">
