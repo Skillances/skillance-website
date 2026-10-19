@@ -61,6 +61,7 @@ const AdminContactMessages = lazy(() => import('./pages/admin/AdminContactMessag
 const AdminBugReports = lazy(() => import('./pages/admin/AdminBugReports'));
 const AdminNotifySubscribers = lazy(() => import('./pages/admin/AdminNotifySubscribers'));
 const AdminWebsiteReviews = lazy(() => import('./pages/admin/AdminWebsiteReviews'));
+const AdminBeyondWork = lazy(() => import('./pages/admin/AdminBeyondWork'));
 const AdminBookingReviews = lazy(() => import('./pages/admin/AdminBookingReviews'));
 const AdminChatLogs = lazy(() => import('./pages/admin/AdminChatLogs'));
 const AdminCompliance = lazy(() => import('./pages/admin/AdminCompliance'));
@@ -406,6 +407,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                             <Route path="chat-logs" element={<AdminChatLogs />} />
                             <Route path="notify-subscribers" element={<AdminNotifySubscribers />} />
                             <Route path="website-reviews" element={<AdminWebsiteReviews />} />
+                            <Route path="beyond-work" element={<AdminBeyondWork />} />
                             <Route path="booking-reviews" element={<AdminBookingReviews />} />
                             <Route path="system" element={<AdminSystem />} />
                             <Route path="observability" element={<AdminObservability />} />

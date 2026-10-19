@@ -29,6 +29,7 @@ export function prefetchAdminRouteChunks(): void {
     import('@/pages/admin/AdminBugReports'),
     import('@/pages/admin/AdminNotifySubscribers'),
     import('@/pages/admin/AdminWebsiteReviews'),
+    import('@/pages/admin/AdminBeyondWork'),
     import('@/pages/admin/AdminBookingReviews'),
     import('@/pages/admin/AdminChatLogs'),
     import('@/pages/admin/AdminCompliance'),

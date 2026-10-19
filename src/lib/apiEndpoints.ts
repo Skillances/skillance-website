@@ -154,6 +154,15 @@ export const ApiPaths = {
     websiteReviews: '/admin/website-reviews',
     websiteReview: (id: string) => `/admin/website-reviews/${id}`,
 
+    /**
+     * Beyond the App clients and portfolio pieces, including unpublished rows.
+     * GET returns `{ success: true, data: BeyondWorkItem[] }`.
+     * POST creates. PUT /:id is a partial update (publish, reorder, logo). DELETE removes.
+     * A logo is `image` (base64 or a data URL). `imageUrl: null` clears it. Never send an imageUrl string.
+     */
+    beyondWork: '/admin/beyond-work',
+    beyondWorkItem: (id: string) => `/admin/beyond-work/${id}`,
+
     bookingReviews: '/admin/booking-reviews',
     bookingReviewHide: (id: string) => `/admin/booking-reviews/${id}/hide`,
     bookingReviewRestore: (id: string) => `/admin/booking-reviews/${id}/restore`,
