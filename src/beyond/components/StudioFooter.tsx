@@ -14,7 +14,7 @@ export default function StudioFooter() {
           <div className="by-footer-top">
             <div className="by-footer-brand">
               <Link to="/beyond" className="by-brand by-brand-on-dark" aria-label="Skillance Beyond the App, overview">
-                <img src="/skillance-tiny-logo-white.png" alt="" width={120} height={24} />
+                <img src="/skillance-tiny-logo-white.webp" alt="" width={120} height={24} decoding="async" loading="lazy" />
                 <span className="by-brand-name">Skillance</span>
                 <span className="by-brand-rule" aria-hidden="true" />
                 <span className="by-brand-beyond">Beyond</span>

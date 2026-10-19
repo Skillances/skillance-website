@@ -1,13 +1,12 @@
+import { Link } from 'react-router-dom';
 import { useBeyondWork, type BeyondWorkItem } from '@/beyond/useBeyondWork';
 
 function WorkEmpty() {
   return (
-    <aside className="by-soon by-empty-state" aria-label="No published work">
-      <p className="by-flag">Nothing published</p>
-      <h2>No client work is published yet</h2>
-      <p>
-        Clients and portfolio pieces are added in the Skillance admin. They show up here after they are published.
-        Nothing on this page is a placeholder client.
+    <aside className="by-empty-client" aria-label="No published client work yet">
+      <p className="by-muted">
+        No client pieces are public yet. Read how we built Skillance above, or{' '}
+        <Link to="/beyond/contact" className="by-textlink">start a project</Link>.
       </p>
     </aside>
   );
@@ -49,9 +48,10 @@ export default function WorkCatalog({ limit }: { limit?: number }) {
 
   if (!ready) {
     return (
-      <p className="by-muted" role="status">
-        Loading published work.
-      </p>
+      <div className="by-work-skeleton" role="status" aria-live="polite">
+        <span className="by-work-skeleton-line" />
+        <span className="by-work-skeleton-line by-work-skeleton-line-short" />
+      </div>
     );
   }
 

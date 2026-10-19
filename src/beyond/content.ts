@@ -49,14 +49,14 @@ export const PAGES = {
   work: {
     title: 'Work | Beyond the App · Skillance',
     description:
-      'Work from Skillance Beyond the App. Client case studies are not published yet. The Skillance marketplace is our own platform.',
+      'How Skillance built its own marketplace on web and mobile, and published client work when it is ready to share.',
     path: '/beyond/work',
     crumb: 'Work',
   },
   contact: {
     title: 'Start a project | Beyond the App · Skillance',
     description:
-      'Email services@skillance.co.za about a custom software project with Skillance. This page does not collect or store your message.',
+      'Email services@skillance.co.za about a custom software project. Tell us what you want to build and who it is for.',
     path: '/beyond/contact',
     crumb: 'Contact',
   },
@@ -134,6 +134,26 @@ export const SERVICES = [
   },
 ] as const;
 
+export const HOME_STORY = {
+  kicker: 'Our story',
+  title: 'We built Skillance for ourselves first.',
+  paragraphs: [
+    'Skillance started as a product we wanted in the world: a marketplace where customers can book ID-verified local providers, and where freelancers can run a real business from their phone.',
+    'We designed, built, and still operate that platform on web, iOS, and Android. Beyond the App is where we take the same discipline to software for other businesses.',
+  ],
+} as const;
+
+export const SKILLANCE_CASE_STUDY = {
+  title: 'Skillance marketplace',
+  lede:
+    'Our own SaaS product: React and TypeScript on the web, Flutter on iOS and Android, and the APIs and cloud infrastructure behind bookings, identity, and payouts.',
+  points: [
+    'Customers discover providers, book jobs, and pay through one product.',
+    'Freelancers manage profiles, jobs, messages, and payouts in the same system.',
+    'We live with every architectural decision because we operate it every day.',
+  ],
+} as const;
+
 export const STEPS = [
   {
     num: '01',
@@ -163,7 +183,7 @@ export const STEPS = [
     num: '05',
     title: 'Support',
     summary: 'After launch, only if we agree to keep going.',
-    body: 'Ongoing support is agreed separately. We do not publish a retainer menu or a standard response promise. If you want us to stay on, we say so in the agreement for that work.',
+    body: 'Ongoing support is agreed separately when you want us to stay on after launch. Scope, response times, and cost are written into that agreement.',
   },
 ] as const;
 
@@ -206,7 +226,7 @@ export const FAQS: readonly BeyondFaq[] = [
   {
     question: 'How does a project start?',
     answer:
-      'Email services@skillance.co.za. Describe what you want to build and who it is for. This website does not collect project enquiries in a form.',
+      'Email services@skillance.co.za with what you want to build and who it is for. We reply from that inbox and keep the conversation between us.',
   },
   {
     question: 'Do you publish prices or timelines?',
@@ -221,14 +241,22 @@ export const FAQS: readonly BeyondFaq[] = [
   {
     question: 'Can you show client work?',
     answer:
-      'Published clients and portfolio pieces are listed on the Work page. An admin adds them. Until something is published, that list is empty. The Skillance marketplace, the web app and the Flutter mobile apps, is our own platform and is described on the same page.',
+      'The Work page leads with how we built Skillance. When client pieces are ready to share publicly, they are listed there too.',
   },
 ];
 
 export const OWN_PLATFORM = {
-  kicker: 'Our own platform',
-  title: 'The Skillance marketplace',
-  body: 'We designed and built the Skillance marketplace as a cloud-hosted SaaS product: the React web app, Flutter apps for customers and freelancers on iOS and Android, and the integrations behind bookings, identity, and payouts. Customers use it to book ID-verified local providers. Providers use it to manage a profile, jobs, and payouts. This is our product, not a client engagement, and we are not publishing usage figures.',
+  kicker: 'Built by us',
+  title: 'Skillance marketplace',
+  body:
+    'We designed and built the Skillance marketplace as a cloud-hosted product: the web app, Flutter apps for customers and freelancers on iOS and Android, and the integrations behind bookings, identity, and payouts. It is our own product, which means we live with every decision we made building it.',
+} as const;
+
+export const FOUNDER = {
+  kicker: 'Who you will work with',
+  title: 'The same team behind the product',
+  body:
+    'Beyond the App is run by the Skillance team in South Africa: the people who ship and support the marketplace. You work directly with the builders, not a hand-off account layer.',
 } as const;
 
 export const SOCIAL = [

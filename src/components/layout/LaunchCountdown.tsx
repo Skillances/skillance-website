@@ -1,9 +1,15 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { isBeyondPath } from '@/lib/beyond/routes';
+import { isMarketingAuthPath } from '@/lib/marketing/authPaths';
 
 const LaunchCountdown = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  if (isBeyondPath(location.pathname) || isMarketingAuthPath(location.pathname)) {
+    return null;
+  }
 
   const handleClick = () => {
     if (location.pathname !== '/') {

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import BeyondFigure from '@/beyond/components/BeyondFigure';
-import { OWN_PLATFORM } from '@/beyond/content';
+import { FOUNDER, OWN_PLATFORM } from '@/beyond/content';
 
 export function PageIntro({ kicker, title, lede }: { kicker: string; title: string; lede: string }) {
   return (
@@ -36,13 +36,12 @@ export function StepRows({ steps }: { steps: readonly { num: string; title: stri
   );
 }
 
-/** TODO(beyond): Add names, roles, and photos only when Markus supplies them. */
-export function TeamSoon({ headingId }: { headingId?: string }) {
+export function FounderSection({ headingId }: { headingId?: string }) {
   return (
-    <aside className="by-soon" aria-label="Team profiles coming soon">
-      <p className="by-flag">Coming soon</p>
-      <h2 id={headingId}>Team profiles coming soon</h2>
-      <p>The work is done by the Skillance team. Names, roles, and photos are not published here yet.</p>
+    <aside className="by-founder by-reveal" aria-labelledby={headingId}>
+      <p className="by-kicker">{FOUNDER.kicker}</p>
+      <h2 id={headingId}>{FOUNDER.title}</h2>
+      <p>{FOUNDER.body}</p>
     </aside>
   );
 }
@@ -58,7 +57,7 @@ export function OwnPlatform({ showWorkLink = true }: { showWorkLink?: boolean })
           <div className="by-actions">
             {showWorkLink ? (
               <Link to="/beyond/work" className="by-btn by-btn-light">
-                Read about the platform
+                How we built Skillance
               </Link>
             ) : null}
             <Link to="/" className="by-btn by-btn-on-dark">

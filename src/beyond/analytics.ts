@@ -1,4 +1,4 @@
-type BeyondEventName = 'beyond_view' | 'beyond_enquiry_click';
+type BeyondEventName = 'beyond_view' | 'beyond_enquiry_click' | 'beyond_copy_email';
 
 /**
  * Pushes a custom event onto the existing GTM dataLayer.

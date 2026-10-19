@@ -1,5 +1,7 @@
 import EnquiryLink from '@/beyond/components/EnquiryLink';
-import { OwnPlatform, PageIntro } from '@/beyond/components/Blocks';
+import CopyEmailButton from '@/beyond/components/CopyEmailButton';
+import { PageIntro } from '@/beyond/components/Blocks';
+import SkillanceCaseStudy from '@/beyond/components/SkillanceCaseStudy';
 import WorkCatalog from '@/beyond/components/WorkCatalog';
 import { PAGES } from '@/beyond/content';
 import { useBeyondPage } from '@/beyond/useBeyondPage';
@@ -12,20 +14,32 @@ export default function WorkPage() {
       <div className="by-wrap">
         <PageIntro
           kicker="Work"
-          title="Clients and portfolio."
-          lede="These pieces come from the Skillance admin. A name, image, short description, link, and tags appear here only after the item is published."
+          title="Our work"
+          lede="We are a young studio, so we start with the product we know best: the Skillance marketplace we designed, built, and still run."
         />
-        <WorkCatalog />
+        <SkillanceCaseStudy />
       </div>
-      <div className="by-band-offset">
-        <OwnPlatform showWorkLink={false} />
-      </div>
+
+      <section className="by-section by-section-cool" aria-labelledby="work-clients">
+        <div className="by-wrap by-reveal">
+          <p className="by-kicker">Clients</p>
+          <h2 id="work-clients" className="by-section-title">Published client work</h2>
+          <p className="by-section-lede">
+            When a client engagement is ready to share publicly, it appears here.
+          </p>
+          <WorkCatalog />
+        </div>
+      </section>
+
       <section className="by-section" aria-labelledby="work-start">
         <div className="by-wrap">
-          <h2 id="work-start">Have something of your own to build?</h2>
-          <p className="by-lede">Write to us. We will tell you if it is work we should take.</p>
+          <h2 id="work-start" className="by-section-title">Sounds like your project?</h2>
+          <p className="by-lede">
+            Send us a short note about the problem. We will tell you honestly whether we are the right team.
+          </p>
           <div className="by-actions">
-            <EnquiryLink ctaLocation="work">Email a project enquiry</EnquiryLink>
+            <EnquiryLink ctaLocation="work">Start a project</EnquiryLink>
+            <CopyEmailButton ctaLocation="work" />
           </div>
         </div>
       </section>

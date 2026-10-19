@@ -163,7 +163,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       devS3PublicJsonProxy(s3CategoryBase),
       markdownAgentDevMiddleware(),
-      inspectAttr(),
+      ...(mode === "development" ? [inspectAttr()] : []),
       react(),
     ],
     resolve: {

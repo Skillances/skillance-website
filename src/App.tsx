@@ -181,7 +181,8 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   const isBeyondRoute = isBeyondPath(location.pathname);
   const hideMarketingChrome = isAdminRoute || isMarketplaceRoute;
   const showMarketingNav = !hideMarketingChrome;
-  const showMarketingFooter = showMarketingNav && !isAuthPath;
+  const showMarketingFooter = showMarketingNav && !isAuthPath && !isBeyondRoute;
+  const showMarketingWidgets = showMarketingFooter;
   const useLenisScroll = !isMarketplaceRoute && !isBeyondRoute;
   // One key for the whole shell so the layout stays mounted; it animates its own page enters.
   const routeAnimationKey = isAdminRoute
@@ -428,7 +429,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
         </AnimatePresence>
       </RouteShell>
       {showMarketingFooter && <Footer />}
-      {isLoaded && showMarketingFooter && (
+      {isLoaded && showMarketingWidgets && (
         <>
           <CookieConsent />
           <LaunchCountdown />

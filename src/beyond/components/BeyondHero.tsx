@@ -8,7 +8,7 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const HERO_ROTATE_WORDS = ['SaaS products', 'mobile apps', 'cloud systems', 'integrations'];
+const HERO_ROTATE_WORDS = ['web apps', 'mobile apps', 'business systems'];
 
 type BeyondHeroProps = {
   titleId: string;
@@ -85,15 +85,16 @@ export default function BeyondHero({ titleId }: BeyondHeroProps) {
               className="by-hero-word-rotate"
             />
           </span>
-          <span className="by-hero-line by-hero-line-on-dark">you can run.</span>
+          <span className="by-hero-line by-hero-line-on-dark">for South African businesses.</span>
         </h1>
         <p className="by-lede by-hero-lede by-lede-on-dark">
-          Custom software from the team behind the Skillance marketplace.
+          We designed, built, and still run the Skillance marketplace on web, iOS, and Android. Now we build software
+          like it for you.
         </p>
         <div className="by-actions by-actions-hero">
-          <EnquiryLink ctaLocation="home_hero">Email a project enquiry</EnquiryLink>
+          <EnquiryLink ctaLocation="home_hero">Start a project</EnquiryLink>
           <Link to="/beyond/approach" className="by-btn by-btn-on-dark">
-            How we work
+            See how we work
           </Link>
         </div>
       </div>

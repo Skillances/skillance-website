@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import StudioFooter from '@/beyond/components/StudioFooter';
+import { Toaster } from '@/components/ui/sonner';
 import { useBeyondMotion } from '@/beyond/useBeyondMotion';
 import { useBeyondScroll } from '@/beyond/useBeyondScroll';
+import { useBeyondSiteChrome } from '@/beyond/useBeyondSiteChrome';
 import '@/beyond/beyond.css';
 
 const FONT_LINK_ID = 'by-fonts';
@@ -24,6 +26,7 @@ export default function BeyondLayout() {
   const { pathname } = useLocation();
   const scopeRef = useRef<HTMLDivElement>(null);
   useBeyondFonts();
+  useBeyondSiteChrome();
   useBeyondScroll(true);
   useBeyondMotion(scopeRef, pathname);
 
@@ -43,6 +46,7 @@ export default function BeyondLayout() {
         </div>
       </main>
       <StudioFooter />
+      <Toaster position="bottom-center" richColors closeButton />
     </div>
   );
 }
