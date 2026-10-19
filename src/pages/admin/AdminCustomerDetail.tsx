@@ -179,7 +179,7 @@ const AdminCustomerDetail: React.FC = () => {
 
   return (
     <div className="space-y-10">
-      <PageHeader title={customer.fullName} description={customer.email}>
+      <PageHeader showTitle title={customer.fullName} description={customer.email}>
         <Button variant="outline" size="sm" onClick={() => goBack('/admin/customers')} className="border-neutral-200 text-neutral-500 hover:text-black hover:border-neutral-300 rounded-full"><ArrowLeft className="mr-2 h-4 w-4" /> Back</Button>
       </PageHeader>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

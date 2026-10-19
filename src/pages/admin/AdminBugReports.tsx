@@ -204,7 +204,7 @@ const AdminBugReports: React.FC = () => {
   return (
     <div>
       <PageHeader
-        title={<>Bug <span className="italic">Reports</span></>}
+        title="Bug reports"
         description="Issues submitted from the mobile app (separate from website contact messages)"
       />
 
