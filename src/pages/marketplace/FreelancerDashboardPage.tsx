@@ -23,6 +23,7 @@ import BookingRow from '@/components/marketplace/BookingRow';
 import ApplicationStatusCard from '@/components/marketplace/ApplicationStatusCard';
 import { MkCard, MkErrorState, MkPageHeader, MkSectionTitle, MkSkeleton, MkSwap } from '@/components/marketplace/ui';
 import { apiErrorMessage, listFrom, unwrap } from '@/lib/marketplace/apiHelpers';
+import { PAYMENTS_COMING_SOON } from '@/lib/paymentsPaused';
 import { bookingKeys, fetchFreelancerBookings } from '@/lib/marketplace/bookings';
 import { useCategories } from '@/lib/marketplace/categories';
 import { formatZar } from '@/lib/marketplace/theme';
@@ -44,7 +45,7 @@ const COMPLETION_LINKS: Record<string, { to: string | null; hint: string }> = {
   'Service location': { to: '/work/locations', hint: 'Tell customers where you work' },
   Availability: { to: '/work/availability', hint: 'Set the times you can take bookings' },
   Bio: { to: '/work/profile', hint: 'Introduce yourself in a few lines' },
-  'Payout details': { to: null, hint: 'Add payout details in the Skillance mobile app' },
+  'Payout details': { to: null, hint: `${PAYMENTS_COMING_SOON} Payout details are not collected on the website.` },
 };
 
 const TOOLS = [

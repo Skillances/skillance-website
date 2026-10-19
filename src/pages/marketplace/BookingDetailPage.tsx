@@ -27,6 +27,7 @@ import {
 } from '@/components/marketplace/BookingPanels';
 import InvoicePanel from '@/components/marketplace/InvoicePanel';
 import { apiErrorMessage, unwrap } from '@/lib/marketplace/apiHelpers';
+import { PAYMENTS_COMING_SOON } from '@/lib/paymentsPaused';
 import { bookingKeys, bookingTotalLabel, fetchBooking, otherParty, roleInBooking, type Booking } from '@/lib/marketplace/bookings';
 import { isActiveSession, statusLabel, statusTone } from '@/lib/marketplace/bookingStatus';
 import { cancellationCodeFromReason, cancellationMessage, cancellationReasonForDisplay } from '@/lib/marketplace/cancellationCopy';
@@ -182,6 +183,13 @@ function Detail({
           <Row label="Total">{bookingTotalLabel(b) || '-'}</Row>
           {b.createdAt && <Row label="Requested">{formatDateTime(b.createdAt)}</Row>}
         </dl>
+      </MkCard>
+
+      <MkCard>
+        <p className="font-mk-display text-[15px] font-semibold">Payments</p>
+        <p className="mt-1 text-[14px] text-mk-text-secondary">
+          {PAYMENTS_COMING_SOON} Connection fees are not collected on the website, and this booking does not take a card payment.
+        </p>
       </MkCard>
 
       <InvoicePanel booking={b} role={role} />

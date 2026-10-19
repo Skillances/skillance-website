@@ -19,6 +19,7 @@ import {
   MkSwap,
 } from '@/components/marketplace/ui';
 import { apiErrorMessage, unwrap } from '@/lib/marketplace/apiHelpers';
+import { PAYMENTS_COMING_SOON } from '@/lib/paymentsPaused';
 import { categoryLabel, useCategories } from '@/lib/marketplace/categories';
 import { money, rateLabel } from '@/lib/marketplace/pricing';
 import { isIdVerified } from '@/lib/marketplace/search';
@@ -413,6 +414,9 @@ export default function BookFreelancerPage() {
           {isInvoice && liveSlots.length > 0 && (
             <p className="text-[12px] text-mk-text-tertiary">The freelancer sends an invoice for this service after you book.</p>
           )}
+          <p className="text-[12px] text-mk-text-tertiary">
+            {PAYMENTS_COMING_SOON} Sending a request does not take a card payment or a connection fee.
+          </p>
           <MkFormError message={error?.message} />
           {error?.profileMissing && (
             <Link to="/account" className="inline-flex min-h-11 items-center text-[14px] font-semibold underline underline-offset-2">
