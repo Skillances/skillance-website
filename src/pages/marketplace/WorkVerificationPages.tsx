@@ -26,7 +26,7 @@ import {
   type MkTone,
 } from '@/components/marketplace/ui';
 import IdBiometricConsent from '@/components/marketplace/IdBiometricConsent';
-import { POLICE_CLEARANCE_ENABLED } from '@/lib/featureFlags';
+import { CONSENT_API_ENABLED, POLICE_CLEARANCE_ENABLED } from '@/lib/featureFlags';
 import { isFeaturePaused } from '@/lib/featurePaused';
 import { idBiometricConsentBody } from '@/lib/idBiometricConsent';
 import { apiErrorMessage, apiFieldErrors, fileToDataUrl, unwrap } from '@/lib/marketplace/apiHelpers';
@@ -309,6 +309,10 @@ function IdVerification({ freelancerId }: { freelancerId: string }) {
       setBiometricGranted(false);
       return;
     }
+    if (!CONSENT_API_ENABLED) {
+      setBiometricGranted(true);
+      return;
+    }
     setGrantingConsent(true);
     try {
       await post(ApiPaths.users.consents, await idBiometricConsentBody('granted'));
@@ -323,6 +327,10 @@ function IdVerification({ freelancerId }: { freelancerId: string }) {
 
   const submit = useMutation({
     mutationFn: async () =>
+      // Same body as the live upload. The consent tick stays in this page while
+      // CONSENT_API_ENABLED is false; it is not added here because the live
+      // freelancer update rejects the request before we can tell whether an
+      // extra field would be stripped.
       put(ApiPaths.marketplace.freelancer(freelancerId), {
         idNumber: idNumber.trim(),
         idFrontPhoto: photos.front,

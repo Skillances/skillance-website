@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { WAITLIST_CONSENT_API_ENABLED } from '@/lib/featureFlags';
 import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 import { toast } from 'sonner';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -49,19 +50,24 @@ const CTA = () => {
     setAlreadyOnWaitlist(false);
 
     try {
-      const res = await post(ApiPaths.public.notify, {
-        email,
-        area: area.trim(),
-        source: 'homepage-cta',
-        consent: true,
-        marketingOptIn,
-        noticeVersion: NOTICE_VERSION,
-        consentNotice: POPIA_NOTICE,
-        consentCheckbox: CONSENT_LABEL,
-        marketingCheckbox: MARKETING_LABEL,
-        consentAt: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-      });
+      const liveFields = { email, source: 'homepage-cta' as const };
+      const res = await post(
+        ApiPaths.public.notify,
+        WAITLIST_CONSENT_API_ENABLED
+          ? {
+              ...liveFields,
+              area: area.trim(),
+              consent: true,
+              marketingOptIn,
+              noticeVersion: NOTICE_VERSION,
+              consentNotice: POPIA_NOTICE,
+              consentCheckbox: CONSENT_LABEL,
+              marketingCheckbox: MARKETING_LABEL,
+              consentAt: new Date().toISOString(),
+              userAgent: navigator.userAgent,
+            }
+          : liveFields,
+      );
       if (res?.data?.alreadySubscribed) {
         setAlreadyOnWaitlist(true);
         setError('This email is already on the waitlist.');

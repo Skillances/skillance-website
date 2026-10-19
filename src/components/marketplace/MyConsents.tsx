@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { get, post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { CONSENT_API_ENABLED } from '@/lib/featureFlags';
 import { idBiometricConsentBody } from '@/lib/idBiometricConsent';
 import { isFeaturePaused } from '@/lib/featurePaused';
 import { apiErrorMessage, listFrom } from '@/lib/marketplace/apiHelpers';
@@ -31,6 +32,11 @@ function isMissingRoute(err: unknown) {
 }
 
 export default function MyConsents() {
+  if (!CONSENT_API_ENABLED) return null;
+  return <MyConsentsPanel />;
+}
+
+function MyConsentsPanel() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const key = ['marketplace', 'consents'];
