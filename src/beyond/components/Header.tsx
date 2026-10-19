@@ -1,24 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { NAV } from '@/beyond/content';
+import { scrollToBeyondHash } from '@/beyond/scroll';
 import ExperienceSwitcher from '@/components/experience/ExperienceSwitcher';
-
-function scrollToHash(hash: string) {
-  const id = hash.replace(/^#/, '');
-  if (!id) return;
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let tries = 0;
-  const run = () => {
-    const el = document.getElementById(id);
-    if (!el && tries < 8) {
-      tries += 1;
-      window.requestAnimationFrame(run);
-      return;
-    }
-    el?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
-  };
-  run();
-}
 
 export default function Header() {
   const [menuPath, setMenuPath] = useState<string | null>(null);
@@ -35,7 +19,7 @@ export default function Header() {
   };
 
   useEffect(() => {
-    if (hash) scrollToHash(hash);
+    if (hash) scrollToBeyondHash(hash);
   }, [pathname, hash]);
 
   useEffect(() => {
