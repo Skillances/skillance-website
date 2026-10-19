@@ -467,7 +467,7 @@ const AdminUserDetail: React.FC = () => {
 
   return (
     <div className="space-y-10">
-      <PageHeader title={user.fullName} description={user.email}>
+      <PageHeader showTitle title={user.fullName} description={user.email}>
         <Button variant="outline" size="sm" onClick={() => goBack('/admin/users')} className="border-neutral-200 text-neutral-500 hover:text-black hover:border-neutral-300 rounded-full">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
