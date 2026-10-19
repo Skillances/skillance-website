@@ -75,7 +75,7 @@ export default function Header() {
 
   return (
     <header className="by-header">
-      <div className="by-wrap by-header-inner">
+      <div className="by-header-wrap by-header-inner">
         <Link to="/beyond" className="by-brand" aria-label="Skillance Beyond the App, overview">
           <img src="/skillance-tiny-logo-black.png" alt="" width={120} height={24} />
           <span className="by-brand-name">Skillance</span>

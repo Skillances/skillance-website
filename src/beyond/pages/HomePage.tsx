@@ -11,12 +11,21 @@ export default function HomePage() {
 
   return (
     <>
-      <section className="by-hero-shell" aria-labelledby="beyond-hero-title">
-        <div className="by-wrap by-hero">
-          <div className="by-hero-copy by-reveal">
+      <section className="by-hero-shell by-hero-shell-premium" aria-labelledby="beyond-hero-title">
+        <div className="by-hero-atmosphere" aria-hidden="true">
+          <picture>
+            <source type="image/webp" srcSet="/beyond/hero-atmosphere.webp" />
+            <img src="/beyond/hero-atmosphere.webp" alt="" width={1920} height={1080} decoding="async" />
+          </picture>
+        </div>
+        <div className="by-header-wrap by-hero">
+          <div className="by-hero-copy by-hero-stagger">
             <p className="by-kicker">Beyond the App</p>
-            <h1 id="beyond-hero-title">Custom software, built in South Africa.</h1>
-            <p className="by-lede">
+            <h1 id="beyond-hero-title">
+              Custom software,
+              <span className="by-hero-line">built in South Africa.</span>
+            </h1>
+            <p className="by-lede by-hero-lede">
               Web apps, mobile apps, business systems, and integrations, designed and built by Skillance. Customers
               book a local provider on the marketplace. This studio is where the same team builds a product for a
               client.
