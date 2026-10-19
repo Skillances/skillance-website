@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Plus, Minus } from 'lucide-react';
@@ -9,13 +9,14 @@ gsap.registerPlugin(ScrollTrigger);
 
 interface FAQItem {
   question: string;
-  answer: string;
+  answer: ReactNode;
 }
 
 const faqItems: FAQItem[] = [
   {
-    question: 'How does Skillance verify professionals?',
-    answer: 'Every professional on our platform undergoes a thorough verification process including identity verification, background checks, and skill assessment. We verify their qualifications, check references, and ensure they meet our quality standards before they can offer services.',
+    question: 'How does Skillance check providers?',
+    answer:
+      "Before a provider can take bookings, we check their identity document and match it to their profile photo. We don't check trade qualifications or references, so each provider's reviews from customers are an important guide. For work that legally needs a certificate (such as an electrical COC), confirm this with the provider before you book.",
   },
   {
     question: 'What happens if I am not satisfied with a service?',
@@ -23,7 +24,7 @@ const faqItems: FAQItem[] = [
   },
   {
     question: 'How do payments work?',
-    answer: 'Payments are processed securely through our platform. When you book a service, the payment is held securely until the service is completed. Once you confirm satisfaction, the payment is released to the professional. This ensures both parties are protected.',
+    answer: "Payments aren't live yet. We'll explain exactly how paying works here before bookings open.",
   },
   {
     question: 'Can I cancel or reschedule a booking?',
@@ -31,11 +32,12 @@ const faqItems: FAQItem[] = [
   },
   {
     question: 'What areas does Skillance cover?',
-    answer: 'Skillance covers the whole of South Africa. Whether you are in a major city or a smaller town, we are committed to connecting you with trusted professionals across the country.',
+    answer: "We're starting in one area. Tell us your area and we'll let you know if we reach you.",
   },
   {
-    question: 'How do I become a Skillancer?',
-    answer: 'To join as a Skillancer, download our app and complete the registration process. You will need to provide proof of identity, relevant qualifications or experience, and pass our background check. Once approved, you can start offering your services.',
+    question: 'How do I become a provider?',
+    answer:
+      'Register as a provider, upload your identity document and a clear profile photo, and choose your service categories. Once your ID check is approved, you can start taking bookings. The Skillance app for iOS and Android is coming soon.',
   },
 ];
 

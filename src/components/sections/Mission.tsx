@@ -63,8 +63,9 @@ const Mission = () => {
             </p>
             <p className="scroll-reveal text-lg text-neutral-600 leading-relaxed uw:text-4xl uw:max-w-3xl">
               Skillance was built on the belief that anyone looking for quality
-              services should be able to find them. We verify every professional
-              on our platform, so you can hire with confidence.
+              services should be able to find them. We check every provider&apos;s
+              identity before they can take bookings, and show you reviews from
+              other customers, so you can book with more confidence.
             </p>
             <button
               onClick={() => document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' })}

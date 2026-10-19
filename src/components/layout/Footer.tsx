@@ -1,9 +1,6 @@
 import { Facebook, Instagram, Linkedin } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import {
-  CORPORATE_LEGAL_ADDRESS_ONE_LINE,
-  CORPORATE_OWNERSHIP_SENTENCE,
-} from '../../constants/corporate';
+import { CORPORATE_FOOTER_LINE } from '../../constants/corporate';
 
 const Footer = () => {
   const location = useLocation();
@@ -14,8 +11,7 @@ const Footer = () => {
       { name: 'Mission', href: '/#mission' },
       { name: 'Services', href: '/#services' },
       { name: 'How It Works', href: '/#how-it-works' },
-      { name: 'Testimonials', href: '/#testimonials' },
-      { name: 'Reviews', href: '/#reviews' },
+      { name: 'FAQ', href: '/#faq' },
     ],
     Resources: [
       { name: 'Help Center', href: '/help-center' },
@@ -78,8 +74,7 @@ const Footer = () => {
               </picture>
             </Link>
             <p className="text-neutral-300 max-w-md leading-relaxed">
-              Connecting communities with trusted experts. Find verified professionals 
-              for all your service needs.
+              Book local, ID-checked providers in one place.
             </p>
           </div>
 
@@ -142,23 +137,10 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-neutral-400">
-            © {new Date().getFullYear()} Skillance. All rights reserved.
+          <p className="text-sm text-neutral-400 max-w-xl text-center md:text-left">
+            © {new Date().getFullYear()} Skillance. {CORPORATE_FOOTER_LINE}
           </p>
           <div className="flex flex-col items-center md:items-end gap-3 text-center md:text-right">
-            <div className="text-sm text-neutral-400 max-w-md leading-snug space-y-1">
-              <a
-                href="https://bizportal.gov.za/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-white transition-colors block"
-              >
-                {CORPORATE_OWNERSHIP_SENTENCE}
-              </a>
-              <p className="text-neutral-500">
-                Registered office: {CORPORATE_LEGAL_ADDRESS_ONE_LINE}
-              </p>
-            </div>
             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
               <a
                 href="https://wa.me/27648728174"

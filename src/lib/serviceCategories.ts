@@ -194,10 +194,10 @@ function mapApiCategory(cat: CategoryApiNode): ServiceCategoryItem {
     id: cat.id,
     slug: slugKey,
     name: cat.name,
-    description: cat.description?.trim() || `Trusted ${cat.name.toLowerCase()} services`,
+    description: cat.description?.trim() || `Local ${cat.name.toLowerCase()} services`,
     longDescription:
       CATEGORY_LONG_DESCRIPTIONS[slugKey] ||
-      `Explore verified ${cat.name.toLowerCase()} services through Skillance and connect with professionals suited to your needs.`,
+      `Explore local ${cat.name.toLowerCase()} providers on Skillance. Every provider's identity document is checked and matched to their profile photo before they can take bookings.`,
     image,
     subcategories: flattenNames(cat.children),
     subcategoryCount: countDescendants(cat.children),

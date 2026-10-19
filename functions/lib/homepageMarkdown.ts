@@ -8,7 +8,7 @@ export function estimateMarkdownTokens(markdown: string): number {
 
 export const HOMEPAGE_MARKDOWN_FOR_AGENTS = `# Skillance South Africa
 
-South Africa's freelancer marketplace connecting customers with verified professionals across trades and services.
+A South African marketplace for booking local service providers. Every provider's identity document is checked and matched to their profile photo before they can take bookings. Coming soon.
 
 ## Summary
 

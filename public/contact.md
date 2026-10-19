@@ -8,7 +8,7 @@ Canonical page: https://skillance.co.za/contact
 
 ## Who we are
 
-**Skillance** is **owned by and part of Rimitso Management Services (Pty) Ltd** (legal name: **RIMITSO MANAGEMENT SERVICES (PTY) LTD**), registered in the Republic of South Africa. We run an on-demand marketplace connecting customers with verified local freelancers across South Africa.
+**Skillance** is a trading name of Rimitso Management Services (Pty) Ltd, 6 Dwars Street, Krugersdorp, 1739. Skillance is a South African marketplace for booking local providers. Before a provider can take bookings, we check their identity document and match it to their profile photo.
 
 **Registered office:** 6 DWARS STREET, KRUGERSDORP, KRUGERSDORP, GAUTENG, 1739.
 
@@ -21,9 +21,9 @@ Canonical page: https://skillance.co.za/contact
 - **Phone:** +27 66 220 3312
 - **Website contact form:** https://skillance.co.za/contact
 
-## Response times
+## Support hours
 
-South African business hours (Mon–Fri, 09:00–17:00 SAST). Most support enquiries are answered within one business day. Urgent safety or fraud reports are escalated immediately.
+Mon-Fri 09:00-17:00. We don't promise a reply time.
 
 ## Social
 
@@ -31,10 +31,9 @@ South African business hours (Mon–Fri, 09:00–17:00 SAST). Most support enqui
 - Facebook: https://www.facebook.com/share/18A2F6LDQH/?mibextid=wwXIfr
 - Instagram: https://www.instagram.com/skillanceza
 
-## App downloads
+## App
 
-- iOS App Store: search "Skillance"
-- Google Play: search "Skillance"
+The Skillance app for iOS and Android is coming soon.
 
 ## Legal routes
 

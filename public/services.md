@@ -1,6 +1,6 @@
 # Skillance Service Categories
 
-> Plain-text catalogue of every service category bookable on Skillance in South Africa. Each category is served by ID-verified local freelancers who accept bookings, pricing, and payment through the app.
+> Plain-text catalogue of service categories on Skillance. Before a provider can take bookings, we check their identity document and match it to their profile photo. This confirms who they are. It doesn't assess their skills.
 
 Canonical page: https://skillance.co.za/services
 
@@ -11,10 +11,11 @@ Canonical page: https://skillance.co.za/services
 1. Browse a category below or search the Skillance app by keyword or location.
 2. Open a freelancer's profile to see their rates, availability, portfolio, and public ratings.
 3. Send a booking request with a date, time, and scope description. The freelancer accepts or declines.
-4. After acceptance, chat opens for final details. Payment is held in escrow by our licensed South African payment partner.
-5. After the booking is marked complete and the short dispute window closes, the freelancer is paid (less the 8–9% VAT-inclusive platform fee).
+4. After acceptance, chat opens for final details.
+5. At the start of the session, the customer shows a session PIN and the provider submits it to confirm the session has begun. The PIN does not mark the job as complete.
+6. Payments aren't live yet. Details will be published before bookings open. Skillance charges a service fee of 8–9% on confirmed bookings. The exact amount is shown before you book.
 
-Customers never pay off-platform. Off-app payments void Skillance's refund and dispute protections.
+Don't pay outside the app. Report that to support@skillance.co.za.
 
 ---
 
@@ -72,28 +73,18 @@ Social-media influencers and content creators available for brand collaborations
 
 ---
 
-## Geographic coverage
+## Where Skillance is available
 
-Skillance is available across South Africa. Most bookings are completed in:
-
-- Johannesburg and surrounding Gauteng (Sandton, Randburg, Roodepoort, Centurion)
-- Pretoria (Hatfield, Menlo Park, Centurion, Midrand)
-- Cape Town (City Bowl, Atlantic Seaboard, Southern Suburbs, Northern Suburbs)
-- Durban and greater eThekwini
-- Gqeberha (Port Elizabeth) and Nelson Mandela Bay
-- Bloemfontein
-- East London and Buffalo City
-
-Rural and smaller-town coverage grows as more freelancers sign up.
+Skillance is launching first in one area. Tell us your area and we'll let you know if we reach you.
 
 ---
 
 ## Trust model
 
-- Every freelancer passes South African ID verification and profile-photo matching before they can take bookings.
-- Skillance does not require trade certifications or qualifications to register — quality is surfaced through public ratings and reviews on every completed booking.
-- Payments are held in escrow until the customer confirms completion (or the grace period passes).
-- Disputes go through an in-app flow with escrow frozen until resolved. Outcomes follow the Consumer Protection Act and Skillance's published Terms.
+- Before a provider can take bookings, we check their identity document and match it to their profile photo. This confirms who they are. It doesn't assess their skills.
+- Skillance does not check trade qualifications or references. Reviews from customers are a guide. For work that legally needs a certificate (such as an electrical COC), confirm this with the provider before you book.
+- Payments aren't live yet. Details will be published before bookings open.
+- Disputes go through an in-app flow and follow Skillance's published Terms.
 
 ---
 

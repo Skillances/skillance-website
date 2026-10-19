@@ -24,6 +24,7 @@ import { categoryLabel, useCategories } from '@/lib/marketplace/categories';
 import { listingPriceLabel, money, rateLabel } from '@/lib/marketplace/pricing';
 import { isIdVerified } from '@/lib/marketplace/search';
 import { formatZar, mkMotion } from '@/lib/marketplace/theme';
+import { SHOW_PUBLIC_POLICE_CLEARANCE_BADGE } from '@/lib/featureFlags';
 import { publicAssetUrl } from '@/lib/publicAssetUrl';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/utils';
@@ -413,7 +414,7 @@ function ProfileBody({
               <BadgeCheck className="h-4 w-4" aria-hidden="true" /> ID verified
             </span>
           )}
-          {p.policeClearanceStatus === 'verified' && (
+          {SHOW_PUBLIC_POLICE_CLEARANCE_BADGE && p.policeClearanceStatus === 'verified' && (
             <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-mk-success">
               <ShieldCheck className="h-4 w-4" aria-hidden="true" /> Police clearance
             </span>

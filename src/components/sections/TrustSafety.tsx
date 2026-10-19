@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -6,22 +7,40 @@ import { revealFromTo } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const trustFeatures = [
+const trustFeatures: { title: string; description: React.ReactNode }[] = [
   {
-    title: 'Verified Identities',
-    description: 'Every professional passes background checks and identity verification before joining our platform.',
+    title: 'ID-checked providers',
+    description:
+      "Before a provider can take bookings, we check their identity document and match it to their profile photo. This confirms who they are. It doesn't assess their skills.",
   },
   {
-    title: 'Secure Payments',
-    description: 'Protected transactions with encrypted processing. Your financial information is always safe.',
+    title: 'Everything in one place',
+    description:
+      'Find, compare and book local providers in one app, and keep a record of each booking.',
   },
   {
-    title: 'Insurance Coverage',
-    description: 'Eligible services include coverage for peace of mind. We stand behind every booking.',
+    title: 'Reviews from customers',
+    description: (
+      <>
+        Customers can rate and review providers after a booking. We moderate reviews under our{' '}
+        <Link to="/terms" className="underline underline-offset-4 hover:text-white">
+          Terms
+        </Link>
+        .
+      </>
+    ),
   },
   {
-    title: '24/7 Support',
-    description: 'Real humans, always available. Our support team is here to help whenever you need it.',
+    title: 'Help when you need it',
+    description: (
+      <>
+        Questions about a booking? Email{' '}
+        <a href="mailto:support@skillance.co.za" className="underline underline-offset-4 hover:text-white">
+          support@skillance.co.za
+        </a>
+        . Support hours are Mon-Fri 09:00-17:00.
+      </>
+    ),
   },
 ];
 
@@ -58,8 +77,7 @@ const TrustSafety = () => {
             <span className="italic">our priority.</span>
           </h2>
           <p className="text-lg text-neutral-400 leading-relaxed">
-            We take your safety seriously. Every professional on our platform 
-            goes through rigorous verification.
+            Here&apos;s exactly what we check, and what we don&apos;t.
           </p>
         </div>
 
@@ -85,15 +103,11 @@ const TrustSafety = () => {
           <div className="flex flex-wrap gap-8">
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span className="text-sm text-neutral-400">SSL Secured</span>
+              <span className="text-sm text-neutral-400">SSL secured site</span>
             </div>
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span className="text-sm text-neutral-400">Data Protected</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span className="text-sm text-neutral-400">Verified Professionals</span>
+              <span className="text-sm text-neutral-400">ID-checked providers</span>
             </div>
           </div>
         </div>
