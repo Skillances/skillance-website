@@ -25,6 +25,10 @@ import {
   MkSkeleton,
   type MkTone,
 } from '@/components/marketplace/ui';
+import IdBiometricConsent from '@/components/marketplace/IdBiometricConsent';
+import { POLICE_CLEARANCE_ENABLED } from '@/lib/featureFlags';
+import { isFeaturePaused } from '@/lib/featurePaused';
+import { idBiometricConsentBody } from '@/lib/idBiometricConsent';
 import { apiErrorMessage, apiFieldErrors, fileToDataUrl, unwrap } from '@/lib/marketplace/apiHelpers';
 import { compressImage } from '@/lib/marketplace/image';
 import { myFreelancerKey, useMyFreelancerProfile } from '@/lib/marketplace/freelancerSelf';
@@ -48,6 +52,7 @@ function FilePick({
   done,
   capture,
   busy,
+  disabled,
 }: {
   label: string;
   accept: string;
@@ -55,6 +60,7 @@ function FilePick({
   done?: boolean;
   capture?: 'user' | 'environment';
   busy?: boolean;
+  disabled?: boolean;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   return (
@@ -62,7 +68,7 @@ function FilePick({
       <button
         type="button"
         onClick={() => ref.current?.click()}
-        disabled={busy}
+        disabled={busy || disabled}
         className={cn(
           'flex min-h-14 w-full items-center gap-3 rounded-xl border px-4 text-left transition-colors duration-150',
           done ? 'border-mk-accent' : 'border-dashed border-mk-border hover:bg-mk-muted',
@@ -79,6 +85,7 @@ function FilePick({
         capture={capture}
         className="sr-only"
         tabIndex={-1}
+        disabled={busy || disabled}
         aria-label={label}
         onChange={(e) => {
           const f = e.target.files?.[0];
@@ -292,6 +299,27 @@ function IdVerification({ freelancerId }: { freelancerId: string }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [formError, setFormError] = useState<string | null>(null);
+  const [biometricGranted, setBiometricGranted] = useState(false);
+  const [grantingConsent, setGrantingConsent] = useState(false);
+  const [consentError, setConsentError] = useState<string | null>(null);
+
+  const onBiometricChange = async (next: boolean) => {
+    setConsentError(null);
+    if (!next) {
+      setBiometricGranted(false);
+      return;
+    }
+    setGrantingConsent(true);
+    try {
+      await post(ApiPaths.users.consents, await idBiometricConsentBody('granted'));
+      setBiometricGranted(true);
+    } catch (err) {
+      setBiometricGranted(false);
+      setConsentError(apiErrorMessage(err, 'Could not record your consent. Please try again.'));
+    } finally {
+      setGrantingConsent(false);
+    }
+  };
 
   const submit = useMutation({
     mutationFn: async () =>
@@ -354,6 +382,7 @@ function IdVerification({ freelancerId }: { freelancerId: string }) {
             className="space-y-3"
             onSubmit={(e) => {
               e.preventDefault();
+              if (!biometricGranted) return;
               setFormError(null);
               const next: Record<string, string | undefined> = {};
               if (idNumber.trim().length < 6) next.idNumber = 'Enter your ID or passport number';
@@ -364,7 +393,14 @@ function IdVerification({ freelancerId }: { freelancerId: string }) {
               if (!Object.values(next).some(Boolean)) submit.mutate();
             }}
           >
-            <MkInput label="ID or passport number" maxLength={20} value={idNumber} onChange={(e) => setIdNumber(e.target.value.replace(/\s+/g, ''))} error={errors.idNumber} />
+            <IdBiometricConsent
+              checked={biometricGranted}
+              disabled={grantingConsent}
+              error={consentError}
+              onCheckedChange={(next) => void onBiometricChange(next)}
+            />
+            <fieldset disabled={!biometricGranted} className="m-0 min-w-0 space-y-3 border-0 p-0 disabled:opacity-60">
+            <MkInput label="ID or passport number" maxLength={20} value={idNumber} onChange={(e) => setIdNumber(e.target.value.replace(/\s+/g, ''))} error={errors.idNumber} disabled={!biometricGranted} />
             {(['front', 'back', 'selfie'] as const).map((slot) => (
               <div key={slot}>
                 <FilePick
@@ -373,6 +409,7 @@ function IdVerification({ freelancerId }: { freelancerId: string }) {
                   capture={slot === 'selfie' ? 'user' : 'environment'}
                   done={!!photos[slot]}
                   busy={busy === slot}
+                  disabled={!biometricGranted}
                   onFile={(f) => void pick(slot, f)}
                 />
                 {errors[slot] && (
@@ -384,9 +421,10 @@ function IdVerification({ freelancerId }: { freelancerId: string }) {
             ))}
             <p className="text-[13px] text-mk-text-tertiary">Use clear, well-lit photos. Your documents are only seen by the Skillance review team.</p>
             <MkFormError message={formError} />
-            <MkButton type="submit" block loading={submit.isPending} disabled={busy != null}>
+            <MkButton type="submit" block loading={submit.isPending} disabled={!biometricGranted || busy != null}>
               Submit for review
             </MkButton>
+            </fieldset>
           </form>
         </MkCard>
       )}
@@ -409,6 +447,12 @@ export function WorkVerificationPage() {
 
 /* --------------------------------------------------------- Police clearance */
 
+const POLICE_CLEARANCE_PAUSED = 'Police clearance uploads are paused for now.';
+
+function PoliceClearancePaused() {
+  return <p className="text-[15px] text-mk-text-secondary">{POLICE_CLEARANCE_PAUSED}</p>;
+}
+
 function PoliceClearance({ freelancerId }: { freelancerId: string }) {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -416,12 +460,14 @@ function PoliceClearance({ freelancerId }: { freelancerId: string }) {
   const key = ['marketplace', 'police', user?.id];
   const q = useQuery({
     queryKey: key,
+    retry: (failureCount, err) => !isFeaturePaused(err) && failureCount < 2,
     queryFn: async () => unwrap<{ policeClearanceStatus?: string }>(await get(ApiPaths.marketplace.freelancerPoliceClearance(user!.id))),
   });
   const [photo, setPhoto] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmRemove, setConfirmRemove] = useState(false);
+  const [pausedByApi, setPausedByApi] = useState(false);
 
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: key });
@@ -434,7 +480,14 @@ function PoliceClearance({ freelancerId }: { freelancerId: string }) {
       setPhoto(null);
       refresh();
     },
-    onError: (err) => setError(apiErrorMessage(err, 'Could not upload the document.')),
+    onError: (err) => {
+      if (isFeaturePaused(err)) {
+        setPausedByApi(true);
+        setError(null);
+        return;
+      }
+      setError(apiErrorMessage(err, 'Could not upload the document.'));
+    },
   });
   const remove = useMutation({
     mutationFn: async () => del(ApiPaths.marketplace.freelancerPoliceClearanceUpload(freelancerId)),
@@ -442,8 +495,15 @@ function PoliceClearance({ freelancerId }: { freelancerId: string }) {
       setConfirmRemove(false);
       refresh();
     },
+    onError: (err) => {
+      if (isFeaturePaused(err)) {
+        setConfirmRemove(false);
+        setPausedByApi(true);
+      }
+    },
   });
 
+  if (!POLICE_CLEARANCE_ENABLED || pausedByApi || (q.isError && isFeaturePaused(q.error))) return <PoliceClearancePaused />;
   if (q.isPending) return <MkSkeleton className="h-40 w-full rounded-2xl" />;
   if (q.isError) return <MkErrorState message={apiErrorMessage(q.error)} onRetry={() => void q.refetch()} retrying={q.isRefetching} />;
   const status = q.data?.policeClearanceStatus ?? 'none';
@@ -502,7 +562,7 @@ function PoliceClearance({ freelancerId }: { freelancerId: string }) {
         confirmLabel="Remove"
         destructive
         loading={remove.isPending}
-        error={remove.isError ? apiErrorMessage(remove.error) : null}
+        error={remove.isError && !isFeaturePaused(remove.error) ? apiErrorMessage(remove.error) : null}
         onConfirm={() => remove.mutate()}
       />
     </div>
@@ -515,7 +575,7 @@ export function WorkPoliceClearancePage() {
       {(fid) => (
         <>
           <MkPageHeader back="/work" title="Police clearance" />
-          <PoliceClearance freelancerId={fid} />
+          {POLICE_CLEARANCE_ENABLED ? <PoliceClearance freelancerId={fid} /> : <PoliceClearancePaused />}
         </>
       )}
     </WorkGate>

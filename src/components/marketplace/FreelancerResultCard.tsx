@@ -4,7 +4,7 @@ import { BadgeCheck, MapPin, ShieldCheck } from 'lucide-react';
 import { MkAvatar, MkRating } from '@/components/marketplace/ui';
 import { categoryLabel, type CategoryNode } from '@/lib/marketplace/categories';
 import { listingPriceLabel } from '@/lib/marketplace/pricing';
-import { SHOW_PUBLIC_POLICE_CLEARANCE_BADGE } from '@/lib/featureFlags';
+import { POLICE_CLEARANCE_ENABLED, SHOW_PUBLIC_POLICE_CLEARANCE_BADGE } from '@/lib/featureFlags';
 import { isIdVerified, type FreelancerSummary } from '@/lib/marketplace/search';
 
 /** Search, category, and favorites row. Links to the public profile. */
@@ -33,7 +33,7 @@ export default function FreelancerResultCard({
           <div className="flex items-center gap-1.5">
             <p className="truncate font-mk-display text-[15px] font-semibold">{name}</p>
             {isIdVerified(f) && <BadgeCheck className="h-4 w-4 shrink-0 text-mk-info" aria-label="ID verified" />}
-            {SHOW_PUBLIC_POLICE_CLEARANCE_BADGE && f.policeClearanceStatus === 'verified' && (
+            {SHOW_PUBLIC_POLICE_CLEARANCE_BADGE && POLICE_CLEARANCE_ENABLED && f.policeClearanceStatus === 'verified' && (
               <ShieldCheck className="h-4 w-4 shrink-0 text-mk-success" aria-label="Police clearance verified" />
             )}
           </div>
