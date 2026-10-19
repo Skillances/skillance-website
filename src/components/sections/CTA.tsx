@@ -13,7 +13,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 const LAUNCH_NOTICE = "We'll email you when Skillance launches in your area.";
 const POPIA_NOTICE =
-  'We collect your email address and the area you enter, and we use them only to send that launch email. You can opt out at any time from the unsubscribe link in the email, or by emailing support@skillance.co.za.';
+  'Skillance (Rimitso Management Services (Pty) Ltd) collects your email address and the area you enter. We use them to send that launch email and, only if you tick the second box, occasional product updates and offers. You can opt out at any time using the unsubscribe link in any email, or by emailing support@skillance.co.za.';
+const NOTICE_VERSION = 'waitlist-v1';
 const CONSENT_LABEL =
   'I agree to Skillance using my email and area to email me when it launches in my area.';
 const MARKETING_LABEL = 'Also send me occasional product updates and offers.';
@@ -53,9 +54,10 @@ const CTA = () => {
         area: area.trim(),
         source: 'homepage-cta',
         consent: true,
-        consentNotice: `${LAUNCH_NOTICE} ${POPIA_NOTICE}`,
-        consentCheckbox: CONSENT_LABEL,
         marketingOptIn,
+        noticeVersion: NOTICE_VERSION,
+        consentNotice: POPIA_NOTICE,
+        consentCheckbox: CONSENT_LABEL,
         marketingCheckbox: MARKETING_LABEL,
         consentAt: new Date().toISOString(),
         userAgent: navigator.userAgent,
@@ -123,8 +125,8 @@ const CTA = () => {
                   type="text"
                   value={area}
                   onChange={(e) => { setArea(e.target.value); setError(''); }}
-                  placeholder="Your area"
-                  aria-label="Your area"
+                  placeholder="Your suburb or town"
+                  aria-label="Your suburb or town"
                   className="w-full px-6 py-4 bg-white rounded-full text-black placeholder-neutral-400 border border-neutral-200 focus:border-black focus:outline-none transition-colors"
                   required
                   disabled={isLoading || !canSubmit}
