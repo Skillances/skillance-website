@@ -246,11 +246,11 @@ export default function RegisterPage() {
   return (
     <AuthShell
       eyebrow="Create account"
-      title={role === 'freelancer' ? 'Offer your skills' : 'Find trusted help'}
+      title={role === 'freelancer' ? 'Offer your skills' : 'Find local help'}
       subtitle={
         role === 'freelancer'
           ? 'Create a freelancer account to get booked for your services.'
-          : 'Create a customer account to book skilled freelancers near you.'
+          : 'Create a customer account to send booking requests to providers near you.'
       }
       wide={role === 'freelancer'}
       footer={

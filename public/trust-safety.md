@@ -12,7 +12,6 @@ Canonical page: https://skillance.co.za/trust-safety
 
 - Before a provider can take bookings, we check their identity document and match it to their profile photo. This confirms who they are. It doesn't assess their skills.
 - **No certification gate.** Skillance does not check trade qualifications or references. For work that legally needs a certificate (such as an electrical COC), confirm this with the provider before you book.
-- **Optional trust signals.** Freelancers may optionally upload a police clearance certificate to display an extra trust badge on their profile. This is never required to register or to take bookings.
 - **Profile-photo check.** The photo you see on a provider's profile is matched against their identity document.
 
 ## Payments
