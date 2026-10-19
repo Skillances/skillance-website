@@ -28,7 +28,7 @@ export const PAGES = {
   home: {
     title: 'Beyond the App | Custom software by Skillance',
     description:
-      'Skillance designs and builds custom web apps, mobile apps, business systems, and integrations in South Africa. A studio practice alongside the Skillance marketplace.',
+      'Skillance designs and builds SaaS products, web and mobile apps, cloud-hosted systems, and secure integrations in South Africa. A studio practice alongside the Skillance marketplace.',
     path: '/beyond',
     crumb: 'Beyond the App',
   },
@@ -82,9 +82,10 @@ export const SERVICES = [
     id: 'web',
     num: '01',
     title: 'Web apps',
-    hero: 'Products and tools people use in a browser.',
-    summary: 'Customer portals, internal tools, and web products with accounts, roles, and real workflows.',
-    body: 'We design and build browser-based software: the product your customers sign in to, or the tool your own team uses. The public example is the Skillance marketplace web app, written in React and TypeScript.',
+    hero: 'SaaS products and tools people use in a browser.',
+    summary:
+      'Customer-facing SaaS, portals, and internal tools with accounts, roles, billing, and real workflows.',
+    body: 'We design and build browser-based software: subscription products, the app your customers sign in to, or the tool your own team uses. The public example is the Skillance marketplace web app, written in React and TypeScript and hosted on cloud infrastructure we operate.',
     points: [
       'Who uses it, and what they need to finish',
       'What it has to connect to',
@@ -121,9 +122,10 @@ export const SERVICES = [
     id: 'integrations',
     num: '04',
     title: 'Integrations',
-    hero: 'Connections to the systems you already use.',
-    summary: 'Payments, sign-in, messaging, maps, and the other tools a product has to live with.',
-    body: 'Products rarely stand alone. We connect them to payments, sign-in, messaging, maps, and the other systems a business already relies on. The specific services are named in that project’s proposal.',
+    hero: 'Cloud, APIs, and the systems you already use.',
+    summary:
+      'Hosting, observability, payments, sign-in, messaging, and the integrations a product needs in production.',
+    body: 'Products rarely stand alone. We connect them to cloud platforms, APIs, payments, sign-in, messaging, and the other systems a business already relies on. Security, access control, and how environments are run are part of the work, and named in that project’s proposal.',
     points: [
       'Which existing systems have to stay',
       'What data is allowed to move, and what is not',
@@ -179,13 +181,17 @@ export const TECH = [
     name: 'Flutter',
     note: 'The Skillance apps for customers and freelancers, on iOS and Android.',
   },
+  {
+    name: 'Cloud hosting and APIs',
+    note: 'How we run the marketplace API, data stores, and client environments in production.',
+  },
 ] as const;
 
 export const FAQS: readonly BeyondFaq[] = [
   {
     question: 'What is Beyond the App?',
     answer:
-      'Beyond the App is Skillance’s studio practice. We design and build custom software for clients: web apps, mobile apps, business systems, and integrations. It sits alongside the Skillance marketplace and is run by the same team in South Africa.',
+      'Beyond the App is Skillance’s studio practice. We design and build custom software for clients: SaaS products, web and mobile apps, cloud-hosted systems, and secure integrations. It sits alongside the Skillance marketplace and is run by the same team in South Africa.',
   },
   {
     question: 'How is this different from booking someone on the marketplace?',
@@ -195,7 +201,7 @@ export const FAQS: readonly BeyondFaq[] = [
   {
     question: 'What can you build?',
     answer:
-      'Web apps, mobile apps, business systems, and integrations. If you are unsure which of those you need, start with the problem and we will say whether we are the right team.',
+      'SaaS products, web and mobile apps, business systems, cloud operations, and integrations, including security and access control. If you are unsure which of those you need, start with the problem and we will say whether we are the right team.',
   },
   {
     question: 'How does a project start?',
@@ -222,7 +228,7 @@ export const FAQS: readonly BeyondFaq[] = [
 export const OWN_PLATFORM = {
   kicker: 'Our own platform',
   title: 'The Skillance marketplace',
-  body: 'We designed and built the Skillance marketplace: the web app, and Flutter apps for customers and freelancers on iOS and Android. Customers use it to book ID-verified local providers. Providers use it to manage a profile, jobs, and payouts. This is our product. It is not a client engagement, and we are not publishing usage figures.',
+  body: 'We designed and built the Skillance marketplace as a cloud-hosted SaaS product: the React web app, Flutter apps for customers and freelancers on iOS and Android, and the integrations behind bookings, identity, and payouts. Customers use it to book ID-verified local providers. Providers use it to manage a profile, jobs, and payouts. This is our product, not a client engagement, and we are not publishing usage figures.',
 } as const;
 
 export const SOCIAL = [

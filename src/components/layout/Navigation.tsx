@@ -7,6 +7,9 @@ import { getLenisFromWindow, getSectionScrollTopReservePx, scrollToPageSection }
 import { useAuth } from '@/context/AuthContext';
 import { landingPath } from '@/lib/marketplace/session';
 import ExperienceSwitcher from '@/components/experience/ExperienceSwitcher';
+import { BEYOND_PRIMARY_NAV, isBeyondNavCurrent } from '@/lib/beyond/nav';
+import { isBeyondPath } from '@/lib/beyond/routes';
+import { isMarketingAuthPath } from '@/lib/marketing/authPaths';
 
 interface NavigationProps {
   isLoaded: boolean;
@@ -33,6 +36,41 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
       const lenis = getLenisFromWindow();
       const scrollY = lenis?.scroll ?? window.scrollY;
       
+      if (isMarketingAuthPath(location.pathname)) {
+        setIsDarkSection(false);
+        setIsPastHero(true);
+        return;
+      }
+
+      if (isBeyondPath(location.pathname)) {
+        const heroEl = document.querySelector('.by-hero-cinematic');
+        const reservedTopLine = getSectionScrollTopReservePx();
+
+        if (!heroEl) {
+          setIsDarkSection(false);
+          setIsPastHero(true);
+          return;
+        }
+
+        const rect = heroEl.getBoundingClientRect();
+        const heroStillBehindNav = rect.bottom > reservedTopLine;
+        setIsPastHero(!heroStillBehindNav);
+
+        if (heroStillBehindNav) {
+          setIsDarkSection(true);
+          return;
+        }
+
+        const darkBand = document.querySelector('.by-section-invert, .by-section-cta');
+        let onDarkBand = false;
+        if (darkBand) {
+          const bandRect = darkBand.getBoundingClientRect();
+          onDarkBand = bandRect.top <= reservedTopLine + 8 && bandRect.bottom > reservedTopLine + 48;
+        }
+        setIsDarkSection(onDarkBand);
+        return;
+      }
+
       if (location.pathname !== '/') {
         // Handle specific dark pages
         const darkPages = ['/faq', '/trust-safety'];
@@ -89,11 +127,34 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Initial check
-    return () => window.removeEventListener('scroll', handleScroll);
+    handleScroll();
+
+    const attachLenisScroll = () => {
+      const activeLenis = getLenisFromWindow();
+      activeLenis?.on?.('scroll', handleScroll);
+      return activeLenis;
+    };
+
+    let boundLenis = attachLenisScroll();
+
+    const lenisPoll = window.setInterval(() => {
+      const activeLenis = getLenisFromWindow();
+      if (activeLenis && activeLenis !== boundLenis) {
+        boundLenis = attachLenisScroll();
+        window.clearInterval(lenisPoll);
+      }
+    }, 80);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      getLenisFromWindow()?.off?.('scroll', handleScroll);
+      window.clearInterval(lenisPoll);
+    };
   }, [location.pathname]);
 
-  const navLinks = [
+  const onBeyond = isBeyondPath(location.pathname);
+
+  const marketplaceNavLinks = [
     { name: 'Mission', href: '/#mission' },
     { name: 'How It Works', href: '/#how-it-works' },
     { name: 'Services', href: '/#services' },
@@ -101,6 +162,8 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
     { name: 'Contact', href: '/contact' },
     { name: 'Trust', href: '/#trust-safety' },
   ];
+
+  const navLinks = onBeyond ? [...BEYOND_PRIMARY_NAV] : marketplaceNavLinks;
 
   const scrollToSection = (sectionId: string) => {
     let attempts = 0;
@@ -148,6 +211,43 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
   const textColorMuted = isDarkSection ? 'text-white/70' : 'text-neutral-600';
   const hoverColor = isDarkSection ? 'hover:text-white' : 'hover:text-black';
   const underlineColor = isDarkSection ? 'bg-white' : 'bg-black';
+  const onFullBleedHero =
+    (location.pathname === '/' && !isPastHero) ||
+    (onBeyond && !isPastHero && isDarkSection);
+
+  const navItemClass = `text-sm font-medium motion-ui motion-press transition-colors relative group ${textColorMuted} ${hoverColor}`;
+
+  const renderDesktopNavItem = (link: (typeof navLinks)[number]) => {
+    if (onBeyond && 'end' in link) {
+      const current = isBeyondNavCurrent(location.pathname, link.href, link.end);
+      return (
+        <Link
+          key={link.name}
+          to={link.href}
+          aria-current={current ? 'page' : undefined}
+          className={navItemClass}
+        >
+          {link.name}
+          <span
+            className={`absolute -bottom-1 left-0 h-px transition-[width] duration-200 ease-out ${
+              current ? 'w-full' : 'w-0 group-hover:w-full'
+            } ${underlineColor}`}
+          />
+        </Link>
+      );
+    }
+
+    return (
+      <button
+        key={link.name}
+        onClick={(e) => link.href.startsWith('/#') ? handleLinkClick(link.href, e) : navigate(link.href)}
+        className={navItemClass}
+      >
+        {link.name}
+        <span className={`absolute -bottom-1 left-0 w-0 h-px transition-[width] duration-200 ease-out group-hover:w-full ${underlineColor}`} />
+      </button>
+    );
+  };
 
   return (
     <>
@@ -162,15 +262,21 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
         id="site-primary-nav"
         className="fixed top-8 left-0 right-0 z-50 py-5 transition-[background-color,border-color,backdrop-filter,-webkit-backdrop-filter] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
         style={{
-          backgroundColor: isPastHero || location.pathname !== '/'
-            ? (isDarkSection ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.85)')
-            : 'transparent',
-          backdropFilter: isPastHero || location.pathname !== '/' ? 'blur(20px)' : 'none',
-          WebkitBackdropFilter: isPastHero || location.pathname !== '/' ? 'blur(20px)' : 'none',
-          borderBottom: location.pathname !== '/' || isPastHero ? (isDarkSection ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.05)') : 'none'
+          backgroundColor: onFullBleedHero
+            ? 'transparent'
+            : isDarkSection
+              ? 'rgba(0,0,0,0.4)'
+              : 'rgba(255,255,255,0.85)',
+          backdropFilter: onFullBleedHero ? 'none' : 'blur(20px)',
+          WebkitBackdropFilter: onFullBleedHero ? 'none' : 'blur(20px)',
+          borderBottom: onFullBleedHero
+            ? 'none'
+            : isDarkSection
+              ? '1px solid rgba(255,255,255,0.1)'
+              : '1px solid rgba(0,0,0,0.05)',
         }}
       >
-        {(isPastHero || location.pathname !== '/') && (
+        {!onFullBleedHero && (
           <div
             className="absolute inset-0 pointer-events-none transition-opacity duration-300 ease-out"
             style={{
@@ -184,22 +290,13 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
           <div className="flex items-center justify-between">
             {/* Left Navigation */}
             <div className="hidden lg:flex items-center gap-8 flex-1">
-              {navLinks.slice(0, 3).map((link) => (
-                <button
-                  key={link.name}
-                  onClick={(e) => link.href.startsWith('/#') ? handleLinkClick(link.href, e) : navigate(link.href)}
-                  className={`text-sm font-medium motion-ui motion-press transition-colors relative group ${textColorMuted} ${hoverColor}`}
-                >
-                  {link.name}
-                  <span className={`absolute -bottom-1 left-0 w-0 h-px transition-[width] duration-200 ease-out group-hover:w-full ${underlineColor}`} />
-                </button>
-              ))}
+              {navLinks.slice(0, 3).map((link) => renderDesktopNavItem(link))}
             </div>
 
             {/* Centered logo. The switcher hangs under it without growing the link row. */}
             <div className="relative flex items-center">
             <Link
-              to="/"
+              to={onBeyond ? '/beyond' : '/'}
               className={`flex items-center gap-3 font-serif text-2xl font-medium tracking-tight motion-ui transition-colors ${textColor}`}
             >
               {isDarkSection ? (
@@ -231,16 +328,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
 
             {/* Right Navigation */}
             <div className="hidden lg:flex items-center gap-6 flex-1 justify-end">
-              {navLinks.slice(3).map((link) => (
-                <button
-                  key={link.name}
-                  onClick={(e) => link.href.startsWith('/#') ? handleLinkClick(link.href, e) : navigate(link.href)}
-                  className={`text-sm font-medium motion-ui motion-press transition-colors relative group ${textColorMuted} ${hoverColor}`}
-                >
-                  {link.name}
-                  <span className={`absolute -bottom-1 left-0 w-0 h-px transition-[width] duration-200 ease-out group-hover:w-full ${underlineColor}`} />
-                </button>
-              ))}
+              {navLinks.slice(3).map((link) => renderDesktopNavItem(link))}
               {sessionLink && (
                 <Link
                   to={sessionLink.to}
@@ -256,7 +344,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
             <div className="flex items-center gap-1 lg:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 transition-colors relative z-50 text-black"
+              className={`p-2 transition-colors relative z-50 ${isDarkSection ? 'text-white' : 'text-black'}`}
               aria-label="Toggle menu"
             >
               <MenuToggleIcon 
@@ -319,18 +407,40 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
               <div className="p-6">
                 <ExperienceSwitcher appearance="quiet-light" density="comfortable" />
                 <div className="flex flex-col gap-1 mt-6">
-                  {navLinks.map((link, i) => (
-                    <motion.button
-                      key={link.name}
-                      initial={{ opacity: 0, transform: 'translateX(12px)' }}
-                      animate={{ opacity: 1, transform: 'translateX(0)' }}
-                      transition={{ duration: 0.22, delay: 0.06 + i * 0.035, ease: [0.23, 1, 0.32, 1] }}
-                      onClick={(e) => link.href.startsWith('/#') ? handleLinkClick(link.href, e) : (setIsMobileMenuOpen(false), navigate(link.href))}
-                      className="text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100 text-left"
-                    >
-                      {link.name}
-                    </motion.button>
-                  ))}
+                  {navLinks.map((link, i) =>
+                    onBeyond && 'end' in link ? (
+                      <motion.div
+                        key={link.name}
+                        initial={{ opacity: 0, transform: 'translateX(12px)' }}
+                        animate={{ opacity: 1, transform: 'translateX(0)' }}
+                        transition={{ duration: 0.22, delay: 0.06 + i * 0.035, ease: [0.23, 1, 0.32, 1] }}
+                      >
+                        <Link
+                          to={link.href}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          aria-current={isBeyondNavCurrent(location.pathname, link.href, link.end) ? 'page' : undefined}
+                          className="block text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100"
+                        >
+                          {link.name}
+                        </Link>
+                      </motion.div>
+                    ) : (
+                      <motion.button
+                        key={link.name}
+                        initial={{ opacity: 0, transform: 'translateX(12px)' }}
+                        animate={{ opacity: 1, transform: 'translateX(0)' }}
+                        transition={{ duration: 0.22, delay: 0.06 + i * 0.035, ease: [0.23, 1, 0.32, 1] }}
+                        onClick={(e) =>
+                          link.href.startsWith('/#')
+                            ? handleLinkClick(link.href, e)
+                            : (setIsMobileMenuOpen(false), navigate(link.href))
+                        }
+                        className="text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100 text-left w-full"
+                      >
+                        {link.name}
+                      </motion.button>
+                    )
+                  )}
                   {sessionLink && (
                     <motion.div
                       initial={{ opacity: 0, transform: 'translateX(12px)' }}

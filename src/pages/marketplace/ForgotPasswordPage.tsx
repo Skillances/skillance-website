@@ -39,11 +39,12 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell
+      panel
       eyebrow="Reset password"
       title="Forgot your password?"
       subtitle="Enter the email you use for Skillance and we will send you a reset link."
       footer={
-        <Link to="/login" className="font-semibold text-mk-text-primary underline-offset-4 hover:underline">
+        <Link to="/login">
           Back to sign in
         </Link>
       }

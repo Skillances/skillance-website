@@ -1,6 +1,11 @@
 import React, { createContext, useCallback, useContext, useState, useEffect, type ReactNode } from 'react';
 import { post, get, clearTokens, storeTokens } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import {
+  INVALID_LOGIN_CREDENTIALS_MESSAGE,
+  LOGIN_RATE_LIMIT_MESSAGE,
+  LOGIN_UNAVAILABLE_MESSAGE,
+} from '@/lib/marketplace/authMessages';
 import { isStaff, toMarketplaceUser, type MarketplaceUser } from '@/lib/marketplace/session';
 
 type User = MarketplaceUser;
@@ -33,7 +38,12 @@ export const useAuth = () => {
   return context;
 };
 
-type ApiErrorLike = { message?: string; retryAfter?: number; errors?: { message?: string }[] };
+type ApiErrorLike = {
+  message?: string;
+  retryAfter?: number;
+  statusCode?: number;
+  errors?: { message?: string }[];
+};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -133,26 +143,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     } catch (caught: unknown) {
       const error = (caught ?? {}) as ApiErrorLike;
-      if (error.retryAfter) {
-        const rateLimitError = new Error(error.message || 'Too many login attempts') as Error & {
+
+      if (error.statusCode === 429 || error.retryAfter) {
+        const rateLimitError = new Error(error.message || LOGIN_RATE_LIMIT_MESSAGE) as Error & {
           retryAfter?: number;
         };
         rateLimitError.retryAfter = error.retryAfter;
         throw rateLimitError;
       }
 
-      if (error.errors) {
-        const firstError = error.errors[0];
-        throw new Error(firstError?.message || 'Validation failed');
+      if (error.statusCode === 500 || error.message?.includes(LOGIN_UNAVAILABLE_MESSAGE)) {
+        throw new Error(LOGIN_UNAVAILABLE_MESSAGE);
       }
 
-      if (error.message?.includes('Invalid email or password') ||
-          error.message?.includes('Invalid credentials') ||
-          error.message?.includes('User not found')) {
-        throw new Error('Invalid email or password');
+      if (
+        error.statusCode === 401 ||
+        error.errors?.length ||
+        error.message?.includes(INVALID_LOGIN_CREDENTIALS_MESSAGE) ||
+        error.message?.includes('Invalid credentials') ||
+        error.message?.includes('User not found') ||
+        error.message?.includes('Validation failed')
+      ) {
+        throw new Error(INVALID_LOGIN_CREDENTIALS_MESSAGE);
       }
 
-      throw new Error(error.message || 'Login failed. Please try again.');
+      throw new Error(INVALID_LOGIN_CREDENTIALS_MESSAGE);
     }
   };
 

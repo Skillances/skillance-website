@@ -2,7 +2,7 @@ import { useBeyondWork, type BeyondWorkItem } from '@/beyond/useBeyondWork';
 
 function WorkEmpty() {
   return (
-    <aside className="by-soon" aria-label="No published work">
+    <aside className="by-soon by-empty-state" aria-label="No published work">
       <p className="by-flag">Nothing published</p>
       <h2>No client work is published yet</h2>
       <p>

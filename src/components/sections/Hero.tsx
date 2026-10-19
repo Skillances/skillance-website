@@ -1,58 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { AnimatePresence, motion } from 'framer-motion';
+import InlineWordRotate from '@/components/motion/InlineWordRotate';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import { EASE_OUT } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const InlineWordRotate = ({ words }: { words: string[] }) => {
-  const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const reducedMotion = usePrefersReducedMotion();
-
-  useEffect(() => {
-    if (reducedMotion || paused) return;
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % words.length);
-    }, 2800);
-    return () => clearInterval(interval);
-  }, [words, reducedMotion, paused]);
-
-  useEffect(() => {
-    if (reducedMotion) return;
-    const hero = document.getElementById('home');
-    if (!hero) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setPaused(!entry.isIntersecting),
-      { threshold: 0.15 }
-    );
-    observer.observe(hero);
-    return () => observer.disconnect();
-  }, [reducedMotion]);
-
-  if (reducedMotion) {
-    return (
-      <span className="italic text-center w-full block">{words[0]}</span>
-    );
-  }
-
-  return (
-    <AnimatePresence mode="wait">
-      <motion.span
-        key={words[index]}
-        initial={{ opacity: 0, transform: 'translateY(6px)' }}
-        animate={{ opacity: 1, transform: 'translateY(0)' }}
-        exit={{ opacity: 0, transform: 'translateY(-4px)' }}
-        transition={{ duration: 0.28, ease: EASE_OUT }}
-        className="italic text-center w-full block"
-      >
-        {words[index]}
-      </motion.span>
-    </AnimatePresence>
-  );
-};
 
 const Hero = () => {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -142,6 +94,7 @@ const Hero = () => {
           <span className="relative flex items-center justify-center min-w-[11ch] h-[1.2em]">
             <InlineWordRotate
               words={['marketplace', 'platform', 'community', 'network', 'ecosystem']}
+              observeRootId="home"
             />
           </span>
           <span className="italic">designed for trust.</span>

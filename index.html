@@ -2,72 +2,21 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google Consent Mode defaults (POPIA) — must run before GTM -->
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('consent', 'default', {
-        ad_storage: 'denied',
-        analytics_storage: 'denied',
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
-        functionality_storage: 'granted',
-        personalization_storage: 'denied',
-        security_storage: 'granted',
-        wait_for_update: 500
-      });
-      try {
-        var raw = localStorage.getItem('skillance-cookie-consent');
-        if (raw) {
-          var o = JSON.parse(raw);
-          /* Keep in sync with COOKIE_POLICY_VERSION in src/constants/cookieConsent.ts */
-          if (!o.policyVersion || o.policyVersion !== '2') {
-            /* Outdated or missing version: do not pre-grant non-essential consent */
-          } else if (o.decision === 'accepted_all') {
-            gtag('consent', 'update', {
-              analytics_storage: 'granted',
-              ad_storage: 'granted',
-              ad_user_data: 'granted',
-              ad_personalization: 'granted',
-              personalization_storage: 'granted'
-            });
-          } else if (o.decision === 'essential_only') {
-            gtag('consent', 'update', {
-              analytics_storage: o.analytics ? 'granted' : 'denied',
-              ad_storage: o.marketing ? 'granted' : 'denied',
-              ad_user_data: o.marketing ? 'granted' : 'denied',
-              ad_personalization: o.marketing ? 'granted' : 'denied',
-              personalization_storage: o.marketing ? 'granted' : 'denied'
-            });
-          } else if (o.decision === 'rejected_non_essential') {
-            gtag('consent', 'update', {
-              analytics_storage: 'denied',
-              ad_storage: 'denied',
-              ad_user_data: 'denied',
-              ad_personalization: 'denied',
-              personalization_storage: 'denied'
-            });
-          }
-        }
-      } catch (e) {}
-    </script>
+    <!-- Google Consent Mode defaults (POPIA) — must run before GTM; same-origin scripts for strict CSP -->
+    <script src="/js/consent-defaults.js"></script>
     <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-5VJT64TW');</script>
+    <script src="/js/gtm-init.js"></script>
     <!-- End Google Tag Manager -->
     
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Primary Meta Tags -->
-    <title>Skillance South Africa | Freelancer Marketplace Platform</title>
-    <meta name="title" content="Skillance South Africa" />
-    <meta name="description" content="Skillance is a trading name of Rimitso Management Services (Pty) Ltd. A South African marketplace for booking local, ID-checked service providers: home services, tutoring, cleaning and more. Coming soon." />
-    <meta name="keywords" content="Skillance, Rimitso Management Services, Skillance South Africa, freelancer marketplace, hire local providers, home services, tutoring, cleaning" />
-    <meta name="author" content="Rimitso Management Services (Pty) Ltd" />
+    <title>Skillance | Freelancer marketplace &amp; custom IT, South Africa</title>
+    <meta name="title" content="Skillance | Freelancer marketplace &amp; custom IT, South Africa" />
+    <meta name="description" content="South Africa's freelancer marketplace connecting customers with verified freelancers for local services. Custom web, mobile, and business systems for corporate and growing companies." />
+    <meta name="keywords" content="Skillance, Skillance South Africa, freelancer marketplace, verified freelancers, custom software South Africa, business IT systems, SaaS development, hire local providers, home services, tutoring" />
+    <meta name="author" content="Skillance" />
     <meta name="robots" content="index, follow" />
     <meta name="language" content="en" />
     <meta name="revisit-after" content="7 days" />
@@ -91,8 +40,8 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://skillance.co.za" />
-    <meta property="og:title" content="Skillance South Africa | Freelancer Marketplace Platform" />
-    <meta property="og:description" content="Skillance is a trading name of Rimitso Management Services (Pty) Ltd. A South African marketplace for booking local, ID-checked service providers. Coming soon." />
+    <meta property="og:title" content="Skillance | Freelancer marketplace &amp; custom IT, South Africa" />
+    <meta property="og:description" content="South Africa's freelancer marketplace connecting customers with verified freelancers for local services. Custom web, mobile, and business systems for corporate and growing companies." />
     <meta property="og:image" content="https://skillance.co.za/app-icon.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -103,14 +52,14 @@
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://skillance.co.za" />
-    <meta name="twitter:title" content="Skillance South Africa | Freelancer Marketplace Platform" />
-    <meta name="twitter:description" content="Skillance is a trading name of Rimitso Management Services (Pty) Ltd. A South African marketplace for booking local, ID-checked service providers. Coming soon." />
+    <meta name="twitter:title" content="Skillance | Freelancer marketplace &amp; custom IT, South Africa" />
+    <meta name="twitter:description" content="South Africa's freelancer marketplace connecting customers with verified freelancers for local services. Custom web, mobile, and business systems for corporate and growing companies." />
     <meta name="twitter:image" content="https://skillance.co.za/app-icon.png" />
     
     <!-- Google Fonts - async load to avoid render blocking -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" /></noscript>
     
     <!-- Structured Data (JSON-LD) -->
@@ -151,7 +100,7 @@
             "caption": "Skillance"
           },
           "image": { "@id": "https://skillance.co.za/#logo" },
-          "description": "Skillance is a trading name of Rimitso Management Services (Pty) Ltd. A South African marketplace for booking local service providers. Every provider's identity document is checked and matched to their profile photo before they can take bookings. Coming soon.",
+          "description": "South Africa's freelancer marketplace connecting customers with verified freelancers for local services. Skillance also designs and builds custom web, mobile, and business IT systems for companies.",
           "foundingLocation": {
             "@type": "Country",
             "name": "South Africa"
@@ -208,7 +157,7 @@
           "@id": "https://skillance.co.za/#website",
           "url": "https://skillance.co.za",
           "name": "Skillance South Africa",
-          "description": "A South African marketplace for booking local, ID-checked service providers. Coming soon.",
+          "description": "Freelancer marketplace and custom software studio in South Africa.",
           "inLanguage": "en-ZA",
           "publisher": { "@id": "https://skillance.co.za/#organization" },
           "potentialAction": {
@@ -449,7 +398,7 @@
               "name": "What is Skillance?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Skillance is a trading name of Rimitso Management Services (Pty) Ltd. It is a South African marketplace that connects customers with local providers whose identity document has been checked and matched to their profile photo, across many everyday services — home services, tutoring, cleaning, pet care, wellness, automotive, creative work, beauty, and more."
+                "text": "Skillance is a South African freelancer marketplace that connects customers with verified local providers across home services, tutoring, cleaning, pet care, wellness, automotive, creative work, beauty, and more. The team also builds custom web, mobile, and business IT systems for corporate and growing companies."
               }
             },
             {

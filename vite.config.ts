@@ -169,6 +169,11 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
+        // No eval(); category Lottie does not need expression support.
+        "lottie-web": path.resolve(
+          __dirname,
+          "node_modules/lottie-web/build/player/lottie_light.js",
+        ),
       },
     },
   }

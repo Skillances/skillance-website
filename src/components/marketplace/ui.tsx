@@ -125,8 +125,9 @@ export function MkIconButton({
 
 const controlClass =
   'w-full rounded-xl bg-mk-muted px-4 text-[15px] text-mk-text-primary placeholder:text-mk-text-tertiary ' +
-  'border border-transparent transition-[border-color,background-color] duration-150 ease-out ' +
+  'border border-transparent transition-[border-color,background-color,box-shadow] duration-150 ease-out ' +
   'focus:border-mk-primary focus:bg-mk-surface focus:outline-none focus-visible:outline-none ' +
+  'focus-visible:ring-2 focus-visible:ring-mk-primary/12 focus-visible:ring-offset-2 focus-visible:ring-offset-mk-surface ' +
   'disabled:opacity-60 aria-[invalid=true]:border-mk-error';
 
 function FieldShell({

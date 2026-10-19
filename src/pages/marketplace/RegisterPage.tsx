@@ -87,11 +87,11 @@ function TermsCheckbox({ checked, onChange, error }: { checked: boolean; onChang
         />
         <span>
           I agree to the{' '}
-          <Link to="/terms" target="_blank" className="font-semibold text-mk-text-primary underline underline-offset-2">
+          <Link to="/terms" target="_blank" className="font-semibold text-black underline underline-offset-2">
             Terms of Service
           </Link>{' '}
           and{' '}
-          <Link to="/privacy-policy" target="_blank" className="font-semibold text-mk-text-primary underline underline-offset-2">
+          <Link to="/privacy-policy" target="_blank" className="font-semibold text-black underline underline-offset-2">
             Privacy Policy
           </Link>
           .
@@ -106,11 +106,30 @@ function TermsCheckbox({ checked, onChange, error }: { checked: boolean; onChang
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({
+  title,
+  children,
+  plain,
+}: {
+  title: string;
+  children: ReactNode;
+  plain?: boolean;
+}) {
+  const heading = <h2>{title}</h2>;
+
+  if (plain) {
+    return (
+      <section className="space-y-4">
+        {heading}
+        <div className="space-y-4">{children}</div>
+      </section>
+    );
+  }
+
   return (
-    <section className="space-y-4">
-      <h2 className="text-[16px]">{title}</h2>
-      {children}
+    <section className="auth-shell-register-section space-y-4">
+      {heading}
+      <div className="space-y-4">{children}</div>
     </section>
   );
 }
@@ -245,7 +264,7 @@ export default function RegisterPage() {
 
   return (
     <AuthShell
-      eyebrow="Create account"
+      eyebrow="Create an account"
       title={role === 'freelancer' ? 'Offer your skills' : 'Find local help'}
       subtitle={
         role === 'freelancer'
@@ -253,16 +272,17 @@ export default function RegisterPage() {
           : 'Create a customer account to send booking requests to providers near you.'
       }
       wide={role === 'freelancer'}
+      panel={role === 'customer'}
       footer={
         <>
           Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-mk-text-primary underline-offset-4 hover:underline">
+          <Link to="/login">
             Sign in
           </Link>
         </>
       }
     >
-      <div className="mb-6">
+      <div className={role === 'customer' ? 'mb-5' : 'mb-6'}>
         <MkSegmented<Role>
           label="Account type"
           value={role}
@@ -278,10 +298,10 @@ export default function RegisterPage() {
         />
       </div>
 
-      <form onSubmit={onSubmit} noValidate className="space-y-8">
-        <Section title="Your details">
+      <form onSubmit={onSubmit} noValidate className="space-y-5 sm:space-y-6">
+        <Section title="Your details" plain={role === 'customer'}>
           <MkPhotoPicker value={photo} onChange={setPhoto} name={`${firstName} ${lastName}`} error={errors.profilePhoto} />
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <MkInput
               label="First name"
               autoComplete="given-name"
@@ -414,7 +434,7 @@ export default function RegisterPage() {
           </>
         )}
 
-        <div className="space-y-4">
+        <div className={role === 'freelancer' ? 'auth-shell-register-section space-y-4' : 'space-y-4'}>
           <TermsCheckbox
             checked={terms}
             onChange={(v) => {
@@ -424,8 +444,14 @@ export default function RegisterPage() {
             error={errors.termsAccepted}
           />
           <MkFormError message={formError} />
-          <div className="sticky bottom-0 -mx-4 bg-mk-background px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2 sm:static sm:mx-0 sm:p-0">
-            <MkButton type="submit" block loading={submitting} className="h-12">
+          <div
+            className={
+              role === 'freelancer'
+                ? 'sticky bottom-0 -mx-4 border-t border-[#12352d]/10 bg-[#f3eee6]/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-md sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none'
+                : undefined
+            }
+          >
+            <MkButton type="submit" block loading={submitting} className="h-12 min-h-12 w-full">
               {role === 'freelancer' ? 'Create freelancer account' : 'Create account'}
             </MkButton>
           </div>

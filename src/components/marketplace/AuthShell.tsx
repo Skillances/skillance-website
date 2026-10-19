@@ -4,8 +4,23 @@ import { motion } from 'framer-motion';
 import MarketplaceThemeScope from '@/components/marketplace/MarketplaceThemeScope';
 import { mkMotion } from '@/lib/marketplace/theme';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import './auth-shell.css';
 
-/** Centered single-column shell for sign in, registration, and password reset. */
+type AuthShellProps = {
+  eyebrow?: string;
+  title: string;
+  subtitle?: ReactNode;
+  children: ReactNode;
+  footer?: ReactNode;
+  /** Wider column for multi-section flows (registration). */
+  wide?: boolean;
+  /** Single card surface (sign in, password reset, compact register). */
+  panel?: boolean;
+};
+
+/**
+ * Marketing-aligned auth layout: site-primary-nav above, studio paper + pine accents, Skillance brand mark.
+ */
 export default function AuthShell({
   eyebrow,
   title,
@@ -13,43 +28,59 @@ export default function AuthShell({
   children,
   footer,
   wide,
-}: {
-  eyebrow?: string;
-  title: string;
-  subtitle?: ReactNode;
-  children: ReactNode;
-  footer?: ReactNode;
-  wide?: boolean;
-}) {
+  panel,
+}: AuthShellProps) {
   const reduced = usePrefersReducedMotion();
+  const columnClass = wide ? 'auth-shell-column auth-shell-column-wide' : 'auth-shell-column';
+
   return (
-    <MarketplaceThemeScope className="flex flex-col bg-mk-background">
-      <header className="flex h-16 items-center px-4 sm:px-6">
-        <Link
-          to="/"
-          className="inline-flex min-h-11 items-center font-mk-display text-[19px] font-bold tracking-tight text-mk-text-primary"
-        >
-          Skillance
-        </Link>
-      </header>
-      <main className="flex flex-1 justify-center px-4 pb-12 pt-4 sm:pt-10">
+    <MarketplaceThemeScope className="auth-shell relative flex min-h-[100dvh] flex-col">
+      <div className="auth-shell-atmosphere" aria-hidden="true" />
+
+      <main
+        className="auth-shell-main relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[calc(5.25rem+env(safe-area-inset-top,0px))] sm:px-6 sm:pb-16 sm:pt-28 lg:px-8 lg:pt-32"
+      >
         <motion.div
           initial={reduced ? { opacity: 0 } : { opacity: 0, y: mkMotion.pageTravel }}
           animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
           transition={{ duration: mkMotion.page, ease: mkMotion.ease }}
-          className={wide ? 'w-full max-w-[560px]' : 'w-full max-w-[420px]'}
+          className={`mx-auto ${columnClass}`}
         >
-          <div className="mb-7">
-            {eyebrow && (
-              <p className="mb-2 font-mk-display text-[12px] font-semibold uppercase tracking-[0.14em] text-mk-text-tertiary">
-                {eyebrow}
-              </p>
-            )}
-            <h1 className="text-[28px] font-bold leading-tight tracking-tight">{title}</h1>
-            {subtitle && <p className="mt-2 text-[15px] text-mk-text-secondary">{subtitle}</p>}
-          </div>
-          {children}
-          {footer && <div className="mt-8 text-center text-[14px] text-mk-text-secondary">{footer}</div>}
+          {panel ? (
+            <div className="auth-shell-panel">
+              <Link to="/" className="auth-shell-brand" aria-label="Skillance home">
+                <img src="/skillance-tiny-logo-black.png" alt="" width={120} height={24} decoding="async" />
+                <span>Skillance</span>
+              </Link>
+
+              <header className="auth-shell-intro">
+                {eyebrow ? <p className="auth-shell-eyebrow">{eyebrow}</p> : null}
+                <h1 className="auth-shell-title">{title}</h1>
+                {subtitle ? <p className="auth-shell-subtitle">{subtitle}</p> : null}
+              </header>
+
+              <div className="auth-shell-panel-content">{children}</div>
+
+              {footer ? <footer className="auth-shell-footer">{footer}</footer> : null}
+            </div>
+          ) : (
+            <>
+              <Link to="/" className="auth-shell-brand" aria-label="Skillance home">
+                <img src="/skillance-tiny-logo-black.png" alt="" width={120} height={24} decoding="async" />
+                <span>Skillance</span>
+              </Link>
+
+              <header className="auth-shell-intro">
+                {eyebrow ? <p className="auth-shell-eyebrow">{eyebrow}</p> : null}
+                <h1 className="auth-shell-title">{title}</h1>
+                {subtitle ? <p className="auth-shell-subtitle">{subtitle}</p> : null}
+              </header>
+
+              {children}
+
+              {footer ? <footer className="auth-shell-footer">{footer}</footer> : null}
+            </>
+          )}
         </motion.div>
       </main>
     </MarketplaceThemeScope>

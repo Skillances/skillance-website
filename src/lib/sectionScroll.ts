@@ -8,6 +8,8 @@ type LenisLike = {
     target: HTMLElement | string | number,
     options?: { offset?: number; duration?: number; immediate?: boolean; force?: boolean }
   ) => void;
+  on?: (event: 'scroll', callback: () => void) => void;
+  off?: (event: 'scroll', callback: () => void) => void;
 };
 
 /** Fallback before layout measures fixed chrome (launch strip + nav). */

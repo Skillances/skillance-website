@@ -1,12 +1,55 @@
 import { useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Camera, Check, Search, X } from 'lucide-react';
+import { Camera, Check, Eye, EyeOff, Search, X } from 'lucide-react';
+import type { InputHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 import { mkMotion } from '@/lib/marketplace/theme';
 import { fileToDataUrl } from '@/lib/marketplace/apiHelpers';
 import { PASSWORD_RULES, validateImageFile } from '@/lib/marketplace/validation';
 import type { CategoryLeaf } from '@/lib/marketplace/categories';
-import { MkAvatar, MkInput, MkSkeleton } from '@/components/marketplace/ui';
+import { MkAvatar, MkIconButton, MkInput, MkSkeleton } from '@/components/marketplace/ui';
+
+type MkPasswordInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> & {
+  label?: string;
+  error?: string | null;
+  hint?: string;
+};
+
+/** Password field with visibility toggle aligned to marketplace touch targets. */
+export function MkPasswordInput({
+  label = 'Password',
+  error,
+  hint,
+  id = 'password',
+  className,
+  disabled,
+  ...rest
+}: MkPasswordInputProps) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <MkInput
+        id={id}
+        label={label}
+        type={show ? 'text' : 'password'}
+        error={error}
+        hint={hint}
+        disabled={disabled}
+        className={cn('pr-12', className)}
+        {...rest}
+      />
+      <MkIconButton
+        label={show ? 'Hide password' : 'Show password'}
+        aria-pressed={show}
+        disabled={disabled}
+        onClick={() => setShow((v) => !v)}
+        className="absolute right-0.5 top-[26px] text-mk-text-tertiary hover:text-mk-text-primary"
+      >
+        {show ? <EyeOff className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
+      </MkIconButton>
+    </div>
+  );
+}
 
 /** Optional square photo picker that hands back a `data:image/...;base64,` string. */
 export function MkPhotoPicker({

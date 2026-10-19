@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import Header from '@/beyond/components/Header';
 import StudioFooter from '@/beyond/components/StudioFooter';
 import { useBeyondMotion } from '@/beyond/useBeyondMotion';
 import { useBeyondScroll } from '@/beyond/useBeyondScroll';
@@ -38,7 +37,6 @@ export default function BeyondLayout() {
       <a className="by-skip" href="#beyond-content">
         Skip to content
       </a>
-      <Header />
       <main id="beyond-content" tabIndex={-1} className="by-main">
         <div key={pathname} className="by-page">
           <Outlet />

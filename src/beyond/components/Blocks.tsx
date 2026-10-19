@@ -49,29 +49,29 @@ export function TeamSoon({ headingId }: { headingId?: string }) {
 
 export function OwnPlatform({ showWorkLink = true }: { showWorkLink?: boolean }) {
   return (
-    <div className="by-band">
-      <div className="by-wrap by-band-inner by-split by-split-band">
+    <section className="by-section by-section-invert" aria-labelledby="beyond-own-platform-title">
+      <div className="by-wrap by-split by-split-band">
         <div className="by-band-copy by-reveal">
-        <p className="by-kicker">{OWN_PLATFORM.kicker}</p>
-        <h2>{OWN_PLATFORM.title}</h2>
-        <p>{OWN_PLATFORM.body}</p>
-        <div className="by-actions">
-          {showWorkLink ? (
-            <Link to="/beyond/work" className="by-btn by-btn-light">
-              Read about the platform
+          <p className="by-kicker">{OWN_PLATFORM.kicker}</p>
+          <h2 id="beyond-own-platform-title">{OWN_PLATFORM.title}</h2>
+          <p>{OWN_PLATFORM.body}</p>
+          <div className="by-actions">
+            {showWorkLink ? (
+              <Link to="/beyond/work" className="by-btn by-btn-light">
+                Read about the platform
+              </Link>
+            ) : null}
+            <Link to="/" className="by-btn by-btn-on-dark">
+              Open the marketplace
             </Link>
-          ) : null}
-          <Link to="/" className="by-btn by-btn-on-dark">
-            Open the marketplace
-          </Link>
-        </div>
+          </div>
         </div>
         <BeyondFigure
-          webpSrc="/beyond/studio-accent.webp"
-          alt="Software engineering workspace"
-          className="by-figure-band by-reveal"
+          jpgSrc="/beyond/platform-devices.jpg"
+          alt="Skillance marketplace on web and mobile"
+          className="by-figure-band by-figure-on-dark by-reveal"
         />
       </div>
-    </div>
+    </section>
   );
 }

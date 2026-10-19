@@ -32,7 +32,7 @@ export default function ExperienceSwitcher({
     },
     {
       href: '/beyond',
-      label: studio ? 'Beyond the App' : 'Beyond',
+      label: studio || beyond ? 'Beyond the App' : 'Beyond',
       name: 'Beyond the App',
       current: beyond,
     },
@@ -54,6 +54,7 @@ export default function ExperienceSwitcher({
         <Link
           key={option.href}
           to={option.href}
+          className={studio ? 'by-switch-link' : undefined}
           aria-current={option.current ? 'true' : undefined}
           aria-label={option.name}
         >

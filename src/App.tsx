@@ -37,6 +37,7 @@ import MarketplaceLayout from './components/marketplace/MarketplaceLayout';
 import RequireAuth from './components/marketplace/RequireAuth';
 import { isMarketplacePath, isMarketplaceShellPath } from './lib/marketplace/routes';
 import { isBeyondPath } from './lib/beyond/routes';
+import { isMarketingAuthPath } from './lib/marketing/authPaths';
 
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
@@ -174,11 +175,13 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   const mainRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const isLoginPage = location.pathname === '/login';
-  // Marketplace (customer and freelancer app) and its auth pages: no marketing chrome, native scroll.
+  const isAuthPath = isMarketingAuthPath(location.pathname);
+  // Marketplace app shell: no marketing chrome, native scroll.
   const isMarketplaceRoute = isMarketplacePath(location.pathname);
   const isBeyondRoute = isBeyondPath(location.pathname);
-  const hideMarketingChrome = isAdminRoute || isLoginPage || isMarketplaceRoute || isBeyondRoute;
+  const hideMarketingChrome = isAdminRoute || isMarketplaceRoute;
+  const showMarketingNav = !hideMarketingChrome;
+  const showMarketingFooter = showMarketingNav && !isAuthPath;
   const useLenisScroll = !isMarketplaceRoute && !isBeyondRoute;
   // One key for the whole shell so the layout stays mounted; it animates its own page enters.
   const routeAnimationKey = isAdminRoute
@@ -301,10 +304,10 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
       className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : 'bg-white'} transition-opacity duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[opacity] ${
         isLoaded ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
-      style={isBeyondRoute ? { background: '#F3EEE6' } : undefined}
+      style={isBeyondRoute || isAuthPath ? { background: '#F3EEE6' } : undefined}
     >
       <ScrollToTop />
-      {!hideMarketingChrome && <Navigation isLoaded={isLoaded} />}
+      {showMarketingNav && <Navigation isLoaded={isLoaded} />}
       <RouteShell beyond={isBeyondRoute}>
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={routeAnimationKey}>
@@ -424,8 +427,8 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
           </Routes>
         </AnimatePresence>
       </RouteShell>
-      {!hideMarketingChrome && <Footer />}
-      {isLoaded && !hideMarketingChrome && (
+      {showMarketingFooter && <Footer />}
+      {isLoaded && showMarketingFooter && (
         <>
           <CookieConsent />
           <LaunchCountdown />
@@ -440,9 +443,11 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
 function AppShell() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const isLoginPage = location.pathname === '/login';
   const shouldShowLoader =
-    !isAdminRoute && !isLoginPage && !isMarketplacePath(location.pathname) && !isBeyondPath(location.pathname);
+    !isAdminRoute &&
+    !isMarketingAuthPath(location.pathname) &&
+    !isMarketplacePath(location.pathname) &&
+    !isBeyondPath(location.pathname);
 
   const [isLoaded, setIsLoaded] = useState(false);
 
