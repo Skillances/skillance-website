@@ -6,6 +6,7 @@ import { get, post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { MkButton, MkCard, MkConfirmDialog, MkFormError, MkPill, MkSectionTitle, MkSkeleton, MkTextarea } from '@/components/marketplace/ui';
 import { apiErrorMessage, unwrap } from '@/lib/marketplace/apiHelpers';
+import { isNotAParty, paymentsPausedMessage } from '@/lib/paymentsPaused';
 import { bookingKeys, type Booking } from '@/lib/marketplace/bookings';
 import { canCustomerCancel, canFreelancerAccept, isInProgress } from '@/lib/marketplace/bookingStatus';
 import { cancellationMessage } from '@/lib/marketplace/cancellationCopy';
@@ -328,13 +329,19 @@ export function DisputePanel({ booking }: { booking: Booking }) {
       void qc.invalidateQueries({ queryKey: key });
       void qc.invalidateQueries({ queryKey: bookingKeys.detail(booking.id) });
     },
-    onError: (err) => setError(apiErrorMessage(err, 'Could not report the problem.')),
+    onError: (err) =>
+      setError(
+        isNotAParty(err)
+          ? 'Only people on this booking can report a problem.'
+          : (paymentsPausedMessage(err) ?? apiErrorMessage(err, 'Could not report the problem.')),
+      ),
   });
 
   const windowOpen = booking.disputeWindowEndsAt ? new Date(booking.disputeWindowEndsAt).getTime() > now : false;
   const canOpen = (windowOpen || booking.disputeRequired === true) && !dispute.data;
 
   if (dispute.isPending) return null;
+  if (dispute.isError && isNotAParty(dispute.error)) return null;
   if (!dispute.data && !canOpen) return null;
 
   return (

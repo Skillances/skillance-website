@@ -7,6 +7,7 @@ import WorkGate from '@/components/marketplace/WorkGate';
 import type { Invoice } from '@/components/marketplace/InvoicePanel';
 import { MkAnimatedList, MkAvatar, MkEmpty, MkErrorState, MkListSkeleton, MkPageHeader, MkPill, MkSkeleton, MkSwap, type MkTone } from '@/components/marketplace/ui';
 import { apiErrorMessage, unwrap } from '@/lib/marketplace/apiHelpers';
+import { isNotAParty } from '@/lib/paymentsPaused';
 import { bookingKeys, fetchFreelancerBookings, otherParty, type Booking } from '@/lib/marketplace/bookings';
 import { categoryLabel, useCategories } from '@/lib/marketplace/categories';
 import { money } from '@/lib/marketplace/pricing';
@@ -30,14 +31,20 @@ function InvoiceRow({ b }: { b: Booking }) {
     queryFn: async () => unwrap<Invoice | null>(await get(ApiPaths.marketplace.invoiceByBooking(b.id))),
   });
   const who = otherParty(b, 'freelancer');
-  const st = STATUS[inv.data?.status ?? 'none'] ?? { label: inv.data?.status ?? '', tone: 'neutral' as MkTone };
+  const hidden = inv.isError && isNotAParty(inv.error);
+  const st = hidden
+    ? { label: 'Not available', tone: 'neutral' as MkTone }
+    : inv.isError
+      ? { label: 'Could not load', tone: 'neutral' as MkTone }
+      : (STATUS[inv.data?.status ?? 'none'] ?? { label: inv.data?.status ?? '', tone: 'neutral' as MkTone });
+  const amount = hidden || inv.isError ? '—' : inv.data ? formatZar(money(inv.data.totalDue)) : 'On invoice';
   return (
     <Link to={`/bookings/${b.id}`} className="flex items-center gap-3.5 rounded-2xl border border-mk-border p-4 hover:bg-mk-muted">
       <MkAvatar src={who.photo} name={who.name} size={44} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <p className="truncate font-mk-display text-[15px] font-semibold">{who.name}</p>
-          <span className="shrink-0 font-mk-display text-[14px] font-semibold">{inv.data ? formatZar(money(inv.data.totalDue)) : 'On invoice'}</span>
+          <span className="shrink-0 font-mk-display text-[14px] font-semibold">{amount}</span>
         </div>
         <p className="truncate text-[13px] text-mk-text-secondary">
           {b.category ? `${categoryLabel(categories.data, b.category)} · ` : ''}

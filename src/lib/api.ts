@@ -3,6 +3,7 @@
  */
 
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { isFreelancerProfileWrite, omitPayoutReferenceId, pausedPaymentError } from '@/lib/paymentsPaused';
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
@@ -178,26 +179,42 @@ export async function apiRequest(
   }
 }
 
+/** Non-2xx JSON, with the HTTP status attached when the body omits it. */
+async function throwResponseError(response: Response): Promise<never> {
+  const fallback = { message: 'Request failed', statusCode: response.status };
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    throw fallback;
+  }
+  if (body && typeof body === 'object' && !Array.isArray(body)) {
+    const record = body as { statusCode?: unknown };
+    if (typeof record.statusCode !== 'number') record.statusCode = response.status;
+    throw body;
+  }
+  throw { message: typeof body === 'string' && body.trim() ? body : 'Request failed', statusCode: response.status };
+}
+
+async function readJson(response: Response): Promise<unknown> {
+  if (response.status === 204) return { success: true };
+  const text = await response.text();
+  if (!text.trim()) return { success: true };
+  return omitPayoutReferenceId(JSON.parse(text));
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
 export async function post(endpoint: string, data: unknown): Promise<any> {
+  const paused = pausedPaymentError(endpoint);
+  if (paused) throw paused;
+
   const response = await apiRequest(endpoint, {
     method: 'POST',
     body: JSON.stringify(data),
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
-    throw error;
-  }
-
-  if (response.status === 204) {
-    return { success: true };
-  }
-  const text = await response.text();
-  if (!text.trim()) {
-    return { success: true };
-  }
-  return JSON.parse(text);
+  if (!response.ok) await throwResponseError(response);
+  return readJson(response);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
@@ -206,27 +223,20 @@ export async function get(endpoint: string): Promise<any> {
     method: 'GET',
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
-    throw error;
-  }
-
-  return response.json();
+  if (!response.ok) await throwResponseError(response);
+  return readJson(response);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
 export async function put(endpoint: string, data: unknown): Promise<any> {
+  const body = isFreelancerProfileWrite(endpoint) ? omitPayoutReferenceId(data) : data;
   const response = await apiRequest(endpoint, {
     method: 'PUT',
-    body: JSON.stringify(data),
+    body: JSON.stringify(body),
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
-    throw error;
-  }
-
-  return response.json();
+  if (!response.ok) await throwResponseError(response);
+  return readJson(response);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
@@ -236,12 +246,8 @@ export async function patch(endpoint: string, data: unknown): Promise<any> {
     body: JSON.stringify(data),
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
-    throw error;
-  }
-
-  return response.json();
+  if (!response.ok) await throwResponseError(response);
+  return readJson(response);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
@@ -250,12 +256,8 @@ export async function del(endpoint: string): Promise<any> {
     method: 'DELETE',
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
-    throw error;
-  }
-
-  return response.json();
+  if (!response.ok) await throwResponseError(response);
+  return readJson(response);
 }
 
 export default {

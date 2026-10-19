@@ -7,6 +7,7 @@ import { get, post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { MkButton, MkCard, MkConfirmDialog, MkFormError, MkIconButton, MkInput, MkPill, MkSectionTitle, MkSkeleton, MkTextarea, type MkTone } from '@/components/marketplace/ui';
 import { apiErrorMessage, apiFieldErrors, unwrap } from '@/lib/marketplace/apiHelpers';
+import { isNotAParty, PAYMENTS_COMING_SOON } from '@/lib/paymentsPaused';
 import { bookingKeys, type Booking } from '@/lib/marketplace/bookings';
 import { money } from '@/lib/marketplace/pricing';
 import { formatZar, mkMotion } from '@/lib/marketplace/theme';
@@ -215,6 +216,7 @@ export default function InvoicePanel({ booking, role }: { booking: Booking; role
 
   if (!enabled) return null;
   if (invoice.isPending) return <MkSkeleton className="h-32 w-full rounded-2xl" />;
+  if (invoice.isError && isNotAParty(invoice.error)) return null;
   if (invoice.isError) {
     return (
       <MkCard>
@@ -271,7 +273,7 @@ export default function InvoicePanel({ booking, role }: { booking: Booking; role
             ? 'The customer will be asked to accept it. You cannot edit it after sending.'
             : confirm === 'accept'
               ? `The booking total becomes ${inv ? formatZar(money(inv.totalDue)) : 'the invoice total'}.`
-              : 'The freelancer can send a new invoice. A paid connection fee is not refunded.'
+              : `The freelancer can send a new invoice. ${PAYMENTS_COMING_SOON}`
         }
         confirmLabel={confirm === 'send' ? 'Send invoice' : confirm === 'accept' ? 'Accept' : 'Decline'}
         cancelLabel="Not now"

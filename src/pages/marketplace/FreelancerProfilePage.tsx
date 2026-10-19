@@ -19,6 +19,7 @@ import {
   MkSwap,
 } from '@/components/marketplace/ui';
 import { apiErrorMessage, unwrap } from '@/lib/marketplace/apiHelpers';
+import { PAYMENTS_COMING_SOON } from '@/lib/paymentsPaused';
 import { categoryLabel, useCategories } from '@/lib/marketplace/categories';
 import { listingPriceLabel, money, rateLabel } from '@/lib/marketplace/pricing';
 import { isIdVerified } from '@/lib/marketplace/search';
@@ -544,7 +545,7 @@ function ProfileBody({
                 </li>
               ))}
             </ul>
-            <p className="mt-2 text-[13px] text-mk-text-tertiary">Buying digital products is not available on the web yet.</p>
+            <p className="mt-2 text-[13px] text-mk-text-tertiary">{PAYMENTS_COMING_SOON} Buying digital products is paused.</p>
           </Section>
         )}
 

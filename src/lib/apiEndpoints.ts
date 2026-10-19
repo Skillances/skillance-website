@@ -222,7 +222,9 @@ export const ApiPaths = {
     bookingCancel: (id: string) => `/bookings/${id}/cancel`,
     bookingSessionStatus: (id: string) => `/bookings/${id}/session-status`,
     bookingLocation: (id: string) => `/bookings/${id}/location`,
+    /** Paused in the client. POST returns 410 CONNECTION_FEE_PAUSED and is not sent. */
     bookingConnectionFee: (id: string) => `/bookings/${id}/connection-fee`,
+    /** Paused in the client. POST returns 410 and is not sent. */
     bookingConnectionFeeConfirm: (id: string) =>
       `/bookings/${id}/connection-fee/confirm`,
     bookingPin: (id: string) => `/bookings/${id}/pin`,
@@ -266,6 +268,7 @@ export const ApiPaths = {
     purchasedProducts: '/products/purchased',
     freelancerProducts: (freelancerId: string) => `/products/freelancer/${freelancerId}`,
     product: (productId: string) => `/products/${productId}`,
+    /** Paused in the client. POST is not sent; the API returns 503 until sales are enabled, then a pending row. */
     productPurchase: (productId: string) => `/products/${productId}/purchase`,
     productView: (productId: string) => `/products/${productId}/view`,
 

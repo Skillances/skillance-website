@@ -28,6 +28,7 @@ import {
   type MkTone,
 } from '@/components/marketplace/ui';
 import { apiErrorMessage, apiFieldErrors, fileToDataUrl, listFrom, unwrap } from '@/lib/marketplace/apiHelpers';
+import { isPendingPurchase, isSalesUnavailable, PAYMENTS_COMING_SOON } from '@/lib/paymentsPaused';
 import { money } from '@/lib/marketplace/pricing';
 import { formatZar } from '@/lib/marketplace/theme';
 import { formatDate } from '@/lib/marketplace/time';
@@ -43,6 +44,9 @@ type Product = {
   rejectionReason?: string | null;
   createdAt?: string;
   purchasedAt?: string;
+  paymentStatus?: string | null;
+  purchaseStatus?: string | null;
+  status?: string | null;
 };
 
 const MODERATION: Record<string, { label: string; tone: MkTone }> = {
@@ -190,7 +194,7 @@ function SellerProducts({ freelancerId }: { freelancerId: string }) {
       <MkPageHeader
         back="/work"
         title="Digital products"
-        subtitle="Sell guides, templates, and worksheets. Each product is reviewed by an admin before customers can see it."
+        subtitle={`${PAYMENTS_COMING_SOON} You can prepare files for review. Customers cannot buy them on the website yet.`}
         action={
           items.length > 0 ? (
             <MkButton size="sm" onClick={() => setEditing('new')}>
@@ -206,7 +210,7 @@ function SellerProducts({ freelancerId }: { freelancerId: string }) {
           <MkEmpty
             icon={<Package className="h-6 w-6" aria-hidden="true" />}
             title="No products yet"
-            body="Add a PDF, Word, or PowerPoint file to sell on your profile."
+            body="Add a PDF, Word, or PowerPoint file. Customers cannot buy it until escrow payments open."
             action={<MkButton onClick={() => setEditing('new')}>Add a product</MkButton>}
           />
         )}
@@ -269,10 +273,24 @@ export function DocumentsPage() {
   const state = q.isPending ? 'loading' : q.isError ? 'error' : groups.length === 0 ? 'empty' : 'list';
   return (
     <>
-      <MkPageHeader title="Documents" subtitle="Digital products you have bought." />
+      <MkPageHeader title="Documents" subtitle={`${PAYMENTS_COMING_SOON} New purchases stay pending until escrow payments open.`} />
       <MkSwap id={state}>
         {state === 'loading' && <MkListSkeleton rows={3} />}
-        {state === 'error' && <MkErrorState message={apiErrorMessage(q.error)} onRetry={() => void q.refetch()} retrying={q.isRefetching} />}
+        {state === 'error' && isSalesUnavailable(q.error) && (
+          <MkEmpty
+            icon={<FileText className="h-6 w-6" aria-hidden="true" />}
+            title="Purchases are paused"
+            body={PAYMENTS_COMING_SOON}
+            action={
+              <MkButton variant="secondary" onClick={() => void q.refetch()} loading={q.isRefetching}>
+                Try again
+              </MkButton>
+            }
+          />
+        )}
+        {state === 'error' && !isSalesUnavailable(q.error) && (
+          <MkErrorState message={apiErrorMessage(q.error)} onRetry={() => void q.refetch()} retrying={q.isRefetching} />
+        )}
         {state === 'empty' && (
           <MkEmpty icon={<FileText className="h-6 w-6" aria-hidden="true" />} title="No documents yet" body="Guides and templates you buy from freelancers show here." />
         )}
@@ -285,20 +303,33 @@ export function DocumentsPage() {
                   <span className="font-mk-display text-[15px] font-semibold">{g.freelancerName || 'Freelancer'}</span>
                 </Link>
                 <ul className="space-y-2">
-                  {g.products.map((p) => (
-                    <li key={p.id}>
-                      <Link to={`/documents/${p.id}`} className="flex items-center gap-3 rounded-2xl border border-mk-border p-4 hover:bg-mk-muted">
+                  {g.products.map((p) => {
+                    const pending = isPendingPurchase(p);
+                    const detail = (
+                      <>
                         <FileText className="h-5 w-5 shrink-0 text-mk-text-secondary" aria-hidden="true" />
                         <div className="min-w-0 flex-1">
                           <p className="truncate font-mk-display text-[15px] font-semibold">{p.title}</p>
                           <p className="text-[13px] text-mk-text-secondary">
                             {FILE_LABEL[p.fileType] ?? p.fileType}
-                            {p.purchasedAt ? ` · Bought ${formatDate(p.purchasedAt)}` : ''}
+                            {pending ? ' · Payment pending' : p.purchasedAt ? ` · Bought ${formatDate(p.purchasedAt)}` : ''}
                           </p>
+                          {pending && <p className="text-[13px] text-mk-text-tertiary">{PAYMENTS_COMING_SOON}</p>}
                         </div>
-                      </Link>
-                    </li>
-                  ))}
+                      </>
+                    );
+                    return (
+                      <li key={p.id}>
+                        {pending ? (
+                          <div className="flex items-center gap-3 rounded-2xl border border-mk-border p-4">{detail}</div>
+                        ) : (
+                          <Link to={`/documents/${p.id}`} className="flex items-center gap-3 rounded-2xl border border-mk-border p-4 hover:bg-mk-muted">
+                            {detail}
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             ))}
