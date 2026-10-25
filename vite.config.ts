@@ -161,6 +161,19 @@ export default defineConfig(({ mode, command }) => {
     build: {
       // No error tracker uploads maps, and anything in dist/ is served publicly.
       sourcemap: false,
+      rollupOptions: {
+        output: {
+          // Stable vendor chunks: long-lived cache across app deploys.
+          manualChunks(id: string) {
+            if (!id.includes("node_modules")) return undefined
+            if (/node_modules\/(react|react-dom|scheduler|react-router|react-router-dom)\//.test(id)) return "vendor-react"
+            if (/node_modules\/(framer-motion|motion-dom|motion-utils)\//.test(id)) return "vendor-motion"
+            if (/node_modules\/(gsap|lenis)\//.test(id)) return "vendor-scroll"
+            if (/node_modules\/@tanstack\/react-query\//.test(id) || /node_modules\/@tanstack\/query-core\//.test(id)) return "vendor-query"
+            return undefined
+          },
+        },
+      },
     },
     test: {
       environment: "jsdom",

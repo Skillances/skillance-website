@@ -9,18 +9,6 @@ import PageLoader from './components/layout/PageLoader';
 import Navigation from './components/layout/Navigation';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
-import HelpCenter from './pages/help/HelpCenter';
-import Privacy from './pages/legal/Privacy';
-import Terms from './pages/legal/Terms';
-import CookiePolicy from './pages/legal/CookiePolicy';
-import RefundPolicy from './pages/legal/RefundPolicy';
-import FAQPage from './pages/help/FAQPage';
-import TrustSafetyPage from './pages/help/TrustSafetyPage';
-import ServicesPage from './pages/ServicesPage';
-import ContactPage from './pages/ContactPage';
-import CategoryPage from './pages/CategoryPage';
-import LoginPage from './pages/LoginPage';
-import AdminLayout from './components/layout/AdminLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AdminRouteErrorBoundary from './components/common/AdminRouteErrorBoundary';
 import { sendClientLog } from './lib/clientLog';
@@ -28,16 +16,29 @@ import { AuthProvider } from './context/AuthContext';
 import { AdminThemeProvider, useAdminTheme } from './context/AdminThemeContext';
 import { QueryProvider } from './providers/QueryProvider';
 import CookieConsent from './components/layout/CookieConsent';
-import LaunchCountdown from './components/layout/LaunchCountdown';
-import ScrollIndicator from './components/layout/ScrollIndicator';
-import PublicFaqBot from './components/layout/PublicFaqBot';
 import { syncSectionScrollMarginCss } from './lib/sectionScroll';
 import { getPrefersReducedMotion, LENIS_DURATION } from './lib/motion';
-import MarketplaceLayout from './components/marketplace/MarketplaceLayout';
 import RequireAuth from './components/marketplace/RequireAuth';
 import { isMarketplacePath, isMarketplaceShellPath } from './lib/marketplace/routes';
 import { isBeyondPath } from './lib/beyond/routes';
 import { isMarketingAuthPath } from './lib/marketing/authPaths';
+
+const HelpCenter = lazy(() => import('./pages/help/HelpCenter'));
+const Privacy = lazy(() => import('./pages/legal/Privacy'));
+const Terms = lazy(() => import('./pages/legal/Terms'));
+const CookiePolicy = lazy(() => import('./pages/legal/CookiePolicy'));
+const RefundPolicy = lazy(() => import('./pages/legal/RefundPolicy'));
+const FAQPage = lazy(() => import('./pages/help/FAQPage'));
+const TrustSafetyPage = lazy(() => import('./pages/help/TrustSafetyPage'));
+const ServicesPage = lazy(() => import('./pages/ServicesPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
+const CategoryPage = lazy(() => import('./pages/CategoryPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
+const MarketplaceLayout = lazy(() => import('./components/marketplace/MarketplaceLayout'));
+const LaunchCountdown = lazy(() => import('./components/layout/LaunchCountdown'));
+const ScrollIndicator = lazy(() => import('./components/layout/ScrollIndicator'));
+const PublicFaqBot = lazy(() => import('./components/layout/PublicFaqBot'));
 
 type LenisWindow = Window & { __lenis?: Lenis };
 
@@ -314,16 +315,16 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
           <Routes location={location} key={routeAnimationKey}>
             {/* Public Routes */}
             <Route path="/" element={<PageTransition routeKey="/"><Home /></PageTransition>} />
-            <Route path="/help-center" element={<PageTransition routeKey="/help-center"><HelpCenter /></PageTransition>} />
-            <Route path="/privacy-policy" element={<PageTransition routeKey="/privacy-policy"><Privacy /></PageTransition>} />
+            <Route path="/help-center" element={<PageTransition routeKey="/help-center"><Suspense fallback={null}><HelpCenter /></Suspense></PageTransition>} />
+            <Route path="/privacy-policy" element={<PageTransition routeKey="/privacy-policy"><Suspense fallback={null}><Privacy /></Suspense></PageTransition>} />
             <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
-            <Route path="/terms" element={<PageTransition routeKey="/terms"><Terms /></PageTransition>} />
-            <Route path="/refund-policy" element={<PageTransition routeKey="/refund-policy"><RefundPolicy /></PageTransition>} />
-            <Route path="/cookie-policy" element={<PageTransition routeKey="/cookie-policy"><CookiePolicy /></PageTransition>} />
-            <Route path="/faq" element={<PageTransition routeKey="/faq"><FAQPage /></PageTransition>} />
-            <Route path="/trust-safety" element={<PageTransition routeKey="/trust-safety"><TrustSafetyPage /></PageTransition>} />
-            <Route path="/services" element={<PageTransition routeKey="/services"><ServicesPage /></PageTransition>} />
-            <Route path="/contact" element={<PageTransition routeKey="/contact"><ContactPage /></PageTransition>} />
+            <Route path="/terms" element={<PageTransition routeKey="/terms"><Suspense fallback={null}><Terms /></Suspense></PageTransition>} />
+            <Route path="/refund-policy" element={<PageTransition routeKey="/refund-policy"><Suspense fallback={null}><RefundPolicy /></Suspense></PageTransition>} />
+            <Route path="/cookie-policy" element={<PageTransition routeKey="/cookie-policy"><Suspense fallback={null}><CookiePolicy /></Suspense></PageTransition>} />
+            <Route path="/faq" element={<PageTransition routeKey="/faq"><Suspense fallback={null}><FAQPage /></Suspense></PageTransition>} />
+            <Route path="/trust-safety" element={<PageTransition routeKey="/trust-safety"><Suspense fallback={null}><TrustSafetyPage /></Suspense></PageTransition>} />
+            <Route path="/services" element={<PageTransition routeKey="/services"><Suspense fallback={null}><ServicesPage /></Suspense></PageTransition>} />
+            <Route path="/contact" element={<PageTransition routeKey="/contact"><Suspense fallback={null}><ContactPage /></Suspense></PageTransition>} />
             <Route
               path="/beyond/*"
               element={
@@ -332,13 +333,13 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                 </Suspense>
               }
             />
-            <Route path="/category/:id" element={<PageTransition routeKey={location.pathname}><CategoryPage /></PageTransition>} />
-            <Route path="/login" element={<PageTransition routeKey="/login"><LoginPage /></PageTransition>} />
+            <Route path="/category/:id" element={<PageTransition routeKey={location.pathname}><Suspense fallback={null}><CategoryPage /></Suspense></PageTransition>} />
+            <Route path="/login" element={<PageTransition routeKey="/login"><Suspense fallback={null}><LoginPage /></Suspense></PageTransition>} />
             <Route path="/register" element={<Suspense fallback={null}><RegisterPage /></Suspense>} />
             <Route path="/forgot-password" element={<Suspense fallback={null}><ForgotPasswordPage /></Suspense>} />
 
             {/* Marketplace app shell. Public browse pages first, then signed-in pages. */}
-            <Route element={<MarketplaceLayout />}>
+            <Route element={<Suspense fallback={null}><MarketplaceLayout /></Suspense>}>
               <Route path="/home" element={<CustomerHomePage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/browse/category/:categoryId" element={<CategoryResultsPage />} />
@@ -381,6 +382,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                 <ProtectedRoute requireAdmin>
                   <AdminThemeProvider>
                     <AdminRouteErrorBoundary resetPath={location.pathname}>
+                      <Suspense fallback={null}>
                       <AdminLayout>
                         <Suspense fallback={<AdminInlinePageSkeleton />}>
                           <Routes>
@@ -420,6 +422,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
                           </Routes>
                         </Suspense>
                       </AdminLayout>
+                      </Suspense>
                     </AdminRouteErrorBoundary>
                   </AdminThemeProvider>
                 </ProtectedRoute>
@@ -432,9 +435,11 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
       {isLoaded && showMarketingWidgets && (
         <>
           <CookieConsent />
-          <LaunchCountdown />
-          <ScrollIndicator />
-          <PublicFaqBot />
+          <Suspense fallback={null}>
+            <LaunchCountdown />
+            <ScrollIndicator />
+            <PublicFaqBot />
+          </Suspense>
         </>
       )}
     </div>

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Sparkles, X, Send, Loader2, Database, AlertTriangle, Trash2 } from 'lucide-react';
 
 import { ColorOrb } from '@/components/ui/ai-input';

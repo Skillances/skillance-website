@@ -70,6 +70,8 @@ const Footer = () => {
                   alt="Skillance"
                   width={120}
                   height={24}
+                  loading="lazy"
+                  decoding="async"
                   className="h-8 w-auto"
                 />
               </picture>
