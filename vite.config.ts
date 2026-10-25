@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { defineConfig, loadEnv, type Plugin } from "vite"
@@ -150,7 +151,7 @@ function markdownAgentDevMiddleware(): Plugin {
 }
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), "")
   const s3CategoryBase =
     (env.VITE_PUBLIC_S3_CATEGORY_BASE || DEFAULT_S3_CATEGORY_BASE).replace(/\/+$/, "")
@@ -158,12 +159,20 @@ export default defineConfig(({ mode }) => {
   return {
     base: "/",
     build: {
-      sourcemap: true,
+      // No error tracker uploads maps, and anything in dist/ is served publicly.
+      sourcemap: false,
+    },
+    test: {
+      environment: "jsdom",
+      include: ["src/**/*.test.{ts,tsx}", "tests/**/*.test.{ts,tsx}"],
+      setupFiles: ["./src/test/setup.ts"],
+      restoreMocks: true,
     },
     plugins: [
       devS3PublicJsonProxy(s3CategoryBase),
       markdownAgentDevMiddleware(),
-      ...(mode === "development" ? [inspectAttr()] : []),
+      // Dev server only: never ship the inspector, even for `vite build --mode development`.
+      ...(command === "serve" && mode === "development" ? [inspectAttr()] : []),
       react(),
     ],
     resolve: {

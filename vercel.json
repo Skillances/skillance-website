@@ -102,6 +102,15 @@
       ]
     },
     {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
@@ -113,20 +122,16 @@
           "value": "DENY"
         },
         {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
         },
         {
           "key": "Permissions-Policy",
-          "value": "geolocation=(), microphone=(), camera=()"
+          "value": "geolocation=(self), camera=(), microphone=(), payment=(), usb=(), bluetooth=(), serial=(), accelerometer=(), gyroscope=(), magnetometer=(), browsing-topics=()"
         },
         {
           "key": "Strict-Transport-Security",
-          "value": "max-age=31536000; includeSubDomains; preload"
+          "value": "max-age=63072000; includeSubDomains; preload"
         },
         {
           "key": "Cross-Origin-Opener-Policy",
@@ -134,7 +139,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://www.googletagmanager.com https://internet-up.ably-realtime.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://stskillance53be9f.blob.core.windows.net https: data: blob:; connect-src 'self' https://api.skillance.co.za https://stskillance53be9f.blob.core.windows.net https://www.googletagmanager.com https://www.google-analytics.com https://cdn.jsdelivr.net https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.googleapis.com https://accounts.google.com https://*.ably.io wss://*.ably.io https://rest.ably.io wss://realtime.ably.io https://internet-up.ably-realtime.com wss://ws-up.ably-realtime.com https://main.realtime.ably.net wss://main.realtime.ably.net https://main.a.fallback.ably-realtime.com https://main.b.fallback.ably-realtime.com https://main.c.fallback.ably-realtime.com https://main.d.fallback.ably-realtime.com https://main.e.fallback.ably-realtime.com wss://main.a.fallback.ably-realtime.com wss://main.b.fallback.ably-realtime.com wss://main.c.fallback.ably-realtime.com wss://main.d.fallback.ably-realtime.com wss://main.e.fallback.ably-realtime.com https://a.ably-realtime.com https://b.ably-realtime.com https://c.ably-realtime.com https://d.ably-realtime.com https://e.ably-realtime.com wss://a.ably-realtime.com wss://b.ably-realtime.com wss://c.ably-realtime.com wss://d.ably-realtime.com wss://e.ably-realtime.com; frame-src https://www.googletagmanager.com blob:;"
+          "value": "default-src 'self'; script-src 'self' https://www.googletagmanager.com https://internet-up.ably-realtime.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://stskillance53be9f.blob.core.windows.net https://api.skillance.co.za https://www.googletagmanager.com https://*.google-analytics.com; connect-src 'self' https://api.skillance.co.za https://stskillance53be9f.blob.core.windows.net https://cdn.jsdelivr.net https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://*.ably.io wss://*.ably.io https://*.ably.net wss://*.ably.net https://*.ably-realtime.com wss://*.ably-realtime.com; frame-src https://www.googletagmanager.com blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; manifest-src 'self'; upgrade-insecure-requests"
         }
       ]
     }

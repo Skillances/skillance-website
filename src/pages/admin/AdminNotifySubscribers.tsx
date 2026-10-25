@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
-import { get, del } from '@/lib/api';
+import { apiRequest, get, del } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { Bell, Download, Trash2, Users } from 'lucide-react';
 import PageHeader from '@/components/admin/PageHeader';
@@ -19,7 +19,6 @@ interface Subscriber {
   createdAt: string;
 }
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
 const AdminNotifySubscribers: React.FC = () => {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
@@ -65,29 +64,20 @@ const AdminNotifySubscribers: React.FC = () => {
     }
   };
 
-  const handleExport = () => {
-    const token = localStorage.getItem('accessToken');
-    const url = `${API_BASE_URL}${ApiPaths.admin.notifySubscribersExport}`;
-    const link = document.createElement('a');
-    link.href = url;
-
-    fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-      credentials: 'include',
-    })
-      .then((res) => res.blob())
-      .then((blob) => {
-        const blobUrl = window.URL.createObjectURL(blob);
-        link.href = blobUrl;
-        link.download = 'notify-subscribers.csv';
-        link.click();
-        window.URL.revokeObjectURL(blobUrl);
-        toast.success('CSV exported');
-      })
-      .catch(() => toast.error('Export failed'));
+  const handleExport = async () => {
+    try {
+      const res = await apiRequest(ApiPaths.admin.notifySubscribersExport, { method: 'GET' });
+      if (!res.ok) throw new Error('Export failed');
+      const blobUrl = window.URL.createObjectURL(await res.blob());
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = 'notify-subscribers.csv';
+      link.click();
+      window.URL.revokeObjectURL(blobUrl);
+      toast.success('CSV exported');
+    } catch {
+      toast.error('Export failed');
+    }
   };
 
   const filters: FilterConfig[] = [

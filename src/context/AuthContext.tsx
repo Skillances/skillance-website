@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useState, useEffect, type ReactNode } from 'react';
-import { post, get, clearTokens, storeTokens } from '@/lib/api';
+import { post, get, clearTokens, hasStoredSession, storeTokens } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import {
   INVALID_LOGIN_CREDENTIALS_MESSAGE,
@@ -52,7 +52,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
 
   const applyUser = useCallback((next: User) => {
-    localStorage.setItem('user', JSON.stringify(next));
     setUser(next);
     setIsAuthenticated(true);
     setIsAdmin(isStaff(next));
@@ -69,9 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     let cancelled = false;
 
     const loadAuthState = async () => {
-      const storedToken = localStorage.getItem('accessToken');
-
-      if (!storedToken) {
+      if (!hasStoredSession()) {
         setIsLoading(false);
         return;
       }
@@ -176,7 +173,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await post(ApiPaths.auth.logout, {}).catch(() => {});
     } finally {
       clearTokens();
-      localStorage.removeItem('user');
 
       setUser(null);
       setIsAuthenticated(false);

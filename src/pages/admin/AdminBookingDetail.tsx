@@ -21,7 +21,8 @@ import {
 } from '@/lib/adminBookingDevTools';
 import { formatBookingScheduledDisplay } from '@/lib/bookingScheduleDisplay';
 
-const viteShowBookingDevTools = import.meta.env.VITE_SHOW_BOOKING_DEV_TOOLS === 'true';
+/** Local override only; production builds rely on the backend's dev-tools status endpoint. */
+const viteShowBookingDevTools = import.meta.env.DEV && import.meta.env.VITE_SHOW_BOOKING_DEV_TOOLS === 'true';
 
 const bookingStatusToneMap: Record<string, string> = {
   pending: 'pending',

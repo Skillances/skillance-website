@@ -1,80 +1,80 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import emailjs from '@emailjs/browser';
 import { toast } from 'sonner';
 import PageTemplate from '../components/layout/PageTemplate';
 import { Send, MapPin, Mail, Phone } from 'lucide-react';
 import { post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { apiErrorMessage, apiRateLimit } from '@/lib/marketplace/apiHelpers';
+import {
+  CONTACT_LIMITS,
+  PREFILL_MAX_LENGTH,
+  contactFormSchema,
+  firstContactError,
+  sanitizePrefill,
+} from '@/lib/contactForm';
 import { useFormRateLimit } from '@/hooks/useFormRateLimit';
 import { CorporateLegalAddress } from '../components/corporate/CorporateLegalAddress';
+
+/** UX-only cooldown after a successful send; the backend enforces the real limit. */
+const CONTACT_COOLDOWN_MS = 60_000;
+/** Bots fill every field; humans never see this one. Must stay empty. */
+const HONEYPOT_FIELD = 'company_website';
+const SEND_FAILED_MESSAGE = 'We could not send your message. Please try again, or email services@skillance.co.za.';
 
 const ContactPage = () => {
   const [searchParams] = useSearchParams();
   const prefilled = useMemo(() => {
-    const subject = searchParams.get('subject')?.trim() ?? '';
-    const context = searchParams.get('context')?.trim() ?? '';
-    const message =
-      context.length > 0
-        ? `I'm interested in: ${context}\n\n`
-        : '';
+    const subject = sanitizePrefill(searchParams.get('subject'));
+    const context = sanitizePrefill(searchParams.get('context'), PREFILL_MAX_LENGTH);
+    const message = context.length > 0 ? `I'm interested in: ${context}\n\n` : '';
     return { subject, message };
   }, [searchParams]);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const { canSubmit, secondsRemaining, startCooldown, startCooldownFromRetryAfter } = useFormRateLimit(60_000);
+  const { canSubmit, secondsRemaining, startCooldown, startCooldownFromRetryAfter } =
+    useFormRateLimit(CONTACT_COOLDOWN_MS);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!canSubmit) return;
+    if (!canSubmit || isSending) return;
+
+    const formData = new FormData(e.currentTarget);
+
+    if (formData.get(HONEYPOT_FIELD)) {
+      // Bot: report success without sending anything so it learns nothing.
+      setIsSubmitted(true);
+      return;
+    }
+
+    const parsed = contactFormSchema.safeParse({
+      name: formData.get('user_name'),
+      email: formData.get('user_email'),
+      subject: formData.get('subject'),
+      message: formData.get('message'),
+    });
+    if (!parsed.success) {
+      toast.error(firstContactError(parsed.error));
+      return;
+    }
+
     setIsSending(true);
-
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
     try {
-      const [emailResult, contactResult] = await Promise.allSettled([
-        emailjs.sendForm(
-          import.meta.env.VITE_EMAILJS_SERVICE_ID,
-          import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-          form,
-          import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-        ),
-        post(ApiPaths.public.contact, {
-          name: formData.get('user_name'),
-          email: formData.get('user_email'),
-          subject: formData.get('subject'),
-          message: formData.get('message'),
-        }),
-      ]);
-
-      const contactErr = contactResult.status === 'rejected' ? contactResult.reason : null;
-      if (contactErr?.statusCode === 429 || contactErr?.retryAfter) {
-        toast.error(contactErr?.message || 'Too many attempts. Please try again later.');
-        if (contactErr?.retryAfter) startCooldownFromRetryAfter(contactErr.retryAfter);
-        else startCooldown();
-        return;
-      }
-      if (contactResult.status === 'rejected') throw contactResult.reason;
-
-      if (emailResult.status === 'fulfilled' && emailResult.value.text === 'OK') {
-        setIsSubmitted(true);
-        toast.success('Message sent successfully!');
-      } else {
-        setIsSubmitted(true);
-        toast.success('Message received!');
-      }
+      // The backend is the single source of truth: only a successful response counts as sent.
+      const response = await post(ApiPaths.public.contact, parsed.data);
+      if (response?.success === false) throw response;
+      setIsSubmitted(true);
+      toast.success('Message sent successfully!');
       startCooldown();
-    } catch (caught) {
-      const error = caught as { statusCode?: number; retryAfter?: number; message?: string } | null | undefined;
-      if (error?.statusCode === 429 || error?.retryAfter) {
-        toast.error(error?.message || 'Too many attempts. Please try again later.');
-        if (error?.retryAfter) startCooldownFromRetryAfter(error.retryAfter);
+    } catch (caught: unknown) {
+      const rateLimit = apiRateLimit(caught);
+      if (rateLimit) {
+        toast.error(rateLimit.message || 'Too many attempts. Please try again later.');
+        if (rateLimit.retryAfterSeconds) startCooldownFromRetryAfter(rateLimit.retryAfterSeconds);
         else startCooldown();
       } else {
-        console.error('Email error:', error);
-        toast.error('Failed to send message. Please try again.');
+        toast.error(apiErrorMessage(caught, SEND_FAILED_MESSAGE));
       }
     } finally {
       setIsSending(false);
@@ -96,6 +96,8 @@ const ContactPage = () => {
                     name="user_name"
                     type="text"
                     required
+                    maxLength={CONTACT_LIMITS.name}
+                    autoComplete="name"
                     placeholder="Enter your full name"
                     className="w-full px-4 py-5 bg-neutral-50 rounded-2xl text-black text-sm border border-neutral-100 focus:border-black focus:outline-none transition-colors"
                   />
@@ -107,6 +109,8 @@ const ContactPage = () => {
                     name="user_email"
                     type="email"
                     required
+                    maxLength={CONTACT_LIMITS.email}
+                    autoComplete="email"
                     placeholder="Enter your email"
                     className="w-full px-4 py-5 bg-neutral-50 rounded-2xl text-black text-sm border border-neutral-100 focus:border-black focus:outline-none transition-colors"
                   />
@@ -120,6 +124,7 @@ const ContactPage = () => {
                   name="subject"
                   type="text"
                   required
+                  maxLength={CONTACT_LIMITS.subject}
                   placeholder="What is this about?"
                   defaultValue={prefilled.subject}
                   className="w-full px-4 py-5 bg-neutral-50 rounded-2xl text-black text-sm border border-neutral-100 focus:border-black focus:outline-none transition-colors"
@@ -132,11 +137,18 @@ const ContactPage = () => {
                   id="message"
                   name="message"
                   required
+                  minLength={10}
+                  maxLength={CONTACT_LIMITS.message}
                   rows={6}
                   placeholder="How can we help you?"
                   defaultValue={prefilled.message}
                   className="w-full px-4 py-5 bg-neutral-50 rounded-2xl text-black text-sm border border-neutral-100 focus:border-black focus:outline-none transition-colors resize-none"
                 />
+              </div>
+
+              <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+                <label htmlFor={HONEYPOT_FIELD}>Leave this field empty</label>
+                <input id={HONEYPOT_FIELD} name={HONEYPOT_FIELD} type="text" tabIndex={-1} autoComplete="off" />
               </div>
 
               <button

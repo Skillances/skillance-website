@@ -22,8 +22,10 @@ export function adminRealtimeLogsEnabled(): boolean {
 export function adminRealtimeLog(message: string, detail?: Record<string, unknown>): void {
   if (!adminRealtimeLogsEnabled()) return;
   if (detail !== undefined && Object.keys(detail).length > 0) {
+    // eslint-disable-next-line no-console -- opt-in debug log (VITE_*_REALTIME_LOGS), off by default
     console.info(PREFIX, message, detail);
   } else {
+    // eslint-disable-next-line no-console -- opt-in debug log (VITE_*_REALTIME_LOGS), off by default
     console.info(PREFIX, message);
   }
 }

@@ -35,6 +35,15 @@ export function apiErrorCode(err: unknown): string | undefined {
   return body && typeof body.code === 'string' ? body.code : undefined;
 }
 
+/** Rate-limit details when the error is an HTTP 429 or carries a `retryAfter` (seconds). */
+export function apiRateLimit(err: unknown): { retryAfterSeconds?: number; message?: string } | null {
+  const body = err && typeof err === 'object' ? (err as { statusCode?: unknown; retryAfter?: unknown; message?: unknown }) : null;
+  if (!body) return null;
+  const retryAfterSeconds = typeof body.retryAfter === 'number' && body.retryAfter > 0 ? body.retryAfter : undefined;
+  if (body.statusCode !== 429 && retryAfterSeconds === undefined) return null;
+  return { retryAfterSeconds, message: typeof body.message === 'string' ? body.message : undefined };
+}
+
 /** Per-field messages from a Zod-style `errors: [{ field, message }]` body. First message per field wins. */
 export function apiFieldErrors(err: unknown): Record<string, string> {
   const body = asBody(err);

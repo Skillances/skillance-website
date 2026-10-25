@@ -18,7 +18,7 @@ const SLOW_FETCH_MS = 6000;
 
 /**
  * Admin-only: visual feedback when TanStack Query has in-flight requests, optional
- * slow-API hint, and React Query Devtools (local dev or when VITE_ADMIN_RQ_DEVTOOLS=true).
+ * slow-API hint, and React Query Devtools (local dev only).
  */
 function AdminFetchBar() {
   const fetchingCount = useIsFetching();
@@ -39,8 +39,7 @@ function AdminFetchBar() {
     return null;
   }
 
-  const showDevtoolsHint =
-    import.meta.env.DEV || import.meta.env.VITE_ADMIN_RQ_DEVTOOLS === 'true';
+  const showDevtoolsHint = import.meta.env.DEV;
 
   return (
     <>
@@ -64,7 +63,7 @@ function AdminFetchBar() {
 }
 
 export function AdminQueryMonitor() {
-  const showDevtools = import.meta.env.DEV || import.meta.env.VITE_ADMIN_RQ_DEVTOOLS === 'true';
+  const showDevtools = import.meta.env.DEV;
 
   return (
     <>

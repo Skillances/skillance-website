@@ -1,4 +1,4 @@
-import { getAccessToken } from '@/lib/api';
+import { REQUEST_TIMEOUT_MS, getAccessToken } from '@/lib/api';
 import { resolveLottieJsonFetchUrl, lottieJsonFetchRequiresAuth } from '@/lib/s3CategoryLottie';
 
 const STORAGE_PREFIX = 'skl_admin_lottie_v1:';
@@ -25,34 +25,63 @@ function isFresh(entry: CacheEntry): boolean {
   return Date.now() - entry.t < TTL_MS;
 }
 
-function readLocalStorage(url: string): CacheEntry | null {
-  if (typeof localStorage === 'undefined') return null;
+const CACHE_NAME = 'skl-lottie-v1';
+const CACHE_TIMESTAMP_HEADER = 'x-cached-at';
+
+/** Large JSON lives in the Cache API (not localStorage, whose ~5MB sync quota it would eat). */
+function persistentRequest(url: string): Request {
+  return new Request(`${window.location.origin}/__lottie-cache/${storageKey(url).slice(STORAGE_PREFIX.length)}`);
+}
+
+/** One-time cleanup of entries older builds wrote to localStorage. */
+function dropLegacyLocalStorageEntries(): void {
   try {
-    const raw = localStorage.getItem(storageKey(url));
-    if (!raw) return null;
-    const entry = JSON.parse(raw) as CacheEntry;
-    if (!entry || typeof entry.t !== 'number' || !('d' in entry)) return null;
-    if (!isFresh(entry)) {
-      localStorage.removeItem(storageKey(url));
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith(STORAGE_PREFIX)) localStorage.removeItem(key);
+    }
+  } catch {
+    // Storage unavailable: nothing to clean.
+  }
+}
+
+async function readPersistent(url: string): Promise<CacheEntry | null> {
+  if (typeof caches === 'undefined') return null;
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    const request = persistentRequest(url);
+    const response = await cache.match(request);
+    if (!response) return null;
+    const t = Number(response.headers.get(CACHE_TIMESTAMP_HEADER));
+    if (!Number.isFinite(t) || !isFresh({ t, d: null })) {
+      await cache.delete(request);
       return null;
     }
-    return entry;
+    return { t, d: (await response.json()) as unknown };
   } catch {
     return null;
   }
 }
 
-function writeLocalStorage(url: string, entry: CacheEntry): void {
-  if (typeof localStorage === 'undefined') return;
+async function writePersistent(url: string, entry: CacheEntry): Promise<void> {
+  if (typeof caches === 'undefined') return;
   try {
-    localStorage.setItem(storageKey(url), JSON.stringify(entry));
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(
+      persistentRequest(url),
+      new Response(JSON.stringify(entry.d), {
+        headers: { 'Content-Type': 'application/json', [CACHE_TIMESTAMP_HEADER]: String(entry.t) },
+      }),
+    );
   } catch {
-    // QuotaExceededError or private mode: memory cache still works this session.
+    // QuotaExceededError or unavailable storage: the in-memory cache still works this session.
   }
 }
 
+if (typeof window !== 'undefined') dropLegacyLocalStorageEntries();
+
 /**
- * Returns cached Lottie animationData for this canonical asset URL, or null.
+ * Returns Lottie animationData already held in memory for this canonical asset URL, or null.
+ * The persistent copy is async, so it is only consulted by {@link fetchCategoryLottieJsonCached}.
  */
 export function getCategoryLottieFromCache(url: string): unknown | null {
   const mem = memory.get(url);
@@ -60,22 +89,17 @@ export function getCategoryLottieFromCache(url: string): unknown | null {
     if (isFresh(mem)) return mem.d;
     memory.delete(url);
   }
-  const fromLs = readLocalStorage(url);
-  if (fromLs) {
-    memory.set(url, fromLs);
-    return fromLs.d;
-  }
   return null;
 }
 
 function writeCategoryLottieCache(url: string, data: unknown): void {
   const entry: CacheEntry = { t: Date.now(), d: data };
   memory.set(url, entry);
-  writeLocalStorage(url, entry);
+  void writePersistent(url, entry);
 }
 
 /**
- * Fetch Lottie JSON with memory + localStorage cache and in-flight deduplication.
+ * Fetch Lottie JSON with memory + Cache API and in-flight deduplication.
  * `url` should be the canonical category imageUrl (S3), not the resolved proxy URL.
  */
 export function fetchCategoryLottieJsonCached(src: string): Promise<unknown> {
@@ -88,6 +112,12 @@ export function fetchCategoryLottieJsonCached(src: string): Promise<unknown> {
   if (pending) return pending;
 
   const promise = (async () => {
+    const persisted = await readPersistent(src);
+    if (persisted) {
+      memory.set(src, persisted);
+      return persisted.d;
+    }
+
     const resolved = resolveLottieJsonFetchUrl(src);
 
     const authHeaders = (): HeadersInit => {
@@ -107,6 +137,7 @@ export function fetchCategoryLottieJsonCached(src: string): Promise<unknown> {
         const r = await fetch(src, {
           mode: 'cors',
           credentials: 'omit',
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
           cache: 'default',
           headers: { Accept: 'application/json' },
         });
@@ -120,6 +151,7 @@ export function fetchCategoryLottieJsonCached(src: string): Promise<unknown> {
     const r = await fetch(resolved, {
       credentials: 'include',
       headers: authHeaders(),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
 
     if (!r.ok && lottieJsonFetchRequiresAuth(resolved)) {

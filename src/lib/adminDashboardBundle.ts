@@ -55,9 +55,15 @@ export type DashboardActivity = {
   timestamp: string;
 };
 
+/** Fields the admin dashboard reads from `GET /admin/dashboard`; the API may send more. */
+export type DashboardData = {
+  users: { total: number; newThisMonth: number };
+  freelancers: { total: number; verified: number };
+  pendingVerifications: { count: number };
+};
+
 export type AdminDashboardBundle = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dashboardData: any | null;
+  dashboardData: DashboardData | null;
   growthData: GrowthRow[];
   activities: DashboardActivity[];
   websiteMetrics: { unreadMessages: number; subscribers: number; pendingReviews: number };

@@ -12,31 +12,105 @@ export function getApiBaseUrl(): string {
   return API_BASE_URL;
 }
 
-type TokenPair = { accessToken: string; refreshToken: string };
+type TokenPair = { accessToken: string; refreshToken?: string };
 
 /** Fetch options accepted by {@link apiRequest}; headers are merged with auth defaults. */
 type ApiRequestOptions = Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
 
-let isRefreshing = false;
-let refreshPromise: Promise<TokenPair> | null = null;
+/** Every request (including token refresh) is aborted after this long. */
+export const REQUEST_TIMEOUT_MS = 15_000;
 
-export function getAccessToken() {
-  return localStorage.getItem('accessToken');
+/**
+ * Cookie mode: the backend keeps the refresh token in an httpOnly cookie, so the browser never
+ * stores or sends one in a body. Enable with `VITE_AUTH_REFRESH_COOKIE=true` once the backend
+ * sets that cookie on login/refresh. Otherwise the refresh token is the only persisted secret.
+ */
+const REFRESH_COOKIE_MODE = import.meta.env.VITE_AUTH_REFRESH_COOKIE === 'true';
+
+const REFRESH_TOKEN_KEY = 'refreshToken';
+/** Non-secret marker (cookie mode) so anonymous visitors skip a pointless refresh call. */
+const SESSION_HINT_KEY = 'skillance_session';
+/** Keys written by older builds that kept the access token and user object in localStorage. */
+const LEGACY_ACCESS_TOKEN_KEY = 'accessToken';
+const LEGACY_USER_KEY = 'user';
+
+/** The access token lives in memory only: it never touches web storage. */
+let accessToken: string | null = null;
+let refreshInFlight: Promise<TokenPair> | null = null;
+
+function readStorage(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
 
-export function getRefreshToken() {
-  return localStorage.getItem('refreshToken');
+function writeStorage(key: string, value: string | null): void {
+  try {
+    if (value === null) localStorage.removeItem(key);
+    else localStorage.setItem(key, value);
+  } catch {
+    // Storage unavailable (private mode / blocked): the session just won't survive a reload.
+  }
 }
 
-export function storeTokens(accessToken: string, refreshToken: string) {
-  if (accessToken) localStorage.setItem('accessToken', accessToken);
-  if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+/**
+ * One-time migration from older builds: load the stored access token into memory, then delete
+ * the access token and user object from localStorage. In cookie mode the stored refresh token is
+ * dropped too (the cookie replaces it); otherwise it stays, as it is needed to survive a reload.
+ */
+export function migrateLegacyAuthStorage(): void {
+  const legacyAccess = readStorage(LEGACY_ACCESS_TOKEN_KEY);
+  if (legacyAccess && !accessToken) accessToken = legacyAccess;
+  writeStorage(LEGACY_ACCESS_TOKEN_KEY, null);
+  writeStorage(LEGACY_USER_KEY, null);
+
+  if (REFRESH_COOKIE_MODE) {
+    const hadSession = Boolean(readStorage(REFRESH_TOKEN_KEY) || legacyAccess);
+    writeStorage(REFRESH_TOKEN_KEY, null);
+    if (hadSession) writeStorage(SESSION_HINT_KEY, '1');
+  }
 }
 
-export function clearTokens() {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('user');
+migrateLegacyAuthStorage();
+
+export function getAccessToken(): string | null {
+  return accessToken;
+}
+
+function getStoredRefreshToken(): string | null {
+  return REFRESH_COOKIE_MODE ? null : readStorage(REFRESH_TOKEN_KEY);
+}
+
+/** True when this browser may hold a session worth validating or refreshing. */
+export function hasStoredSession(): boolean {
+  if (accessToken) return true;
+  return REFRESH_COOKIE_MODE ? readStorage(SESSION_HINT_KEY) === '1' : Boolean(readStorage(REFRESH_TOKEN_KEY));
+}
+
+export function storeTokens(newAccessToken: string, newRefreshToken?: string): void {
+  if (newAccessToken) accessToken = newAccessToken;
+  if (REFRESH_COOKIE_MODE) {
+    if (newAccessToken) writeStorage(SESSION_HINT_KEY, '1');
+  } else if (newRefreshToken) {
+    writeStorage(REFRESH_TOKEN_KEY, newRefreshToken);
+  }
+}
+
+export function clearTokens(): void {
+  accessToken = null;
+  writeStorage(REFRESH_TOKEN_KEY, null);
+  writeStorage(SESSION_HINT_KEY, null);
+  writeStorage(LEGACY_ACCESS_TOKEN_KEY, null);
+  writeStorage(LEGACY_USER_KEY, null);
+}
+
+/** `fetch` that aborts after {@link REQUEST_TIMEOUT_MS}, still honouring a caller-supplied signal. */
+function fetchWithTimeout(input: string, init: RequestInit = {}): Promise<Response> {
+  const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+  const signal = init.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
+  return fetch(input, { ...init, signal });
 }
 
 /** Backend sends this when the client IP is security-blocked (login, refresh, and API calls). */
@@ -44,60 +118,56 @@ function responseIndicatesIpBlocked(status: number, body: { code?: string }) {
   return (status === 403 || status === 404) && body?.code === 'ip_blocked';
 }
 
-async function refreshAccessToken(): Promise<TokenPair> {
-  if (isRefreshing && refreshPromise) {
-    return refreshPromise;
-  }
+/** Concurrent callers share one in-flight refresh so a rotating refresh token is never reused. */
+function refreshAccessToken(): Promise<TokenPair> {
+  if (refreshInFlight) return refreshInFlight;
 
-  isRefreshing = true;
-  refreshPromise = (async () => {
+  const attempt = (async (): Promise<TokenPair> => {
     try {
-      const refreshToken = getRefreshToken();
-      
-      if (!refreshToken) {
+      const refreshToken = getStoredRefreshToken();
+      if (!REFRESH_COOKIE_MODE && !refreshToken) {
         throw new Error('No refresh token available');
       }
 
-      const response = await fetch(`${API_BASE_URL}${ApiPaths.auth.refresh}`, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}${ApiPaths.auth.refresh}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
         },
         credentials: 'include',
-        body: JSON.stringify({ refreshToken }),
+        body: JSON.stringify(REFRESH_COOKIE_MODE ? {} : { refreshToken }),
       });
 
       if (!response.ok) {
         const error = (await response.json().catch(() => ({ message: 'Refresh failed' }))) as {
           message?: string;
-          code?: string;
         };
-        if (responseIndicatesIpBlocked(response.status, error)) {
-          clearTokens();
-        }
         throw new Error(error.message || 'Token refresh failed');
       }
 
       const data = await response.json();
-      
-      if (data.success && data.data) {
-        const { accessToken, refreshToken: newRefreshToken } = data.data;
-        storeTokens(accessToken, newRefreshToken);
-        return { accessToken, refreshToken: newRefreshToken };
-      } else {
-        throw new Error(data.message || 'Token refresh failed');
+      if (!data?.success || !data.data?.accessToken) {
+        throw new Error(data?.message || 'Token refresh failed');
       }
+      const pair: TokenPair = {
+        accessToken: data.data.accessToken,
+        refreshToken: data.data.refreshToken,
+      };
+      storeTokens(pair.accessToken, pair.refreshToken);
+      return pair;
     } catch (error) {
       clearTokens();
       throw error;
-    } finally {
-      isRefreshing = false;
-      refreshPromise = null;
     }
   })();
 
-  return refreshPromise;
+  refreshInFlight = attempt;
+  const release = () => {
+    if (refreshInFlight === attempt) refreshInFlight = null;
+  };
+  attempt.then(release, release);
+  return attempt;
 }
 
 export async function apiRequest(
@@ -108,8 +178,7 @@ export async function apiRequest(
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = `${API_BASE_URL}${normalizedEndpoint}`;
   const token = getAccessToken();
-  const refreshToken = getRefreshToken();
-  const hasStoredSession = Boolean(token || refreshToken);
+  const hasSession = hasStoredSession();
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -129,9 +198,9 @@ export async function apiRequest(
   };
 
   try {
-    let response = await fetch(url, config);
+    let response = await fetchWithTimeout(url, config);
 
-    if (hasStoredSession && (response.status === 403 || response.status === 404)) {
+    if (hasSession && (response.status === 403 || response.status === 404)) {
       const body = (await response
         .clone()
         .json()
@@ -142,15 +211,17 @@ export async function apiRequest(
       }
     }
 
-    if (response.status === 401 && retryOn401 && hasStoredSession) {
+    if (response.status === 401 && retryOn401 && hasSession) {
       if (endpoint === ApiPaths.auth.refresh) {
         clearTokens();
         throw new Error('Authentication required');
       }
 
-      const { accessToken } = await refreshAccessToken();
-      headers.Authorization = `Bearer ${accessToken}`;
-      response = await fetch(url, {
+      // Another request may already have rotated the token while this one was in flight.
+      const current = getAccessToken();
+      const freshToken = current && current !== token ? current : (await refreshAccessToken()).accessToken;
+      headers.Authorization = `Bearer ${freshToken}`;
+      response = await fetchWithTimeout(url, {
         ...config,
         headers,
       });
@@ -162,7 +233,7 @@ export async function apiRequest(
     } else if (response.status === 401) {
       // Public pages can call public endpoints without auth state.
       // Avoid forcing login redirect when there is no stored session.
-      if (!hasStoredSession) {
+      if (!hasSession) {
         throw new Error('Unauthorized');
       }
       clearTokens();
@@ -171,6 +242,9 @@ export async function apiRequest(
 
     return response;
   } catch (error: unknown) {
+    if (error instanceof DOMException && error.name === 'TimeoutError') {
+      throw new Error('Network error: request timed out');
+    }
     const message = error instanceof Error ? error.message : String(error);
     if (message === 'Authentication required' || message.includes('Token refresh')) {
       throw error;
@@ -178,6 +252,10 @@ export async function apiRequest(
     throw new Error(`Network error: ${message}`);
   }
 }
+
+/** Untyped `{ success, data, message }` JSON envelope; callers narrow it themselves. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- the single, deliberate escape hatch for untyped API responses
+export type ApiEnvelope = any;
 
 /** Non-2xx JSON, with the HTTP status attached when the body omits it. */
 async function throwResponseError(response: Response): Promise<never> {
@@ -203,8 +281,7 @@ async function readJson(response: Response): Promise<unknown> {
   return omitPayoutReferenceId(JSON.parse(text));
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
-export async function post(endpoint: string, data: unknown): Promise<any> {
+export async function post(endpoint: string, data: unknown): Promise<ApiEnvelope> {
   const paused = pausedPaymentError(endpoint);
   if (paused) throw paused;
 
@@ -217,8 +294,7 @@ export async function post(endpoint: string, data: unknown): Promise<any> {
   return readJson(response);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
-export async function get(endpoint: string): Promise<any> {
+export async function get(endpoint: string): Promise<ApiEnvelope> {
   const response = await apiRequest(endpoint, {
     method: 'GET',
   });
@@ -227,8 +303,7 @@ export async function get(endpoint: string): Promise<any> {
   return readJson(response);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
-export async function put(endpoint: string, data: unknown): Promise<any> {
+export async function put(endpoint: string, data: unknown): Promise<ApiEnvelope> {
   const body = isFreelancerProfileWrite(endpoint) ? omitPayoutReferenceId(data) : data;
   const response = await apiRequest(endpoint, {
     method: 'PUT',
@@ -239,8 +314,7 @@ export async function put(endpoint: string, data: unknown): Promise<any> {
   return readJson(response);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
-export async function patch(endpoint: string, data: unknown): Promise<any> {
+export async function patch(endpoint: string, data: unknown): Promise<ApiEnvelope> {
   const response = await apiRequest(endpoint, {
     method: 'PATCH',
     body: JSON.stringify(data),
@@ -250,8 +324,7 @@ export async function patch(endpoint: string, data: unknown): Promise<any> {
   return readJson(response);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers read untyped JSON envelopes
-export async function del(endpoint: string): Promise<any> {
+export async function del(endpoint: string): Promise<ApiEnvelope> {
   const response = await apiRequest(endpoint, {
     method: 'DELETE',
   });

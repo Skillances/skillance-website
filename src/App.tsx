@@ -39,6 +39,8 @@ import { isMarketplacePath, isMarketplaceShellPath } from './lib/marketplace/rou
 import { isBeyondPath } from './lib/beyond/routes';
 import { isMarketingAuthPath } from './lib/marketing/authPaths';
 
+type LenisWindow = Window & { __lenis?: Lenis };
+
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminRoleApplications = lazy(() => import('./pages/admin/AdminRoleApplications'));
@@ -262,8 +264,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
       });
 
       // Expose on window so Navigation can use lenis.scrollTo (avoids scrollIntoView conflict)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).__lenis = lenis;
+      (window as LenisWindow).__lenis = lenis;
 
       // Keep ScrollTrigger in sync with Lenis scroll position
       lenis.on('scroll', () => {
@@ -292,8 +293,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
         window.removeEventListener('resize', updateScrollMargin);
         clearTimeout(refreshTimeout);
         cancelAnimationFrame(rafId);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        delete (window as any).__lenis;
+        delete (window as LenisWindow).__lenis;
         lenis.destroy();
       };
     }
