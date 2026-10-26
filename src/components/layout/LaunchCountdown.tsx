@@ -2,8 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { isMarketingAuthPath } from '@/lib/marketing/authPaths';
-import { beyondActiveClientLabel } from '@/beyond/beyondClientCountLabel';
-import { useBeyondWork } from '@/beyond/useBeyondWork';
 import { MARKETPLACE_SIGNPOST } from '@/constants/experienceSignposts';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
@@ -16,9 +14,6 @@ const LaunchCountdown = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const reducedMotion = usePrefersReducedMotion();
-  const { ready, items } = useBeyondWork();
-  const clientCount = items.length;
-  const clientLabel = beyondActiveClientLabel(ready, clientCount);
 
   const slides: StripSlide[] = ['launch', 'beyond'];
   const [activeIndex, setActiveIndex] = useState(0);
@@ -96,7 +91,7 @@ const LaunchCountdown = () => {
                 aria-hidden="true"
               />
               <span className="normal-case tracking-normal font-semibold text-white/90 truncate">
-                {clientLabel}
+                Coming soon
               </span>
             </span>
           ) : (
