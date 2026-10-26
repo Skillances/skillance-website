@@ -325,8 +325,8 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   return (
     <div 
       ref={mainRef} 
-      className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : ''} transition-opacity duration-[550ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[opacity] ${
-        isLoaded ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : ''} transition-opacity duration-[550ms] ease-[cubic-bezier(0.23,1,0.32,1)] ${
+        isLoaded ? 'opacity-100' : 'will-change-[opacity] opacity-0 pointer-events-none'
       }`}
       style={isAdminRoute ? undefined : { backgroundColor: SITE_EXPERIENCE_PAPER }}
     >

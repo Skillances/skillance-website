@@ -11,6 +11,7 @@ import { BEYOND_PRIMARY_NAV, isBeyondNavCurrent } from '@/lib/beyond/nav';
 import { isBeyondPath } from '@/lib/beyond/routes';
 import { isMarketingAuthPath } from '@/lib/marketing/authPaths';
 import { MOBILE_NAV_PANEL_CLASS } from '@/lib/layout/mobileNavPanelClass';
+import { useMobileMenuLock } from '@/lib/layout/useMobileMenuLock';
 
 interface NavigationProps {
   isLoaded: boolean;
@@ -18,6 +19,7 @@ interface NavigationProps {
 
 const Navigation = ({ isLoaded }: NavigationProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  useMobileMenuLock(isMobileMenuOpen);
   const [isDarkSection, setIsDarkSection] = useState(true); // Start with dark (hero)
   const [isPastHero, setIsPastHero] = useState(false);
   const location = useLocation();
@@ -391,7 +393,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
           >
             {/* Backdrop */}
             <motion.div
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/45"
               onClick={() => setIsMobileMenuOpen(false)}
             />
 

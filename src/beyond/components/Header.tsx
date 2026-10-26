@@ -12,6 +12,7 @@ import ExperienceSwitcher from '@/components/experience/ExperienceSwitcher';
 import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
 import { siteNavDesktopMediaQuery } from '@/lib/layout/siteNavBreakpoint';
 import { MOBILE_NAV_PANEL_CLASS } from '@/lib/layout/mobileNavPanelClass';
+import { useMobileMenuLock } from '@/lib/layout/useMobileMenuLock';
 
 export default function Header() {
   const { pathname, hash } = useLocation();
@@ -51,6 +52,8 @@ export default function Header() {
     if (hash) scrollToBeyondHash(hash);
   }, [pathname, hash]);
 
+  useMobileMenuLock(mobileOpen);
+
   useEffect(() => {
     if (!mobileOpen) {
       if (restoreFocus.current) {
@@ -59,15 +62,11 @@ export default function Header() {
       }
       return;
     }
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') closeMenu();
     };
     document.addEventListener('keydown', onKey);
     return () => {
-      document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', onKey);
     };
   }, [mobileOpen]);
@@ -125,7 +124,7 @@ export default function Header() {
                 transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
               >
                 <motion.div
-                  className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                  className="absolute inset-0 bg-black/45"
                   role="presentation"
                   onClick={closeMenu}
                   initial={{ opacity: 0 }}

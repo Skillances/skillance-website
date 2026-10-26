@@ -1,15 +1,18 @@
-import { useEffect, type RefObject } from 'react';
+import { useLayoutEffect, type RefObject } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { getPrefersReducedMotion, revealFromTo, scrollRevealTrigger } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
+// iOS Safari fires resize as the URL bar collapses; refreshing then makes sections jump.
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 /**
  * Section reveals and light parallax inside the Beyond layout root.
  */
 export function useBeyondMotion(scopeRef: RefObject<HTMLElement | null>, routeKey: string) {
-  useEffect(() => {
+  // Layout effect so reveal start states apply before paint (no flash of unstyled content).
+  useLayoutEffect(() => {
     const root = scopeRef.current;
     if (!root) return;
 

@@ -34,11 +34,9 @@ export function useBeyondScroll(active: boolean) {
 
     const refresh = () => ScrollTrigger.refresh();
     const refreshTimeout = window.setTimeout(refresh, 320);
-    window.addEventListener('resize', refresh);
 
     return () => {
       window.clearTimeout(refreshTimeout);
-      window.removeEventListener('resize', refresh);
       cancelAnimationFrame(rafId);
       delete (window as LenisWindow).__lenis;
       lenis.destroy();

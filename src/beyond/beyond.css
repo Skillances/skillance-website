@@ -2756,18 +2756,17 @@ body.by-active {
 }
 
 .by-redesigns-flip {
-  perspective: 1200px;
   animation: by-redesign-flip-in 0.55s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 @keyframes by-redesign-flip-in {
   from {
     opacity: 0;
-    transform: rotateY(-12deg) translateY(8px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: rotateY(0) translateY(0);
+    transform: translateY(0);
   }
 }
 
@@ -2849,7 +2848,8 @@ body.by-active {
   box-shadow: 0 28px 60px -24px color-mix(in srgb, var(--by-ink) 35%, transparent);
   outline: 1px solid color-mix(in srgb, var(--by-ink) 10%, transparent);
   user-select: none;
-  touch-action: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
   --by-ba-pos: 50%;
 }
 
@@ -2989,6 +2989,7 @@ body.by-active {
   opacity: 0;
   -webkit-appearance: none;
   appearance: none;
+  touch-action: pan-y;
 }
 
 .by-ba-range:focus {
