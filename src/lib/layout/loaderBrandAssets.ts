@@ -14,10 +14,11 @@ export function useWarmPaperLoader(surfaceColor: string): boolean {
   return normalized === SITE_EXPERIENCE_PAPER.toLowerCase() || normalized.startsWith('#f3');
 }
 
+/** assembly_v2 exports: clean 16x9 + v2 portrait encode for warm paper shell. */
 export function pickAssemblyVideoSrc(warmPaper: boolean): string {
   const portrait = isPortrait();
   if (warmPaper) {
-    return portrait ? '/brand/logo_assembly_clean_9x16.mp4' : '/brand/logo_assembly_clean_16x9.mp4';
+    return portrait ? '/brand/logo_assembly_v2_9x16.mp4' : '/brand/logo_assembly_clean_16x9.mp4';
   }
   return portrait ? '/brand/logo_assembly_9x16.mp4' : '/brand/logo_assembly_16x9.mp4';
 }
@@ -26,7 +27,7 @@ export function pickAssemblyPosterSrc(warmPaper: boolean): string {
   const portrait = isPortrait();
   if (warmPaper) {
     return portrait
-      ? '/brand/logo_assembly_clean_9x16_poster.webp'
+      ? '/brand/logo_assembly_v2_9x16_poster.webp'
       : '/brand/logo_assembly_clean_16x9_poster.webp';
   }
   return portrait ? '/brand/logo_assembly_9x16_poster.webp' : '/brand/logo_assembly_16x9_poster.webp';
@@ -36,7 +37,7 @@ export function pickAssemblyEndFrameSrc(warmPaper: boolean): string {
   const portrait = isPortrait();
   if (warmPaper) {
     return portrait
-      ? '/brand/logo_assembly_clean_9x16_end.webp'
+      ? '/brand/logo_assembly_v2_9x16_end.webp'
       : '/brand/logo_assembly_clean_16x9_end.webp';
   }
   return portrait ? '/brand/logo_assembly_9x16_end.webp' : '/brand/logo_assembly_16x9_end.webp';

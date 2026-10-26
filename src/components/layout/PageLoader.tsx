@@ -16,10 +16,11 @@ interface PageLoaderProps {
 }
 
 const SESSION_KEY = 'skillance_loaded';
-const EXIT_MS = 0.45;
+const EXIT_MS = 0.55;
 const FALLBACK_MS = 1200;
-const VIDEO_START_TIMEOUT_MS = 1500;
-const SAFETY_MAX_MS = 18000;
+const VIDEO_START_TIMEOUT_MS = 2000;
+const SAFETY_MAX_MS = 12000;
+const END_HOLD_MS = 280;
 
 function readSessionLoaded(): boolean {
   try {
@@ -34,6 +35,7 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
   const [isVisible, setIsVisible] = useState(() => !readSessionLoaded());
   const [isExiting, setIsExiting] = useState(false);
   const [useEndFrame, setUseEndFrame] = useState(reducedMotion);
+  const [videoReady, setVideoReady] = useState(false);
   const [videoSrc] = useState(() => {
     const warm = useWarmPaperLoader(surfaceColor);
     return typeof window !== 'undefined'
@@ -73,7 +75,7 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
 
   const handleVideoEnded = useCallback(() => {
     videoRef.current?.pause();
-    finishSession();
+    window.setTimeout(() => finishSession(), END_HOLD_MS);
   }, [finishSession]);
 
   useEffect(() => {
@@ -176,11 +178,17 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
             Skip
           </button>
 
-          <div className="flex w-full max-w-3xl items-center justify-center">
+          <div className="flex w-full max-w-4xl items-center justify-center px-2 sm:px-0">
             {!reducedMotion && !useEndFrame ? (
-              <video
+              <motion.video
                 ref={videoRef}
-                className="w-full max-h-[45vh] object-contain bg-transparent"
+                initial={{ opacity: 0, scale: 0.985 }}
+                animate={{
+                  opacity: videoReady ? 1 : 0,
+                  scale: videoReady ? 1 : 0.985,
+                }}
+                transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+                className="w-full max-h-[min(72vh,820px)] object-contain bg-transparent [filter:drop-shadow(0_18px_40px_rgba(0,0,0,0.06))]"
                 style={{ backgroundColor: 'transparent' }}
                 src={videoSrc}
                 poster={posterSrc}
@@ -188,13 +196,18 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
                 playsInline
                 autoPlay
                 preload="auto"
+                onLoadedData={() => setVideoReady(true)}
+                onPlaying={() => setVideoReady(true)}
                 onEnded={handleVideoEnded}
               />
             ) : (
-              <img
+              <motion.img
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
                 src={endFrameSrc}
                 alt=""
-                className="w-full max-h-[45vh] object-contain"
+                className="w-full max-h-[min(72vh,820px)] object-contain"
                 width={1920}
                 height={1080}
               />
