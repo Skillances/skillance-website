@@ -53,6 +53,8 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
     const warm = useWarmPaperLoader(surfaceColor);
     return pickAssemblyEndFrameSrc(warm);
   });
+  const warmPaper = useWarmPaperLoader(surfaceColor);
+  const portraitEncode = videoSrc.includes('9x16');
   const videoRef = useRef<HTMLVideoElement>(null);
   const finishedRef = useRef(false);
   const fallbackExitRef = useRef<number | null>(null);
@@ -178,40 +180,52 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
             Skip
           </button>
 
-          <div className="flex w-full max-w-4xl items-center justify-center px-2 sm:px-0">
-            {!reducedMotion && !useEndFrame ? (
-              <motion.video
-                ref={videoRef}
-                initial={{ opacity: 0, scale: 0.985 }}
-                animate={{
-                  opacity: videoReady ? 1 : 0,
-                  scale: videoReady ? 1 : 0.985,
-                }}
-                transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-                className="w-full max-h-[min(72vh,820px)] object-contain bg-transparent [filter:drop-shadow(0_18px_40px_rgba(0,0,0,0.06))]"
-                style={{ backgroundColor: 'transparent' }}
-                src={videoSrc}
-                poster={posterSrc}
-                muted
-                playsInline
-                autoPlay
-                preload="auto"
-                onLoadedData={() => setVideoReady(true)}
-                onPlaying={() => setVideoReady(true)}
-                onEnded={handleVideoEnded}
-              />
-            ) : (
-              <motion.img
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-                src={endFrameSrc}
-                alt=""
-                className="w-full max-h-[min(72vh,820px)] object-contain"
-                width={1920}
-                height={1080}
-              />
-            )}
+          <div className="flex w-full justify-center px-2 sm:px-0">
+            <div
+              className={`relative overflow-hidden ${
+                portraitEncode ? 'aspect-[9/16]' : 'aspect-video'
+              } h-[min(72vh,820px)] w-auto`}
+              style={{
+                backgroundColor: surfaceColor,
+                maxWidth: portraitEncode
+                  ? 'min(100%, calc(min(72vh, 820px) * 9 / 16))'
+                  : 'min(100%, calc(min(72vh, 820px) * 16 / 9))',
+              }}
+            >
+              {!reducedMotion && !useEndFrame ? (
+                <motion.video
+                  ref={videoRef}
+                  initial={{ opacity: 0, scale: 0.985 }}
+                  animate={{
+                    opacity: videoReady ? 1 : 0,
+                    scale: videoReady ? 1 : 0.985,
+                  }}
+                  transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+                  className={`h-full w-full object-contain ${warmPaper ? 'mix-blend-multiply' : ''}`}
+                  style={{ backgroundColor: warmPaper ? surfaceColor : 'transparent' }}
+                  src={videoSrc}
+                  poster={warmPaper ? undefined : posterSrc}
+                  muted
+                  playsInline
+                  autoPlay
+                  preload="auto"
+                  onLoadedData={() => setVideoReady(true)}
+                  onPlaying={() => setVideoReady(true)}
+                  onEnded={handleVideoEnded}
+                />
+              ) : (
+                <motion.img
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                  src={endFrameSrc}
+                  alt=""
+                  className={`h-full w-full object-contain ${warmPaper ? 'mix-blend-multiply' : ''}`}
+                  width={portraitEncode ? 1080 : 1920}
+                  height={portraitEncode ? 1920 : 1080}
+                />
+              )}
+            </div>
           </div>
         </motion.div>
       )}
