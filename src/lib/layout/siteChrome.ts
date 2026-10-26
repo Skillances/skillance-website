@@ -1,5 +1,8 @@
 /** Shared marketing + Beyond header metrics (launch strip + primary nav + switcher dock). */
 
+/** Warm paper shell — loader, App shell, and Beyond scope. */
+export const SITE_EXPERIENCE_PAPER = '#f3eee6';
+
 export const SITE_LAUNCH_STRIP_HEIGHT_PX = 32;
 export const SITE_PRIMARY_NAV_HEIGHT_PX = 76;
 /** Pill row under the marketing nav (matches .experience-switch min-height). */

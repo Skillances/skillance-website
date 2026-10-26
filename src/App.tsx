@@ -17,7 +17,7 @@ import { AdminThemeProvider, useAdminTheme } from './context/AdminThemeContext';
 import { QueryProvider } from './providers/QueryProvider';
 import CookieConsent from './components/layout/CookieConsent';
 import ExperienceSwitcherDock from './components/experience/ExperienceSwitcherDock';
-import { syncSiteChromeCss } from '@/lib/layout/siteChrome';
+import { SITE_EXPERIENCE_PAPER, syncSiteChromeCss } from '@/lib/layout/siteChrome';
 import { getLenisFromWindow, syncSectionScrollMarginCss } from './lib/sectionScroll';
 import { getPrefersReducedMotion, LENIS_DURATION } from './lib/motion';
 import RequireAuth from './components/marketplace/RequireAuth';
@@ -325,14 +325,10 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   return (
     <div 
       ref={mainRef} 
-      className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : 'bg-white'} transition-opacity duration-[450ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[opacity] ${
+      className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : ''} transition-opacity duration-[450ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[opacity] ${
         isLoaded ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
-      style={
-        isBeyondRoute || isAuthPath
-          ? { backgroundColor: '#F3EEE6' }
-          : { backgroundColor: '#ffffff' }
-      }
+      style={isAdminRoute ? undefined : { backgroundColor: SITE_EXPERIENCE_PAPER }}
     >
       <ScrollToTop />
       {showMarketingNav && <Navigation isLoaded={isLoaded} />}
@@ -501,7 +497,7 @@ function AppShell() {
     setIsLoaded(true);
   };
 
-  const loaderSurface = isBeyondPath(location.pathname) ? '#F3EEE6' : '#ffffff';
+  const loaderSurface = SITE_EXPERIENCE_PAPER;
 
   useEffect(() => {
     if (!shouldShowLoader) return;

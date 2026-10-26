@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { SITE_EXPERIENCE_PAPER } from '@/lib/layout/siteChrome';
+import {
+  pickAssemblyEndFrameSrc,
+  pickAssemblyPosterSrc,
+  pickAssemblyVideoSrc,
+  useWarmPaperLoader,
+} from '@/lib/layout/loaderBrandAssets';
 
 interface PageLoaderProps {
   onComplete: () => void;
@@ -14,16 +21,6 @@ const FALLBACK_MS = 1200;
 const VIDEO_START_TIMEOUT_MS = 1500;
 const SAFETY_MAX_MS = 18000;
 
-function pickAssemblyVideoSrc(): string {
-  const portrait = window.matchMedia('(max-aspect-ratio: 1/1)').matches;
-  return portrait ? '/brand/logo_assembly_9x16.mp4' : '/brand/logo_assembly_16x9.mp4';
-}
-
-function pickAssemblyPosterSrc(): string {
-  const portrait = window.matchMedia('(max-aspect-ratio: 1/1)').matches;
-  return portrait ? '/brand/logo_assembly_9x16_poster.webp' : '/brand/logo_assembly_16x9_poster.webp';
-}
-
 function readSessionLoaded(): boolean {
   try {
     return sessionStorage.getItem(SESSION_KEY) === 'true';
@@ -32,21 +29,27 @@ function readSessionLoaded(): boolean {
   }
 }
 
-const PageLoader = ({ onComplete, surfaceColor = '#ffffff' }: PageLoaderProps) => {
+const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLoaderProps) => {
   const reducedMotion = usePrefersReducedMotion();
   const [isVisible, setIsVisible] = useState(() => !readSessionLoaded());
   const [isExiting, setIsExiting] = useState(false);
   const [useEndFrame, setUseEndFrame] = useState(reducedMotion);
-  const [videoSrc] = useState(() =>
-    typeof window !== 'undefined' ? pickAssemblyVideoSrc() : '/brand/logo_assembly_16x9.mp4',
-  );
-  const [posterSrc] = useState(() =>
-    typeof window !== 'undefined' ? pickAssemblyPosterSrc() : '/brand/logo_assembly_16x9_poster.webp',
-  );
+  const [videoSrc] = useState(() => {
+    const warm = useWarmPaperLoader(surfaceColor);
+    return typeof window !== 'undefined'
+      ? pickAssemblyVideoSrc(warm)
+      : '/brand/logo_assembly_clean_16x9.mp4';
+  });
+  const [posterSrc] = useState(() => {
+    const warm = useWarmPaperLoader(surfaceColor);
+    return typeof window !== 'undefined'
+      ? pickAssemblyPosterSrc(warm)
+      : '/brand/logo_assembly_clean_16x9_poster.webp';
+  });
   const [endFrameSrc] = useState(() => {
-    if (typeof window === 'undefined') return '/brand/logo_assembly_16x9_end.webp';
-    const portrait = window.matchMedia('(max-aspect-ratio: 1/1)').matches;
-    return portrait ? '/brand/logo_assembly_9x16_end.webp' : '/brand/logo_assembly_16x9_end.webp';
+    if (typeof window === 'undefined') return '/brand/logo_assembly_clean_16x9_end.webp';
+    const warm = useWarmPaperLoader(surfaceColor);
+    return pickAssemblyEndFrameSrc(warm);
   });
   const videoRef = useRef<HTMLVideoElement>(null);
   const finishedRef = useRef(false);
@@ -75,7 +78,22 @@ const PageLoader = ({ onComplete, surfaceColor = '#ffffff' }: PageLoaderProps) =
 
   useEffect(() => {
     if (!isVisible) {
+      document.documentElement.style.removeProperty('background-color');
+      document.body.style.removeProperty('background-color');
       onComplete();
+      return;
+    }
+
+    document.documentElement.style.backgroundColor = surfaceColor;
+    document.body.style.backgroundColor = surfaceColor;
+    return () => {
+      document.documentElement.style.removeProperty('background-color');
+      document.body.style.removeProperty('background-color');
+    };
+  }, [isVisible, onComplete, surfaceColor]);
+
+  useEffect(() => {
+    if (!isVisible) {
       return;
     }
 
@@ -162,8 +180,8 @@ const PageLoader = ({ onComplete, surfaceColor = '#ffffff' }: PageLoaderProps) =
             {!reducedMotion && !useEndFrame ? (
               <video
                 ref={videoRef}
-                className="w-full max-h-[45vh] object-contain"
-                style={{ backgroundColor: surfaceColor }}
+                className="w-full max-h-[45vh] object-contain bg-transparent"
+                style={{ backgroundColor: 'transparent' }}
                 src={videoSrc}
                 poster={posterSrc}
                 muted
