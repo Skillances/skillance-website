@@ -9,7 +9,7 @@ const REDESIGN_ITEMS: readonly BeforeAfterItem[] = [
     caption:
       'An older page rebuilt around one job: getting an emergency call. Phone button above the fold on every screen size.',
     afterAlt: 'Concept redesign of a plumbing website (after)',
-    beforeAlt: 'Illustrative dated plumbing website mock-up (before)',
+    beforeAlt: 'Illustrative generic template plumbing website mock-up (before)',
   },
   {
     id: 'example-2',
@@ -17,7 +17,7 @@ const REDESIGN_ITEMS: readonly BeforeAfterItem[] = [
     label: 'Electrical & plumbing',
     caption: 'Concept: a bold, fast single page for electrical and plumbing call-outs.',
     afterAlt: 'Concept redesign of an electrical and plumbing website (after)',
-    beforeAlt: 'Illustrative dated trades website mock-up (before)',
+    beforeAlt: 'Illustrative generic template trades website mock-up (before)',
   },
   {
     id: 'example-3',
@@ -26,7 +26,7 @@ const REDESIGN_ITEMS: readonly BeforeAfterItem[] = [
     caption:
       'From a dark hero with stacked icons to a clear service grid, a side rail with the number and a WhatsApp link.',
     afterAlt: 'Concept redesign of a plumbing website (after)',
-    beforeAlt: 'Illustrative dated plumbing website mock-up (before)',
+    beforeAlt: 'Illustrative generic template plumbing website mock-up (before)',
   },
   {
     id: 'example-4',
@@ -35,7 +35,7 @@ const REDESIGN_ITEMS: readonly BeforeAfterItem[] = [
     caption:
       'Three practice locations made obvious from the first screen, each with its own call button.',
     afterAlt: 'Concept redesign of a dental practice website (after)',
-    beforeAlt: 'Illustrative dated dental practice website mock-up (before)',
+    beforeAlt: 'Illustrative generic template dental practice website mock-up (before)',
   },
   {
     id: 'example-5',
@@ -44,7 +44,7 @@ const REDESIGN_ITEMS: readonly BeforeAfterItem[] = [
     caption:
       'The view does the selling. Direct-booking panel and rates in view, instead of a broken image and a block of text.',
     afterAlt: 'Concept redesign of a self-catering stay website (after)',
-    beforeAlt: 'Illustrative dated guest-house website mock-up (before)',
+    beforeAlt: 'Illustrative generic template guest-house website mock-up (before)',
   },
 ];
 
