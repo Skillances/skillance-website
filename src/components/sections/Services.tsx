@@ -54,6 +54,10 @@ const Services = () => {
   }, [selectedCategory]);
 
   useEffect(() => {
+    void loadSkillanceIconsScript();
+  }, []);
+
+  useEffect(() => {
     let mounted = true;
     fetchServiceCategories()
       .then((items) => {
