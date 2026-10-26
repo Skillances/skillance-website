@@ -4,6 +4,7 @@ import BeyondHero from '@/beyond/components/BeyondHero';
 import BeyondFaqList from '@/beyond/components/BeyondFaq';
 import CopyEmailButton from '@/beyond/components/CopyEmailButton';
 import EnquiryLink from '@/beyond/components/EnquiryLink';
+import BeyondRedesignShowcase from '@/beyond/components/BeyondRedesignShowcase';
 import SkillanceCaseStudy from '@/beyond/components/SkillanceCaseStudy';
 import { OwnPlatform, SectionHead, StepRows } from '@/beyond/components/Blocks';
 import { FAQS, HOME_STORY, PAGES, SERVICES, STEPS } from '@/beyond/content';
@@ -71,6 +72,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <BeyondRedesignShowcase />
 
       <section className="by-section" aria-labelledby="beyond-approach-title">
         <div className="by-wrap by-reveal">

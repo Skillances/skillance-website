@@ -1831,4 +1831,231 @@ body.by-active {
     margin-top: 0;
     will-change: auto;
   }
+
+  .by-ba-anim .by-ba-before,
+  .by-ba-anim .by-ba-handle {
+    transition: none;
+  }
+}
+
+/* —— Website redesign before/after showcase —— */
+
+.by-section-redesigns {
+  padding-top: clamp(2.5rem, 5vw, 4rem);
+  padding-bottom: clamp(3rem, 6vw, 5rem);
+}
+
+.by-section-redesigns .by-section-head h2 em {
+  font-style: italic;
+  color: var(--by-pine);
+}
+
+.by-redesigns-disclaimer {
+  margin-top: 1rem;
+  max-width: 42rem;
+  font-size: 0.9375rem;
+  color: var(--by-ink-soft);
+  line-height: 1.55;
+}
+
+.by-redesigns-list {
+  list-style: none;
+  padding: 0;
+  margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 6vw, 5rem);
+}
+
+.by-ba-figure {
+  margin: 0;
+}
+
+.by-ba {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 28px 60px -24px color-mix(in srgb, var(--by-ink) 35%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--by-ink) 10%, transparent);
+  user-select: none;
+  --by-ba-pos: 50%;
+}
+
+.by-ba:has(.by-ba-range:focus-visible) {
+  outline: 3px solid #2eaee8;
+  outline-offset: 4px;
+}
+
+.by-ba-after,
+.by-ba-before {
+  display: block;
+}
+
+.by-ba-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+@media (max-width: 639px) {
+  .by-ba-img-after {
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: top;
+  }
+}
+
+.by-ba-before {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 calc(100% - var(--by-ba-pos)) 0 0);
+}
+
+.by-ba-img-before {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.by-ba-badge {
+  position: absolute;
+  top: 0.75rem;
+  pointer-events: none;
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.by-ba-badge-before {
+  left: 0.75rem;
+  background: color-mix(in srgb, #fffdf8 95%, transparent);
+  color: var(--by-ink-soft);
+}
+
+.by-ba-badge-after {
+  right: 0.75rem;
+  background: var(--by-pine);
+  color: var(--by-paper);
+}
+
+.by-ba-handle {
+  position: absolute;
+  inset-block: 0;
+  left: var(--by-ba-pos);
+  width: 2px;
+  transform: translateX(-50%);
+  background: #fffdf8;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--by-ink) 15%, transparent);
+  pointer-events: none;
+}
+
+.by-ba-handle-grip {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: #fffdf8;
+  color: var(--by-pine);
+  box-shadow: 0 4px 14px rgba(26, 23, 20, 0.12);
+  outline: 1px solid color-mix(in srgb, var(--by-ink) 10%, transparent);
+}
+
+.by-ba-range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: ew-resize;
+  opacity: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.by-ba-range:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .by-ba-anim .by-ba-before {
+    transition: clip-path 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .by-ba-anim .by-ba-handle {
+    transition: left 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+}
+
+.by-ba-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .by-ba-caption {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .by-ba-caption-text {
+    max-width: 60%;
+    text-align: right;
+  }
+}
+
+.by-ba-caption-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--by-brass);
+}
+
+.by-ba-caption-text {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--by-ink-soft);
+}
+
+.by-redesigns-close {
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--by-line);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .by-redesigns-close {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.by-redesigns-close-title {
+  max-width: 32rem;
+  font-family: var(--by-font-display);
+  font-size: clamp(1.35rem, 2.5vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
