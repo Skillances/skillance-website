@@ -78,17 +78,12 @@ export default function BeyondRedesignShowcase() {
         <div className="by-section-head">
           <p className="by-kicker">Website redesigns</p>
           <h2 id="beyond-redesigns-title">
-            What a <em>proper</em> website could look like.
+            Before / after <em>concepts</em>.
           </h2>
-          <p className="by-section-lede">
-            Concept before/after pairs for common small-business niches. Pick a niche, flip through the deck, drag the
-            slider to compare. Not client work; names and details are anonymised.
+          <p className="by-section-lede by-redesigns-lede">
+            Pick a niche, drag the slider. Illustrative mock-ups — not real client sites.
           </p>
         </div>
-        <p className="by-redesigns-disclaimer">
-          Concept work only: &ldquo;after&rdquo; screens are our redesign ideas; &ldquo;before&rdquo; sides are generic
-          AI-assisted illustrative mock-ups, not real client sites.
-        </p>
 
         <div className="by-redesigns-deck" aria-live="polite">
           <div className="by-redesigns-picker" role="tablist" aria-label="Redesign examples">
@@ -121,7 +116,9 @@ export default function BeyondRedesignShowcase() {
         </div>
 
         <div className="by-redesigns-close">
-          <p className="by-redesigns-close-title">Want this for your business? We scope it with you before anything is priced.</p>
+          <p className="by-redesigns-close-title">
+            Want this for your business? Start with a free demo of your own site, then a fixed quote in writing.
+          </p>
           <EnquiryLink ctaLocation="home_redesigns" variant="solid">
             Start a project
           </EnquiryLink>

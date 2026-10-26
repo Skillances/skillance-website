@@ -1,19 +1,22 @@
 import { Link } from 'react-router-dom';
 import PageTemplate from '../../components/layout/PageTemplate';
 import { CorporateLegalAddressInline } from '../../components/corporate/CorporateLegalAddress';
+import { BEYOND_EMAIL } from '@/beyond/content';
+import { BEYOND_LEGAL } from '@/constants/beyondLegal';
 
 const Privacy = () => {
   return (
     <PageTemplate title="Privacy Policy" animateSections>
       <div className="space-y-10 text-neutral-600">
         <div className="space-y-3">
-          <p className="text-xl leading-relaxed italic text-black/80">Last updated: 19 April 2026</p>
+          <p className="text-xl leading-relaxed italic text-black/80">Last updated: 26 October 2026</p>
           <p className="text-sm leading-relaxed text-neutral-500">
             This Privacy Policy explains how personal information is processed through the Skillance website and mobile apps
             on iOS and Android (the &quot;Platform&quot;). It should be read with our{' '}
             <Link to="/cookie-policy" className="text-black underline underline-offset-4 hover:no-underline">Cookie Policy</Link>,{' '}
-            <Link to="/terms" className="text-black underline underline-offset-4 hover:no-underline">Terms of Service</Link> and{' '}
-            <Link to="/refund-policy" className="text-black underline underline-offset-4 hover:no-underline">Refund Policy</Link>.
+            <Link to="/terms" className="text-black underline underline-offset-4 hover:no-underline">Terms of Service</Link>,{' '}
+            <Link to="/refund-policy" className="text-black underline underline-offset-4 hover:no-underline">Refund Policy</Link>, and{' '}
+            <Link to="/beyond/data-processing" className="text-black underline underline-offset-4 hover:no-underline">Beyond client data processing</Link>.
           </p>
         </div>
 
@@ -29,20 +32,25 @@ const Privacy = () => {
             Registered office: <CorporateLegalAddressInline className="text-black" />.
           </p>
           <p className="leading-relaxed">
-            For privacy queries, to exercise POPIA rights, or to contact our information officer, email{' '}
-            <a href="mailto:services@skillance.co.za" className="text-black underline underline-offset-4 hover:no-underline">
-              services@skillance.co.za
-            </a>{' '}
-            or WhatsApp{' '}
+            Information Officer: {BEYOND_LEGAL.informationOfficerName},{' '}
             <a
-              href="https://wa.me/27648728174"
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`mailto:${BEYOND_LEGAL.informationOfficerEmail}`}
               className="text-black underline underline-offset-4 hover:no-underline"
             >
-              +27 64 872 8174
+              {BEYOND_LEGAL.informationOfficerEmail}
             </a>
-            .
+            , registered with the Information Regulator ({BEYOND_LEGAL.informationOfficerRegStatus}).
+          </p>
+          <p className="leading-relaxed">
+            For privacy queries or to exercise POPIA rights, email{' '}
+            <a href={`mailto:${BEYOND_EMAIL}`} className="text-black underline underline-offset-4 hover:no-underline">
+              {BEYOND_EMAIL}
+            </a>{' '}
+            (marketplace help:{' '}
+            <a href="mailto:support@skillance.co.za" className="text-black underline underline-offset-4 hover:no-underline">
+              support@skillance.co.za
+            </a>
+            ).
           </p>
         </section>
 
@@ -290,7 +298,35 @@ const Privacy = () => {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-2xl font-serif text-black mb-2">15. Contact</h2>
+          <h2 className="text-2xl font-serif text-black mb-2">15. Beyond the App (custom software and websites)</h2>
+          <p className="leading-relaxed">
+            When you enquire about a custom software or website project at{' '}
+            <a href={`mailto:${BEYOND_EMAIL}`} className="text-black underline underline-offset-4 hover:no-underline">
+              {BEYOND_EMAIL}
+            </a>
+            , we collect your name, business name, contact details, and the project information you send, to reply,
+            quote, and deliver the work (POPIA section 11(1)(b)).
+          </p>
+          <p className="leading-relaxed">
+            We keep project records for {BEYOND_LEGAL.projectRecordsRetentionYears} years for tax and contract purposes.
+            When we build, host, or maintain a website for a client, the client is the responsible party for personal
+            information its visitors submit; we process it only as the client&apos;s operator under a written agreement
+            (POPIA sections 20–21), using sub-operators such as Cloudflare (hosting, cookieless analytics), Formspree
+            (forms), GitHub (code), and Google (email, where chosen). Some sub-operators process data outside South
+            Africa under data-processing agreements (section 72). See{' '}
+            <Link to="/beyond/data-processing" className="text-black underline underline-offset-4 hover:no-underline">
+              Client data processing
+            </Link>{' '}
+            and{' '}
+            <Link to="/beyond/terms" className="text-black underline underline-offset-4 hover:no-underline">
+              Beyond service terms
+            </Link>
+            .
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-2xl font-serif text-black mb-2">16. Contact</h2>
           <p className="leading-relaxed">
             RIMITSO MANAGEMENT SERVICES (PTY) LTD. Skillance is owned by and part of Rimitso Management Services.
             Registered office: <CorporateLegalAddressInline className="text-black" />. Email{' '}

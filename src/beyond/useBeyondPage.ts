@@ -4,10 +4,10 @@ import { SITE, type BeyondPageMeta } from '@/beyond/content';
 
 const THEME_COLOR = '#F3EEE6';
 const KEYWORDS =
-  'Skillance, Beyond the App, custom software South Africa, web apps, mobile apps, business systems, software integrations, Rimitso Management Services';
+  'Skillance Beyond, Skillance Beyond the App, Beyond the App, Skillance custom software, custom software South Africa, web apps, mobile apps, business systems, software integrations, Rimitso Management Services';
 
 const SERVICE_DESCRIPTION =
-  'Skillance designs and builds custom web apps, mobile apps, business systems, and integrations for clients in South Africa. Beyond the App is a studio practice alongside the Skillance marketplace.';
+  'Skillance Beyond designs and builds custom web apps, mobile apps, business systems, and integrations for clients in South Africa. The studio practice sits alongside the Skillance marketplace.';
 
 function read(selector: string, attr: 'content' | 'href') {
   return document.head.querySelector(selector)?.getAttribute(attr) ?? null;
@@ -32,7 +32,7 @@ function jsonLd(meta: BeyondPageMeta) {
   const url = `${SITE}${meta.path}`;
   const crumbs = [
     { name: 'Skillance', item: `${SITE}/` },
-    { name: 'Beyond the App', item: `${SITE}/beyond` },
+    { name: 'Skillance Beyond', item: `${SITE}/beyond` },
   ];
   if (meta.path !== '/beyond') crumbs.push({ name: meta.crumb, item: url });
 
@@ -50,7 +50,8 @@ function jsonLd(meta: BeyondPageMeta) {
     {
       '@type': 'ProfessionalService',
       '@id': `${SITE}/beyond#service`,
-      name: 'Skillance Beyond the App',
+      name: 'Skillance Beyond',
+      alternateName: ['Skillance Beyond the App', 'Beyond the App'],
       url: `${SITE}/beyond`,
       description: SERVICE_DESCRIPTION,
       email: 'services@skillance.co.za',

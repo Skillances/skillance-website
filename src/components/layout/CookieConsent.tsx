@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useId } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cookie } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { Switch } from '@/components/ui/switch';
 import {
   COOKIE_CONSENT_STORAGE_KEY,
   COOKIE_POLICY_VERSION,
@@ -48,7 +48,16 @@ function persistConsent(
   return payload;
 }
 
+const panelMotion = {
+  initial: { y: 24, opacity: 0 },
+  animate: { y: 0, opacity: 1 },
+  exit: { y: 16, opacity: 0 },
+  transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
+};
+
 const CookieConsent = () => {
+  const titleId = useId();
+  const descId = useId();
   const [visible, setVisible] = useState(false);
   const [mode, setMode] = useState<'banner' | 'settings'>('banner');
   const [analyticsOn, setAnalyticsOn] = useState(false);
@@ -88,100 +97,129 @@ const CookieConsent = () => {
     <AnimatePresence>
       {visible && (
         <motion.div
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed bottom-6 left-6 right-6 md:left-auto md:right-8 md:max-w-md z-[60]"
+          {...panelMotion}
+          className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-5 sm:justify-end sm:pb-[max(1.25rem,env(safe-area-inset-bottom))]"
         >
-          <div className="bg-white/80 backdrop-blur-xl border border-neutral-200 p-6 rounded-3xl shadow-2xl shadow-black/5">
-            <div className="flex gap-4 items-start">
-              <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center flex-shrink-0">
-                <Cookie className="text-white w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-serif text-xl text-black italic mb-2">Cookies & privacy</h3>
-                {mode === 'banner' ? (
-                  <>
-                    <p className="text-neutral-600 text-sm leading-relaxed mb-6">
-                      We use essential cookies to run the site. Analytics and marketing cookies are optional and only run
-                      with your choice. Read our{' '}
-                      <Link to="/cookie-policy" className="text-black underline underline-offset-4 decoration-neutral-300">
-                        Cookie Policy
-                      </Link>
-                      .
-                    </p>
-                    <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
-                      <button
-                        type="button"
-                        onClick={acceptAll}
-                        className="flex-1 px-6 py-3 bg-black text-white text-sm font-medium rounded-xl transition-transform active:scale-95"
-                      >
-                        Accept all
-                      </button>
-                      <button
-                        type="button"
-                        onClick={rejectNonEssential}
-                        className="px-6 py-3 bg-neutral-100 text-black text-sm font-medium rounded-xl transition-colors hover:bg-neutral-200"
-                      >
-                        Reject non-essential
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMode('settings');
-                          setAnalyticsOn(false);
-                          setMarketingOn(false);
-                        }}
-                        className="px-6 py-3 border border-neutral-200 text-black text-sm font-medium rounded-xl hover:bg-neutral-50"
-                      >
-                        Customize
-                      </button>
+          <div
+            role="dialog"
+            aria-modal="false"
+            aria-labelledby={titleId}
+            aria-describedby={descId}
+            className="pointer-events-auto w-full max-w-[22rem] sm:max-w-[26rem] rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.18)] sm:p-5"
+          >
+            <header className="mb-3 sm:mb-3.5">
+              <h2
+                id={titleId}
+                className="font-serif text-lg leading-snug text-black italic sm:text-[1.125rem]"
+              >
+                Cookies & privacy
+              </h2>
+            </header>
+
+            {mode === 'banner' ? (
+              <>
+                <p
+                  id={descId}
+                  className="text-[0.8125rem] leading-relaxed text-neutral-600 sm:text-sm"
+                >
+                  Essential cookies keep the site working. Analytics and marketing are optional.{' '}
+                  <Link
+                    to="/cookie-policy"
+                    className="font-medium text-black underline decoration-neutral-300 underline-offset-[3px] hover:decoration-neutral-500"
+                  >
+                    Cookie Policy
+                  </Link>
+                  .
+                </p>
+
+                <div className="mt-4 flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={acceptAll}
+                    className="w-full rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white transition-transform active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+                  >
+                    Accept all
+                  </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={rejectNonEssential}
+                      className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm font-medium text-black transition-colors hover:bg-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-400"
+                    >
+                      Reject optional
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMode('settings');
+                        setAnalyticsOn(false);
+                        setMarketingOn(false);
+                      }}
+                      className="rounded-xl border border-neutral-200 px-3 py-2.5 text-sm font-medium text-black transition-colors hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-400"
+                    >
+                      Customize
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <p id={descId} className="text-[0.8125rem] leading-relaxed text-neutral-600 sm:text-sm">
+                  Toggle optional cookies. Essential cookies stay on so the platform works.
+                </p>
+
+                <ul className="mt-3 divide-y divide-neutral-100 rounded-xl border border-neutral-100">
+                  <li className="flex items-center justify-between gap-3 px-3 py-2.5">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-black">Essential</p>
+                      <p className="text-xs text-neutral-500">Required</p>
                     </div>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-neutral-600 text-sm leading-relaxed mb-4">
-                      Choose optional cookies. Essential cookies stay on so the platform works.
-                    </p>
-                    <label className="flex items-center justify-between gap-3 py-2 border-b border-neutral-100">
-                      <span className="text-sm text-black">Analytics</span>
-                      <input
-                        type="checkbox"
-                        checked={analyticsOn}
-                        onChange={(e) => setAnalyticsOn(e.target.checked)}
-                        className="h-4 w-4 rounded border-neutral-300"
-                      />
-                    </label>
-                    <label className="flex items-center justify-between gap-3 py-2 mb-4">
-                      <span className="text-sm text-black">Marketing</span>
-                      <input
-                        type="checkbox"
-                        checked={marketingOn}
-                        onChange={(e) => setMarketingOn(e.target.checked)}
-                        className="h-4 w-4 rounded border-neutral-300"
-                      />
-                    </label>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setMode('banner')}
-                        className="flex-1 px-4 py-2 text-sm text-neutral-600 border border-neutral-200 rounded-xl"
-                      >
-                        Back
-                      </button>
-                      <button
-                        type="button"
-                        onClick={saveCustom}
-                        className="flex-1 px-4 py-2 text-sm bg-black text-white rounded-xl"
-                      >
-                        Save choices
-                      </button>
+                    <Switch checked disabled aria-readonly className="data-[state=checked]:bg-neutral-400" />
+                  </li>
+                  <li className="flex items-center justify-between gap-3 px-3 py-2.5">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-black">Analytics</p>
+                      <p className="text-xs text-neutral-500">Usage insights</p>
                     </div>
-                  </>
-                )}
-              </div>
-            </div>
+                    <Switch
+                      checked={analyticsOn}
+                      onCheckedChange={setAnalyticsOn}
+                      aria-label="Analytics cookies"
+                      className="data-[state=checked]:bg-black"
+                    />
+                  </li>
+                  <li className="flex items-center justify-between gap-3 px-3 py-2.5">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-black">Marketing</p>
+                      <p className="text-xs text-neutral-500">Campaign measurement</p>
+                    </div>
+                    <Switch
+                      checked={marketingOn}
+                      onCheckedChange={setMarketingOn}
+                      aria-label="Marketing cookies"
+                      className="data-[state=checked]:bg-black"
+                    />
+                  </li>
+                </ul>
+
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setMode('banner')}
+                    className="rounded-xl border border-neutral-200 px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-400"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={saveCustom}
+                    className="rounded-xl bg-black px-3 py-2.5 text-sm font-medium text-white transition-transform active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+                  >
+                    Save choices
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </motion.div>
       )}

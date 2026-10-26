@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "check:legal": "node scripts/check-beyond-legal-placeholders.mjs",
     "build": "tsc -b && vite build",
+    "build:prod": "npm run check:legal && npm run build",
     "postbuild": "node scripts/ping-indexnow.mjs",
     "lint": "eslint .",
     "test": "vitest run",

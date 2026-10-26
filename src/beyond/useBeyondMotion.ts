@@ -1,7 +1,7 @@
 import { useEffect, type RefObject } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { getPrefersReducedMotion, revealFromTo } from '@/lib/motion';
+import { getPrefersReducedMotion, revealFromTo, scrollRevealTrigger } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -37,8 +37,64 @@ export function useBeyondMotion(scopeRef: RefObject<HTMLElement | null>, routeKe
       }
 
       root.querySelectorAll<HTMLElement>('.by-reveal').forEach((el) => {
+        if (el.closest('.by-market-editorial')) return;
         revealFromTo(el, el, reducedMotion);
       });
+
+      const marketEditorial = root.querySelector<HTMLElement>('.by-market-editorial');
+      if (marketEditorial) {
+        const listItems = Array.from(
+          marketEditorial.querySelectorAll<HTMLElement>('.by-market-list-item')
+        );
+        const visual = marketEditorial.querySelector<HTMLElement>('.by-market-editorial-visual');
+        const copyHead = marketEditorial.querySelector<HTMLElement>('.by-market-eyebrow');
+
+        if (copyHead) {
+          const introCopy = [
+            copyHead,
+            marketEditorial.querySelector<HTMLElement>('.by-market-title'),
+            marketEditorial.querySelector<HTMLElement>('.by-market-subhead'),
+          ].filter((el): el is HTMLElement => Boolean(el));
+          revealFromTo(introCopy, marketEditorial, reducedMotion, { start: 'top 88%' });
+        }
+
+        if (listItems.length) {
+          if (reducedMotion) {
+            gsap.set(listItems, { opacity: 1, y: 0 });
+          } else {
+            gsap.fromTo(
+              listItems,
+              { opacity: 0, y: 18 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.58,
+                ease: 'power3.out',
+                stagger: 0.06,
+                scrollTrigger: scrollRevealTrigger(marketEditorial, 'top 85%'),
+              }
+            );
+          }
+        }
+
+        if (visual) {
+          if (reducedMotion) {
+            gsap.set(visual, { opacity: 1, scale: 1 });
+          } else {
+            gsap.fromTo(
+              visual,
+              { opacity: 0, scale: 0.98 },
+              {
+                opacity: 1,
+                scale: 1,
+                duration: 0.72,
+                ease: 'power3.out',
+                scrollTrigger: scrollRevealTrigger(marketEditorial, 'top 82%'),
+              }
+            );
+          }
+        }
+      }
 
       if (!reducedMotion) {
         root.querySelectorAll<HTMLElement>('.by-parallax').forEach((wrap) => {

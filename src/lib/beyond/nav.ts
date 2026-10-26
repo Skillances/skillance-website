@@ -1,7 +1,7 @@
 /** Primary nav for site-primary-nav when the visitor is on /beyond routes. */
 export const BEYOND_PRIMARY_NAV = [
   { name: 'Overview', href: '/beyond', end: true },
-  { name: 'Services', href: '/beyond/services', end: false },
+  { name: 'What we build', href: '/beyond/services', end: false },
   { name: 'Approach', href: '/beyond/approach', end: false },
   { name: 'Work', href: '/beyond/work', end: false },
   { name: 'Contact', href: '/beyond/contact', end: false },

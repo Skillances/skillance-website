@@ -39,8 +39,10 @@ export default function BeyondLayout() {
 
   return (
     <div className="by-scope" ref={scopeRef}>
-      <BeyondLaunchStrip />
-      <Header />
+      <div className="by-site-chrome">
+        <BeyondLaunchStrip />
+        <Header />
+      </div>
       <a className="by-skip" href="#beyond-content">
         Skip to content
       </a>

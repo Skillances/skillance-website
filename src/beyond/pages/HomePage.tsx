@@ -1,21 +1,12 @@
 import { Link } from 'react-router-dom';
-import BeyondFigure from '@/beyond/components/BeyondFigure';
 import BeyondHero from '@/beyond/components/BeyondHero';
 import BeyondFaqList from '@/beyond/components/BeyondFaq';
 import CopyEmailButton from '@/beyond/components/CopyEmailButton';
 import EnquiryLink from '@/beyond/components/EnquiryLink';
 import BeyondRedesignShowcase from '@/beyond/components/BeyondRedesignShowcase';
-import SkillanceCaseStudy from '@/beyond/components/SkillanceCaseStudy';
+import { HomeProofMarketplace, HomeProofStory } from '@/beyond/components/HomeProofBand';
 import { SectionHead, StepRows } from '@/beyond/components/Blocks';
-import {
-  BEYOND_PROOF_IMAGES,
-  FAQS,
-  HOME_STORY,
-  MARKETPLACE_ENTRY,
-  PAGES,
-  SERVICES,
-  STEPS,
-} from '@/beyond/content';
+import { BEYOND_PROCESS_HOME, FAQS, PAGES, SERVICES, STEPS } from '@/beyond/content';
 import { useBeyondPage } from '@/beyond/useBeyondPage';
 
 export default function HomePage() {
@@ -32,46 +23,19 @@ export default function HomePage() {
       <BeyondHero titleId="beyond-hero-title" />
 
       <div className="by-proof-band">
-        <section className="by-section by-section-proof-story" aria-labelledby="beyond-story-title">
-          <div className="by-wrap by-split by-split-media by-reveal">
-            <div>
-              <SectionHead
-                id="beyond-story-title"
-                kicker={HOME_STORY.kicker}
-                title={HOME_STORY.title}
-              />
-              {HOME_STORY.paragraphs.map((paragraph) => (
-                <p key={paragraph} className="by-story-paragraph">{paragraph}</p>
-              ))}
-              <p className="by-story-marketplace">
-                <Link to={MARKETPLACE_ENTRY.href} className="by-textlink">
-                  {MARKETPLACE_ENTRY.label}
-                </Link>
-              </p>
-            </div>
-            <BeyondFigure
-              jpgSrc={BEYOND_PROOF_IMAGES.homeStory.jpgSrc}
-              alt={BEYOND_PROOF_IMAGES.homeStory.alt}
-              className="by-figure-section"
-              loading="lazy"
-            />
-          </div>
-        </section>
-
-        <section className="by-section by-section-cool by-section-proof-case" aria-labelledby="beyond-case-title">
-          <div className="by-wrap">
-            <SkillanceCaseStudy compact showPoints headingId="beyond-case-title" />
-          </div>
-        </section>
+        <HomeProofStory />
+        <HomeProofMarketplace />
       </div>
+
+      <BeyondRedesignShowcase />
 
       <section className="by-section by-section-cool by-section-services-index" aria-labelledby="beyond-build-title">
         <div className="by-wrap">
           <SectionHead
             id="beyond-build-title"
             kicker="What we build"
-            title="Four ways we help businesses ship software."
-            lede="Most projects are one of these four, and plenty are a mix. We scope each one with you before anything is priced."
+            title="Five ways we ship software."
+            lede="Websites from a free demo; larger builds get a written proposal."
           />
           <ol className="by-index by-index-columns by-reveal">
             {SERVICES.map((service) => (
@@ -94,20 +58,18 @@ export default function HomePage() {
         </div>
       </section>
 
-      <BeyondRedesignShowcase />
-
       <section className="by-section" aria-labelledby="beyond-approach-title">
         <div className="by-wrap by-reveal">
           <SectionHead
             id="beyond-approach-title"
-            kicker="How we work"
-            title="From first conversation to launch, and after."
-            lede="Five stages. You always know what we are doing now and what comes next."
+            kicker={BEYOND_PROCESS_HOME.kicker}
+            title={BEYOND_PROCESS_HOME.title}
+            lede={BEYOND_PROCESS_HOME.lede}
           />
           <StepRows steps={stepRows} />
           <div className="by-actions">
             <Link to="/beyond/approach" className="by-textlink">
-              See how we work
+              Full process detail
             </Link>
           </div>
         </div>
@@ -115,7 +77,7 @@ export default function HomePage() {
 
       <section className="by-section" aria-labelledby="beyond-faq-title">
         <div className="by-wrap by-reveal">
-          <SectionHead id="beyond-faq-title" kicker="Questions" title="Questions people ask first" />
+          <SectionHead id="beyond-faq-title" kicker="FAQ" title="Common questions" />
           <BeyondFaqList items={FAQS} />
         </div>
       </section>
@@ -125,8 +87,8 @@ export default function HomePage() {
           <SectionHead
             id="beyond-start-title"
             kicker="Start"
-            title="Tell us what you are building."
-            lede="Email us with what you want to build and who it is for. We keep it between us."
+            title="Request a free demo of your site."
+            lede="Email services@skillance.co.za with your current website or a short brief. We reply from that inbox only."
           />
           <div className="by-actions by-actions-cta">
             <EnquiryLink ctaLocation="home_close" variant="solid">

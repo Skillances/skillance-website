@@ -1,0 +1,6 @@
+{
+  "approved": false,
+  "label": "Hero mock 3 — Left-aligned editorial headline",
+  "surface": "Beyond home hero copy block",
+  "target": "src/beyond/components/BeyondHero.tsx"
+}

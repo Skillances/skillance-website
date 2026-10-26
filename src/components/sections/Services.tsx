@@ -89,12 +89,12 @@ const Services = () => {
         </div>
 
         {/* New Immersive Grid */}
-        <div className="services-grid grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-20">
+        <div className="services-grid grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-20 items-stretch">
           {serviceCategories.map((category) => (
-            <div key={category.name} className="service-card-wrapper group">
+            <div key={category.name} className="service-card-wrapper group h-full">
               <button
                 onClick={() => setSelectedCategory(category)}
-                className="relative w-full aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-neutral-200 flex flex-col justify-end p-8 lg:p-10 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] motion-hover-lift"
+                className="relative w-full h-full min-h-[420px] aspect-[4/5] rounded-[2.5rem] overflow-hidden bg-neutral-200 grid grid-rows-[1fr_auto] p-8 lg:p-10 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] motion-hover-lift text-left"
               >
                 {/* Background Image */}
                 <img
@@ -109,31 +109,35 @@ const Services = () => {
                 />
 
                 {/* Gradient overlay — two-layer for depth */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/10 transition-opacity duration-500" />
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-                {/* Content */}
-                <div className="relative z-10 w-full">
-                  <div className="flex items-end justify-between gap-3 mb-3">
-                    <div className="flex items-end gap-3 min-w-0">
+                {/* Content — fixed footer height so titles/icons align across the grid */}
+                <div className="relative z-10 row-start-2 w-full min-h-[8.25rem] flex flex-col justify-end">
+                  <p className="text-white/65 text-sm font-light leading-snug line-clamp-2 min-h-[2.75rem] mb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out">
+                    {category.description}
+                  </p>
+                  <div className="flex items-center justify-between gap-3 min-h-[3.25rem]">
+                    <div className="flex items-center gap-3 min-w-0">
                       <SkillanceIcon
                         categorySlug={category.slug}
                         label={`${category.name} category`}
                         decorative
-                        sizeClassName="w-11 h-11"
-                        className="mb-1 drop-shadow-md"
+                        onDark
+                        sizeClassName="w-10 h-10"
+                        className="shrink-0"
                       />
-                      <h3 className="font-serif text-3xl lg:text-[2rem] xl:text-4xl text-white leading-tight">
+                      <h3 className="font-serif text-3xl lg:text-[2rem] xl:text-4xl text-white leading-[1.1]">
                         {category.name}
                       </h3>
                     </div>
-                    <div className="shrink-0 w-9 h-9 rounded-full border border-white/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-[transform,opacity] duration-300 ease-out">
+                    <div
+                      className="shrink-0 w-9 h-9 rounded-full border border-white/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-[transform,opacity] duration-300 ease-out"
+                      aria-hidden="true"
+                    >
                       <ArrowUpRight className="w-4 h-4 text-white" />
                     </div>
                   </div>
-                  <p className="text-white/65 text-sm font-light leading-relaxed transform translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-[transform,opacity] duration-300 ease-out delay-75">
-                    {category.description}
-                  </p>
                 </div>
               </button>
             </div>

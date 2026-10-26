@@ -54,7 +54,7 @@ export default function ExperienceSwitcher({
         <Link
           key={option.href}
           to={option.href}
-          className={studio ? 'by-switch-link' : undefined}
+          className={studio ? 'by-switch-link' : 'experience-switch-link'}
           aria-current={option.current ? 'true' : undefined}
           aria-label={option.name}
         >

@@ -6,6 +6,8 @@ import HomePage from '@/beyond/pages/HomePage';
 import NotFoundPage from '@/beyond/pages/NotFoundPage';
 import ServicesPage from '@/beyond/pages/ServicesPage';
 import WorkPage from '@/beyond/pages/WorkPage';
+import BeyondTermsPage from '@/beyond/pages/BeyondTermsPage';
+import BeyondDataProcessingPage from '@/beyond/pages/BeyondDataProcessingPage';
 
 /**
  * Lazy entry for /beyond. Imported only via React.lazy from App.tsx.
@@ -21,6 +23,8 @@ export default function BeyondApp() {
         <Route path="approach" element={<ApproachPage />} />
         <Route path="work" element={<WorkPage />} />
         <Route path="contact" element={<ContactPage />} />
+        <Route path="terms" element={<BeyondTermsPage />} />
+        <Route path="data-processing" element={<BeyondDataProcessingPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

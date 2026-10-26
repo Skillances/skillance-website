@@ -1,0 +1,4 @@
+{
+  "readme": "Copy to config.local.json for machine-only Impeccable overrides.",
+  "decisionPageToggle": "The mockup/code footer on impeccable serve-question requires OPENAI_API_KEY in Cursor Settings → Environment (restart Cursor). Verify with: impeccable context must show IMAGE_GEN_AVAILABLE. Cursor GenerateImage alone does not enable that footer. Do not store API keys in this file."
+}

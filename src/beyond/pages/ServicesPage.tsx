@@ -1,7 +1,7 @@
 import BeyondFigure from '@/beyond/components/BeyondFigure';
 import EnquiryLink from '@/beyond/components/EnquiryLink';
 import { PageIntro } from '@/beyond/components/Blocks';
-import { PAGES, SERVICES } from '@/beyond/content';
+import { PAGES, SERVICES, WEBSITE_SECTOR_COMPLIANCE } from '@/beyond/content';
 import { useBeyondPage } from '@/beyond/useBeyondPage';
 
 export default function ServicesPage() {
@@ -11,9 +11,9 @@ export default function ServicesPage() {
     <div className="by-wrap">
       <div className="by-page-hero-grid by-page-hero-grid-services">
         <PageIntro
-          kicker="Services"
-          title="What we design and build."
-          lede="Four kinds of software. A project can be one of them, or several. We scope each one with you before anything is priced."
+          kicker="What we build"
+          title="Websites first — custom software when you need it."
+          lede="Small-business website rebuilds start with a free demo and a fixed quote. SaaS, mobile apps, and systems get a written proposal after discovery."
         />
         <BeyondFigure
           webpSrc="/beyond/new/services-hero.webp"
@@ -53,6 +53,14 @@ export default function ServicesPage() {
               </li>
             ))}
           </ul>
+          {service.id === 'websites' ? (
+            <aside className="by-sector-compliance" aria-labelledby={`${service.id}-compliance`}>
+              <h3 id={`${service.id}-compliance`} className="by-sector-compliance-title">
+                {WEBSITE_SECTOR_COMPLIANCE.title}
+              </h3>
+              <p>{WEBSITE_SECTOR_COMPLIANCE.body}</p>
+            </aside>
+          ) : null}
         </article>
       ))}
       <section className="by-section" aria-labelledby="services-enquiry">

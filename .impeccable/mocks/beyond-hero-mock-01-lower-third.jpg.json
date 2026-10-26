@@ -1,0 +1,6 @@
+{
+  "approved": false,
+  "label": "Hero mock 1 — Lower-third copy + stacked CTAs (closest to current code)",
+  "surface": "Beyond home hero copy block",
+  "target": "src/beyond/components/BeyondHero.tsx"
+}

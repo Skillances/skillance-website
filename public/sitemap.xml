@@ -56,7 +56,7 @@
   
   <url>
     <loc>https://skillance.co.za/privacy-policy</loc>
-    <lastmod>2026-04-19</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -102,9 +102,27 @@
   </url>
   <url>
     <loc>https://skillance.co.za/beyond/contact</loc>
-    <lastmod>2026-10-19</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillance.co.za/beyond/terms</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.45</priority>
+  </url>
+  <url>
+    <loc>https://skillance.co.za/beyond/data-processing</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.45</priority>
+  </url>
+  <url>
+    <loc>https://skillance.co.za/paia-manual</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
   </url>
   
 </urlset>

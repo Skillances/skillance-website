@@ -16,7 +16,9 @@ import { AuthProvider } from './context/AuthContext';
 import { AdminThemeProvider, useAdminTheme } from './context/AdminThemeContext';
 import { QueryProvider } from './providers/QueryProvider';
 import CookieConsent from './components/layout/CookieConsent';
-import { syncSectionScrollMarginCss } from './lib/sectionScroll';
+import ExperienceSwitcherDock from './components/experience/ExperienceSwitcherDock';
+import { syncSiteChromeCss } from '@/lib/layout/siteChrome';
+import { getLenisFromWindow, syncSectionScrollMarginCss } from './lib/sectionScroll';
 import { getPrefersReducedMotion, LENIS_DURATION } from './lib/motion';
 import RequireAuth from './components/marketplace/RequireAuth';
 import { isMarketplacePath, isMarketplaceShellPath } from './lib/marketplace/routes';
@@ -27,6 +29,7 @@ const HelpCenter = lazy(() => import('./pages/help/HelpCenter'));
 const Privacy = lazy(() => import('./pages/legal/Privacy'));
 const Terms = lazy(() => import('./pages/legal/Terms'));
 const CookiePolicy = lazy(() => import('./pages/legal/CookiePolicy'));
+const PaiaManual = lazy(() => import('./pages/legal/PaiaManual'));
 const RefundPolicy = lazy(() => import('./pages/legal/RefundPolicy'));
 const FAQPage = lazy(() => import('./pages/help/FAQPage'));
 const TrustSafetyPage = lazy(() => import('./pages/help/TrustSafetyPage'));
@@ -111,7 +114,7 @@ const BeyondApp = lazy(() => import('./beyond/BeyondApp'));
 
 function RouteShell({ beyond, children }: { beyond: boolean; children: ReactNode }) {
   if (beyond) return children;
-  return <main>{children}</main>;
+  return <main className="relative z-0">{children}</main>;
 }
 
 function BeyondRouteFallback() {
@@ -147,7 +150,14 @@ function ScrollToTop() {
     if (hash.startsWith('#')) return;
     // Backward compatibility for legacy cross-route section jumps.
     if (sessionStorage.getItem('skillance_scroll_to')) return;
-    window.scrollTo(0, 0);
+    const lenis = getLenisFromWindow();
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true, force: true });
+    } else {
+      window.scrollTo(0, 0);
+    }
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, [pathname, hash]);
 
   return null;
@@ -188,13 +198,25 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   const showMarketingWidgets = showMarketingFooter;
   const useLenisScroll = !isMarketplaceRoute && !isBeyondRoute;
   // One key for the whole shell so the layout stays mounted; it animates its own page enters.
+  const isExperienceShell =
+    location.pathname === '/' || isBeyondRoute;
   const routeAnimationKey = isAdminRoute
     ? '/admin'
     : isMarketplaceShellPath(location.pathname)
       ? '/marketplace'
-      : isBeyondRoute
-        ? '/beyond'
+      : isExperienceShell
+        ? 'experience-shell'
         : location.pathname;
+
+  /* Dock on marketplace only; Beyond keeps the switcher in its header center column. */
+  const showExperienceSwitcherDock =
+    showMarketingNav && !isBeyondRoute && !isAdminRoute && !isMarketplaceRoute && !isAuthPath;
+
+  useEffect(() => {
+    syncSiteChromeCss();
+    window.addEventListener('resize', syncSiteChromeCss);
+    return () => window.removeEventListener('resize', syncSiteChromeCss);
+  }, [location.pathname, showMarketingNav, isBeyondRoute]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -303,24 +325,30 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   return (
     <div 
       ref={mainRef} 
-      className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : 'bg-white'} transition-opacity duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[opacity] ${
+      className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : 'bg-white'} transition-opacity duration-[450ms] ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[opacity] ${
         isLoaded ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
-      style={isBeyondRoute || isAuthPath ? { background: '#F3EEE6' } : undefined}
+      style={
+        isBeyondRoute || isAuthPath
+          ? { backgroundColor: '#F3EEE6' }
+          : { backgroundColor: '#ffffff' }
+      }
     >
       <ScrollToTop />
       {showMarketingNav && <Navigation isLoaded={isLoaded} />}
+      <ExperienceSwitcherDock enabled={showExperienceSwitcherDock} />
       <RouteShell beyond={isBeyondRoute}>
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={routeAnimationKey}>
             {/* Public Routes */}
-            <Route path="/" element={<PageTransition routeKey="/"><Home /></PageTransition>} />
+            <Route path="/" element={<Home />} />
             <Route path="/help-center" element={<PageTransition routeKey="/help-center"><Suspense fallback={null}><HelpCenter /></Suspense></PageTransition>} />
             <Route path="/privacy-policy" element={<PageTransition routeKey="/privacy-policy"><Suspense fallback={null}><Privacy /></Suspense></PageTransition>} />
             <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
             <Route path="/terms" element={<PageTransition routeKey="/terms"><Suspense fallback={null}><Terms /></Suspense></PageTransition>} />
             <Route path="/refund-policy" element={<PageTransition routeKey="/refund-policy"><Suspense fallback={null}><RefundPolicy /></Suspense></PageTransition>} />
             <Route path="/cookie-policy" element={<PageTransition routeKey="/cookie-policy"><Suspense fallback={null}><CookiePolicy /></Suspense></PageTransition>} />
+            <Route path="/paia-manual" element={<PageTransition routeKey="/paia-manual"><Suspense fallback={null}><PaiaManual /></Suspense></PageTransition>} />
             <Route path="/faq" element={<PageTransition routeKey="/faq"><Suspense fallback={null}><FAQPage /></Suspense></PageTransition>} />
             <Route path="/trust-safety" element={<PageTransition routeKey="/trust-safety"><Suspense fallback={null}><TrustSafetyPage /></Suspense></PageTransition>} />
             <Route path="/services" element={<PageTransition routeKey="/services"><Suspense fallback={null}><ServicesPage /></Suspense></PageTransition>} />
@@ -432,11 +460,15 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
         </AnimatePresence>
       </RouteShell>
       {showMarketingFooter && <Footer />}
+      {isLoaded && showMarketingNav && !isAuthPath && (
+        <Suspense fallback={null}>
+          <LaunchCountdown />
+        </Suspense>
+      )}
       {isLoaded && showMarketingWidgets && (
         <>
           <CookieConsent />
           <Suspense fallback={null}>
-            <LaunchCountdown />
             <ScrollIndicator />
             <PublicFaqBot />
           </Suspense>
@@ -446,20 +478,37 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   );
 }
 
+function readInitialLoaded(shouldShowLoader: boolean): boolean {
+  if (!shouldShowLoader) return true;
+  try {
+    return sessionStorage.getItem('skillance_loaded') === 'true';
+  } catch {
+    return false;
+  }
+}
+
 function AppShell() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const shouldShowLoader =
     !isAdminRoute &&
     !isMarketingAuthPath(location.pathname) &&
-    !isMarketplacePath(location.pathname) &&
-    !isBeyondPath(location.pathname);
+    !isMarketplacePath(location.pathname);
 
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(() => readInitialLoaded(shouldShowLoader));
 
   const handleLoaderComplete = () => {
     setIsLoaded(true);
   };
+
+  const loaderSurface = isBeyondPath(location.pathname) ? '#F3EEE6' : '#ffffff';
+
+  useEffect(() => {
+    if (!shouldShowLoader) return;
+    if (isBeyondPath(location.pathname)) {
+      void import('./beyond/BeyondApp');
+    }
+  }, [location.pathname, shouldShowLoader]);
 
   // Routes without the marketing loader are ready immediately (state adjusted during render).
   if (!shouldShowLoader && !isLoaded) {
@@ -468,7 +517,9 @@ function AppShell() {
 
   return (
     <>
-      {shouldShowLoader && <PageLoader onComplete={handleLoaderComplete} />}
+      {shouldShowLoader && (
+        <PageLoader surfaceColor={loaderSurface} onComplete={handleLoaderComplete} />
+      )}
       <MainContent isLoaded={isLoaded} />
     </>
   );

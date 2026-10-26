@@ -5,11 +5,16 @@ import { getSectionScrollTopReservePx, syncSectionScrollMarginCss } from '@/lib/
 export function useBeyondSiteChrome() {
   useEffect(() => {
     const sync = () => {
-      const banner = document.getElementById('beyond-launch-strip');
-      const header = document.querySelector<HTMLElement>('.by-header');
+      const chrome = document.querySelector<HTMLElement>('.by-site-chrome');
       let px = 0;
-      if (banner) px += banner.getBoundingClientRect().height;
-      if (header) px += header.getBoundingClientRect().height;
+      if (chrome) {
+        px = chrome.getBoundingClientRect().height;
+      } else {
+        const banner = document.getElementById('beyond-launch-strip');
+        const header = document.querySelector<HTMLElement>('.by-header');
+        if (banner) px += banner.getBoundingClientRect().height;
+        if (header) px += header.getBoundingClientRect().height;
+      }
       if (px < 1) px = getSectionScrollTopReservePx();
       document.documentElement.style.setProperty('--by-site-chrome', `${px}px`);
       syncSectionScrollMarginCss();

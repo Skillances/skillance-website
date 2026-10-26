@@ -1,0 +1,6 @@
+{
+  "approved": false,
+  "label": "Hero mock 2 — Centered vignette + full-width primary CTA",
+  "surface": "Beyond home hero copy block",
+  "target": "src/beyond/components/BeyondHero.tsx"
+}

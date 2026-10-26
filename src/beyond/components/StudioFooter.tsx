@@ -1,9 +1,6 @@
 import { Link } from 'react-router-dom';
-import { BEYOND_EMAIL, NAV, SOCIAL } from '@/beyond/content';
-import {
-  CORPORATE_LEGAL_ADDRESS_ONE_LINE,
-  CORPORATE_OWNERSHIP_SENTENCE,
-} from '@/constants/corporate';
+import { BEYOND_EMAIL, BEYOND_FOOTER_TAGLINE, NAV, SOCIAL } from '@/beyond/content';
+import { beyondFooterDisclosureBlock } from '@/constants/beyondLegal';
 import EnquiryLink from '@/beyond/components/EnquiryLink';
 
 export default function StudioFooter() {
@@ -19,9 +16,7 @@ export default function StudioFooter() {
                 <span className="by-brand-rule" aria-hidden="true" />
                 <span className="by-brand-beyond">Beyond</span>
               </Link>
-              <p className="by-footer-lede">
-                SaaS, cloud systems, and custom software from the team behind the Skillance marketplace.
-              </p>
+              <p className="by-footer-lede">{BEYOND_FOOTER_TAGLINE}</p>
               <div className="by-footer-cta">
                 <EnquiryLink ctaLocation="footer" variant="light">
                   Start a project
@@ -68,15 +63,24 @@ export default function StudioFooter() {
                 <li>
                   <Link to="/cookie-policy">Cookie policy</Link>
                 </li>
+                <li>
+                  <Link to="/beyond/terms">Beyond service terms</Link>
+                </li>
+                <li>
+                  <Link to="/paia-manual">PAIA manual</Link>
+                </li>
+                <li>
+                  <Link to="/beyond/data-processing">Client data processing</Link>
+                </li>
               </ul>
             </nav>
           </div>
 
           <div className="by-footer-legal">
-            <p>{CORPORATE_OWNERSHIP_SENTENCE}</p>
-            <p>Registered office: {CORPORATE_LEGAL_ADDRESS_ONE_LINE}</p>
+            <p className="by-footer-legal-ect">{beyondFooterDisclosureBlock()}</p>
             <p className="by-footer-legal-note">
-              Marketplace terms cover bookings on the platform. Custom software is agreed per project.
+              Marketplace terms cover bookings on the platform. Custom software and websites are agreed per project under
+              Beyond service terms.
             </p>
           </div>
         </div>

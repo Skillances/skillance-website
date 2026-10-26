@@ -1,0 +1,8 @@
+{
+  "approved": false,
+  "label": "R2 Comp 2 — Pine sidebar + numbered services index",
+  "surface": "Beyond home (/beyond)",
+  "variant": "sidebar-index",
+  "round": 2,
+  "supersedes": ["beyond-comp-01-centered.jpg", "beyond-comp-02-editorial-split.jpg", "beyond-comp-03-pine-cinematic.jpg"]
+}

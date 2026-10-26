@@ -260,7 +260,8 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
 
       <nav
         id="site-primary-nav"
-        className="fixed top-8 left-0 right-0 z-50 py-5 transition-[background-color,border-color,backdrop-filter,-webkit-backdrop-filter] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
+        data-nav-tone={isDarkSection ? 'dark' : 'light'}
+        className="fixed top-8 left-0 right-0 z-50 flex h-[var(--site-primary-nav-height,4.75rem)] items-center transition-[background-color,border-color,backdrop-filter,-webkit-backdrop-filter] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
         style={{
           backgroundColor: onFullBleedHero
             ? 'transparent'
@@ -286,48 +287,43 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
             }}
           />
         )}
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            {/* Left Navigation */}
-            <div className="hidden lg:flex items-center gap-8 flex-1">
+        <div className="site-primary-nav-inner mx-auto w-full max-w-[1600px] px-6 lg:px-10 xl:px-14">
+          <div className="hidden lg:grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-10 xl:gap-x-14">
+            <div className="flex min-w-0 items-center justify-start gap-8 xl:gap-10">
               {navLinks.slice(0, 3).map((link) => renderDesktopNavItem(link))}
             </div>
 
-            {/* Centered logo. The switcher hangs under it without growing the link row. */}
-            <div className="relative flex items-center">
-            <Link
-              to={onBeyond ? '/beyond' : '/'}
-              className={`flex items-center gap-3 font-serif text-2xl font-medium tracking-tight motion-ui transition-colors ${textColor}`}
-            >
-              {isDarkSection ? (
-                <picture>
-                  <source type="image/webp" srcSet="/skillance-tiny-logo-white.webp" />
+            <div className="relative justify-self-center shrink-0">
+              <Link
+                to={onBeyond ? '/beyond' : '/'}
+                className={`flex items-center gap-3 font-serif text-2xl font-medium tracking-tight motion-ui transition-colors ${textColor}`}
+              >
+                {isDarkSection ? (
+                  <picture>
+                    <source type="image/webp" srcSet="/skillance-tiny-logo-white.webp" />
+                    <img
+                      src="/skillance-tiny-logo-white.png"
+                      alt="Skillance"
+                      width={120}
+                      height={24}
+                      className="h-6 w-auto transition-opacity duration-300"
+                    />
+                  </picture>
+                ) : (
                   <img
-                    src="/skillance-tiny-logo-white.png"
+                    src="/skillance-tiny-logo-black.png"
                     alt="Skillance"
                     width={120}
                     height={24}
                     className="h-6 w-auto transition-opacity duration-300"
                   />
-                </picture>
-              ) : (
-                <img
-                  src="/skillance-tiny-logo-black.png"
-                  alt="Skillance"
-                  width={120}
-                  height={24}
-                  className="h-6 w-auto transition-opacity duration-300"
-                />
-              )}
-              Skillance
-            </Link>
-            <div className="experience-switch-anchor hidden lg:block">
-              <ExperienceSwitcher appearance={isDarkSection ? 'quiet-dark' : 'quiet-light'} />
-            </div>
+                )}
+                Skillance
+              </Link>
+              <div className="experience-switch-anchor" aria-hidden="true" />
             </div>
 
-            {/* Right Navigation */}
-            <div className="hidden lg:flex items-center gap-6 flex-1 justify-end">
+            <div className="flex min-w-0 items-center justify-end gap-6 xl:gap-8">
               {navLinks.slice(3).map((link) => renderDesktopNavItem(link))}
               {sessionLink && (
                 <Link
@@ -340,21 +336,44 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
                 </Link>
               )}
             </div>
+          </div>
 
-            <div className="flex items-center gap-1 lg:hidden">
+          <div className="flex items-center justify-between lg:hidden">
+            <Link
+              to={onBeyond ? '/beyond' : '/'}
+              className={`flex items-center gap-3 font-serif text-2xl font-medium tracking-tight motion-ui transition-colors ${textColor}`}
+            >
+              {isDarkSection ? (
+                <img
+                  src="/skillance-tiny-logo-white.png"
+                  alt="Skillance"
+                  width={120}
+                  height={24}
+                  className="h-6 w-auto"
+                />
+              ) : (
+                <img
+                  src="/skillance-tiny-logo-black.png"
+                  alt="Skillance"
+                  width={120}
+                  height={24}
+                  className="h-6 w-auto"
+                />
+              )}
+              Skillance
+            </Link>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className={`p-2 transition-colors relative z-50 ${isDarkSection ? 'text-white' : 'text-black'}`}
               aria-label="Toggle menu"
             >
-              <MenuToggleIcon 
-                open={isMobileMenuOpen} 
-                className="w-8 h-8" 
-                duration={500} 
-                stroke={isMobileMenuOpen ? 'black' : (isDarkSection ? 'white' : 'black')}
+              <MenuToggleIcon
+                open={isMobileMenuOpen}
+                className="w-8 h-8"
+                duration={500}
+                stroke={isMobileMenuOpen ? 'black' : isDarkSection ? 'white' : 'black'}
               />
             </button>
-            </div>
           </div>
         </div>
       </nav>

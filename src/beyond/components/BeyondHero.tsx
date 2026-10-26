@@ -77,7 +77,7 @@ export default function BeyondHero({ titleId }: BeyondHeroProps) {
             Start a project
           </EnquiryLink>
           <Link to="/beyond/approach" className="by-btn by-btn-on-dark">
-            See how we work
+            How a project runs
           </Link>
         </div>
       </div>

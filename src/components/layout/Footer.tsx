@@ -13,19 +13,24 @@ const Footer = () => {
       { name: 'How It Works', href: '/#how-it-works' },
       { name: 'FAQ', href: '/#faq' },
     ],
+    'For businesses': [
+      { name: 'Beyond by Skillance', href: '/beyond' },
+      { name: 'What we build', href: '/beyond/services' },
+      { name: 'How a project runs', href: '/beyond/approach' },
+      { name: 'Start a project', href: '/beyond/contact' },
+    ],
     Resources: [
       { name: 'Help Center', href: '/help-center' },
       { name: 'FAQ', href: '/faq' },
       { name: 'Trust & Safety', href: '/trust-safety' },
       { name: 'Get in touch', href: '/contact' },
-      { name: 'Beyond the App', href: '/beyond' },
-      { name: 'Admin', href: '/admin' },
     ],
     Legal: [
       { name: 'Privacy Policy', href: '/privacy-policy' },
       { name: 'Terms of Service', href: '/terms' },
       { name: 'Refund Policy', href: '/refund-policy' },
       { name: 'Cookie Policy', href: '/cookie-policy' },
+      { name: 'Beyond service terms', href: '/beyond/terms' },
     ],
   };
 
@@ -104,7 +109,7 @@ const Footer = () => {
         <div className="h-px bg-neutral-800 mb-16" />
 
         {/* Links Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-10 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-16">
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
               <h3 className="text-sm text-neutral-400 mb-6 font-medium uppercase tracking-widest">

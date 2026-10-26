@@ -4,11 +4,26 @@
  */
 
 .experience-switch-anchor {
+  /* Placeholder reserves space under the logo; visible control lives in .experience-switch-dock */
+  visibility: hidden;
+  pointer-events: none;
   position: absolute;
   left: 50%;
   top: calc(100% + 0.3rem);
   transform: translateX(-50%);
-  z-index: 1;
+  width: 12rem;
+  height: 2rem;
+}
+
+.experience-switch-dock {
+  position: fixed;
+  left: 50%;
+  top: calc(
+    var(--site-launch-strip-height, 32px) + var(--site-primary-nav-height, 76px) + 4px
+  );
+  transform: translateX(-50%);
+  z-index: 55;
+  pointer-events: auto;
 }
 
 .experience-switch {
@@ -51,11 +66,11 @@
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.32);
 }
 
-.experience-switch-dark a {
+.experience-switch-dark a.experience-switch-link {
   color: #f5f5f5;
 }
 
-.experience-switch-dark a[aria-current='true'] {
+.experience-switch-dark a.experience-switch-link[aria-current='true'] {
   background: #f5f5f5;
   color: #141414;
 }
@@ -65,11 +80,11 @@
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
 }
 
-.experience-switch-light a {
+.experience-switch-light a.experience-switch-link {
   color: #3a3a3a;
 }
 
-.experience-switch-light a[aria-current='true'] {
+.experience-switch-light a.experience-switch-link[aria-current='true'] {
   background: #141414;
   color: #f8faf9;
 }

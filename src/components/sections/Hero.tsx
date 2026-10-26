@@ -46,15 +46,9 @@ const Hero = () => {
   }, [reducedMotion]);
 
   return (
-    <section
-      id="home"
-      ref={heroRef}
-      className="relative h-screen w-full overflow-hidden"
-    >
-      <div
-        ref={imageRef}
-        className="absolute inset-0 w-full h-[120%] -top-[10%]"
-      >
+    <section id="home" ref={heroRef} className="site-hero w-full">
+      <div ref={imageRef} className="site-hero-media">
+        <div className="absolute inset-0 h-[120%] w-full -top-[10%]">
         <picture className="w-full h-full block">
           <source
             media="(max-width: 1023px)"
@@ -83,12 +77,10 @@ const Hero = () => {
               'radial-gradient(ellipse 120% 100% at 50% 50%, transparent 50%, rgba(0,0,0,0.35) 100%)',
           }}
         />
+        </div>
       </div>
 
-      <div
-        ref={textRef}
-        className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6"
-      >
+      <div ref={textRef} className="site-hero-content px-6">
         <h1 className="font-serif text-[2.5rem] sm:text-6xl lg:text-7xl xl:text-8xl text-white leading-[1.1] max-w-4xl flex flex-col items-center gap-2 sm:gap-3">
           <span>The</span>
           <span className="relative flex items-center justify-center min-w-[11ch] h-[1.2em]">

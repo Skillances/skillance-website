@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HandWrittenTitle } from '../ui/hand-writing-text';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 interface PageLoaderProps {
   onComplete: () => void;
+  /** Match destination shell (marketing white vs Beyond cream). */
+  surfaceColor?: string;
 }
 
 const SESSION_KEY = 'skillance_loaded';
-const WORDMARK_FADE_MS = 5200;
-const EXIT_MS = 6600;
+const EXIT_MS = 0.45;
 const FALLBACK_MS = 1200;
 const VIDEO_START_TIMEOUT_MS = 1500;
+const SAFETY_MAX_MS = 18000;
 
 function pickAssemblyVideoSrc(): string {
   const portrait = window.matchMedia('(max-aspect-ratio: 1/1)').matches;
@@ -31,11 +32,10 @@ function readSessionLoaded(): boolean {
   }
 }
 
-const PageLoader = ({ onComplete }: PageLoaderProps) => {
+const PageLoader = ({ onComplete, surfaceColor = '#ffffff' }: PageLoaderProps) => {
   const reducedMotion = usePrefersReducedMotion();
   const [isVisible, setIsVisible] = useState(() => !readSessionLoaded());
   const [isExiting, setIsExiting] = useState(false);
-  const [showWordmark, setShowWordmark] = useState(reducedMotion);
   const [useEndFrame, setUseEndFrame] = useState(reducedMotion);
   const [videoSrc] = useState(() =>
     typeof window !== 'undefined' ? pickAssemblyVideoSrc() : '/brand/logo_assembly_16x9.mp4',
@@ -50,15 +50,26 @@ const PageLoader = ({ onComplete }: PageLoaderProps) => {
   });
   const videoRef = useRef<HTMLVideoElement>(null);
   const finishedRef = useRef(false);
+  const fallbackExitRef = useRef<number | null>(null);
 
   const finishSession = useCallback(() => {
     if (finishedRef.current) return;
     finishedRef.current = true;
+    if (fallbackExitRef.current != null) {
+      window.clearTimeout(fallbackExitRef.current);
+      fallbackExitRef.current = null;
+    }
     sessionStorage.setItem(SESSION_KEY, 'true');
+    onComplete();
     setIsExiting(true);
-  }, []);
+  }, [onComplete]);
 
   const skip = useCallback(() => {
+    finishSession();
+  }, [finishSession]);
+
+  const handleVideoEnded = useCallback(() => {
+    videoRef.current?.pause();
     finishSession();
   }, [finishSession]);
 
@@ -73,23 +84,48 @@ const PageLoader = ({ onComplete }: PageLoaderProps) => {
       return () => window.clearTimeout(timer);
     }
 
-    const wordmarkTimer = window.setTimeout(() => setShowWordmark(true), WORDMARK_FADE_MS);
-    const exitTimer = window.setTimeout(() => finishSession(), EXIT_MS);
+    const safetyTimer = window.setTimeout(() => finishSession(), SAFETY_MAX_MS);
 
     const startTimeout = window.setTimeout(() => {
       const video = videoRef.current;
       if (!video || video.currentTime > 0 || !video.paused) return;
       setUseEndFrame(true);
-      setShowWordmark(true);
-      window.setTimeout(() => finishSession(), FALLBACK_MS);
+      fallbackExitRef.current = window.setTimeout(() => finishSession(), FALLBACK_MS);
     }, VIDEO_START_TIMEOUT_MS);
 
     return () => {
-      window.clearTimeout(wordmarkTimer);
-      window.clearTimeout(exitTimer);
+      window.clearTimeout(safetyTimer);
       window.clearTimeout(startTimeout);
+      if (fallbackExitRef.current != null) {
+        window.clearTimeout(fallbackExitRef.current);
+      }
     };
   }, [finishSession, isVisible, onComplete, reducedMotion]);
+
+  useEffect(() => {
+    if (!isVisible || reducedMotion || useEndFrame) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    const tryPlay = () => {
+      void video.play().catch(() => {
+        /* start-timeout fallback handles blocked autoplay */
+      });
+    };
+
+    if (video.readyState >= 2) {
+      tryPlay();
+      return;
+    }
+
+    video.addEventListener('loadeddata', tryPlay, { once: true });
+    video.load();
+    tryPlay();
+
+    return () => {
+      video.removeEventListener('loadeddata', tryPlay);
+    };
+  }, [isVisible, reducedMotion, useEndFrame, videoSrc]);
 
   useEffect(() => {
     const onKeyDown = () => {
@@ -108,11 +144,11 @@ const PageLoader = ({ onComplete }: PageLoaderProps) => {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onAnimationComplete={() => {
-            onComplete();
             setIsVisible(false);
           }}
-          transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
-          className="fixed inset-0 z-[105] bg-white flex flex-col items-center justify-center overflow-hidden px-4"
+          transition={{ duration: EXIT_MS, ease: [0.23, 1, 0.32, 1] }}
+          className="fixed inset-0 z-[105] flex flex-col items-center justify-center overflow-hidden px-4"
+          style={{ backgroundColor: surfaceColor }}
         >
           <button
             type="button"
@@ -122,21 +158,19 @@ const PageLoader = ({ onComplete }: PageLoaderProps) => {
             Skip
           </button>
 
-          <div className="flex flex-col items-center justify-center w-full max-w-3xl gap-4">
+          <div className="flex w-full max-w-3xl items-center justify-center">
             {!reducedMotion && !useEndFrame ? (
               <video
                 ref={videoRef}
-                className="w-full max-h-[45vh] object-contain bg-white"
+                className="w-full max-h-[45vh] object-contain"
+                style={{ backgroundColor: surfaceColor }}
                 src={videoSrc}
                 poster={posterSrc}
                 muted
                 playsInline
                 autoPlay
                 preload="auto"
-                onPlaying={() => setUseEndFrame(false)}
-                onEnded={() => {
-                  setUseEndFrame(true);
-                }}
+                onEnded={handleVideoEnded}
               />
             ) : (
               <img
@@ -147,10 +181,6 @@ const PageLoader = ({ onComplete }: PageLoaderProps) => {
                 height={1080}
               />
             )}
-
-            {showWordmark ? (
-              <HandWrittenTitle variant="loader" showStrokes={!reducedMotion && !useEndFrame} />
-            ) : null}
           </div>
         </motion.div>
       )}

@@ -11,6 +11,8 @@ type SkillanceIconProps = {
   label: string;
   /** Use inside an existing button (home service cards). */
   decorative?: boolean;
+  /** White backing plate for dark/image backgrounds (home service cards). */
+  onDark?: boolean;
   className?: string;
   sizeClassName?: string;
 };
@@ -19,6 +21,7 @@ export function SkillanceIcon({
   categorySlug,
   label,
   decorative = false,
+  onDark = false,
   className = '',
   sizeClassName = 'w-14 h-14',
 }: SkillanceIconProps) {
@@ -55,15 +58,18 @@ export function SkillanceIcon({
   const iconMarkup = (
     <span
       ref={iconHostRef}
-      className={`sk-icon block ${sizeClassName} ${decorative ? 'pointer-events-none' : ''}`}
+      className={`sk-icon block ${sizeClassName} ${decorative ? 'sk-icon-decorative pointer-events-none' : ''}`}
       aria-hidden={decorative ? true : undefined}
     />
   );
 
   if (decorative) {
+    const plateClass = onDark
+      ? 'rounded-2xl bg-white p-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.28)] ring-1 ring-white/50'
+      : '';
     return (
       <span
-        className={`inline-flex shrink-0 ${className}`}
+        className={`inline-flex shrink-0 items-center justify-center ${plateClass} ${className}`}
         onMouseEnter={play}
         aria-hidden
       >

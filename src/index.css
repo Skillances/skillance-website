@@ -31,7 +31,41 @@
     --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
     --duration-ui: 200ms;
     --duration-press: 160ms;
+    --site-launch-strip-height: 32px;
+    --site-primary-nav-height: 76px;
+    --site-marketing-hero-safe-top: 10.5rem;
   }
+}
+
+.site-hero {
+  position: relative;
+  z-index: 0;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.site-hero-media {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: calc(-1 * (var(--site-launch-strip-height) + var(--site-primary-nav-height)));
+  height: calc(100% + var(--site-launch-strip-height) + var(--site-primary-nav-height));
+  width: 100%;
+}
+
+.site-hero-content {
+  position: relative;
+  z-index: 10;
+  box-sizing: border-box;
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: var(--site-marketing-hero-safe-top, 10rem);
+  padding-bottom: clamp(3rem, 8vh, 5rem);
+  text-align: center;
 }
 
 @layer base {

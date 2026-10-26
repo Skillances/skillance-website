@@ -1,5 +1,6 @@
 /* Skillance click-animated icons. Add class 'sk-play' to an icon element to run its animation. */
 .sk-icon{display:inline-block;width:64px;height:64px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sk-icon.sk-icon-decorative{cursor:inherit}
 .sk-icon svg{width:100%;height:100%;overflow:visible}
 .sk-icon:focus-visible{outline:2px solid #2BADEE;outline-offset:4px;border-radius:12px}
 .sk-icon .sk-body,.sk-icon .accent{transform-box:fill-box;transform-origin:50% 50%}

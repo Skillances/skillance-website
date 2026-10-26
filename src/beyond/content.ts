@@ -5,7 +5,26 @@
  * Do not invent clients, case studies, testimonials, stats, prices, team members, or certifications.
  */
 
+import { BEYOND_COMMERCIAL, beyondFixedPriceLine } from '@/constants/beyondCommercial';
+
 export const BEYOND_EMAIL = 'services@skillance.co.za';
+
+export const BEYOND_SIGNPOST = {
+  prompt: 'Looking to hire a local plumber, cleaner, or other service professional?',
+  linkLabel: 'Go to the Skillance marketplace',
+  stripPrompt: 'Need a plumber, cleaner, or pro near you?',
+  stripCta: 'Skillance marketplace',
+  href: '/',
+} as const;
+
+export const BEYOND_FOOTER_TAGLINE =
+  'We design and build your website or software for you — from a free demo to a fixed price to launch.';
+
+export const BEYOND_PROCESS_HOME = {
+  kicker: 'Process',
+  title: 'Demo → quote → build → launch.',
+  lede: 'Our team does the work; you approve each step.',
+} as const;
 
 /** TODO(beyond): Confirm this inbox. services@ is the published partnerships address. */
 export const ENQUIRY_MAILTO =
@@ -15,7 +34,7 @@ export const SITE = 'https://skillance.co.za';
 
 /** Secondary steer from Beyond studio surfaces to the marketplace product. */
 export const MARKETPLACE_ENTRY = {
-  label: 'Need to book a provider? Open the Skillance marketplace',
+  label: 'Book a provider on Skillance',
   href: '/',
 } as const;
 
@@ -39,23 +58,23 @@ export type BeyondPageMeta = {
 
 export const PAGES = {
   home: {
-    title: 'Beyond the App | Custom software by Skillance',
+    title: 'Skillance Beyond | Custom software studio · South Africa',
     description:
-      'Skillance designs and builds SaaS products, web and mobile apps, cloud-hosted systems, and secure integrations in South Africa. A studio practice alongside the Skillance marketplace.',
+      'Skillance Beyond is the custom software studio behind Skillance: web and mobile apps, SaaS, cloud systems, and integrations for South African businesses. Beyond the App sits alongside the Skillance marketplace.',
     path: '/beyond',
-    crumb: 'Beyond the App',
+    crumb: 'Skillance Beyond',
   },
   services: {
-    title: 'Services | Beyond the App · Skillance',
+    title: 'What we build | Beyond the App · Skillance',
     description:
-      'Custom web apps, mobile apps, business systems, and integrations from the Skillance team in South Africa. Scope is agreed per project.',
+      'Website redesigns for South African small businesses, plus custom web apps, mobile apps, business systems, and integrations. Fixed quotes after a free demo.',
     path: '/beyond/services',
-    crumb: 'Services',
+    crumb: 'What we build',
   },
   approach: {
-    title: 'How we work | Beyond the App · Skillance',
+    title: 'How a Beyond project runs | Beyond the App · Skillance',
     description:
-      'How a Skillance custom-software project runs: discovery, design, build, launch, and support. Includes the stack behind the Skillance marketplace.',
+      'Free demo, fixed quote, build with two revision rounds, your sign-off before launch, optional care plans. Done-for-you websites and scoped custom software.',
     path: '/beyond/approach',
     crumb: 'Approach',
   },
@@ -73,6 +92,20 @@ export const PAGES = {
     path: '/beyond/contact',
     crumb: 'Contact',
   },
+  beyondTerms: {
+    title: 'Beyond service terms | Beyond the App · Skillance',
+    description:
+      'Service terms for Skillance Beyond the App custom software and website projects in South Africa. Each project also has a signed proposal.',
+    path: '/beyond/terms',
+    crumb: 'Service terms',
+  },
+  beyondDataProcessing: {
+    title: 'Client data processing | Beyond the App · Skillance',
+    description:
+      'How Skillance Beyond the App acts as operator when building or maintaining client websites and software under POPIA.',
+    path: '/beyond/data-processing',
+    crumb: 'Data processing',
+  },
   notFound: {
     title: 'Page not found | Beyond the App · Skillance',
     description: 'That page is not part of Skillance Beyond the App.',
@@ -84,7 +117,7 @@ export const PAGES = {
 
 export const NAV = [
   { to: '/beyond', label: 'Overview', end: true },
-  { to: '/beyond/services', label: 'Services', end: false },
+  { to: '/beyond/services', label: 'What we build', end: false },
   { to: '/beyond/approach', label: 'Approach', end: false },
   { to: '/beyond/work', label: 'Work', end: false },
   { to: '/beyond/contact', label: 'Contact', end: false },
@@ -149,6 +182,22 @@ export const SERVICES = [
       'What happens when a connection fails',
     ],
   },
+  {
+    id: 'websites',
+    num: '05',
+    title: 'Website redesigns for small businesses',
+    imageWebp: '/beyond/new/web-apps.webp',
+    hero: 'Fast, credible sites for trades and local services.',
+    summary:
+      'Redesigns and rebuilds for plumbers, dentists, guest houses, electricians, and similar South African small businesses.',
+    body:
+      'We design and build marketing websites that work on phones: clear calls to action, WhatsApp and booking paths, and hosting on modern edge infrastructure (Cloudflare Pages) with optional forms (Formspree), cookieless analytics, email setup (Google Workspace or Zoho), and care plans after launch. Beyond acts as operator for visitor data on client sites under a written agreement.',
+    points: [
+      'What a visitor should do on the site (call, WhatsApp, enquiry form, email)',
+      'Which registrations or gradings you may show (PIRB, DoEL, TGCSA, HPCSA rules)',
+      'What content and photos you already have versus what we must create',
+    ],
+  },
 ] as const;
 
 export const HOME_HERO_ROTATE_WORDS = ['web apps', 'mobile apps', 'business systems'] as const;
@@ -156,27 +205,51 @@ export const HOME_HERO_ROTATE_WORDS = ['web apps', 'mobile apps', 'business syst
 export const HOME_HERO = {
   rotatePrefix: 'We build',
   rotateSuffix: 'for South African businesses.',
-  lede: 'Same team behind the Skillance marketplace. Same discipline for your product.',
+  lede:
+    'Done-for-you websites and custom software. Start with a free demo of your own site, then a fixed price in writing.',
+} as const;
+
+export const BEYOND_ABOUT = {
+  kicker: 'About',
+  title: 'The Skillance studio.',
+  paragraphs: [
+    'Beyond the App is custom software and websites from Skillance (Rimitso Management Services, Krugersdorp). POPIA-ready builds; your domain, content, and code stay yours.',
+  ],
+  /** Shown only when filled in src/constants/beyondLegal.ts (no invented stats). */
+  optionalTailFromLegal: true,
+} as const;
+
+export const WEBSITE_SECTOR_COMPLIANCE = {
+  title: 'Built for your industry\'s rules',
+  body:
+    'Dental and medical sites follow HPCSA advertising rules — no patient testimonials, no superiority claims, and booking forms that never ask for medical details. Plumbing sites show PIRB registration and CoC information only when you are registered. Electrical sites show your Department of Employment and Labour contractor registration (and ECA membership if applicable). Guest-house sites show TGCSA grading only while it is current. Every site ships with a POPIA privacy notice, ECT Act business disclosures, and a link to your PAIA manual.',
 } as const;
 
 export const HOME_STORY = {
   kicker: 'Our story',
-  title: 'We built Skillance for ourselves first.',
-  paragraphs: [
-    'Skillance started as a product we wanted in the world: a marketplace where customers can book ID-verified local providers, and where freelancers can run a real business from their phone.',
-    'We designed, built, and still operate that platform on web, iOS, and Android. Beyond the App is where we take the same discipline to software for other businesses.',
-  ],
+  title: 'We ship our own product first.',
+  lead:
+    'Skillance is the marketplace we run every day on web, iOS, and Android. Beyond is the same team building software and sites for other businesses.',
+  body: '',
 } as const;
 
 export const SKILLANCE_CASE_STUDY = {
   title: 'Skillance marketplace',
-  lede:
-    'Our own SaaS product: React and TypeScript on the web, Flutter on iOS and Android, and the APIs and cloud infrastructure behind bookings, identity, and payouts.',
+  lede: 'React, TypeScript, Flutter, and the APIs behind bookings and payouts.',
   points: [
     'Customers discover providers, book jobs, and pay through one product.',
     'Freelancers manage profiles, jobs, messages, and payouts in the same system.',
     'We live with every architectural decision because we operate it every day.',
   ],
+  /** Home proof bento — lead phrase + remainder of each point (no new claims). */
+  bentoPoints: [
+    { lead: 'Customers', text: 'book and pay in one app.' },
+    { lead: 'Freelancers', text: 'run jobs, chat, and payouts.' },
+    { lead: 'Same team', text: 'operates what we architect.' },
+  ],
+  stackTags: ['React', 'TypeScript', 'Flutter', 'APIs & cloud'] as const,
+  stackLine: 'Built with React, TypeScript, Flutter and our own APIs & cloud',
+  marketplaceCta: { label: 'See the marketplace', href: '/' },
 } as const;
 
 /** Home proof band imagery (editorial device shots; no fabricated UI copy on screen). */
@@ -185,67 +258,83 @@ export const BEYOND_PROOF_IMAGES = {
     jpgSrc: '/beyond/home-story-devices.jpg',
     alt: 'Laptop and phone showing the Skillance product we built on web and mobile',
   },
+  /** Layered accent in the home story block (device detail crop). */
+  homeStoryAccent: {
+    jpgSrc: '/beyond/platform-devices.jpg',
+    alt: 'Skillance product on web and mobile',
+  },
   marketplaceCaseStudy: {
     jpgSrc: '/beyond/case-study-marketplace.jpg',
-    alt: 'Laptop and phone showing Skillance marketplace discovery on web and mobile',
+    webpSrc: '/beyond/case-study-marketplace.webp',
+    alt: 'Skillance team reviewing marketplace product work at a desk, editorial photograph',
+    width: 1152,
+    height: 864,
   },
 } as const;
 
 export const STEPS = [
   {
     num: '01',
-    title: 'Discovery',
+    title: 'Demo',
     iconSrc: '/beyond/new/icons/icon_discovery.png',
-    summary: 'The problem, the people, and the constraints.',
-    body: 'We start with the problem, the people who have it, and the constraints: time, existing systems, and what done looks like. You should leave this stage knowing whether we are the right team.',
+    summary: 'Free demo of your own site — no cost, no obligation.',
+    body:
+      'We review your current website (or your brief if you are starting fresh) and build a free concept of how it could look and work on phones. There is no charge and no obligation to proceed.',
   },
   {
     num: '02',
-    title: 'Design',
+    title: 'Quote',
     iconSrc: '/beyond/new/icons/icon_design.png',
-    summary: 'Flows and interface, before the build goes wide.',
-    body: 'We shape the flows and the interface before implementation spreads out, so we are making the same thing. You see the direction while it is still cheap to change.',
+    summary: 'A fixed price in writing, with scope spelled out.',
+    body: `You choose a tier with a ${beyondFixedPriceLine()}. Scope, deliverables, and the VAT-inclusive total are in your quote. Payment is ${BEYOND_COMMERCIAL.paymentSplit}. Bigger custom software (SaaS, mobile apps) is scoped separately in a written proposal.`,
   },
   {
     num: '03',
     title: 'Build',
     iconSrc: '/beyond/new/icons/icon_build.png',
-    summary: 'Working software, in iterations you can try.',
-    body: 'We implement in iterations you can try, and we adjust from what you see working. The stack follows the problem. Skillance’s own platform is React and TypeScript on the web, and Flutter on mobile.',
+    summary: `We build; you get ${BEYOND_COMMERCIAL.revisionRounds} rounds of revisions.`,
+    body: `We build the site and send it for review. You get ${BEYOND_COMMERCIAL.revisionRounds} structured revision rounds. We ask for ${BEYOND_COMMERCIAL.clientInputsList} and aim to finish in about ${BEYOND_COMMERCIAL.turnaroundWorkingDays} working days once we have them.`,
   },
   {
     num: '04',
     title: 'Launch',
     iconSrc: '/beyond/new/icons/icon_launch.png',
-    summary: 'Release, handover, and a product you can run.',
-    body: 'We release it, hand over what you need to operate it, and stay through the launch itself. Access, environments, and who owns what afterwards are part of that handover.',
+    summary: 'Your sign-off before anything goes live.',
+    body: `Nothing goes live without your written approval. ${BEYOND_COMMERCIAL.hostingSummary}. You keep ownership of your domain. We leave your email as-is unless you ask us to move it (R${BEYOND_COMMERCIAL.emailMoveExVatZar} ex VAT). We sign a POPIA operator agreement for personal information your site collects, with consent on forms and links to your privacy notice and PAIA manual.`,
   },
   {
     num: '05',
-    title: 'Support',
+    title: 'Care',
     iconSrc: '/beyond/new/icons/icon_support.png',
-    summary: 'After launch, only if we agree to keep going.',
-    body: 'Ongoing support is agreed separately when you want us to stay on after launch. Scope, response times, and cost are written into that agreement.',
+    summary: 'Optional care plans — or take the site and run it yourself.',
+    body: `After launch you can choose a care plan for updates and upkeep (${BEYOND_COMMERCIAL.carePlanSummary}). You can also take the code and run the site yourself — it stays yours. Care plan details are in Beyond service terms.`,
   },
 ] as const;
+
+export const BEYOND_CUSTOM_SOFTWARE_NOTE =
+  'Larger SaaS products, mobile apps, and internal systems follow the same honesty: demo or discovery first, then a written proposal with scope and price — not the fixed website tiers alone.';
 
 /** Technologies we can name because they are already public in the Skillance platform. */
 export const TECH = [
   {
     name: 'React and TypeScript',
-    note: 'The Skillance web app, including this site.',
+    note: 'Custom web apps and the Skillance marketplace web product.',
   },
   {
     name: 'Vite',
-    note: 'How that web app is built and shipped.',
+    note: 'How we build and ship modern web front ends.',
   },
   {
     name: 'Flutter',
-    note: 'The Skillance apps for customers and freelancers, on iOS and Android.',
+    note: 'Mobile apps when a project needs iOS and Android.',
   },
   {
-    name: 'Cloud hosting and APIs',
-    note: 'How we run the marketplace API, data stores, and client environments in production.',
+    name: 'Cloudflare Pages',
+    note: 'Standard hosting for client marketing sites — R0 monthly hosting from us.',
+  },
+  {
+    name: 'APIs and cloud',
+    note: 'Named in your proposal when a product needs payments, sign-in, messaging, or integrations.',
   },
 ] as const;
 
@@ -253,27 +342,21 @@ export const FAQS: readonly BeyondFaq[] = [
   {
     question: 'What is Beyond the App?',
     answer:
-      'Beyond the App is Skillance’s studio practice. We design and build custom software for clients: SaaS products, web and mobile apps, cloud-hosted systems, and secure integrations. It sits alongside the Skillance marketplace and is run by the same team in South Africa.',
-  },
-  {
-    question: 'How is this different from booking someone on the marketplace?',
-    answer:
-      'The marketplace is where a customer books an independent, ID-verified provider for a job. Beyond the App is where the Skillance team designs and builds a custom product for a client. They are separate ways to work with Skillance.',
+      'Beyond the App is Skillance’s done-for-you studio: we design and build your website or custom software. You work with our team directly — not through the marketplace app.',
   },
   {
     question: 'What can you build?',
     answer:
-      'SaaS products, web and mobile apps, business systems, cloud operations, and integrations, including security and access control. If you are unsure which of those you need, start with the problem and we will say whether we are the right team.',
+      'Website redesigns for South African small businesses (trades, guest houses, dental practices, and similar), plus SaaS products, web and mobile apps, business systems, and integrations when scoped in a proposal.',
   },
   {
-    question: 'How does a project start?',
+    question: 'How does a website project start?',
     answer:
-      'Email services@skillance.co.za with what you want to build and who it is for. We reply from that inbox and keep the conversation between us.',
+      'Email services@skillance.co.za or use Start a project. We begin with a free demo concept of your own site. There is no fee until you accept a written fixed quote.',
   },
   {
-    question: 'Do you publish prices or timelines?',
-    answer:
-      'We do not publish prices or a standard timeline. Cost and timing follow the work, and we discuss them after we understand it.',
+    question: 'Do you publish prices?',
+    answer: `Yes for websites: every quote is a ${beyondFixedPriceLine()} after the free demo. Timelines depend on tier and how quickly you supply ${BEYOND_COMMERCIAL.clientInputsList}. Larger custom software is scoped separately.`,
   },
   {
     question: 'Where are you based?',
@@ -296,9 +379,9 @@ export const OWN_PLATFORM = {
 
 export const FOUNDER = {
   kicker: 'Who you will work with',
-  title: 'The same team behind the product',
+  title: 'The builders, not an account layer',
   body:
-    'Beyond the App is run by the Skillance team in South Africa: the people who ship and support the marketplace. You work directly with the builders, not a hand-off account layer.',
+    'Beyond the App is run by the Skillance engineering team in South Africa. Enquiries stay in services@skillance.co.za; POPIA queries go through our Information Officer and privacy notice.',
 } as const;
 
 export const SOCIAL = [
