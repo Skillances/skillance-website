@@ -1,0 +1,54 @@
+/* "Before" frames: the same business on a typical neglected 2010s site. Dated and cluttered, but believable, not a parody. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+html:has(body.mobile) { font-size: 32px; }
+body.before { background: #c9ccd1; color: #222; font: 14px/1.45 Verdana, Tahoma, Arial, sans-serif; padding: 1.2rem 0; }
+.mobile.before { padding: 0; font-size: .55rem; background: #fff; }
+
+.page { width: 62rem; margin: 0 auto; background: #fff; border: 1px solid #8a8e96; box-shadow: 0 0 6px rgba(0, 0, 0, .25); }
+.mobile .page { width: 100%; border: 0; box-shadow: none; }
+
+.top { background: linear-gradient(#e8e8e8, var(--brand) 55%); color: #fff; padding: 1.4rem 1.2rem; border-bottom: 3px solid var(--accent); }
+.top h1 { font: bold 2.4rem Georgia, 'Times New Roman', serif; text-shadow: 2px 2px 2px rgba(0, 0, 0, .5); }
+.top p { font-size: .8rem; margin-top: .3rem; }
+.mobile .top { padding: .8rem .7rem; }
+.mobile .top h1 { font-size: 1.1rem; }
+.mobile .top p { font-size: .5rem; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 2px; background: #d6d6d6; padding: 4px 4px 0; border-bottom: 1px solid #888; }
+.tabs span { background: linear-gradient(#fafafa, #d9d9d9); border: 1px solid #999; border-bottom: 0; padding: .3rem .8rem; font-size: .78rem; color: #1a3d8f; }
+.tabs span:first-child { background: #fff; font-weight: bold; }
+.mobile .tabs span { padding: .2rem .35rem; font-size: .45rem; }
+
+.cols { display: flex; }
+.left { width: 11.5rem; background: #eef0f4; border-right: 1px solid #ccd; padding: .6rem; }
+.left a { display: block; color: #1a3d8f; text-decoration: underline; font-size: .8rem; padding: .28rem 0; }
+.left .box { margin-top: .9rem; border: 1px solid #999; background: #fffbd6; padding: .5rem; font-size: .75rem; text-align: center; }
+
+main { flex: 1; padding: 1rem 1.2rem 1.4rem; }
+.mobile main { padding: .6rem .7rem; }
+main h2 { font: bold 1.5rem Georgia, 'Times New Roman', serif; color: var(--brand); margin-bottom: .6rem; }
+.mobile main h2 { font-size: .9rem; }
+.intro { overflow: hidden; margin-bottom: .8rem; }
+.intro .pic { float: right; width: 15rem; height: 10rem; object-fit: cover; border: 3px double #777; margin: 0 0 .4rem .9rem; filter: saturate(.55) contrast(.9) brightness(1.05); }
+.intro p { font-size: .82rem; }
+.mobile .intro .pic { float: none; width: 100%; height: 6rem; margin: 0 0 .4rem; }
+.mobile .intro p { font-size: .55rem; }
+
+table { width: 100%; border-collapse: collapse; margin-bottom: .8rem; font-size: .8rem; }
+th { background: var(--brand); color: #fff; text-align: left; padding: .35rem .5rem; }
+td { border: 1px solid #aab; padding: .35rem .5rem; }
+tr:nth-child(odd) td { background: #f2f4f8; }
+.mobile table { font-size: .5rem; }
+
+.thumbs { display: flex; gap: .5rem; margin-bottom: .7rem; }
+.thumb { width: 8rem; height: 5.4rem; object-fit: cover; border: 1px solid #777; filter: saturate(.55) contrast(.9); }
+.mobile .thumb { width: 33%; height: 3.2rem; }
+.ph { background: #dfe1e6; display: flex; align-items: center; justify-content: center; }
+.ph span { font: .62rem Consolas, monospace; color: #666; }
+.more { font-size: .78rem; text-align: center; color: #555; }
+.more a { color: #1a3d8f; text-decoration: underline; }
+.mobile .more { font-size: .5rem; }
+
+footer { background: #333; color: #ccc; font-size: .72rem; text-align: center; padding: .6rem; }
+.mobile footer { font-size: .45rem; }

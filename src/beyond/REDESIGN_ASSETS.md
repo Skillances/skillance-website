@@ -4,7 +4,8 @@ Illustrative fictional websites for the Beyond “Before / after concepts” sli
 They are not client sites, prospect sites, or screenshots of anyone’s real business.
 
 Regenerate the WebP files with `scripts/beyond-redesign-mockups/render.sh`
-(Google Chrome and Pillow). The script does not download anything.
+(Node, Google Chrome and Pillow). The script does not download anything.
+Pages are generated from `examples.mjs` by `build.mjs`; styles are `before.css` and `after.css`.
 
 ## Shipped files
 
@@ -32,8 +33,8 @@ Nothing here uses a real client or prospect name, logo, photograph, or number.
 
 | Asset | Used in | Source | Licence |
 | --- | --- | --- | --- |
-| `scripts/beyond-redesign-mockups/assets/stonekettle-landscape.jpg` | Example 05 after, as the cottage hillside (desktop full-bleed and mobile hero) | Original illustration generated for Skillance in October 2026. Painted hillside and cottage. Not a photograph of a real property, and not a famous landmark. | Original work owned by Skillance. Commercial use on this site is allowed. No third-party licence. |
-| All other imagery | Examples 01–04 in full, plus icons, patterns, broken-image marks, and interface chrome on every frame, including example 05 | Drawn in HTML, CSS, and SVG in `scripts/beyond-redesign-mockups/`. No external image files. | Original work, same as above. |
-| Type rasterised into the WebP files | Every frame | Inter, Noto Serif Display, Liberation Sans, Liberation Serif, and DejaVu Sans Mono, from the machine that runs the render script. Those families are under the SIL Open Font License. The font files are not copied into the repo or the site. Only pixels ship. | OFL. Rasterising text does not relicense the fonts. |
+| `scripts/beyond-redesign-mockups/assets/generated/example-N-{hero,a,b,c}.jpg` | The photos on every before and after frame (the before frames reuse the same photos small and desaturated) | Generated in Higgsfield for Skillance from the prompts in `scripts/beyond-redesign-mockups/PROMPTS.md`. Not photographs of real businesses or people. | Owned by Skillance under the Higgsfield plan terms. |
+| Icons, layout, chrome | Every frame | Drawn in HTML and CSS in `scripts/beyond-redesign-mockups/`. No external image files. | Original work. |
+| Type rasterised into the WebP files | Every frame | System fonts on the machine that runs the render (Segoe UI, Georgia, Cambria, Bahnschrift, Verdana). The font files are not copied into the repo or the site. Only pixels ship. | Rasterising text does not relicense the fonts. |
 
-Nothing is hotlinked. No stock photography. No third-party logos (the word “WhatsApp” is used as ordinary text next to a plain button, not as the WhatsApp logo).
+Nothing is hotlinked. No stock photography. No third-party logos (the word "WhatsApp" is used as ordinary text next to a plain button, not as the WhatsApp logo).

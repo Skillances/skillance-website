@@ -1,41 +1,54 @@
 #!/usr/bin/env bash
-# Rasterise the fictional Beyond before/after mock-ups into public/beyond/redesigns.
-# Needs Google Chrome and Pillow. Nothing is downloaded at render time.
+# Build the fictional Beyond before/after mock-ups and rasterise them to WebP.
+# Needs Node, Google Chrome and Pillow. Nothing is downloaded at render time.
+# OUT=<dir> renders somewhere else (for previews). Default is public/beyond/redesigns.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
-OUT="$(cd "$ROOT/../../public/beyond/redesigns" && pwd)"
-# Call Chrome itself. The /usr/local/bin/google-chrome wrapper pins every
-# launch to debugging port 9222, which makes parallel screenshots hang.
-CHROME="${CHROME:-/usr/bin/google-chrome-stable}"
+OUT="${OUT:-$ROOT/../../public/beyond/redesigns}"
+mkdir -p "$OUT"
+OUT="$(cd "$OUT" && pwd)"
+
+CHROME="${CHROME:-}"
+if [[ -z "$CHROME" ]]; then
+  for c in "/c/Program Files/Google/Chrome/Application/chrome.exe" \
+           "/c/Program Files (x86)/Google/Chrome/Application/chrome.exe" \
+           /usr/bin/google-chrome-stable /usr/bin/google-chrome; do
+    [[ -x "$c" ]] && CHROME="$c" && break
+  done
+fi
+[[ -n "$CHROME" ]] || { echo "Chrome not found. Set CHROME=/path/to/chrome" >&2; exit 1; }
+
+# file:// URLs and Chrome flags need native paths on Windows (C:/...), POSIX elsewhere.
+if pwd -W >/dev/null 2>&1; then
+  native() { (cd "$1" && pwd -W); }
+else
+  native() { (cd "$1" && pwd); }
+fi
+ROOT_N="$(native "$ROOT")"
 TMP="$(mktemp -d)"
+TMP_N="$(native "$TMP")"
 trap 'rm -rf "$TMP"' EXIT
+
+node "$ROOT/build.mjs"
 
 render_one() {
   local name="$1" w="$2" h="$3"
-  local udd png webp
+  local udd
   udd="$(mktemp -d)"
-  png="$TMP/${name}.png"
-  webp="$OUT/${name}.webp"
   # Chrome sometimes stays up after writing the PNG. Keep the picture either way.
-  timeout 25 "$CHROME" \
-    --headless=new \
-    --no-sandbox \
-    --disable-dev-shm-usage \
-    --disable-gpu \
-    --hide-scrollbars \
+  timeout 40 "$CHROME" \
+    --headless=new --no-sandbox --disable-gpu --hide-scrollbars \
     --force-device-scale-factor=1 \
-    --user-data-dir="$udd" \
+    --user-data-dir="$(cd "$udd" && (pwd -W 2>/dev/null || pwd))" \
     --window-size="${w},${h}" \
-    --screenshot="$png" \
-    "file://${ROOT}/pages/${name}.html" \
-    >/tmp/chrome-${name}.log 2>&1 || true
+    --virtual-time-budget=4000 \
+    --screenshot="$TMP_N/${name}.png" \
+    "file:///${ROOT_N}/pages/${name}.html" \
+    >/dev/null 2>&1 || true
   rm -rf "$udd"
-  if [[ ! -s "$png" ]]; then
-    echo "screenshot missing: $name" >&2
-    exit 1
-  fi
-  python3 - "$png" "$webp" "$w" "$h" <<'PY'
+  [[ -s "$TMP/${name}.png" ]] || { echo "screenshot missing: $name" >&2; exit 1; }
+  python - "$TMP_N/${name}.png" "$OUT/${name}.webp" "$w" "$h" <<'PY'
 from PIL import Image
 import sys
 png, webp, w, h = sys.argv[1:]
@@ -44,45 +57,18 @@ expect = (int(w), int(h))
 if im.size != expect:
     raise SystemExit(f"{png} is {im.size}, expected {expect}")
 im.save(webp, "WEBP", quality=82, method=6)
-print(f"{webp} {im.size}")
+print(webp, im.size)
 PY
 }
 
 export -f render_one
-export ROOT OUT CHROME TMP
+export ROOT_N OUT CHROME TMP TMP_N
 
-specs=(
-  "example-1-before-desktop 1600 1000"
-  "example-1-before-mobile 780 1688"
-  "example-1-after-desktop 1600 1000"
-  "example-1-after-mobile 780 1688"
-  "example-2-before-desktop 1600 1000"
-  "example-2-before-mobile 780 1688"
-  "example-2-after-desktop 1600 1000"
-  "example-2-after-mobile 780 1688"
-  "example-3-before-desktop 1600 1000"
-  "example-3-before-mobile 780 1688"
-  "example-3-after-desktop 1600 1000"
-  "example-3-after-mobile 780 1688"
-  "example-4-before-desktop 1600 1000"
-  "example-4-before-mobile 780 1688"
-  "example-4-after-desktop 1600 1000"
-  "example-4-after-mobile 780 1688"
-  "example-5-before-desktop 1600 1000"
-  "example-5-before-mobile 780 1688"
-  "example-5-after-desktop 1600 1000"
-  "example-5-after-mobile 780 1688"
-)
-
-running=0
-for spec in "${specs[@]}"; do
-  read -r name w h <<<"$spec"
-  render_one "$name" "$w" "$h" &
-  running=$((running + 1))
-  if [[ "$running" -ge 4 ]]; then
-    wait
-    running=0
-  fi
+for n in 1 2 3 4 5; do
+  for side in before after; do
+    render_one "example-${n}-${side}-desktop" 1600 1000 &
+    render_one "example-${n}-${side}-mobile" 780 1688 &
+  done
+  wait
 done
-wait
-echo "rendered ${#specs[@]} mock-ups into $OUT"
+echo "rendered 20 mock-ups into $OUT"
