@@ -2,12 +2,12 @@ import { Link } from 'react-router-dom';
 import {
   BEYOND_PROOF_IMAGES,
   HOME_STORY,
-  MARKETPLACE_ENTRY,
+  HOME_STUDIO_FOCUS,
   SKILLANCE_CASE_STUDY,
 } from '@/beyond/content';
 
 export function HomeProofStory() {
-  const { kicker, title, lead, body } = HOME_STORY;
+  const { kicker, title, lead, body, ctaHref, ctaLabel, proofLinkHref, proofLinkLabel } = HOME_STORY;
   const base = BEYOND_PROOF_IMAGES.homeStory;
   const float = BEYOND_PROOF_IMAGES.homeStoryAccent;
 
@@ -50,16 +50,34 @@ export function HomeProofStory() {
           <div className="by-story-editorial-prose">
             <p className="by-story-lead">{lead}</p>
             {body ? <p className="by-story-body">{body}</p> : null}
+            <ol className="by-story-focus" aria-label="Studio services">
+              {HOME_STUDIO_FOCUS.map((item) => (
+                <li key={item.num}>
+                  <span className="by-story-focus-num">{item.num}</span>
+                  <div>
+                    <p className="by-story-focus-title">{item.title}</p>
+                    <p className="by-story-focus-body">{item.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
 
-          <p className="by-story-cta-wrap">
-            <Link to={MARKETPLACE_ENTRY.href} className="by-link-bronze">
-              {MARKETPLACE_ENTRY.label}
-              <span className="by-link-bronze-arrow" aria-hidden="true">
-                →
-              </span>
-            </Link>
-          </p>
+          <div className="by-story-cta-wrap">
+            <p className="by-story-cta-primary">
+              <Link to={ctaHref} className="by-link-bronze">
+                {ctaLabel}
+                <span className="by-link-bronze-arrow" aria-hidden="true">
+                  →
+                </span>
+              </Link>
+            </p>
+            <p className="by-story-proof-link">
+              <Link to={proofLinkHref} className="by-textlink">
+                {proofLinkLabel}
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </section>

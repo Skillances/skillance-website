@@ -4,9 +4,10 @@ import BeyondFaqList from '@/beyond/components/BeyondFaq';
 import CopyEmailButton from '@/beyond/components/CopyEmailButton';
 import EnquiryLink from '@/beyond/components/EnquiryLink';
 import BeyondRedesignShowcase from '@/beyond/components/BeyondRedesignShowcase';
-import { HomeProofMarketplace, HomeProofStory } from '@/beyond/components/HomeProofBand';
+import WorkCatalog from '@/beyond/components/WorkCatalog';
+import { HomeProofStory } from '@/beyond/components/HomeProofBand';
 import { SectionHead, StepRows } from '@/beyond/components/Blocks';
-import { BEYOND_PROCESS_HOME, FAQS, PAGES, SERVICES, STEPS } from '@/beyond/content';
+import { BEYOND_PROCESS_HOME, FAQS, HOME_CLIENTS, PAGES, SERVICES, STEPS } from '@/beyond/content';
 import { useBeyondPage } from '@/beyond/useBeyondPage';
 
 export default function HomePage() {
@@ -22,10 +23,24 @@ export default function HomePage() {
     <>
       <BeyondHero titleId="beyond-hero-title" />
 
-      <div className="by-proof-band">
-        <HomeProofStory />
-        <HomeProofMarketplace />
-      </div>
+      <HomeProofStory />
+
+      <section className="by-section by-section-cool" aria-labelledby="beyond-clients-title">
+        <div className="by-wrap by-reveal">
+          <SectionHead
+            id="beyond-clients-title"
+            kicker={HOME_CLIENTS.kicker}
+            title={HOME_CLIENTS.title}
+            lede={HOME_CLIENTS.lede}
+          />
+          <WorkCatalog limit={4} />
+          <div className="by-actions">
+            <Link to="/beyond/work" className="by-textlink">
+              {HOME_CLIENTS.workLinkLabel}
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <BeyondRedesignShowcase />
 

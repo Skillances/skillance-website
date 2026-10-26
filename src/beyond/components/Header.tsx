@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import ExperienceSwitcher from '@/components/experience/ExperienceSwitcher';
 import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
 import { siteNavDesktopMediaQuery } from '@/lib/layout/siteNavBreakpoint';
+import { MOBILE_NAV_PANEL_CLASS } from '@/lib/layout/mobileNavPanelClass';
 
 export default function Header() {
   const { pathname, hash } = useLocation();
@@ -117,7 +118,7 @@ export default function Header() {
           <AnimatePresence>
             {mobileOpen ? (
               <motion.div
-                className="by-beyond-mobile-nav fixed inset-0 z-[100]"
+                className="by-beyond-mobile-nav fixed inset-0 z-[110]"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -136,7 +137,7 @@ export default function Header() {
                   role="dialog"
                   aria-modal="true"
                   aria-label="Beyond the App menu"
-                  className="absolute top-9 right-0 w-full sm:w-80 h-[calc(100%-2.25rem)] bg-white shadow-2xl overflow-y-auto"
+                  className={MOBILE_NAV_PANEL_CLASS}
                   initial={{ transform: 'translateX(100%)' }}
                   animate={{ transform: 'translateX(0)' }}
                   exit={{ transform: 'translateX(100%)' }}

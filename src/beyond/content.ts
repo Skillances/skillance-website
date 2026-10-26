@@ -226,11 +226,42 @@ export const WEBSITE_SECTOR_COMPLIANCE = {
 } as const;
 
 export const HOME_STORY = {
-  kicker: 'Our story',
-  title: 'We ship our own product first.',
+  kicker: 'What we do',
+  title: 'Website redesigns, custom software, and SaaS.',
   lead:
-    'Skillance is the marketplace we run every day on web, iOS, and Android. Beyond is the same team building software and sites for other businesses.',
-  body: '',
+    'Beyond is Skillance’s done-for-you studio. We design and build credible sites for South African small businesses, plus web apps, mobile products, and business systems when you need more than a brochure site.',
+  body:
+    'You work with our engineering team at services@skillance.co.za, not through the marketplace app. Sites start with a free demo; SaaS and larger builds get a written proposal with scope and price.',
+  ctaLabel: 'See what we build',
+  ctaHref: '/beyond/services',
+  proofLinkLabel: 'How we built Skillance (our own product)',
+  proofLinkHref: '/beyond/work',
+} as const;
+
+export const HOME_STUDIO_FOCUS = [
+  {
+    num: '01',
+    title: 'Website redesigns',
+    body: 'Fast, mobile-first sites for trades and local services: calls, WhatsApp, and enquiries that convert.',
+  },
+  {
+    num: '02',
+    title: 'Custom software',
+    body: 'Portals, internal tools, and integrations shaped around how your team actually works.',
+  },
+  {
+    num: '03',
+    title: 'SaaS platforms',
+    body: 'Browser products with accounts, billing, and the cloud infrastructure to run them in production.',
+  },
+] as const;
+
+export const HOME_CLIENTS = {
+  kicker: 'Clients',
+  title: 'Published client work',
+  lede:
+    'When a client engagement is ready to share publicly, it appears here. Our Skillance marketplace case study lives on the Work page.',
+  workLinkLabel: 'All work and case studies',
 } as const;
 
 export const SKILLANCE_CASE_STUDY = {
@@ -255,13 +286,13 @@ export const SKILLANCE_CASE_STUDY = {
 /** Home proof band imagery (editorial device shots; no fabricated UI copy on screen). */
 export const BEYOND_PROOF_IMAGES = {
   homeStory: {
-    jpgSrc: '/beyond/home-story-devices.jpg',
-    alt: 'Laptop and phone showing the Skillance product we built on web and mobile',
+    jpgSrc: '/beyond/services.webp',
+    alt: 'Design and development work for a client website project',
   },
-  /** Layered accent in the home story block (device detail crop). */
+  /** Layered accent in the home story block (studio detail crop). */
   homeStoryAccent: {
-    jpgSrc: '/beyond/platform-devices.jpg',
-    alt: 'Skillance product on web and mobile',
+    jpgSrc: '/beyond/studio-accent.webp',
+    alt: 'Skillance studio design and engineering workspace',
   },
   marketplaceCaseStudy: {
     jpgSrc: '/beyond/case-study-marketplace.jpg',

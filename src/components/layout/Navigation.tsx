@@ -10,6 +10,7 @@ import ExperienceSwitcher from '@/components/experience/ExperienceSwitcher';
 import { BEYOND_PRIMARY_NAV, isBeyondNavCurrent } from '@/lib/beyond/nav';
 import { isBeyondPath } from '@/lib/beyond/routes';
 import { isMarketingAuthPath } from '@/lib/marketing/authPaths';
+import { MOBILE_NAV_PANEL_CLASS } from '@/lib/layout/mobileNavPanelClass';
 
 interface NavigationProps {
   isLoaded: boolean;
@@ -382,7 +383,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            className="fixed inset-0 z-[100] lg:hidden"
+            className="fixed inset-0 z-[110] lg:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -396,7 +397,7 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
 
             {/* Panel */}
             <motion.div
-              className="absolute top-9 right-0 w-full sm:w-80 h-[calc(100%-2.25rem)] bg-white shadow-2xl overflow-y-auto"
+              className={MOBILE_NAV_PANEL_CLASS}
               initial={{ transform: 'translateX(100%)' }}
               animate={{ transform: 'translateX(0)' }}
               exit={{ transform: 'translateX(100%)' }}

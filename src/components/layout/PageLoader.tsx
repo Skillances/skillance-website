@@ -54,6 +54,7 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
     return pickAssemblyEndFrameSrc(warm);
   });
   const warmPaper = useWarmPaperLoader(surfaceColor);
+  const [useBlendMultiply, setUseBlendMultiply] = useState(false);
   const portraitEncode = videoSrc.includes('9x16');
   const videoRef = useRef<HTMLVideoElement>(null);
   const finishedRef = useRef(false);
@@ -158,6 +159,27 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [isExiting, isVisible, skip]);
 
+  useEffect(() => {
+    if (!warmPaper) {
+      setUseBlendMultiply(false);
+      return;
+    }
+    const narrow = window.matchMedia('(max-width: 767px)');
+    const coarse = window.matchMedia('(pointer: coarse)');
+    const update = () => {
+      setUseBlendMultiply(!(narrow.matches || coarse.matches));
+    };
+    update();
+    narrow.addEventListener('change', update);
+    coarse.addEventListener('change', update);
+    return () => {
+      narrow.removeEventListener('change', update);
+      coarse.removeEventListener('change', update);
+    };
+  }, [warmPaper]);
+
+  const blendClass = warmPaper && useBlendMultiply ? 'mix-blend-multiply' : '';
+
   return (
     <AnimatePresence>
       {isVisible && !isExiting && (
@@ -169,7 +191,7 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
             setIsVisible(false);
           }}
           transition={{ duration: EXIT_MS, ease: [0.23, 1, 0.32, 1] }}
-          className="fixed inset-0 z-[105] flex flex-col items-center justify-center overflow-hidden px-4"
+          className="fixed inset-0 z-[105] flex flex-col items-center justify-center overflow-hidden px-4 isolation-isolate"
           style={{ backgroundColor: surfaceColor }}
         >
           <button
@@ -184,7 +206,7 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
             <div
               className={`relative overflow-hidden ${
                 portraitEncode ? 'aspect-[9/16]' : 'aspect-video'
-              } h-[min(72vh,820px)] w-auto`}
+              } h-[min(64vh,640px)] sm:h-[min(72vh,820px)] w-auto max-w-full`}
               style={{
                 backgroundColor: surfaceColor,
                 maxWidth: portraitEncode
@@ -201,10 +223,10 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
                     scale: videoReady ? 1 : 0.985,
                   }}
                   transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-                  className={`h-full w-full object-contain ${warmPaper ? 'mix-blend-multiply' : ''}`}
-                  style={{ backgroundColor: warmPaper ? surfaceColor : 'transparent' }}
+                  className={`h-full w-full object-contain ${blendClass}`}
+                  style={{ backgroundColor: surfaceColor }}
                   src={videoSrc}
-                  poster={warmPaper ? undefined : posterSrc}
+                  poster={posterSrc}
                   muted
                   playsInline
                   autoPlay
@@ -220,7 +242,7 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
                   transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
                   src={endFrameSrc}
                   alt=""
-                  className={`h-full w-full object-contain ${warmPaper ? 'mix-blend-multiply' : ''}`}
+                  className={`h-full w-full object-contain ${blendClass}`}
                   width={portraitEncode ? 1080 : 1920}
                   height={portraitEncode ? 1920 : 1080}
                 />

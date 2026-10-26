@@ -20,8 +20,7 @@ const LaunchCountdown = () => {
   const clientCount = items.length;
   const clientLabel = beyondActiveClientLabel(ready, clientCount);
 
-  const showBeyondSlide = location.pathname !== '/';
-  const slides: StripSlide[] = showBeyondSlide ? ['launch', 'beyond'] : ['launch'];
+  const slides: StripSlide[] = ['launch', 'beyond'];
   const [activeIndex, setActiveIndex] = useState(0);
   const activeSlide = slides[activeIndex] ?? 'launch';
 
@@ -101,9 +100,9 @@ const LaunchCountdown = () => {
               </span>
             </span>
           ) : (
-            <span className="flex max-w-full items-center justify-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] font-medium tracking-[0.06em] sm:tracking-[0.08em] whitespace-nowrap">
-              <span className="truncate text-white/75">{MARKETPLACE_SIGNPOST.stripPrompt}</span>
-              <span className="shrink-0 font-semibold uppercase tracking-[0.12em] text-white underline decoration-white/35 underline-offset-[3px]">
+            <span className="flex max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-0.5 px-1 text-[9px] sm:text-[11px] font-medium tracking-[0.05em] sm:tracking-[0.08em] sm:whitespace-nowrap">
+              <span className="text-center text-white/75 sm:truncate">{MARKETPLACE_SIGNPOST.stripPrompt}</span>
+              <span className="shrink-0 font-semibold uppercase tracking-[0.1em] sm:tracking-[0.12em] text-white underline decoration-white/35 underline-offset-[3px]">
                 {MARKETPLACE_SIGNPOST.stripCta}
               </span>
             </span>
