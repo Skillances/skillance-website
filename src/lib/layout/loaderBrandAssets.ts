@@ -5,6 +5,16 @@ function isPortrait(): boolean {
   return window.matchMedia('(max-aspect-ratio: 1/1)').matches;
 }
 
+/** Backdrop for v2 portrait encodes (authored on white, not warm paper). */
+export const LOADER_PORTRAIT_V2_SURFACE = '#ffffff';
+
+export function loaderBackdropForVideo(surfaceColor: string, videoSrc: string): string {
+  if (videoSrc.includes('logo_assembly_v2_9x16')) {
+    return LOADER_PORTRAIT_V2_SURFACE;
+  }
+  return surfaceColor;
+}
+
 /** Assembly videos on warm paper use the "clean" encodes; pure white keeps legacy assets. */
 export function useWarmPaperLoader(surfaceColor: string): boolean {
   const normalized = surfaceColor.trim().toLowerCase();

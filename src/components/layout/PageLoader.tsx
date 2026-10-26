@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { SITE_EXPERIENCE_PAPER } from '@/lib/layout/siteChrome';
 import {
+  loaderBackdropForVideo,
   pickAssemblyEndFrameSrc,
   pickAssemblyPosterSrc,
   pickAssemblyVideoSrc,
@@ -54,6 +55,7 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
     return pickAssemblyEndFrameSrc(warm);
   });
   const warmPaper = useWarmPaperLoader(surfaceColor);
+  const loaderBackdrop = loaderBackdropForVideo(surfaceColor, videoSrc);
   const [useBlendMultiply, setUseBlendMultiply] = useState(false);
   const portraitEncode = videoSrc.includes('9x16');
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -89,13 +91,13 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
       return;
     }
 
-    document.documentElement.style.backgroundColor = surfaceColor;
-    document.body.style.backgroundColor = surfaceColor;
+    document.documentElement.style.backgroundColor = loaderBackdrop;
+    document.body.style.backgroundColor = loaderBackdrop;
     return () => {
       document.documentElement.style.removeProperty('background-color');
       document.body.style.removeProperty('background-color');
     };
-  }, [isVisible, onComplete, surfaceColor]);
+  }, [isVisible, loaderBackdrop, onComplete]);
 
   useEffect(() => {
     if (!isVisible) {
@@ -192,7 +194,7 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
           }}
           transition={{ duration: EXIT_MS, ease: [0.23, 1, 0.32, 1] }}
           className="fixed inset-0 z-[105] flex flex-col items-center justify-center overflow-hidden px-4 isolation-isolate"
-          style={{ backgroundColor: surfaceColor }}
+          style={{ backgroundColor: loaderBackdrop }}
         >
           <button
             type="button"
@@ -208,7 +210,7 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
                 portraitEncode ? 'aspect-[9/16]' : 'aspect-video'
               } h-[min(64vh,640px)] sm:h-[min(72vh,820px)] w-auto max-w-full`}
               style={{
-                backgroundColor: surfaceColor,
+                backgroundColor: loaderBackdrop,
                 maxWidth: portraitEncode
                   ? 'min(100%, calc(min(72vh, 820px) * 9 / 16))'
                   : 'min(100%, calc(min(72vh, 820px) * 16 / 9))',
@@ -224,7 +226,7 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
                   }}
                   transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
                   className={`h-full w-full object-contain ${blendClass}`}
-                  style={{ backgroundColor: surfaceColor }}
+                  style={{ backgroundColor: loaderBackdrop }}
                   src={videoSrc}
                   poster={posterSrc}
                   muted
