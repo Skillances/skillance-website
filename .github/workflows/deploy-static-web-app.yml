@@ -68,8 +68,6 @@ jobs:
           app_location: dist
           api_location: swa-api
           skip_app_build: true
-          skip_api_build: true
-          production_branch: main
 
       - name: Smoke test
         run: |
