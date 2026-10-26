@@ -1,21 +1,49 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import { NAV } from '@/beyond/content';
-import { scrollToBeyondHash } from '@/beyond/scroll';
+import { getBeyondScrollReservePx, scrollToBeyondHash } from '@/beyond/scroll';
+import { isBeyondNavCurrent } from '@/lib/beyond/nav';
+import { landingPath } from '@/lib/marketplace/session';
+import { useAuth } from '@/context/AuthContext';
 import ExperienceSwitcher from '@/components/experience/ExperienceSwitcher';
+import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
+import { siteNavDesktopMediaQuery } from '@/lib/layout/siteNavBreakpoint';
 
 export default function Header() {
-  const [menuPath, setMenuPath] = useState<string | null>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const { pathname, hash } = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [navPath, setNavPath] = useState(pathname);
+  const [onCinematicHero, setOnCinematicHero] = useState(false);
+
+  if (pathname !== navPath) {
+    setNavPath(pathname);
+    if (mobileOpen) {
+      setMobileOpen(false);
+    }
+  }
   const menuBtnRef = useRef<HTMLButtonElement>(null);
   const restoreFocus = useRef(false);
   const menuId = useId();
-  const { pathname, hash } = useLocation();
-  const open = menuPath === pathname;
+  const { isAuthenticated, isAdmin, isLoading: authLoading, user } = useAuth();
+
+  const sessionLink = authLoading
+    ? null
+    : isAuthenticated && isAdmin
+      ? { to: '/admin/dashboard', label: 'Admin', aria: 'Admin dashboard' }
+      : isAuthenticated && user
+        ? { to: landingPath(user), label: 'Account', aria: 'Your Skillance account' }
+        : { to: '/login', label: 'Sign in', aria: 'Sign in' };
 
   const closeMenu = () => {
     restoreFocus.current = true;
-    setMenuPath(null);
+    setMobileOpen(false);
+  };
+
+  const toggleMenu = () => {
+    setMobileOpen((prev) => !prev);
   };
 
   useEffect(() => {
@@ -23,7 +51,7 @@ export default function Header() {
   }, [pathname, hash]);
 
   useEffect(() => {
-    if (!open) {
+    if (!mobileOpen) {
       if (restoreFocus.current) {
         menuBtnRef.current?.focus();
         restoreFocus.current = false;
@@ -32,98 +60,193 @@ export default function Header() {
     }
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const panel = panelRef.current;
-    const focusables = () =>
-      panel ? Array.from(panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')) : [];
-    focusables()[0]?.focus();
 
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        restoreFocus.current = true;
-        setMenuPath(null);
-        return;
-      }
-      if (event.key !== 'Tab') return;
-      const items = focusables();
-      if (items.length === 0) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
+      if (event.key === 'Escape') closeMenu();
     };
-
     document.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', onKey);
     };
-  }, [open]);
+  }, [mobileOpen]);
 
   useEffect(() => {
-    const desktop = window.matchMedia('(min-width: 1080px)');
+    const desktop = window.matchMedia(siteNavDesktopMediaQuery);
     const onChange = () => {
-      if (desktop.matches) setMenuPath(null);
+      if (desktop.matches) setMobileOpen(false);
     };
     desktop.addEventListener('change', onChange);
     return () => desktop.removeEventListener('change', onChange);
   }, []);
 
-  return (
-    <header className="by-header">
-      <div className="by-header-wrap by-header-inner">
-        <Link to="/beyond" className="by-brand" aria-label="Skillance Beyond the App, overview">
-          <img src="/skillance-tiny-logo-black.png" alt="" width={120} height={24} />
-          <span className="by-brand-name">Skillance</span>
-          <span className="by-brand-rule" aria-hidden="true" />
-          <span className="by-brand-beyond">Beyond</span>
-        </Link>
+  useEffect(() => {
+    const hero = document.querySelector('.by-hero-cinematic');
+    if (!hero) {
+      requestAnimationFrame(() => setOnCinematicHero(false));
+      return;
+    }
 
-        <nav className="by-nav" aria-label="Beyond the App">
-          {NAV.map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.end} className="by-nav-link">
-              {item.label}
-            </NavLink>
-          ))}
+    const update = () => {
+      const reserve = getBeyondScrollReservePx();
+      const rect = hero.getBoundingClientRect();
+      setOnCinematicHero(rect.bottom > reserve + 8);
+    };
+
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [pathname]);
+
+  const headerClass = onCinematicHero ? 'by-header by-header-on-cinematic' : 'by-header';
+  const toggleStroke = mobileOpen ? '#1a1714' : onCinematicHero ? '#fffdf8' : '#1a1714';
+  const switchAppearance = onCinematicHero ? 'quiet-dark' : 'quiet-light';
+  const navPrimary = NAV.slice(0, 3);
+  const navSecondary = NAV.slice(3);
+
+  const mobileLinkClass =
+    'block text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100';
+
+  const mobileMenu =
+    typeof document !== 'undefined'
+      ? createPortal(
+          <AnimatePresence>
+            {mobileOpen ? (
+              <motion.div
+                className="by-beyond-mobile-nav fixed inset-0 z-[100]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+              >
+                <motion.div
+                  className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                  role="presentation"
+                  onClick={closeMenu}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                />
+                <motion.div
+                  id={menuId}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Beyond the App menu"
+                  className="absolute top-9 right-0 w-full sm:w-80 h-[calc(100%-2.25rem)] bg-white shadow-2xl overflow-y-auto"
+                  initial={{ transform: 'translateX(100%)' }}
+                  animate={{ transform: 'translateX(0)' }}
+                  exit={{ transform: 'translateX(100%)' }}
+                  transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
+                >
+                  <div className="flex items-center justify-between px-6 py-[22px] border-b border-neutral-100">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src="/skillance-tiny-logo-black.png"
+                        alt="Skillance"
+                        width={120}
+                        height={24}
+                        className="h-6 w-auto"
+                      />
+                      <span className="font-serif text-2xl font-medium">Skillance</span>
+                    </div>
+                    <button type="button" className="p-2 -mr-2" onClick={closeMenu} aria-label="Close menu">
+                      <X className="w-8 h-8 text-black" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <div className="p-6">
+                    <ExperienceSwitcher appearance="quiet-light" density="comfortable" />
+                    <nav className="flex flex-col gap-1 mt-6" aria-label="Beyond the App">
+                      {NAV.map((item) => (
+                        <NavLink
+                          key={item.to}
+                          to={item.to}
+                          end={item.end}
+                          className={mobileLinkClass}
+                          onClick={closeMenu}
+                          aria-current={
+                            isBeyondNavCurrent(pathname, item.to, item.end) ? 'page' : undefined
+                          }
+                        >
+                          {item.label}
+                        </NavLink>
+                      ))}
+                      {sessionLink ? (
+                        <Link
+                          to={sessionLink.to}
+                          className={mobileLinkClass}
+                          onClick={closeMenu}
+                          aria-label={sessionLink.aria}
+                        >
+                          {sessionLink.label}
+                        </Link>
+                      ) : null}
+                    </nav>
+                  </div>
+                </motion.div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>,
+          document.body,
+        )
+      : null;
+
+  const renderNavLink = (item: (typeof NAV)[number]) => (
+    <NavLink
+      key={item.to}
+      to={item.to}
+      end={item.end}
+      className="by-nav-link"
+    >
+      {item.label}
+    </NavLink>
+  );
+
+  return (
+    <header className={headerClass}>
+      <div className="by-header-wrap by-header-inner">
+        <nav className="by-nav by-nav-left" aria-label="Beyond the App">
+          {navPrimary.map(renderNavLink)}
         </nav>
 
-        <div className="by-header-actions">
-          <ExperienceSwitcher appearance="studio" />
+        <div className="by-header-center">
+          <Link to="/beyond" className="by-brand" aria-label="Skillance Beyond the App, overview">
+            <img src="/skillance-tiny-logo-black.png" alt="" width={120} height={24} />
+            <span className="by-brand-name">Skillance</span>
+            <span className="by-brand-rule" aria-hidden="true" />
+            <span className="by-brand-beyond">Beyond</span>
+          </Link>
+          <div className="by-switch-anchor by-switch-anchor-desktop">
+            <ExperienceSwitcher appearance={switchAppearance} />
+          </div>
+        </div>
+
+        <div className="by-header-right">
+          <nav className="by-nav by-nav-right" aria-label="Beyond the App">
+            {navSecondary.map(renderNavLink)}
+          </nav>
+          {sessionLink ? (
+            <Link to={sessionLink.to} className="by-nav-link by-header-session" aria-label={sessionLink.aria}>
+              {sessionLink.label}
+            </Link>
+          ) : null}
           <button
             type="button"
-            className="by-menu-btn"
+            className="by-menu-toggle"
             ref={menuBtnRef}
-            aria-expanded={open}
+            aria-expanded={mobileOpen}
             aria-controls={menuId}
-            onClick={() => setMenuPath(pathname)}
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            onClick={toggleMenu}
           >
-            <span className="by-sr">Open menu</span>
-            <span className="by-burger" aria-hidden="true" />
+            <MenuToggleIcon open={mobileOpen} className="by-menu-toggle-icon" duration={500} stroke={toggleStroke} />
           </button>
         </div>
       </div>
-
-      {open && (
-        <div className="by-menu" id={menuId} role="dialog" aria-modal="true" aria-label="Beyond the App menu" ref={panelRef}>
-          <div className="by-menu-top">
-            <button type="button" className="by-menu-close" onClick={closeMenu}>
-              Close
-            </button>
-          </div>
-          <ExperienceSwitcher appearance="studio" />
-          <nav aria-label="Beyond the App">
-            {NAV.map((item) => (
-              <NavLink key={item.to} to={item.to} end={item.end}>
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
-      )}
+      {mobileMenu}
     </header>
   );
 }

@@ -22,12 +22,28 @@ export function SectionHead({ kicker, title, lede, id }: { kicker: string; title
   );
 }
 
-export function StepRows({ steps }: { steps: readonly { num: string; title: string; body: string }[] }) {
+export function StepRows({
+  steps,
+}: {
+  steps: readonly { num: string; title: string; body: string; iconSrc?: string }[];
+}) {
   return (
     <div className="by-step-rows">
       {steps.map((step) => (
         <article key={step.num} className="by-step-row by-reveal">
-          <p className="by-step-row-num">{step.num}</p>
+          {step.iconSrc ? (
+            <img
+              src={step.iconSrc}
+              alt=""
+              width={56}
+              height={56}
+              className="by-step-row-icon"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <p className="by-step-row-num">{step.num}</p>
+          )}
           <h3 className="by-step-row-title">{step.title}</h3>
           <p className="by-muted by-step-row-body">{step.body}</p>
         </article>

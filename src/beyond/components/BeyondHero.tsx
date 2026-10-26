@@ -4,11 +4,10 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import EnquiryLink from '@/beyond/components/EnquiryLink';
 import InlineWordRotate from '@/components/motion/InlineWordRotate';
+import { HOME_HERO, HOME_HERO_ROTATE_WORDS } from '@/beyond/content';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const HERO_ROTATE_WORDS = ['web apps', 'mobile apps', 'business systems'];
 
 type BeyondHeroProps = {
   titleId: string;
@@ -17,7 +16,6 @@ type BeyondHeroProps = {
 export default function BeyondHero({ titleId }: BeyondHeroProps) {
   const shellRef = useRef<HTMLElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
-  const copyRef = useRef<HTMLDivElement>(null);
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
@@ -34,20 +32,6 @@ export default function BeyondHero({ titleId }: BeyondHeroProps) {
           },
         });
       }
-
-      if (copyRef.current) {
-        gsap.fromTo(
-          copyRef.current,
-          reducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: reducedMotion ? 0.2 : 0.7,
-            ease: 'power3.out',
-            delay: reducedMotion ? 0 : 0.15,
-          },
-        );
-      }
     }, shellRef);
 
     return () => ctx.revert();
@@ -62,9 +46,9 @@ export default function BeyondHero({ titleId }: BeyondHeroProps) {
     >
       <div ref={mediaRef} className="by-hero-cinematic-media" aria-hidden="true">
         <picture className="by-hero-cinematic-picture">
-          <source media="(max-width: 1023px)" srcSet="/beyond/hero-cinematic-portrait.jpg" />
+          <source media="(max-width: 1023px)" srcSet="/beyond/new/hero-cinematic-portrait.jpg" />
           <img
-            src="/beyond/hero-cinematic.jpg"
+            src="/beyond/new/hero-cinematic.jpg"
             alt=""
             width={1920}
             height={1080}
@@ -72,27 +56,26 @@ export default function BeyondHero({ titleId }: BeyondHeroProps) {
             fetchPriority="high"
           />
         </picture>
-        <div className="by-hero-cinematic-scrim" />
+        <div className="by-hero-cinematic-scrim by-hero-cinematic-scrim--b" />
       </div>
 
-      <div ref={copyRef} className="by-hero-cinematic-copy by-hero-stagger">
+      <div className="by-hero-cinematic-copy by-hero-stagger">
         <h1 id={titleId} className="by-hero-cinematic-title">
-          <span className="by-hero-title-line">We build</span>
+          <span className="by-hero-title-line">{HOME_HERO.rotatePrefix}</span>
           <span className="by-hero-word-slot">
             <InlineWordRotate
-              words={HERO_ROTATE_WORDS}
+              words={[...HOME_HERO_ROTATE_WORDS]}
               observeRootId="beyond-home-hero"
               className="by-hero-word-rotate"
             />
           </span>
-          <span className="by-hero-line by-hero-line-on-dark">for South African businesses.</span>
+          <span className="by-hero-line by-hero-line-on-dark">{HOME_HERO.rotateSuffix}</span>
         </h1>
-        <p className="by-lede by-hero-lede by-lede-on-dark">
-          We designed, built, and still run the Skillance marketplace on web, iOS, and Android. Now we build software
-          like it for you.
-        </p>
+        <p className="by-lede by-hero-lede by-lede-on-dark">{HOME_HERO.lede}</p>
         <div className="by-actions by-actions-hero">
-          <EnquiryLink ctaLocation="home_hero">Start a project</EnquiryLink>
+          <EnquiryLink ctaLocation="home_hero" variant="light">
+            Start a project
+          </EnquiryLink>
           <Link to="/beyond/approach" className="by-btn by-btn-on-dark">
             See how we work
           </Link>

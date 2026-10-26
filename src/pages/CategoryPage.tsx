@@ -10,6 +10,8 @@ import { queryKeys } from '@/lib/queryKeys';
 import { SpecializationTreeList } from '@/components/SpecializationTreeList';
 import type { ServiceSpecializationNode } from '@/lib/serviceCategories';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SkillanceIcon } from '@/components/ui/SkillanceIcon';
+import { fetchServiceCategories } from '@/lib/serviceCategories';
 
 interface CategoryNode {
   id: string;
@@ -75,6 +77,20 @@ const CategoryPage = () => {
   }, [categoriesRoots, trimmedId]);
 
   const specializationTree = toSpecTree(category?.children);
+
+  const { data: serviceCategorySlugs = [] } = useQuery({
+    queryKey: queryKeys.serviceCategories.items(),
+    queryFn: fetchServiceCategories,
+    staleTime: 60_000,
+  });
+
+  const categoryIconSlug = useMemo(() => {
+    if (!category) return null;
+    const fromList = serviceCategorySlugs.find((item) => item.id === category.id);
+    if (fromList?.slug) return fromList.slug;
+    if (category.slug) return category.slug;
+    return null;
+  }, [category, serviceCategorySlugs]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -175,6 +191,16 @@ const CategoryPage = () => {
             <ArrowUpRight className="w-4 h-4 rotate-[225deg]" />
             <span className="text-xs uppercase tracking-widest font-semibold">All Categories</span>
           </button>
+
+          {categoryIconSlug ? (
+            <div className="mb-6">
+              <SkillanceIcon
+                categorySlug={categoryIconSlug}
+                label={`${category.name} category icon`}
+                sizeClassName="w-16 h-16"
+              />
+            </div>
+          ) : null}
 
           <p className="text-xl text-neutral-500 font-light leading-relaxed max-w-3xl">
             {category.description}

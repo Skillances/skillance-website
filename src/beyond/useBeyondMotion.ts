@@ -44,8 +44,9 @@ export function useBeyondMotion(scopeRef: RefObject<HTMLElement | null>, routeKe
         root.querySelectorAll<HTMLElement>('.by-parallax').forEach((wrap) => {
           const media = wrap.querySelector<HTMLElement>('.by-parallax-media');
           if (!media) return;
+          const inProofBand = Boolean(wrap.closest('.by-proof-band'));
           gsap.to(media, {
-            yPercent: 10,
+            yPercent: inProofBand ? 4 : 10,
             ease: 'none',
             scrollTrigger: {
               trigger: wrap,

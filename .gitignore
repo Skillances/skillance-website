@@ -30,8 +30,13 @@ dist-ssr
 .env.test.local
 .env.production.local
 
+# Impeccable machine overrides (see config.local.json.example)
+.impeccable/config.local.json
+
 # Vercel
 .vercel
 
-# Cursor
-.cursor
+# Cursor (track shared agent rules; keep other Cursor state local)
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**

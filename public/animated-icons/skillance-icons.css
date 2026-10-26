@@ -1,0 +1,62 @@
+/* Skillance click-animated icons. Add class 'sk-play' to an icon element to run its animation. */
+.sk-icon{display:inline-block;width:64px;height:64px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sk-icon svg{width:100%;height:100%;overflow:visible}
+.sk-icon:focus-visible{outline:2px solid #2BADEE;outline-offset:4px;border-radius:12px}
+.sk-icon .sk-body,.sk-icon .accent{transform-box:fill-box;transform-origin:50% 50%}
+@keyframes sk-handyman-body{0%{transform:rotate(0)}30%{transform:rotate(-22deg)}55%{transform:rotate(12deg)}75%{transform:rotate(-5deg)}100%{transform:rotate(0)}}
+@keyframes sk-handyman-accent{0%,100%{transform:scale(1)}55%{transform:scale(2.2)}}
+.sk-icon[data-sk-icon='handyman'].sk-play .sk-body{transform-origin:50% 90%;animation:sk-handyman-body .7s ease-in-out 1}
+.sk-icon[data-sk-icon='handyman'].sk-play .accent{animation:sk-handyman-accent .7s ease-in-out 1}
+@keyframes sk-education-body{0%{transform:translateY(0) rotate(0)}35%{transform:translateY(-14%) rotate(-8deg)}70%{transform:translateY(2%) rotate(3deg)}100%{transform:translateY(0) rotate(0)}}
+@keyframes sk-education-accent{0%,100%{transform:rotate(0)}40%{transform:rotate(25deg)}70%{transform:rotate(-15deg)}}
+.sk-icon[data-sk-icon='education'].sk-play .sk-body{transform-origin:50% 60%;animation:sk-education-body .8s ease-in-out 1}
+.sk-icon[data-sk-icon='education'].sk-play .accent{animation:sk-education-accent .8s ease-in-out 1}
+@keyframes sk-cleaning-body{0%,100%{transform:rotate(0)}30%{transform:rotate(-12deg)}60%{transform:rotate(6deg)}}
+@keyframes sk-cleaning-accent{0%{transform:scale(1) rotate(0);opacity:1}40%{transform:scale(1.8) rotate(25deg);opacity:.5}100%{transform:scale(1) rotate(0);opacity:1}}
+.sk-icon[data-sk-icon='cleaning'].sk-play .sk-body{transform-origin:50% 100%;animation:sk-cleaning-body .8s ease-in-out 1}
+.sk-icon[data-sk-icon='cleaning'].sk-play .accent{animation:sk-cleaning-accent .8s ease-in-out 1}
+@keyframes sk-pet_care-body{0%{transform:scale(1)}30%{transform:scale(1.15)}55%{transform:scale(.95)}100%{transform:scale(1)}}
+@keyframes sk-pet_care-accent{0%,100%{transform:scale(1)}20%{transform:scale(1.35)}40%{transform:scale(1)}60%{transform:scale(1.35)}}
+.sk-icon[data-sk-icon='pet_care'].sk-play .sk-body{transform-origin:50% 50%;animation:sk-pet_care-body .8s ease-in-out 1}
+.sk-icon[data-sk-icon='pet_care'].sk-play .accent{animation:sk-pet_care-accent .8s ease-in-out 1}
+@keyframes sk-fitness-body{0%,100%{transform:translateY(0)}25%{transform:translateY(-12%)}50%{transform:translateY(3%)}75%{transform:translateY(-8%)}}
+@keyframes sk-fitness-accent{0%,100%{opacity:1}50%{opacity:.2}}
+.sk-icon[data-sk-icon='fitness'].sk-play .sk-body{transform-origin:50% 50%;animation:sk-fitness-body .9s ease-in-out 1}
+.sk-icon[data-sk-icon='fitness'].sk-play .accent{animation:sk-fitness-accent .9s ease-in-out 1}
+@keyframes sk-automotive-body{0%{transform:translateX(0)}35%{transform:translateX(10%)}70%{transform:translateX(-6%)}100%{transform:translateX(0)}}
+@keyframes sk-automotive-accent{0%,100%{opacity:1}30%,60%{opacity:.15}}
+.sk-icon[data-sk-icon='automotive'].sk-play .sk-body{transform-origin:50% 50%;animation:sk-automotive-body .8s ease-in-out 1}
+.sk-icon[data-sk-icon='automotive'].sk-play .accent{animation:sk-automotive-accent .8s ease-in-out 1}
+@keyframes sk-gardening-body{0%{transform:scale(1)}35%{transform:scale(.9,.85)}70%{transform:scale(1.08,1.14)}100%{transform:scale(1)}}
+@keyframes sk-gardening-accent{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(60%);opacity:0}}
+.sk-icon[data-sk-icon='gardening'].sk-play .sk-body{transform-origin:50% 100%;animation:sk-gardening-body .8s ease-in-out 1}
+.sk-icon[data-sk-icon='gardening'].sk-play .accent{animation:sk-gardening-accent .8s ease-in-out 1}
+@keyframes sk-technology-body{0%{transform:scale(1)}40%{transform:scale(1.1)}100%{transform:scale(1)}}
+@keyframes sk-technology-accent{0%,100%{transform:translateX(0)}30%{transform:translateX(-30%)}60%{transform:translateX(30%)}}
+.sk-icon[data-sk-icon='technology'].sk-play .sk-body{transform-origin:50% 80%;animation:sk-technology-body .7s ease-in-out 1}
+.sk-icon[data-sk-icon='technology'].sk-play .accent{animation:sk-technology-accent .7s ease-in-out 1}
+@keyframes sk-photography-body{0%{transform:scale(1)}20%{transform:scale(.93)}100%{transform:scale(1)}}
+@keyframes sk-photography-accent{0%{transform:scale(1);opacity:1}25%{transform:scale(3.2);opacity:.35}100%{transform:scale(1);opacity:1}}
+.sk-icon[data-sk-icon='photography'].sk-play .sk-body{transform-origin:50% 50%;animation:sk-photography-body .6s ease-in-out 1}
+.sk-icon[data-sk-icon='photography'].sk-play .accent{animation:sk-photography-accent .6s ease-in-out 1}
+@keyframes sk-personal_services-body{0%,100%{transform:rotate(0)}30%{transform:rotate(-10deg)}60%{transform:rotate(7deg)}}
+@keyframes sk-personal_services-accent{0%,100%{transform:scale(1)}45%{transform:scale(1.9)}}
+.sk-icon[data-sk-icon='personal_services'].sk-play .sk-body{transform-origin:50% 10%;animation:sk-personal_services-body .8s ease-in-out 1}
+.sk-icon[data-sk-icon='personal_services'].sk-play .accent{animation:sk-personal_services-accent .8s ease-in-out 1}
+@keyframes sk-professional_services-body{0%{transform:translateY(0)}30%{transform:translateY(-10%)}60%{transform:translateY(2%)}100%{transform:translateY(0)}}
+@keyframes sk-professional_services-accent{0%,100%{transform:scale(1)}40%{transform:scale(1.8) rotate(-8deg)}}
+.sk-icon[data-sk-icon='professional_services'].sk-play .sk-body{transform-origin:50% 80%;animation:sk-professional_services-body .7s ease-in-out 1}
+.sk-icon[data-sk-icon='professional_services'].sk-play .accent{animation:sk-professional_services-accent .7s ease-in-out 1}
+@keyframes sk-influencing-body{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}55%{transform:rotate(6deg)}}
+@keyframes sk-influencing-accent{0%,100%{transform:scale(1)}20%{transform:scale(1.5)}40%{transform:scale(1)}60%{transform:scale(1.5)}}
+.sk-icon[data-sk-icon='influencing'].sk-play .sk-body{transform-origin:50% 80%;animation:sk-influencing-body .8s ease-in-out 1}
+.sk-icon[data-sk-icon='influencing'].sk-play .accent{animation:sk-influencing-accent .8s ease-in-out 1}
+@keyframes sk-videography-body{0%,100%{transform:rotate(0)}30%{transform:rotate(-7deg)}65%{transform:rotate(5deg)}}
+@keyframes sk-videography-accent{0%,100%{opacity:1}25%,65%{opacity:.1}}
+.sk-icon[data-sk-icon='videography'].sk-play .sk-body{transform-origin:50% 60%;animation:sk-videography-body .8s ease-in-out 1}
+.sk-icon[data-sk-icon='videography'].sk-play .accent{animation:sk-videography-accent .8s ease-in-out 1}
+@keyframes sk-music-body{0%,100%{transform:translateY(0)}20%{transform:translateY(-6%)}40%{transform:translateY(2%)}60%{transform:translateY(-5%)}80%{transform:translateY(1%)}}
+@keyframes sk-music-accent{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+.sk-icon[data-sk-icon='music'].sk-play .sk-body{transform-origin:50% 50%;animation:sk-music-body .9s ease-in-out 1}
+.sk-icon[data-sk-icon='music'].sk-play .accent{animation:sk-music-accent .9s ease-in-out 1}
+@media (prefers-reduced-motion:reduce){.sk-icon.sk-play .sk-body,.sk-icon.sk-play .accent{animation:none!important}}

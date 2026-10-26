@@ -1,3 +1,4 @@
+import { useCallback, useState } from 'react';
 import BeforeAfterCompare, { type BeforeAfterItem } from '@/beyond/components/BeforeAfterCompare';
 import EnquiryLink from '@/beyond/components/EnquiryLink';
 
@@ -49,6 +50,24 @@ const REDESIGN_ITEMS: readonly BeforeAfterItem[] = [
 ];
 
 export default function BeyondRedesignShowcase() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [flipKey, setFlipKey] = useState(0);
+
+  const selectIndex = useCallback((index: number) => {
+    setActiveIndex((current) => {
+      if (current === index) return current;
+      setFlipKey((k) => k + 1);
+      return index;
+    });
+  }, []);
+
+  const step = (delta: -1 | 1) => {
+    const next = (activeIndex + delta + REDESIGN_ITEMS.length) % REDESIGN_ITEMS.length;
+    selectIndex(next);
+  };
+
+  const active = REDESIGN_ITEMS[activeIndex];
+
   return (
     <section
       id="redesigns"
@@ -62,23 +81,44 @@ export default function BeyondRedesignShowcase() {
             What a <em>proper</em> website could look like.
           </h2>
           <p className="by-section-lede">
-            We sketched concept redesigns for a few common small-business niches — plumbers, a dental practice,
-            self-catering — each built around what their customers need to do first. These are not client projects;
-            names and details are anonymised. Drag the slider, or use arrow keys, to compare.
+            Concept before/after pairs for common small-business niches. Pick a niche, flip through the deck, drag the
+            slider to compare. Not client work; names and details are anonymised.
           </p>
         </div>
         <p className="by-redesigns-disclaimer">
-          Concept work only: &ldquo;after&rdquo; screens are our redesign ideas; &ldquo;before&rdquo; sides are
-          generic illustrative mock-ups, not real client sites.
+          Concept work only: &ldquo;after&rdquo; screens are our redesign ideas; &ldquo;before&rdquo; sides are generic
+          AI-assisted illustrative mock-ups, not real client sites.
         </p>
 
-        <ul className="by-redesigns-list" role="list">
-          {REDESIGN_ITEMS.map((item) => (
-            <li key={item.id}>
-              <BeforeAfterCompare item={item} />
-            </li>
-          ))}
-        </ul>
+        <div className="by-redesigns-deck" aria-live="polite">
+          <div className="by-redesigns-picker" role="tablist" aria-label="Redesign examples">
+            {REDESIGN_ITEMS.map((item, index) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={index === activeIndex}
+                className={index === activeIndex ? 'by-redesigns-tab is-active' : 'by-redesigns-tab'}
+                onClick={() => selectIndex(index)}
+              >
+                <span className="by-redesigns-tab-num">{item.num}</span>
+                <span className="by-redesigns-tab-label">{item.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="by-redesigns-stage">
+            <button type="button" className="by-redesigns-nav by-redesigns-nav-prev" onClick={() => step(-1)}>
+              Previous example
+            </button>
+            <div key={flipKey} className="by-redesigns-flip">
+              <BeforeAfterCompare item={active} />
+            </div>
+            <button type="button" className="by-redesigns-nav by-redesigns-nav-next" onClick={() => step(1)}>
+              Next example
+            </button>
+          </div>
+        </div>
 
         <div className="by-redesigns-close">
           <p className="by-redesigns-close-title">Want this for your business? We scope it with you before anything is priced.</p>

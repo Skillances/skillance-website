@@ -1,22 +1,25 @@
 import { Link } from 'react-router-dom';
 import BeyondFigure from '@/beyond/components/BeyondFigure';
-import { SKILLANCE_CASE_STUDY } from '@/beyond/content';
+import { BEYOND_PROOF_IMAGES, SKILLANCE_CASE_STUDY } from '@/beyond/content';
 
 type SkillanceCaseStudyProps = {
   /** Shorter block for the home page. */
   compact?: boolean;
+  /** Show proof bullets in compact mode (home proof band). */
+  showPoints?: boolean;
+  headingId?: string;
 };
 
-export default function SkillanceCaseStudy({ compact }: SkillanceCaseStudyProps) {
+export default function SkillanceCaseStudy({ compact, showPoints, headingId }: SkillanceCaseStudyProps) {
   const { title, lede, points } = SKILLANCE_CASE_STUDY;
 
   return (
     <article className={compact ? 'by-case-study by-case-study-compact by-reveal' : 'by-case-study by-reveal'}>
       <div className="by-case-study-copy">
         <p className="by-kicker">Built by us</p>
-        <h2 className="by-case-study-title">{title}</h2>
+        <h2 id={headingId} className="by-case-study-title">{title}</h2>
         <p className="by-lede">{lede}</p>
-        {!compact ? (
+        {!compact || showPoints ? (
           <ul className="by-case-study-points">
             {points.map((point) => (
               <li key={point}>{point}</li>
@@ -36,8 +39,8 @@ export default function SkillanceCaseStudy({ compact }: SkillanceCaseStudyProps)
         </div>
       </div>
       <BeyondFigure
-        jpgSrc="/beyond/platform-devices.jpg"
-        alt="Skillance marketplace on web and mobile"
+        jpgSrc={BEYOND_PROOF_IMAGES.marketplaceCaseStudy.jpgSrc}
+        alt={BEYOND_PROOF_IMAGES.marketplaceCaseStudy.alt}
         className="by-figure-section"
         loading={compact ? 'lazy' : 'eager'}
       />

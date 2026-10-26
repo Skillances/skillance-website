@@ -17,7 +17,7 @@ export default function ApproachPage() {
             lede="Discovery, design, build, launch, and support. Timing and cost are agreed for your project."
           />
           <BeyondFigure
-            webpSrc="/beyond/approach-workshop.webp"
+            webpSrc="/beyond/new/approach-workshop.webp"
             alt="Collaborative software discovery session"
             className="by-figure-page-hero by-reveal"
             loading="eager"
@@ -59,7 +59,7 @@ export default function ApproachPage() {
             </p>
           </div>
           <BeyondFigure
-            webpSrc="/beyond/studio-accent.webp"
+            webpSrc="/beyond/new/studio-accent.webp"
             alt="Software engineering workspace"
             className="by-figure-section by-reveal"
           />

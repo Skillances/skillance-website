@@ -2,10 +2,12 @@ import { getPrefersReducedMotion, SECTION_SCROLL_DURATION } from '@/lib/motion';
 import { getLenisFromWindow } from '@/lib/sectionScroll';
 
 export function getBeyondScrollReservePx(): number {
+  const banner = document.getElementById('beyond-attention-banner');
   const header = document.querySelector<HTMLElement>('.by-header');
-  if (header) {
-    return Math.ceil(header.getBoundingClientRect().height) + 12;
-  }
+  let px = 12;
+  if (banner) px += banner.getBoundingClientRect().height;
+  if (header) px += header.getBoundingClientRect().height;
+  if (banner || header) return Math.ceil(px);
   return 88;
 }
 

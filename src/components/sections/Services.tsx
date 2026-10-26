@@ -7,6 +7,8 @@ import { fetchServiceCategories, type ServiceCategoryItem } from '@/lib/serviceC
 import { SpecializationTreeList } from '@/components/SpecializationTreeList';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { revealFromTo } from '@/lib/motion';
+import { categoryImageObjectPosition } from '@/lib/categoryImageLayout';
+import { SkillanceIcon } from '@/components/ui/SkillanceIcon';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -103,6 +105,7 @@ const Services = () => {
                   loading="lazy"
                   decoding="async"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  style={{ objectPosition: categoryImageObjectPosition(category.slug) }}
                 />
 
                 {/* Gradient overlay — two-layer for depth */}
@@ -112,9 +115,18 @@ const Services = () => {
                 {/* Content */}
                 <div className="relative z-10 w-full">
                   <div className="flex items-end justify-between gap-3 mb-3">
-                    <h3 className="font-serif text-3xl lg:text-[2rem] xl:text-4xl text-white leading-tight">
-                      {category.name}
-                    </h3>
+                    <div className="flex items-end gap-3 min-w-0">
+                      <SkillanceIcon
+                        categorySlug={category.slug}
+                        label={`${category.name} category`}
+                        decorative
+                        sizeClassName="w-11 h-11"
+                        className="mb-1 drop-shadow-md"
+                      />
+                      <h3 className="font-serif text-3xl lg:text-[2rem] xl:text-4xl text-white leading-tight">
+                        {category.name}
+                      </h3>
+                    </div>
                     <div className="shrink-0 w-9 h-9 rounded-full border border-white/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-[transform,opacity] duration-300 ease-out">
                       <ArrowUpRight className="w-4 h-4 text-white" />
                     </div>

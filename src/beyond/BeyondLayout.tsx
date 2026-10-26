@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import BeyondLaunchStrip from '@/beyond/components/BeyondLaunchStrip';
+import Header from '@/beyond/components/Header';
 import StudioFooter from '@/beyond/components/StudioFooter';
 import { Toaster } from '@/components/ui/sonner';
 import { useBeyondMotion } from '@/beyond/useBeyondMotion';
@@ -37,6 +39,8 @@ export default function BeyondLayout() {
 
   return (
     <div className="by-scope" ref={scopeRef}>
+      <BeyondLaunchStrip />
+      <Header />
       <a className="by-skip" href="#beyond-content">
         Skip to content
       </a>

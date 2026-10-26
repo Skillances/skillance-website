@@ -13,6 +13,19 @@ export const ENQUIRY_MAILTO =
 
 export const SITE = 'https://skillance.co.za';
 
+/** Secondary steer from Beyond studio surfaces to the marketplace product. */
+export const MARKETPLACE_ENTRY = {
+  label: 'Need to book a provider? Open the Skillance marketplace',
+  href: '/',
+} as const;
+
+/** Fixed attention strip on Beyond routes (parallel to marketing launch strip). */
+export const BEYOND_ATTENTION_BANNER = {
+  message: 'Custom software by the Skillance team',
+  href: '/beyond/work',
+  linkLabel: 'Our work',
+} as const;
+
 export type BeyondFaq = { question: string; answer: string };
 
 export type BeyondPageMeta = {
@@ -82,6 +95,7 @@ export const SERVICES = [
     id: 'web',
     num: '01',
     title: 'Web apps',
+    imageWebp: '/beyond/new/web-apps.webp',
     hero: 'SaaS products and tools people use in a browser.',
     summary:
       'Customer-facing SaaS, portals, and internal tools with accounts, roles, billing, and real workflows.',
@@ -96,6 +110,7 @@ export const SERVICES = [
     id: 'mobile',
     num: '02',
     title: 'Mobile apps',
+    imageWebp: '/beyond/new/mobile-apps.webp',
     hero: 'iOS and Android, shaped around the job.',
     summary: 'Apps for phones and tablets, including the kind of product Skillance already ships for its own marketplace.',
     body: 'We design and build mobile apps. Skillance’s own customer and freelancer apps are written in Flutter and shipped to iOS and Android. A new project uses the approach that fits that product, agreed before the build.',
@@ -109,6 +124,7 @@ export const SERVICES = [
     id: 'systems',
     num: '03',
     title: 'Business systems',
+    imageWebp: '/beyond/new/business-systems.webp',
     hero: 'The software a company actually runs on.',
     summary: 'Workflows, records, and admin tools for the people who keep the business moving.',
     body: 'Some software is not a public app. It is how a business runs: records, handoffs, admin screens, and the day-to-day work that outgrows a spreadsheet. We build that kind of system when you can describe the work clearly.',
@@ -122,6 +138,7 @@ export const SERVICES = [
     id: 'integrations',
     num: '04',
     title: 'Integrations',
+    imageWebp: '/beyond/new/integrations.webp',
     hero: 'Cloud, APIs, and the systems you already use.',
     summary:
       'Hosting, observability, payments, sign-in, messaging, and the integrations a product needs in production.',
@@ -133,6 +150,14 @@ export const SERVICES = [
     ],
   },
 ] as const;
+
+export const HOME_HERO_ROTATE_WORDS = ['web apps', 'mobile apps', 'business systems'] as const;
+
+export const HOME_HERO = {
+  rotatePrefix: 'We build',
+  rotateSuffix: 'for South African businesses.',
+  lede: 'Same team behind the Skillance marketplace. Same discipline for your product.',
+} as const;
 
 export const HOME_STORY = {
   kicker: 'Our story',
@@ -154,34 +179,51 @@ export const SKILLANCE_CASE_STUDY = {
   ],
 } as const;
 
+/** Home proof band imagery (editorial device shots; no fabricated UI copy on screen). */
+export const BEYOND_PROOF_IMAGES = {
+  homeStory: {
+    jpgSrc: '/beyond/home-story-devices.jpg',
+    alt: 'Laptop and phone showing the Skillance product we built on web and mobile',
+  },
+  marketplaceCaseStudy: {
+    jpgSrc: '/beyond/case-study-marketplace.jpg',
+    alt: 'Laptop and phone showing Skillance marketplace discovery on web and mobile',
+  },
+} as const;
+
 export const STEPS = [
   {
     num: '01',
     title: 'Discovery',
+    iconSrc: '/beyond/new/icons/icon_discovery.png',
     summary: 'The problem, the people, and the constraints.',
     body: 'We start with the problem, the people who have it, and the constraints: time, existing systems, and what done looks like. You should leave this stage knowing whether we are the right team.',
   },
   {
     num: '02',
     title: 'Design',
+    iconSrc: '/beyond/new/icons/icon_design.png',
     summary: 'Flows and interface, before the build goes wide.',
     body: 'We shape the flows and the interface before implementation spreads out, so we are making the same thing. You see the direction while it is still cheap to change.',
   },
   {
     num: '03',
     title: 'Build',
+    iconSrc: '/beyond/new/icons/icon_build.png',
     summary: 'Working software, in iterations you can try.',
     body: 'We implement in iterations you can try, and we adjust from what you see working. The stack follows the problem. Skillance’s own platform is React and TypeScript on the web, and Flutter on mobile.',
   },
   {
     num: '04',
     title: 'Launch',
+    iconSrc: '/beyond/new/icons/icon_launch.png',
     summary: 'Release, handover, and a product you can run.',
     body: 'We release it, hand over what you need to operate it, and stay through the launch itself. Access, environments, and who owns what afterwards are part of that handover.',
   },
   {
     num: '05',
     title: 'Support',
+    iconSrc: '/beyond/new/icons/icon_support.png',
     summary: 'After launch, only if we agree to keep going.',
     body: 'Ongoing support is agreed separately when you want us to stay on after launch. Scope, response times, and cost are written into that agreement.',
   },

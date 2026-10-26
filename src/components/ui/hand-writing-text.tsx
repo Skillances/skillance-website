@@ -5,11 +5,17 @@ import { motion } from "framer-motion";
 interface HandWrittenTitleProps {
     title?: string;
     subtitle?: string;
+    variant?: "default" | "loader";
+    showStrokes?: boolean;
 }
 
 function HandWrittenTitle({
+    title = "Skillance",
     subtitle = "Excellence in every skill",
+    variant = "default",
+    showStrokes = true,
 }: HandWrittenTitleProps) {
+    const isLoader = variant === "loader";
     const draw = {
         hidden: { pathLength: 0, opacity: 0 },
         visible: {
@@ -23,8 +29,15 @@ function HandWrittenTitle({
     };
 
     return (
-        <div className="relative w-full max-w-4xl mx-auto py-24 flex items-center justify-center min-h-[500px]">
-            <div className="absolute inset-0">
+        <div
+            className={
+                isLoader
+                    ? "relative w-full max-w-4xl mx-auto flex flex-col items-center justify-center py-2"
+                    : "relative w-full max-w-4xl mx-auto py-24 flex items-center justify-center min-h-[500px]"
+            }
+        >
+            {showStrokes ? (
+            <div className={isLoader ? "absolute inset-0 opacity-40 scale-75" : "absolute inset-0"}>
                 <motion.svg
                     width="100%"
                     height="100%"
@@ -59,20 +72,33 @@ function HandWrittenTitle({
                     />
                 </motion.svg>
             </div>
+            ) : null}
             <div className="relative text-center z-10 flex flex-col items-center justify-center">
                 <motion.span
-                    className="text-8xl md:text-[9rem] text-black tracking-tight font-serif block"
-                    initial={{ opacity: 0, y: 20 }}
+                    className={
+                        isLoader
+                            ? "text-[clamp(3.5rem,18vw,9rem)] text-black tracking-tight font-serif block leading-none"
+                            : "text-8xl md:text-[9rem] text-black tracking-tight font-serif block"
+                    }
+                    initial={{ opacity: 0, y: isLoader ? 8 : 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{
+                        delay: isLoader ? 0 : 0.5,
+                        duration: isLoader ? 0.8 : 1.2,
+                        ease: [0.22, 1, 0.36, 1],
+                    }}
                 >
-                    Skillance
+                    {title}
                 </motion.span>
                 <motion.p
                     className="text-xs uppercase tracking-[0.4em] text-neutral-400 font-medium mt-2"
                     initial={{ opacity: 0, letterSpacing: "0.1em" }}
                     animate={{ opacity: 1, letterSpacing: "0.4em" }}
-                    transition={{ delay: 1.2, duration: 1.5, ease: "easeOut" }}
+                    transition={{
+                        delay: isLoader ? 0.15 : 1.2,
+                        duration: isLoader ? 0.9 : 1.5,
+                        ease: "easeOut",
+                    }}
                 >
                     {subtitle}
                 </motion.p>

@@ -1,11 +1,16 @@
 import { useEffect } from 'react';
 import { getSectionScrollTopReservePx, syncSectionScrollMarginCss } from '@/lib/sectionScroll';
 
-/** Keeps --by-site-chrome in sync with launch strip + site-primary-nav height on Beyond routes. */
+/** Keeps --by-site-chrome in sync with Beyond attention strip + header on Beyond routes. */
 export function useBeyondSiteChrome() {
   useEffect(() => {
     const sync = () => {
-      const px = getSectionScrollTopReservePx();
+      const banner = document.getElementById('beyond-launch-strip');
+      const header = document.querySelector<HTMLElement>('.by-header');
+      let px = 0;
+      if (banner) px += banner.getBoundingClientRect().height;
+      if (header) px += header.getBoundingClientRect().height;
+      if (px < 1) px = getSectionScrollTopReservePx();
       document.documentElement.style.setProperty('--by-site-chrome', `${px}px`);
       syncSectionScrollMarginCss();
     };

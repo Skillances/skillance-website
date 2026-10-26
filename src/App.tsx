@@ -182,7 +182,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   // Marketplace app shell: no marketing chrome, native scroll.
   const isMarketplaceRoute = isMarketplacePath(location.pathname);
   const isBeyondRoute = isBeyondPath(location.pathname);
-  const hideMarketingChrome = isAdminRoute || isMarketplaceRoute;
+  const hideMarketingChrome = isAdminRoute || isMarketplaceRoute || isBeyondRoute;
   const showMarketingNav = !hideMarketingChrome;
   const showMarketingFooter = showMarketingNav && !isAuthPath && !isBeyondRoute;
   const showMarketingWidgets = showMarketingFooter;

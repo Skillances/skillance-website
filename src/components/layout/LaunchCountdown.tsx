@@ -1,13 +1,15 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { isBeyondPath } from '@/lib/beyond/routes';
 import { isMarketingAuthPath } from '@/lib/marketing/authPaths';
+import { useBeyondWork } from '@/beyond/useBeyondWork';
 
 const LaunchCountdown = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { ready, items } = useBeyondWork();
+  const clientCount = items.length;
 
-  if (isBeyondPath(location.pathname) || isMarketingAuthPath(location.pathname)) {
+  if (isMarketingAuthPath(location.pathname)) {
     return null;
   }
 
@@ -38,7 +40,9 @@ const LaunchCountdown = () => {
             <span>To be Announced</span>
           </motion.div>
           <span className="hidden lg:inline opacity-40 lowercase italic tracking-normal border-l border-white/20 pl-6">
-            Coming soon
+            {ready && clientCount > 0
+              ? `${clientCount} Beyond client${clientCount === 1 ? '' : 's'} live`
+              : 'Coming soon'}
           </span>
         </motion.div>
       </motion.button>

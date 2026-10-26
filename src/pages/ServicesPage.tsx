@@ -11,6 +11,8 @@ import {
 import { queryKeys } from '@/lib/queryKeys';
 import { SpecializationTreeList } from '@/components/SpecializationTreeList';
 import { Skeleton } from '@/components/ui/skeleton';
+import { categoryImageObjectPosition } from '@/lib/categoryImageLayout';
+import { SkillanceIcon } from '@/components/ui/SkillanceIcon';
 
 type ServiceCategoryWithMatches = ServiceCategoryItem & {
   matchedSpecializations: string[];
@@ -289,14 +291,24 @@ const ServicesPage = () => {
                     loading="lazy"
                     decoding="async"
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale-[0.3] group-hover:grayscale-0"
+                    style={{ objectPosition: categoryImageObjectPosition(category.slug) }}
                   />
                 </div>
 
                 <div className="p-5 lg:p-7 flex-1 flex flex-col">
                   <div className="flex items-start justify-between w-full mb-3 flex-shrink-0">
-                    <h3 className="font-serif text-lg lg:text-xl text-black leading-tight pr-2 flex-1 min-w-0">
-                      {category.name}
-                    </h3>
+                    <div className="flex items-start gap-3 flex-1 min-w-0 pr-2">
+                      <SkillanceIcon
+                        categorySlug={category.slug}
+                        label={`${category.name} category`}
+                        decorative
+                        sizeClassName="w-10 h-10"
+                        className="mt-0.5"
+                      />
+                      <h3 className="font-serif text-lg lg:text-xl text-black leading-tight">
+                        {category.name}
+                      </h3>
+                    </div>
                     <ArrowUpRight className="w-4 h-4 text-neutral-300 group-hover:text-black transition-colors transform group-hover:translate-x-1 group-hover:-translate-y-1 duration-300 flex-shrink-0" />
                   </div>
 
@@ -388,6 +400,7 @@ const ServicesPage = () => {
                         loading="lazy"
                         decoding="async"
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 grayscale-[0.2] group-hover:grayscale-0"
+                        style={{ objectPosition: categoryImageObjectPosition(category.slug) }}
                       />
                     </div>
 

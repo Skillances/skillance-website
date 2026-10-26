@@ -16,7 +16,7 @@ export default function ServicesPage() {
           lede="Four kinds of software. A project can be one of them, or several. We scope each one with you before anything is priced."
         />
         <BeyondFigure
-          webpSrc="/beyond/services-hero.webp"
+          webpSrc="/beyond/new/services-hero.webp"
           alt="Planning custom software services"
           className="by-figure-page-hero by-reveal"
           loading="eager"
@@ -33,6 +33,14 @@ export default function ServicesPage() {
 
       {SERVICES.map((service) => (
         <article key={service.id} id={service.id} className="by-service by-reveal">
+          {service.imageWebp ? (
+            <BeyondFigure
+              webpSrc={service.imageWebp}
+              alt={`${service.title} illustration`}
+              className="by-figure-service-card"
+              loading="lazy"
+            />
+          ) : null}
           <p className="by-num">{service.num}</p>
           <h2 className="by-section-title by-section-title-sm">{service.title}</h2>
           <p>{service.body}</p>

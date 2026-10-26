@@ -6,8 +6,16 @@ import CopyEmailButton from '@/beyond/components/CopyEmailButton';
 import EnquiryLink from '@/beyond/components/EnquiryLink';
 import BeyondRedesignShowcase from '@/beyond/components/BeyondRedesignShowcase';
 import SkillanceCaseStudy from '@/beyond/components/SkillanceCaseStudy';
-import { OwnPlatform, SectionHead, StepRows } from '@/beyond/components/Blocks';
-import { FAQS, HOME_STORY, PAGES, SERVICES, STEPS } from '@/beyond/content';
+import { SectionHead, StepRows } from '@/beyond/components/Blocks';
+import {
+  BEYOND_PROOF_IMAGES,
+  FAQS,
+  HOME_STORY,
+  MARKETPLACE_ENTRY,
+  PAGES,
+  SERVICES,
+  STEPS,
+} from '@/beyond/content';
 import { useBeyondPage } from '@/beyond/useBeyondPage';
 
 export default function HomePage() {
@@ -23,26 +31,39 @@ export default function HomePage() {
     <>
       <BeyondHero titleId="beyond-hero-title" />
 
-      <section className="by-section" aria-labelledby="beyond-story-title">
-        <div className="by-wrap by-split by-split-media by-reveal">
-          <div>
-            <SectionHead
-              id="beyond-story-title"
-              kicker={HOME_STORY.kicker}
-              title={HOME_STORY.title}
+      <div className="by-proof-band">
+        <section className="by-section by-section-proof-story" aria-labelledby="beyond-story-title">
+          <div className="by-wrap by-split by-split-media by-reveal">
+            <div>
+              <SectionHead
+                id="beyond-story-title"
+                kicker={HOME_STORY.kicker}
+                title={HOME_STORY.title}
+              />
+              {HOME_STORY.paragraphs.map((paragraph) => (
+                <p key={paragraph} className="by-story-paragraph">{paragraph}</p>
+              ))}
+              <p className="by-story-marketplace">
+                <Link to={MARKETPLACE_ENTRY.href} className="by-textlink">
+                  {MARKETPLACE_ENTRY.label}
+                </Link>
+              </p>
+            </div>
+            <BeyondFigure
+              jpgSrc={BEYOND_PROOF_IMAGES.homeStory.jpgSrc}
+              alt={BEYOND_PROOF_IMAGES.homeStory.alt}
+              className="by-figure-section"
+              loading="lazy"
             />
-            {HOME_STORY.paragraphs.map((paragraph) => (
-              <p key={paragraph} className="by-story-paragraph">{paragraph}</p>
-            ))}
           </div>
-          <BeyondFigure
-            jpgSrc="/beyond/platform-devices.jpg"
-            alt="Skillance product on laptop and phone"
-            className="by-figure-section"
-            loading="lazy"
-          />
-        </div>
-      </section>
+        </section>
+
+        <section className="by-section by-section-cool by-section-proof-case" aria-labelledby="beyond-case-title">
+          <div className="by-wrap">
+            <SkillanceCaseStudy compact showPoints headingId="beyond-case-title" />
+          </div>
+        </section>
+      </div>
 
       <section className="by-section by-section-cool by-section-services-index" aria-labelledby="beyond-build-title">
         <div className="by-wrap">
@@ -89,14 +110,6 @@ export default function HomePage() {
               See how we work
             </Link>
           </div>
-        </div>
-      </section>
-
-      <OwnPlatform />
-
-      <section className="by-section by-section-cool" aria-labelledby="beyond-case-title">
-        <div className="by-wrap">
-          <SkillanceCaseStudy compact />
         </div>
       </section>
 

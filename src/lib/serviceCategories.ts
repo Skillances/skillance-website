@@ -34,21 +34,21 @@ export interface ServiceCategoryItem {
 }
 
 const CATEGORY_IMAGE_FALLBACKS: Record<string, string> = {
-  /** Static JPEGs in `public/images/unsplash/` (same photos as former Unsplash URLs). */
-  handyman: '/images/unsplash/handyman.jpg',
-  education: '/images/unsplash/education.jpg',
-  cleaning: '/images/unsplash/cleaning.jpg',
-  petcare: '/images/unsplash/petcare.jpg',
-  fitness: '/images/unsplash/fitness.jpg',
-  automotive: '/images/unsplash/automotive.jpg',
-  personalservices: '/images/unsplash/personalservices.jpg',
-  gardening: '/images/unsplash/gardening.jpg',
-  computer: '/images/unsplash/computer.jpg',
-  professionalservices: '/images/unsplash/professionalservices.jpg',
-  influencer: '/images/unsplash/influencer.jpg',
-  photography: '/images/unsplash/photography.jpg',
-  videography: '/images/unsplash/videography.jpg',
-  music: '/images/unsplash/music.jpg',
+  /** Brand category photos in `public/images/services/` (API `websiteImageUrl` still wins when set). */
+  handyman: '/images/services/handyman.webp',
+  education: '/images/services/tutor.webp',
+  cleaning: '/images/services/cleaning.webp',
+  petcare: '/images/services/petcare.webp',
+  fitness: '/images/services/fitness.webp',
+  automotive: '/images/services/mechanic.webp',
+  personalservices: '/images/services/personal.webp',
+  gardening: '/images/services/gardening.webp',
+  computer: '/images/services/it.webp',
+  professionalservices: '/images/services/professional.webp',
+  influencer: '/images/services/influencer.webp',
+  photography: '/images/services/photography.webp',
+  videography: '/images/services/videography.webp',
+  music: '/images/services/music.webp',
 };
 
 const CATEGORY_IMAGE_ALIASES: Record<string, keyof typeof CATEGORY_IMAGE_FALLBACKS> = {
