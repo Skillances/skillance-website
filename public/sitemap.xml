@@ -118,6 +118,38 @@
     <changefreq>yearly</changefreq>
     <priority>0.45</priority>
   </url>
+
+  <!-- Beyond studio: LLM/crawler markdown mirrors -->
+  <url>
+    <loc>https://skillance.co.za/beyond.md</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://skillance.co.za/beyond-services.md</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillance.co.za/beyond-approach.md</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillance.co.za/beyond-work.md</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://skillance.co.za/beyond-contact.md</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
   <url>
     <loc>https://skillance.co.za/paia-manual</loc>
     <lastmod>2026-10-26</lastmod>

@@ -1,4 +1,5 @@
 import { prefersMarkdown } from './lib/acceptNegotiation';
+import { beyondMarkdownForPath, isBeyondDocumentPath } from './lib/beyondMarkdown';
 import {
   estimateMarkdownTokens,
   HOMEPAGE_MARKDOWN_FOR_AGENTS,
@@ -17,15 +18,6 @@ export async function onRequest(context: {
   const url = new URL(req.url);
   const pathname = url.pathname === '' ? '/' : url.pathname;
 
-  const isHomeDocument =
-    pathname === '/' ||
-    pathname === '/index.html' ||
-    pathname === '';
-
-  if (!isHomeDocument) {
-    return context.next();
-  }
-
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     return context.next();
   }
@@ -34,7 +26,23 @@ export async function onRequest(context: {
     return context.next();
   }
 
-  const tokens = estimateMarkdownTokens(HOMEPAGE_MARKDOWN_FOR_AGENTS);
+  const isHomeDocument =
+    pathname === '/' ||
+    pathname === '/index.html' ||
+    pathname === '';
+
+  let body: string | null = null;
+  if (isHomeDocument) {
+    body = HOMEPAGE_MARKDOWN_FOR_AGENTS;
+  } else if (isBeyondDocumentPath(pathname)) {
+    body = beyondMarkdownForPath(pathname);
+  }
+
+  if (!body) {
+    return context.next();
+  }
+
+  const tokens = estimateMarkdownTokens(body);
   const linkDiscovery =
     '</.well-known/api-catalog>; rel="api-catalog", <https://api.skillance.co.za/docs>; rel="service-doc"';
   const headers = new Headers({
@@ -49,5 +57,5 @@ export async function onRequest(context: {
     return new Response(null, { status: 200, headers });
   }
 
-  return new Response(HOMEPAGE_MARKDOWN_FOR_AGENTS, { status: 200, headers });
+  return new Response(body, { status: 200, headers });
 }

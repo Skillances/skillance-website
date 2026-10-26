@@ -5,6 +5,9 @@ import { defineConfig, loadEnv, type Plugin } from "vite"
 import { inspectAttr } from 'kimi-plugin-inspect-react'
 import { prefersMarkdown } from "./functions/lib/acceptNegotiation"
 import {
+  BEYOND_OVERVIEW_MARKDOWN,
+} from "./functions/lib/beyondMarkdown"
+import {
   estimateMarkdownTokens,
   HOMEPAGE_MARKDOWN_FOR_AGENTS,
 } from "./functions/lib/homepageMarkdown"
@@ -123,8 +126,9 @@ function markdownAgentDevMiddleware(): Plugin {
         const rawUrl = req.url?.split("?")[0] ?? ""
         const pathname = rawUrl === "" ? "/" : rawUrl
         const isHome = pathname === "/" || pathname === "/index.html"
+        const isBeyond = pathname === "/beyond" || pathname === "/beyond/"
         if (
-          !isHome ||
+          (!isHome && !isBeyond) ||
           (req.method !== "GET" && req.method !== "HEAD")
         ) {
           next()
@@ -134,7 +138,8 @@ function markdownAgentDevMiddleware(): Plugin {
           next()
           return
         }
-        const tokens = estimateMarkdownTokens(HOMEPAGE_MARKDOWN_FOR_AGENTS)
+        const body = isBeyond ? BEYOND_OVERVIEW_MARKDOWN : HOMEPAGE_MARKDOWN_FOR_AGENTS
+        const tokens = estimateMarkdownTokens(body)
         res.statusCode = 200
         res.setHeader("Content-Type", "text/markdown; charset=utf-8")
         res.setHeader("Vary", "Accept")
@@ -144,7 +149,7 @@ function markdownAgentDevMiddleware(): Plugin {
           res.end()
           return
         }
-        res.end(HOMEPAGE_MARKDOWN_FOR_AGENTS)
+        res.end(body)
       })
     },
   }

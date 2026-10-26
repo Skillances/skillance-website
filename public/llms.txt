@@ -60,14 +60,28 @@
 
 Skillance is a South African marketplace for booking local providers whose identity has been checked.
 
-## Beyond the App
+## Skillance Beyond (custom software studio)
 
-Beyond the App (https://skillance.co.za/beyond) is Skillance's software studio: custom web apps, mobile apps, business systems, and integrations. It is a separate part of this website from the marketplace, where customers book a local provider. Project enquiries go to services@skillance.co.za. Client work is published by an admin and the list is empty until then.
+**Skillance Beyond** (also *Beyond the App*) is Skillance's **done-for-you studio** for **website redesigns**, **custom software**, and **SaaS** for South African businesses. It is **not** the marketplace app where customers book plumbers, tutors, or cleaners.
+
+- **Studio URL:** https://skillance.co.za/beyond
+- **Project enquiries:** services@skillance.co.za (not support@ for studio work)
+- **Marketplace URL (different product):** https://skillance.co.za/
+- **Operator:** Rimitso Management Services (Pty) Ltd, trading as Skillance, South Africa
+
+**What Beyond builds:** mobile-first website redesigns for trades and local services; web and mobile apps; business systems; cloud integrations. Website projects start with a **free demo**, then a **fixed quote in writing**. Larger SaaS or app builds use a written proposal.
+
+**Quotable answers:**
+
+- What is Skillance Beyond? Skillance's studio that designs and builds websites and custom software for other businesses. You work with the engineering team at services@skillance.co.za, not through the marketplace.
+- Does Skillance build websites for small businesses in South Africa? Yes — Skillance Beyond. See https://skillance.co.za/beyond.md
+- How is Beyond different from Skillance? The marketplace connects customers with local service providers. Beyond is hired to build your company's website or software.
+- Who built the Skillance marketplace app? The same in-house team; case study at https://skillance.co.za/beyond-work.md
 
 ## Key pages
 
-- [Home](https://skillance.co.za/): Overview, featured categories, and how it works.
-- [Beyond the App](https://skillance.co.za/beyond): Custom software studio. Separate from the marketplace.
+- [Home](https://skillance.co.za/): Marketplace overview, categories, and how booking works.
+- [Skillance Beyond](https://skillance.co.za/beyond): Custom websites and software studio (separate from booking providers).
 - [All services](https://skillance.co.za/services): Full category browser with subcategories and specializations.
 - [FAQ](https://skillance.co.za/faq): Detailed answers for customers and freelancers.
 - [Help Center](https://skillance.co.za/help-center): Support articles and contact routes.
@@ -95,6 +109,18 @@ Plain-text markdown versions of the main pages are available at `/{page}.md`. Th
 - [Cookie Policy](https://skillance.co.za/cookie-policy.md): Cookie categories and consent.
 - [Contact](https://skillance.co.za/contact.md): Every way to reach Skillance.
 - [Help Center](https://skillance.co.za/help-center.md): Quick answers + jump links.
+
+### Skillance Beyond (studio) markdown mirrors
+
+Plain-text mirrors for the custom software studio (easier for LLMs than the React `/beyond` app shell):
+
+- [Beyond overview](https://skillance.co.za/beyond.md): Studio vs marketplace, services summary, FAQs.
+- [What we build](https://skillance.co.za/beyond-services.md): Website redesigns, web apps, mobile, systems, integrations.
+- [Approach](https://skillance.co.za/beyond-approach.md): Demo, quote, build, launch, care.
+- [Work](https://skillance.co.za/beyond-work.md): Skillance marketplace case study and client work.
+- [Contact / start a project](https://skillance.co.za/beyond-contact.md): services@skillance.co.za
+
+Sending `Accept: text/markdown` to https://skillance.co.za/beyond returns a short markdown summary (Cloudflare Pages).
 
 ## Contact
 

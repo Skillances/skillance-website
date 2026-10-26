@@ -1,6 +1,6 @@
 # Skillance South Africa — robots.txt
 # Site: https://skillance.co.za
-# Marketplace: https://skillance.co.za/llms.txt + /llms-full.txt for AI assistants.
+# AI assistants: https://skillance.co.za/llms.txt + /llms-full.txt (marketplace). Studio: /beyond.md and /beyond-*.md
 
 # ---------------------------------------------------------------------------
 # Default policy — allow crawling, block admin / auth / sensitive endpoints.

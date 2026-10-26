@@ -7,7 +7,15 @@ const KEYWORDS =
   'Skillance Beyond, Skillance Beyond the App, Beyond the App, Skillance custom software, custom software South Africa, web apps, mobile apps, business systems, software integrations, Rimitso Management Services';
 
 const SERVICE_DESCRIPTION =
-  'Skillance Beyond designs and builds custom web apps, mobile apps, business systems, and integrations for clients in South Africa. The studio practice sits alongside the Skillance marketplace.';
+  'Skillance Beyond designs and builds website redesigns, custom web apps, mobile apps, business systems, and integrations for South African businesses. The studio sits alongside the Skillance marketplace.';
+
+const MARKDOWN_MIRROR_BY_PATH: Partial<Record<string, string>> = {
+  '/beyond': `${SITE}/beyond.md`,
+  '/beyond/services': `${SITE}/beyond-services.md`,
+  '/beyond/approach': `${SITE}/beyond-approach.md`,
+  '/beyond/work': `${SITE}/beyond-work.md`,
+  '/beyond/contact': `${SITE}/beyond-contact.md`,
+};
 
 function read(selector: string, attr: 'content' | 'href') {
   return document.head.querySelector(selector)?.getAttribute(attr) ?? null;
@@ -15,6 +23,22 @@ function read(selector: string, attr: 'content' | 'href') {
 
 function write(selector: string, attr: 'content' | 'href', value: string) {
   document.head.querySelector(selector)?.setAttribute(attr, value);
+}
+
+function upsertMarkdownAlternate(href: string | null) {
+  let el = document.querySelector('link[rel="alternate"][type="text/markdown"]#beyond-md-alternate');
+  if (!href) {
+    el?.remove();
+    return;
+  }
+  if (!el) {
+    el = document.createElement('link');
+    el.id = 'beyond-md-alternate';
+    el.setAttribute('rel', 'alternate');
+    el.setAttribute('type', 'text/markdown');
+    document.head.appendChild(el);
+  }
+  el.setAttribute('href', href);
 }
 
 function upsertJsonLd(json: string) {
@@ -126,6 +150,7 @@ export function useBeyondPage(meta: BeyondPageMeta) {
     write('meta[name="twitter:url"]', 'content', url);
     write('meta[name="theme-color"]', 'content', THEME_COLOR);
     write('link[rel="canonical"]', 'href', url);
+    upsertMarkdownAlternate(MARKDOWN_MIRROR_BY_PATH[path] ?? null);
     if (!noindex) upsertJsonLd(jsonLd({ title, description, path, crumb, noindex, faqs }));
 
     trackBeyond('beyond_view', {
@@ -148,6 +173,7 @@ export function useBeyondPage(meta: BeyondPageMeta) {
       if (previous.themeColor != null) write('meta[name="theme-color"]', 'content', previous.themeColor);
       if (previous.canonical != null) write('link[rel="canonical"]', 'href', previous.canonical);
       document.getElementById('beyond-jsonld')?.remove();
+      upsertMarkdownAlternate(null);
     };
   }, [title, description, path, crumb, noindex, faqs]);
 }

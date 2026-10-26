@@ -16,6 +16,10 @@ A South African marketplace for booking local service providers. Every provider'
 - **Site:** https://skillance.co.za
 - **Contact:** services@skillance.co.za · +27 66 220 3312
 
+## Skillance Beyond (custom software studio)
+
+Separate from the marketplace: **website redesigns**, **custom software**, and **SaaS** for South African businesses. Enquiries: services@skillance.co.za · https://skillance.co.za/beyond · agent mirror: https://skillance.co.za/beyond.md
+
 ## For developers
 
 - **REST API docs (Swagger):** https://api.skillance.co.za/docs
