@@ -35,7 +35,7 @@ h1 { font: 700 3.3rem/1.06 var(--hf); letter-spacing: -.01em; margin-bottom: 1.1
 .layout-overlay .hero { min-height: 36rem; display: grid; grid-template-columns: 1fr 22rem; align-items: center; gap: 3rem; padding: 4rem; color: #fff; overflow: hidden; }
 .layout-overlay .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .layout-overlay .hero::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, color-mix(in srgb, var(--dark) 92%, transparent) 0%, color-mix(in srgb, var(--dark) 62%, transparent) 42%, transparent 82%); }
-.layout-overlay h1 { max-width: 34rem; }
+.layout-overlay h1 { max-width: 42rem; }
 .layout-overlay .hero-copy, .layout-overlay .panel { position: relative; z-index: 2; }
 .layout-overlay .btn-light { color: #fff; }
 .layout-overlay .hero:not(:has(.panel)) { grid-template-columns: 1fr; }

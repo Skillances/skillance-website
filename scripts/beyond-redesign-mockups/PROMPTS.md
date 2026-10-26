@@ -4,6 +4,8 @@
 (for example `assets/generated/example-1-hero.jpg`). Then run `render.sh`. Until a file exists, the page shows a
 striped placeholder labelled with the filename it is waiting for.
 
+`python gen.py` runs these prompts through the Higgsfield CLI (`higgsfield auth login` first; GPT Image 2, medium, 2k, about 2 credits each) and saves any slot that is still missing.
+
 Settings that work well: **GPT Image 2** (quality high, 2k) or **Nano Banana Pro** (2k). Photorealistic, not illustrated.
 Do not use a reference photo of a real business. Pick the best of two or three tries per slot.
 
