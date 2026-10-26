@@ -8,44 +8,45 @@ const REDESIGN_ITEMS: readonly BeforeAfterItem[] = [
     num: '01',
     label: 'Plumber',
     caption:
-      'An older page rebuilt around one job: getting an emergency call. Phone button above the fold on every screen size.',
-    afterAlt: 'Concept redesign of a plumbing website (after)',
-    beforeAlt: 'Illustrative generic template plumbing website mock-up (before)',
+      'Nightriver, an older page rebuilt around one job: getting an emergency call. The phone button sits above the fold on every screen size.',
+    afterAlt: 'Fictional concept: Nightriver Plumbing website after a redesign',
+    beforeAlt: 'Fictional concept: a dated Nightriver Plumbing website before a redesign',
   },
   {
     id: 'example-2',
     num: '02',
     label: 'Electrical & plumbing',
-    caption: 'Concept: a bold, fast single page for electrical and plumbing call-outs.',
-    afterAlt: 'Concept redesign of an electrical and plumbing website (after)',
-    beforeAlt: 'Illustrative generic template trades website mock-up (before)',
+    caption:
+      'Fuse & Flange: a bold, fast single page for electrical and plumbing call-outs, instead of an AI-builder jumble.',
+    afterAlt: 'Fictional concept: Fuse & Flange trades website after a redesign',
+    beforeAlt: 'Fictional concept: a badly generated Fuse & Flange trades website before a redesign',
   },
   {
     id: 'example-3',
     num: '03',
     label: 'Plumber',
     caption:
-      'From a dark hero with stacked icons to a clear service grid, a side rail with the number and a WhatsApp link.',
-    afterAlt: 'Concept redesign of a plumbing website (after)',
-    beforeAlt: 'Illustrative generic template plumbing website mock-up (before)',
+      'Oakjoint, from a dark hero with stacked icons to a clear service grid, a side rail with the number, and a WhatsApp link.',
+    afterAlt: 'Fictional concept: Oakjoint Plumbing website after a redesign',
+    beforeAlt: 'Fictional concept: a dark, icon-stacked Oakjoint Plumbing website before a redesign',
   },
   {
     id: 'example-4',
     num: '04',
     label: 'Dental practice',
     caption:
-      'Three practice locations made obvious from the first screen, each with its own call button.',
-    afterAlt: 'Concept redesign of a dental practice website (after)',
-    beforeAlt: 'Illustrative generic template dental practice website mock-up (before)',
+      'Thimble Dental: three practice rooms made obvious from the first screen, each with its own call button.',
+    afterAlt: 'Fictional concept: Thimble Dental website after a redesign',
+    beforeAlt: 'Fictional concept: a dated Thimble Dental website before a redesign',
   },
   {
     id: 'example-5',
     num: '05',
     label: 'Self-catering',
     caption:
-      'The view does the selling. Direct-booking panel and rates in view, instead of a broken image and a block of text.',
-    afterAlt: 'Concept redesign of a self-catering stay website (after)',
-    beforeAlt: 'Illustrative generic template guest-house website mock-up (before)',
+      'Stonekettle Cottage: the view does the selling. A direct-booking panel and the rates sit in view, instead of a broken image and a block of text.',
+    afterAlt: 'Fictional concept: Stonekettle Cottage website after a redesign',
+    beforeAlt: 'Fictional concept: a broken, text-heavy Stonekettle Cottage website before a redesign',
   },
 ];
 
