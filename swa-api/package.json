@@ -1,0 +1,6 @@
+{
+  "name": "skillance-swa-api",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Azure Functions for the Static Web App. index.js files are generated; see scripts/build-swa-api.mjs."
+}

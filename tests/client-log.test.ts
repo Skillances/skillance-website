@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // @ts-expect-error -- plain JS serverless function without type declarations
-import handler, { MAX_BODY_BYTES, createRateLimiter, isAllowedOrigin, sanitizeLog } from '../api/client-log.js';
+import handler, { MAX_BODY_BYTES, clientIp, createRateLimiter, getAllowedOrigins, isAllowedOrigin, sanitizeLog } from '../api/client-log.js';
 
 type Req = { method: string; headers: Record<string, string>; body?: unknown; socket?: { remoteAddress: string } };
 
@@ -50,7 +50,6 @@ describe('client-log handler', () => {
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.stubEnv('VERCEL_ENV', 'production');
   });
   afterEach(() => vi.unstubAllEnvs());
 
@@ -165,5 +164,30 @@ describe('helpers', () => {
     expect(check('a', 2_000).allowed).toBe(true);
     check('b', 2_000);
     expect(check('c', 2_001).allowed).toBe(true);
+  });
+});
+
+describe('client IP and origin trust', () => {
+  it('ignores spoofable x-vercel-forwarded-for and uses the last forwarded hop', () => {
+    const req = {
+      headers: { 'x-vercel-forwarded-for': '9.9.9.9', 'x-forwarded-for': '1.2.3.4, 5.6.7.8:443' },
+    };
+    expect(clientIp(req, {})).toBe('5.6.7.8');
+  });
+
+  it('counts trusted proxy hops from the end (Azure Static Web Apps appends two)', () => {
+    const req = { headers: { 'x-forwarded-for': '1.2.3.4, 102.132.172.164:57172, 40.70.146.132:32077' } };
+    expect(clientIp(req, { CLIENT_LOG_PROXY_HOPS: '2' })).toBe('102.132.172.164');
+    expect(clientIp(req, {})).toBe('40.70.146.132');
+  });
+
+  it('prefers the configured platform header', () => {
+    const req = { headers: { 'x-azure-clientip': '10.1.1.1:5000', 'x-forwarded-for': '1.2.3.4' } };
+    expect(clientIp(req, { CLIENT_LOG_IP_HEADER: 'x-azure-clientip' })).toBe('10.1.1.1');
+  });
+
+  it('only allows localhost origins when explicitly enabled', () => {
+    expect(getAllowedOrigins({}).has('http://localhost:5173')).toBe(false);
+    expect(getAllowedOrigins({ CLIENT_LOG_ALLOW_LOCALHOST: 'true' }).has('http://localhost:5173')).toBe(true);
   });
 });

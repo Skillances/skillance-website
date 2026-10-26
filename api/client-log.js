@@ -1,5 +1,5 @@
 /**
- * Receives client-side error reports and writes them to the Vercel function log.
+ * Receives client-side error reports and writes them to the platform log.
  *
  * Hardening (this endpoint is unauthenticated and public, so treat every byte as hostile):
  *  - POST + application/json only
@@ -103,7 +103,8 @@ export function getAllowedOrigins(env = process.env) {
   for (const origin of (env.CLIENT_LOG_ALLOWED_ORIGINS || '').split(',')) {
     if (origin.trim()) origins.add(origin.trim().replace(/\/+$/, ''));
   }
-  if (env.VERCEL_ENV !== 'production') {
+  // Localhost is only accepted when explicitly enabled; it must never be on in production.
+  if (env.CLIENT_LOG_ALLOW_LOCALHOST === 'true') {
     origins.add('http://localhost:5173');
     origins.add('http://localhost:3000');
   }
@@ -159,13 +160,34 @@ export function createRateLimiter({
 
 const checkRateLimit = createRateLimiter();
 
-function clientIp(req) {
-  // Vercel overwrites these headers at the edge, so the client cannot spoof them.
-  const forwarded = req.headers['x-vercel-forwarded-for'] || req.headers['x-forwarded-for'];
-  const first = String(Array.isArray(forwarded) ? forwarded[0] : forwarded || '')
-    .split(',')[0]
-    .trim();
-  return first || req.socket?.remoteAddress || 'unknown';
+function stripPort(address) {
+  const value = address.trim();
+  if (value.startsWith('[')) return value.slice(1, value.indexOf(']'));
+  return value.includes('.') ? value.split(':')[0] : value;
+}
+
+/**
+ * Client IP for rate limiting. Entries at the START of X-Forwarded-For are client-controlled, so
+ * only the entry appended by our own platform proxies is trusted. CLIENT_LOG_PROXY_HOPS is the
+ * number of trusted proxy hops appended after the client (default 1: the last entry; Azure Static
+ * Web Apps appends two, so set it to 2). CLIENT_LOG_IP_HEADER takes precedence when the platform
+ * sets a dedicated client-IP header.
+ */
+export function clientIp(req, env = process.env) {
+  const header = (env.CLIENT_LOG_IP_HEADER || '').toLowerCase();
+  if (header) {
+    const direct = req.headers[header];
+    const value = String(Array.isArray(direct) ? direct[0] : direct || '').trim();
+    if (value) return stripPort(value);
+  }
+  const forwarded = req.headers['x-forwarded-for'];
+  const hops = String(Array.isArray(forwarded) ? forwarded.join(',') : forwarded || '')
+    .split(',')
+    .map((h) => h.trim())
+    .filter(Boolean);
+  const trusted = Math.max(1, Number(env.CLIENT_LOG_PROXY_HOPS) || 1);
+  const entry = hops[hops.length - trusted];
+  return entry ? stripPort(entry) : req.socket?.remoteAddress || 'unknown';
 }
 
 function fail(res, status, message) {

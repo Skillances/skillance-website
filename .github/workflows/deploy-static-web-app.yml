@@ -1,0 +1,85 @@
+name: Deploy website to Azure Static Web Apps
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-static-web-app
+  cancel-in-progress: false
+
+env:
+  SITE_URL: https://skillance.co.za
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+      - run: npx tsc -b
+      - run: npm test
+
+      # Lint is reported but does not block the deploy while pre-existing errors are cleaned up.
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # Bundle the Azure Function (error-log endpoint) that ships with the Static Web App.
+      - name: Build function
+        run: node scripts/build-swa-api.mjs
+
+      # tsc + vite directly: `npm run build` also runs the IndexNow postbuild ping.
+      - name: Build site
+        run: npx tsc -b && npx vite build
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.skillance.co.za' }}
+          VITE_AUTH_REFRESH_COOKIE: ${{ vars.VITE_AUTH_REFRESH_COOKIE }}
+          VITE_PUBLIC_S3_CATEGORY_BASE: ${{ vars.VITE_PUBLIC_S3_CATEGORY_BASE }}
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: dist
+          api_location: swa-api
+          skip_app_build: true
+          skip_api_build: true
+          production_branch: main
+
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 12); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "${SITE_URL}/" || true)
+            [ "$code" = "200" ] && { echo "Site healthy."; exit 0; }
+            sleep 10
+          done
+          echo "Site did not return 200."; exit 1
+
+      - name: Notify IndexNow
+        run: INDEXNOW_FORCE=1 node scripts/ping-indexnow.mjs
+        continue-on-error: true
