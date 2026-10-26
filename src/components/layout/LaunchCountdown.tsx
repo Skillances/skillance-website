@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { isMarketingAuthPath } from '@/lib/marketing/authPaths';
 import { MARKETPLACE_SIGNPOST } from '@/constants/experienceSignposts';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import LaunchStripMarquee, { useLaunchStripMobileMarquee } from '@/components/layout/LaunchStripMarquee';
 
 const ROTATE_MS = 6500;
 const STRIP_EASE = [0.23, 1, 0.32, 1] as const;
@@ -14,6 +15,7 @@ const LaunchCountdown = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const reducedMotion = usePrefersReducedMotion();
+  const mobileMarquee = useLaunchStripMobileMarquee();
 
   const slides: StripSlide[] = ['launch', 'beyond'];
   const [activeIndex, setActiveIndex] = useState(0);
@@ -63,6 +65,11 @@ const LaunchCountdown = () => {
         exit: { y: '-100%', opacity: 0 },
       };
 
+  const mobileMarqueeText = [
+    'Launch: To be announced · Coming soon',
+    `${MARKETPLACE_SIGNPOST.stripPrompt} ${MARKETPLACE_SIGNPOST.stripCta}`,
+  ].join(' · · · ');
+
   return (
     <motion.button
       type="button"
@@ -73,37 +80,46 @@ const LaunchCountdown = () => {
       className="fixed top-0 left-0 right-0 z-[60] h-8 overflow-hidden bg-black text-white active:scale-[0.995] transition-transform"
       aria-live="polite"
     >
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.span
-          key={activeSlide}
-          {...slideMotion}
-          transition={{ duration: reducedMotion ? 0.2 : 0.42, ease: STRIP_EASE }}
-          className="absolute inset-0 flex items-center justify-center px-4"
-        >
-          {activeSlide === 'launch' ? (
-            <span className="flex max-w-full items-center justify-center gap-3 sm:gap-5 text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.14em] whitespace-nowrap">
-              <span className="flex items-center gap-1.5 sm:gap-2">
-                <span className="opacity-60 text-[9px]">Launch:</span>
-                <span>To be announced</span>
+      {mobileMarquee ? (
+        <span className="absolute inset-0 flex items-center px-2">
+          <LaunchStripMarquee
+            text={mobileMarqueeText}
+            className="text-[10px] font-medium uppercase tracking-[0.12em] text-white"
+          />
+        </span>
+      ) : (
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={activeSlide}
+            {...slideMotion}
+            transition={{ duration: reducedMotion ? 0.2 : 0.42, ease: STRIP_EASE }}
+            className="absolute inset-0 flex items-center justify-center px-4"
+          >
+            {activeSlide === 'launch' ? (
+              <span className="flex max-w-full items-center justify-center gap-3 sm:gap-5 text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.14em] whitespace-nowrap">
+                <span className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="opacity-60 text-[9px]">Launch:</span>
+                  <span>To be announced</span>
+                </span>
+                <span
+                  className="hidden sm:inline h-3 w-px bg-white/20"
+                  aria-hidden="true"
+                />
+                <span className="normal-case tracking-normal font-semibold text-white/90 truncate">
+                  Coming soon
+                </span>
               </span>
-              <span
-                className="hidden sm:inline h-3 w-px bg-white/20"
-                aria-hidden="true"
-              />
-              <span className="normal-case tracking-normal font-semibold text-white/90 truncate">
-                Coming soon
+            ) : (
+              <span className="flex max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-0.5 px-1 text-[9px] sm:text-[11px] font-medium tracking-[0.05em] sm:tracking-[0.08em] sm:whitespace-nowrap">
+                <span className="text-center text-white/75 sm:truncate">{MARKETPLACE_SIGNPOST.stripPrompt}</span>
+                <span className="shrink-0 font-semibold uppercase tracking-[0.1em] sm:tracking-[0.12em] text-white underline decoration-white/35 underline-offset-[3px]">
+                  {MARKETPLACE_SIGNPOST.stripCta}
+                </span>
               </span>
-            </span>
-          ) : (
-            <span className="flex max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-0.5 px-1 text-[9px] sm:text-[11px] font-medium tracking-[0.05em] sm:tracking-[0.08em] sm:whitespace-nowrap">
-              <span className="text-center text-white/75 sm:truncate">{MARKETPLACE_SIGNPOST.stripPrompt}</span>
-              <span className="shrink-0 font-semibold uppercase tracking-[0.1em] sm:tracking-[0.12em] text-white underline decoration-white/35 underline-offset-[3px]">
-                {MARKETPLACE_SIGNPOST.stripCta}
-              </span>
-            </span>
-          )}
-        </motion.span>
-      </AnimatePresence>
+            )}
+          </motion.span>
+        </AnimatePresence>
+      )}
     </motion.button>
   );
 };

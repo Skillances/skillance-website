@@ -456,7 +456,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
         </AnimatePresence>
       </RouteShell>
       {showMarketingFooter && <Footer />}
-      {isLoaded && showMarketingNav && !isAuthPath && (
+      {isLoaded && showMarketingNav && !isAuthPath && !isBeyondRoute && (
         <Suspense fallback={null}>
           <LaunchCountdown />
         </Suspense>

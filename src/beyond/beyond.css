@@ -291,6 +291,18 @@ body.by-active {
   outline-offset: -2px;
 }
 
+.by-launch-strip-ticker-marquee {
+  justify-content: flex-start;
+  padding-inline: 0;
+}
+
+.by-launch-strip-marquee {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+}
+
 .by-launch-strip-slide {
   position: absolute;
   inset: 0;

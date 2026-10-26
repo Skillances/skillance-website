@@ -1,0 +1,48 @@
+.launch-strip-marquee {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 6%,
+    #000 94%,
+    transparent
+  );
+}
+
+.launch-strip-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: launch-strip-marquee 22s linear infinite;
+  will-change: transform;
+}
+
+.launch-strip-marquee-track > span {
+  flex-shrink: 0;
+  padding-inline: 1.75rem;
+}
+
+@keyframes launch-strip-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .launch-strip-marquee-track {
+    animation: none;
+    transform: none;
+  }
+
+  .launch-strip-marquee {
+    mask-image: none;
+  }
+
+  .launch-strip-marquee-track > span:last-child {
+    display: none;
+  }
+}
