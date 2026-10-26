@@ -63,6 +63,21 @@ export function categorySlugToSkIcon(categorySlug: string): string {
   return aliases[key] ?? key;
 }
 
+function resolvePackIconId(requestedId: string): string {
+  const names = window.SkillanceIcons?.names;
+  if (!names?.length) {
+    return requestedId;
+  }
+  if (names.includes(requestedId)) {
+    return requestedId;
+  }
+  const handyman = 'handyman';
+  if (names.includes(handyman)) {
+    return handyman;
+  }
+  return names[0] ?? requestedId;
+}
+
 /** Inject SVG markup for one icon (no duplicate mount listeners). */
 export async function injectSkillanceIconSvg(host: HTMLElement, iconId: string): Promise<boolean> {
   await loadSkillanceIconsScript();
@@ -71,9 +86,11 @@ export async function injectSkillanceIconSvg(host: HTMLElement, iconId: string):
     return false;
   }
 
+  const packId = resolvePackIconId(iconId);
+
   const sandbox = document.createElement('div');
   const placeholder = document.createElement('span');
-  placeholder.setAttribute('data-sk-icon', iconId);
+  placeholder.setAttribute('data-sk-icon', packId);
   sandbox.appendChild(placeholder);
   mount(sandbox);
 
@@ -83,7 +100,7 @@ export async function injectSkillanceIconSvg(host: HTMLElement, iconId: string):
   }
 
   host.innerHTML = mounted.innerHTML;
-  host.setAttribute('data-sk-icon', iconId);
+  host.setAttribute('data-sk-icon', packId);
   host.setAttribute('data-sk-ready', '1');
   host.classList.add('sk-icon');
   return true;

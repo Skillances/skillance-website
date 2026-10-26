@@ -182,6 +182,8 @@ function buildSpecializationTree(nodes?: CategoryApiNode[]): ServiceSpecializati
 
 function mapApiCategory(cat: CategoryApiNode): ServiceCategoryItem {
   const fallbackKey = resolveFallbackKey(cat);
+  /** API often omits slug; icons, images, and copy need a stable key. */
+  const slugKey = cat.slug?.trim() || fallbackKey;
   // For known slugs, lock to curated legacy images to avoid poor/unrelated admin image data.
   // For unknown slugs, use websiteImageUrl first.
   const image = CATEGORY_IMAGE_FALLBACKS[fallbackKey]
@@ -189,7 +191,6 @@ function mapApiCategory(cat: CategoryApiNode): ServiceCategoryItem {
     : isLikelyRenderablePhoto(cat.websiteImageUrl)
       ? cat.websiteImageUrl
       : fallbackForSlug('handyman');
-  const slugKey = cat.slug ?? '';
   return {
     id: cat.id,
     slug: slugKey,

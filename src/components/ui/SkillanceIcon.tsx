@@ -23,7 +23,7 @@ export function SkillanceIcon({
   decorative = false,
   onDark = false,
   className = '',
-  sizeClassName = 'w-14 h-14',
+  sizeClassName = '!w-14 !h-14',
 }: SkillanceIconProps) {
   const reducedMotion = usePrefersReducedMotion();
   const iconHostRef = useRef<HTMLSpanElement>(null);
@@ -58,7 +58,7 @@ export function SkillanceIcon({
   const iconMarkup = (
     <span
       ref={iconHostRef}
-      className={`sk-icon block ${sizeClassName} ${decorative ? 'sk-icon-decorative pointer-events-none' : ''}`}
+      className={`sk-icon !inline-block !max-w-none ${sizeClassName} ${decorative ? 'sk-icon-decorative pointer-events-none' : ''}`}
       aria-hidden={decorative ? true : undefined}
     />
   );

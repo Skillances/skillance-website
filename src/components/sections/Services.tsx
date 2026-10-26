@@ -9,6 +9,7 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { revealFromTo } from '@/lib/motion';
 import { categoryImageObjectPosition } from '@/lib/categoryImageLayout';
 import { SkillanceIcon } from '@/components/ui/SkillanceIcon';
+import { loadSkillanceIconsScript } from '@/lib/skillanceIconsScript';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -124,7 +125,7 @@ const Services = () => {
                         label={`${category.name} category`}
                         decorative
                         onDark
-                        sizeClassName="w-10 h-10"
+                        sizeClassName="!w-10 !h-10"
                         className="shrink-0"
                       />
                       <h3 className="font-serif text-3xl lg:text-[2rem] xl:text-4xl text-white leading-[1.1]">
@@ -172,17 +173,32 @@ const Services = () => {
           />
 
           <div className="relative flex min-h-0 h-full w-full flex-col overflow-hidden bg-white sm:h-auto sm:max-h-[min(85dvh,calc(100dvh-4rem))] sm:max-w-4xl sm:rounded-[2.5rem] sm:shadow-2xl sm:flex-row">
-            <div className="hidden sm:flex sm:w-[42%] relative shrink-0 overflow-hidden min-h-0 sm:min-h-[min(420px,42dvh)] sm:max-h-[min(85dvh,calc(100dvh-4rem))] sm:self-stretch">
+            <div className="relative h-52 shrink-0 overflow-hidden sm:hidden">
               <img
                 src={selectedCategory.image}
                 width={800}
                 height={1000}
                 loading="eager"
                 decoding="async"
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
+                style={{ objectPosition: categoryImageObjectPosition(selectedCategory.slug) }}
+                alt=""
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" aria-hidden />
+            </div>
+
+            <div className="relative hidden min-h-0 shrink-0 overflow-hidden sm:flex sm:w-[44%] sm:min-h-[min(480px,50dvh)] sm:max-h-[min(85dvh,calc(100dvh-4rem))] sm:self-stretch">
+              <img
+                src={selectedCategory.image}
+                width={800}
+                height={1000}
+                loading="eager"
+                decoding="async"
+                className="absolute inset-0 h-full w-full scale-[1.02] object-cover"
+                style={{ objectPosition: categoryImageObjectPosition(selectedCategory.slug) }}
                 alt={`${selectedCategory.name} service`}
               />
-              <div className="absolute inset-0 bg-black/20" />
+              <div className="absolute inset-0 bg-black/15" aria-hidden />
             </div>
 
             <div className="flex-1 flex flex-col min-h-0 bg-white overflow-hidden">
@@ -204,9 +220,9 @@ const Services = () => {
                 </p>
 
                 <div className="pb-4">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-4">Available Specializations</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-bold mb-4">Available Specializations</p>
                   {selectedCategory.specializationTree.length > 0 ? (
-                    <SpecializationTreeList nodes={selectedCategory.specializationTree} compact />
+                    <SpecializationTreeList nodes={selectedCategory.specializationTree} comfortable />
                   ) : (
                     <div className="flex flex-wrap gap-2">
                       {selectedCategory.subcategories.map((sub) => (
