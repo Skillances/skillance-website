@@ -5,7 +5,8 @@ import { beyondActiveClientLabel } from '@/beyond/beyondClientCountLabel';
 import { BEYOND_SIGNPOST } from '@/beyond/content';
 import { useBeyondWork } from '@/beyond/useBeyondWork';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import LaunchStripMarquee, { useLaunchStripMobileMarquee } from '@/components/layout/LaunchStripMarquee';
+import LaunchStripMarquee from '@/components/layout/LaunchStripMarquee';
+import { useLaunchStripMobileMarquee } from '@/components/layout/useLaunchStripMobileMarquee';
 
 const ROTATE_MS = 6500;
 const STRIP_EASE = [0.23, 1, 0.32, 1] as const;
@@ -24,21 +25,22 @@ export default function BeyondLaunchStrip() {
 
   const showMarketplaceSlide = pathname !== '/beyond';
   const slides: StripSlide[] = showMarketplaceSlide ? ['portfolio', 'marketplace'] : ['portfolio'];
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [rotation, setRotation] = useState({ path: pathname, index: 0 });
+  // Restart at the first slide on route change (derived, so no extra effect render).
+  const activeIndex = rotation.path === pathname ? rotation.index : 0;
   const activeSlide = slides[activeIndex] ?? 'portfolio';
-
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [pathname]);
 
   useEffect(() => {
     if (slides.length < 2) return;
     const ms = reducedMotion ? ROTATE_MS * 1.5 : ROTATE_MS;
     const id = window.setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % slides.length);
+      setRotation((prev) => ({
+        path: pathname,
+        index: ((prev.path === pathname ? prev.index : 0) + 1) % slides.length,
+      }));
     }, ms);
     return () => window.clearInterval(id);
-  }, [reducedMotion, slides.length]);
+  }, [reducedMotion, slides.length, pathname]);
 
   const handleStripClick = useCallback(() => {
     if (activeSlide === 'marketplace') {

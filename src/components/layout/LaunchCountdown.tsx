@@ -4,7 +4,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { isMarketingAuthPath } from '@/lib/marketing/authPaths';
 import { MARKETPLACE_SIGNPOST } from '@/constants/experienceSignposts';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import LaunchStripMarquee, { useLaunchStripMobileMarquee } from '@/components/layout/LaunchStripMarquee';
+import LaunchStripMarquee from '@/components/layout/LaunchStripMarquee';
+import { useLaunchStripMobileMarquee } from '@/components/layout/useLaunchStripMobileMarquee';
 
 const ROTATE_MS = 6500;
 const STRIP_EASE = [0.23, 1, 0.32, 1] as const;
@@ -18,21 +19,22 @@ const LaunchCountdown = () => {
   const mobileMarquee = useLaunchStripMobileMarquee();
 
   const slides: StripSlide[] = ['launch', 'beyond'];
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [rotation, setRotation] = useState({ path: location.pathname, index: 0 });
+  // Restart at the first slide on route change (derived, so no extra effect render).
+  const activeIndex = rotation.path === location.pathname ? rotation.index : 0;
   const activeSlide = slides[activeIndex] ?? 'launch';
-
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [location.pathname]);
 
   useEffect(() => {
     if (slides.length < 2) return;
     const ms = reducedMotion ? ROTATE_MS * 1.5 : ROTATE_MS;
     const id = window.setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % slides.length);
+      setRotation((prev) => ({
+        path: location.pathname,
+        index: ((prev.path === location.pathname ? prev.index : 0) + 1) % slides.length,
+      }));
     }, ms);
     return () => window.clearInterval(id);
-  }, [reducedMotion, slides.length]);
+  }, [reducedMotion, slides.length, location.pathname]);
 
   const scrollToLaunchCta = useCallback(() => {
     if (location.pathname !== '/') {

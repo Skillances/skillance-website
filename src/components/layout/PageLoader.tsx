@@ -7,7 +7,7 @@ import {
   pickAssemblyEndFrameSrc,
   pickAssemblyPosterSrc,
   pickAssemblyVideoSrc,
-  useWarmPaperLoader,
+  isWarmPaperSurface,
 } from '@/lib/layout/loaderBrandAssets';
 
 interface PageLoaderProps {
@@ -38,23 +38,23 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
   const [useEndFrame, setUseEndFrame] = useState(reducedMotion);
   const [videoReady, setVideoReady] = useState(false);
   const [videoSrc] = useState(() => {
-    const warm = useWarmPaperLoader(surfaceColor);
+    const warm = isWarmPaperSurface(surfaceColor);
     return typeof window !== 'undefined'
       ? pickAssemblyVideoSrc(warm)
       : '/brand/logo_assembly_clean_16x9.mp4';
   });
   const [posterSrc] = useState(() => {
-    const warm = useWarmPaperLoader(surfaceColor);
+    const warm = isWarmPaperSurface(surfaceColor);
     return typeof window !== 'undefined'
       ? pickAssemblyPosterSrc(warm)
       : '/brand/logo_assembly_clean_16x9_poster.webp';
   });
   const [endFrameSrc] = useState(() => {
     if (typeof window === 'undefined') return '/brand/logo_assembly_clean_16x9_end.webp';
-    const warm = useWarmPaperLoader(surfaceColor);
+    const warm = isWarmPaperSurface(surfaceColor);
     return pickAssemblyEndFrameSrc(warm);
   });
-  const warmPaper = useWarmPaperLoader(surfaceColor);
+  const warmPaper = isWarmPaperSurface(surfaceColor);
   const loaderBackdrop = loaderBackdropForVideo(surfaceColor, videoSrc);
   const [useBlendMultiply, setUseBlendMultiply] = useState(false);
   const portraitEncode = videoSrc.includes('9x16');
@@ -162,10 +162,8 @@ const PageLoader = ({ onComplete, surfaceColor = SITE_EXPERIENCE_PAPER }: PageLo
   }, [isExiting, isVisible, skip]);
 
   useEffect(() => {
-    if (!warmPaper) {
-      setUseBlendMultiply(false);
-      return;
-    }
+    // blendClass already requires warmPaper, so there is nothing to track otherwise.
+    if (!warmPaper) return;
     const narrow = window.matchMedia('(max-width: 767px)');
     const coarse = window.matchMedia('(pointer: coarse)');
     const update = () => {

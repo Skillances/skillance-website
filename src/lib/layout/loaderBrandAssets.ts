@@ -16,7 +16,7 @@ export function loaderBackdropForVideo(surfaceColor: string, videoSrc: string): 
 }
 
 /** Assembly videos on warm paper use the "clean" encodes; pure white keeps legacy assets. */
-export function useWarmPaperLoader(surfaceColor: string): boolean {
+export function isWarmPaperSurface(surfaceColor: string): boolean {
   const normalized = surfaceColor.trim().toLowerCase();
   if (normalized === '#ffffff' || normalized === '#fff' || normalized === 'white') {
     return false;
