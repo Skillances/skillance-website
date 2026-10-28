@@ -49,7 +49,7 @@ const Hero = () => {
   return (
     <section id="home" ref={heroRef} className="site-hero w-full">
       <div ref={imageRef} className="site-hero-media">
-        <div className="absolute inset-0 h-[120%] w-full -top-[10%]">
+        <div className="absolute inset-x-0 top-8 h-[calc(100%-2rem)] w-full lg:inset-0 lg:-top-[10%] lg:h-[120%]">
         <picture className="w-full h-full block">
           <source media="(max-width: 1023px)" srcSet="/hero-image-portrait.webp" />
           <img

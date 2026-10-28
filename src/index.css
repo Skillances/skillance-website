@@ -54,6 +54,15 @@
   width: 100%;
 }
 
+/* Phones have no parallax, so the photo is not oversized or pulled up behind the nav: heads stay in frame. */
+@media (max-width: 1023px) {
+  .site-hero-media {
+    top: 0;
+    height: 100%;
+    background: #000;
+  }
+}
+
 .site-hero-content {
   position: relative;
   z-index: 10;
