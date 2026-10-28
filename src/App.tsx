@@ -22,6 +22,7 @@ import { getPrefersReducedMotion, isTouchPrimary, LENIS_DURATION } from './lib/m
 import RequireAuth from './components/marketplace/RequireAuth';
 import { isMarketplacePath, isMarketplaceShellPath } from './lib/marketplace/routes';
 import { isBeyondPath } from './lib/beyond/routes';
+import { prefetchBeyondWhenIdle } from './lib/beyond/prefetch';
 import { isMarketingAuthPath } from './lib/marketing/authPaths';
 
 const HelpCenter = lazy(() => import('./pages/help/HelpCenter'));
@@ -210,6 +211,10 @@ function MainContent() {
   /* Dock on marketplace only; Beyond keeps the switcher in its header center column. */
   const showExperienceSwitcherDock =
     showMarketingNav && !isBeyondRoute && !isAdminRoute && !isMarketplaceRoute && !isAuthPath;
+
+  useEffect(() => {
+    prefetchBeyondWhenIdle();
+  }, []);
 
   useEffect(() => {
     syncSiteChromeCss();

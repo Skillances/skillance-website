@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { isBeyondPath } from '@/lib/beyond/routes';
+import { prefetchBeyond } from '@/lib/beyond/prefetch';
 import './experience-switch.css';
 
 type Appearance = 'quiet-dark' | 'quiet-light' | 'studio';
@@ -57,6 +58,9 @@ export default function ExperienceSwitcher({
           className={studio ? 'by-switch-link' : 'experience-switch-link'}
           aria-current={option.current ? 'true' : undefined}
           aria-label={option.name}
+          onPointerEnter={prefetchBeyond}
+          onTouchStart={prefetchBeyond}
+          onFocus={prefetchBeyond}
         >
           {option.label}
         </Link>
