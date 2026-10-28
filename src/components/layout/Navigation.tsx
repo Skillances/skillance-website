@@ -14,11 +14,7 @@ import { isMarketingAuthPath } from '@/lib/marketing/authPaths';
 import { MOBILE_NAV_PANEL_CLASS } from '@/lib/layout/mobileNavPanelClass';
 import { useMobileMenuLock } from '@/lib/layout/useMobileMenuLock';
 
-interface NavigationProps {
-  isLoaded: boolean;
-}
-
-const Navigation = ({ isLoaded }: NavigationProps) => {
+const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   useMobileMenuLock(isMobileMenuOpen);
   const [isDarkSection, setIsDarkSection] = useState(true); // Start with dark (hero)
@@ -187,8 +183,6 @@ const Navigation = ({ isLoaded }: NavigationProps) => {
       }
     }
   };
-
-  if (!isLoaded) return null;
 
   // Determine text and button colors based on section
   const textColor = isDarkSection ? 'text-white' : 'text-black';

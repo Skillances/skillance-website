@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef, lazy, Suspense, type ReactNode } from 'react';
+import { useEffect, useRef, lazy, Suspense, type ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import PageTransition from './components/layout/PageTransition';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import PageLoader from './components/layout/PageLoader';
 import Navigation from './components/layout/Navigation';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
@@ -184,7 +183,7 @@ function AdminInlinePageSkeleton() {
   );
 }
 
-function MainContent({ isLoaded }: { isLoaded: boolean }) {
+function MainContent() {
   const mainRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
@@ -276,7 +275,7 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (isLoaded && useLenisScroll) {
+    if (useLenisScroll) {
       // Initialize Lenis for smooth scrolling
       const reducedMotion = getPrefersReducedMotion();
       const lenis = new Lenis({
@@ -320,18 +319,16 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
         lenis.destroy();
       };
     }
-  }, [isLoaded, useLenisScroll]);
+  }, [useLenisScroll]);
 
   return (
     <div 
       ref={mainRef} 
-      className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : ''} transition-opacity duration-[550ms] ease-[cubic-bezier(0.23,1,0.32,1)] ${
-        isLoaded ? 'opacity-100' : 'will-change-[opacity] opacity-0 pointer-events-none'
-      }`}
+      className={`relative min-h-screen ${isAdminRoute ? 'bg-neutral-950' : ''} `}
       style={isAdminRoute ? undefined : { backgroundColor: SITE_EXPERIENCE_PAPER }}
     >
       <ScrollToTop />
-      {showMarketingNav && <Navigation isLoaded={isLoaded} />}
+      {showMarketingNav && <Navigation />}
       <ExperienceSwitcherDock enabled={showExperienceSwitcherDock} />
       <RouteShell beyond={isBeyondRoute}>
         <AnimatePresence mode="wait" initial={false}>
@@ -456,12 +453,12 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
         </AnimatePresence>
       </RouteShell>
       {showMarketingFooter && <Footer />}
-      {isLoaded && showMarketingNav && !isAuthPath && !isBeyondRoute && (
+      {showMarketingNav && !isAuthPath && !isBeyondRoute && (
         <Suspense fallback={null}>
           <LaunchCountdown />
         </Suspense>
       )}
-      {isLoaded && showMarketingWidgets && (
+      {showMarketingWidgets && (
         <>
           <CookieConsent />
           <Suspense fallback={null}>
@@ -474,51 +471,8 @@ function MainContent({ isLoaded }: { isLoaded: boolean }) {
   );
 }
 
-function readInitialLoaded(shouldShowLoader: boolean): boolean {
-  if (!shouldShowLoader) return true;
-  try {
-    return sessionStorage.getItem('skillance_loaded') === 'true';
-  } catch {
-    return false;
-  }
-}
-
 function AppShell() {
-  const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
-  const shouldShowLoader =
-    !isAdminRoute &&
-    !isMarketingAuthPath(location.pathname) &&
-    !isMarketplacePath(location.pathname);
-
-  const [isLoaded, setIsLoaded] = useState(() => readInitialLoaded(shouldShowLoader));
-
-  const handleLoaderComplete = () => {
-    setIsLoaded(true);
-  };
-
-  const loaderSurface = SITE_EXPERIENCE_PAPER;
-
-  useEffect(() => {
-    if (!shouldShowLoader) return;
-    if (isBeyondPath(location.pathname)) {
-      void import('./beyond/BeyondApp');
-    }
-  }, [location.pathname, shouldShowLoader]);
-
-  // Routes without the marketing loader are ready immediately (state adjusted during render).
-  if (!shouldShowLoader && !isLoaded) {
-    setIsLoaded(true);
-  }
-
-  return (
-    <>
-      {shouldShowLoader && (
-        <PageLoader surfaceColor={loaderSurface} onComplete={handleLoaderComplete} />
-      )}
-      <MainContent isLoaded={isLoaded} />
-    </>
-  );
+  return <MainContent />;
 }
 
 function App() {
