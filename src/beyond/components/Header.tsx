@@ -110,20 +110,14 @@ export default function Header() {
   const navSecondary = NAV.slice(3);
 
   const mobileLinkClass =
-    'block touch-manipulation text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100';
+    'block touch-manipulation text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 transition-colors py-4 border-b border-neutral-100';
 
   const mobileMenu =
     typeof document !== 'undefined'
       ? createPortal(
           <AnimatePresence>
             {mobileOpen ? (
-              <motion.div
-                className="by-beyond-mobile-nav fixed inset-0 z-[110]"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-              >
+              <div className="by-beyond-mobile-nav fixed inset-0 z-[110]">
                 <motion.div
                   className="absolute inset-0 bg-black/45 cursor-pointer touch-none"
                   role="presentation"
@@ -131,6 +125,7 @@ export default function Header() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
                 />
                 <motion.div
                   id={menuId}
@@ -189,7 +184,7 @@ export default function Header() {
                     </nav>
                   </div>
                 </motion.div>
-              </motion.div>
+              </div>
             ) : null}
           </AnimatePresence>,
           document.body,

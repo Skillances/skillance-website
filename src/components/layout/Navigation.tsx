@@ -359,16 +359,14 @@ const Navigation = () => {
       {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div
-            className="fixed inset-0 z-[110] lg:hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-          >
+          <div className="fixed inset-0 z-[110] lg:hidden">
             {/* Backdrop */}
             <motion.div
               className="absolute inset-0 bg-black/45 cursor-pointer touch-none"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               onClick={() => setIsMobileMenuOpen(false)}
             />
 
@@ -405,60 +403,48 @@ const Navigation = () => {
               <div className="p-6">
                 <ExperienceSwitcher appearance="quiet-light" density="comfortable" />
                 <div className="flex flex-col gap-1 mt-6">
-                  {navLinks.map((link, i) =>
+                  {navLinks.map((link) =>
                     onBeyond && 'end' in link ? (
-                      <motion.div
-                        key={link.name}
-                        initial={{ opacity: 0, transform: 'translateX(12px)' }}
-                        animate={{ opacity: 1, transform: 'translateX(0)' }}
-                        transition={{ duration: 0.22, delay: 0.06 + i * 0.035, ease: [0.23, 1, 0.32, 1] }}
-                      >
+                      <div key={link.name}>
                         <Link
                           to={link.href}
                           onClick={() => setIsMobileMenuOpen(false)}
                           aria-current={isBeyondNavCurrent(location.pathname, link.href, link.end) ? 'page' : undefined}
-                          className="block touch-manipulation text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100"
+                          className="block touch-manipulation text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 transition-colors py-4 border-b border-neutral-100"
                         >
                           {link.name}
                         </Link>
-                      </motion.div>
+                      </div>
                     ) : (
-                      <motion.button
+                      <button
                         key={link.name}
-                        initial={{ opacity: 0, transform: 'translateX(12px)' }}
-                        animate={{ opacity: 1, transform: 'translateX(0)' }}
-                        transition={{ duration: 0.22, delay: 0.06 + i * 0.035, ease: [0.23, 1, 0.32, 1] }}
                         onClick={(e) =>
                           link.href.startsWith('/#')
                             ? handleLinkClick(link.href, e)
                             : (setIsMobileMenuOpen(false), navigate(link.href))
                         }
-                        className="touch-manipulation text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100 text-left w-full"
+                        className="touch-manipulation text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 transition-colors py-4 border-b border-neutral-100 text-left w-full"
                       >
                         {link.name}
-                      </motion.button>
+                      </button>
                     )
                   )}
                   {sessionLink && (
-                    <motion.div
-                      initial={{ opacity: 0, transform: 'translateX(12px)' }}
-                      animate={{ opacity: 1, transform: 'translateX(0)' }}
-                      transition={{ duration: 0.22, delay: 0.06 + navLinks.length * 0.035, ease: [0.23, 1, 0.32, 1] }}
-                    >
+                    <div>
                       <Link
                         to={sessionLink.to}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="block touch-manipulation text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100"
+                        className="block touch-manipulation text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 transition-colors py-4 border-b border-neutral-100"
                         aria-label={sessionLink.aria}
                       >
                         {sessionLink.label}
                       </Link>
-                    </motion.div>
+                    </div>
                   )}
                 </div>
               </div>
             </motion.div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </>

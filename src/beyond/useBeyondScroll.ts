@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
 import Lenis from 'lenis';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { getPrefersReducedMotion, LENIS_DURATION } from '@/lib/motion';
+import { getPrefersReducedMotion, isTouchPrimary, LENIS_DURATION } from '@/lib/motion';
 
 /**
  * Smooth scroll for /beyond only. The marketing shell disables global Lenis on these routes.
  */
 export function useBeyondScroll(active: boolean) {
   useEffect(() => {
-    if (!active) return;
+    // Touch devices keep native scrolling; section jumps fall back to window.scrollTo.
+    if (!active || isTouchPrimary()) return;
 
     const reducedMotion = getPrefersReducedMotion();
     const lenis = new Lenis({
