@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import InlineWordRotate from '@/components/motion/InlineWordRotate';
+import { isTouchPrimary } from '@/lib/motion';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -14,7 +15,7 @@ const Hero = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      if (!reducedMotion && imageRef.current) {
+      if (!reducedMotion && !isTouchPrimary() && imageRef.current) {
         gsap.to(imageRef.current, {
           yPercent: 12,
           ease: 'none',
@@ -50,21 +51,14 @@ const Hero = () => {
       <div ref={imageRef} className="site-hero-media">
         <div className="absolute inset-0 h-[120%] w-full -top-[10%]">
         <picture className="w-full h-full block">
-          <source
-            media="(max-width: 1023px)"
-            type="image/webp"
-            srcSet="/hero-image-portrait.webp"
-          />
-          <source
-            media="(max-width: 1023px)"
-            srcSet="/hero-image-portrait.jpg"
-          />
-          <source type="image/webp" srcSet="/hero-image.webp" />
+          <source media="(max-width: 1023px)" srcSet="/hero-image-portrait.webp" />
           <img
-            src="/hero-image.jpg"
+            src="/hero-image.webp"
             alt="Skillance"
-            width={1920}
-            height={1080}
+            width={1536}
+            height={1024}
+            decoding="async"
+            fetchPriority="high"
             className="w-full h-full object-cover"
           />
         </picture>

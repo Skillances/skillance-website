@@ -10,6 +10,11 @@ export const SCROLL_REVEAL_Y = 24;
 export const SCROLL_REVEAL_DURATION = 0.65;
 export const SCROLL_REVEAL_EASE = 'power3.out';
 
+/** Touch-first devices (iPhone): native scrolling is async from the main thread, so JS scroll effects lag it. */
+export function isTouchPrimary(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+}
+
 export function getPrefersReducedMotion(): boolean {
   if (typeof window === 'undefined') return false;
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;

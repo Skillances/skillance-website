@@ -1,7 +1,7 @@
 import { useLayoutEffect, type RefObject } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { getPrefersReducedMotion, revealFromTo, scrollRevealTrigger } from '@/lib/motion';
+import { getPrefersReducedMotion, isTouchPrimary, revealFromTo, scrollRevealTrigger } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 // iOS Safari fires resize as the URL bar collapses; refreshing then makes sections jump.
@@ -99,7 +99,7 @@ export function useBeyondMotion(scopeRef: RefObject<HTMLElement | null>, routeKe
         }
       }
 
-      if (!reducedMotion) {
+      if (!reducedMotion && !isTouchPrimary()) {
         root.querySelectorAll<HTMLElement>('.by-parallax').forEach((wrap) => {
           const media = wrap.querySelector<HTMLElement>('.by-parallax-media');
           if (!media) return;

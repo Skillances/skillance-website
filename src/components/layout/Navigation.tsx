@@ -342,7 +342,7 @@ const Navigation = () => {
             </Link>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`p-2 transition-colors relative z-50 ${isDarkSection ? 'text-white' : 'text-black'}`}
+              className={`p-2 transition-colors relative z-50 touch-manipulation ${isDarkSection ? 'text-white' : 'text-black'}`}
               aria-label="Toggle menu"
             >
               <MenuToggleIcon
@@ -368,13 +368,14 @@ const Navigation = () => {
           >
             {/* Backdrop */}
             <motion.div
-              className="absolute inset-0 bg-black/45"
+              className="absolute inset-0 bg-black/45 cursor-pointer touch-none"
               onClick={() => setIsMobileMenuOpen(false)}
             />
 
             {/* Panel */}
             <motion.div
               className={MOBILE_NAV_PANEL_CLASS}
+              data-lenis-prevent
               initial={{ transform: 'translateX(100%)' }}
               animate={{ transform: 'translateX(0)' }}
               exit={{ transform: 'translateX(100%)' }}
@@ -394,7 +395,7 @@ const Navigation = () => {
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 -mr-2"
+                  className="p-2 -mr-2 touch-manipulation"
                   aria-label="Close menu"
                 >
                   <X className="w-8 h-8 text-black" />
@@ -416,7 +417,7 @@ const Navigation = () => {
                           to={link.href}
                           onClick={() => setIsMobileMenuOpen(false)}
                           aria-current={isBeyondNavCurrent(location.pathname, link.href, link.end) ? 'page' : undefined}
-                          className="block text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100"
+                          className="block touch-manipulation text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100"
                         >
                           {link.name}
                         </Link>
@@ -432,7 +433,7 @@ const Navigation = () => {
                             ? handleLinkClick(link.href, e)
                             : (setIsMobileMenuOpen(false), navigate(link.href))
                         }
-                        className="text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100 text-left w-full"
+                        className="touch-manipulation text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100 text-left w-full"
                       >
                         {link.name}
                       </motion.button>
@@ -447,7 +448,7 @@ const Navigation = () => {
                       <Link
                         to={sessionLink.to}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="block text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100"
+                        className="block touch-manipulation text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100"
                         aria-label={sessionLink.aria}
                       >
                         {sessionLink.label}

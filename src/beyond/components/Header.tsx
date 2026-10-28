@@ -58,7 +58,7 @@ export default function Header() {
   useEffect(() => {
     if (!mobileOpen) {
       if (restoreFocus.current) {
-        menuBtnRef.current?.focus();
+        menuBtnRef.current?.focus({ preventScroll: true });
         restoreFocus.current = false;
       }
       return;
@@ -110,7 +110,7 @@ export default function Header() {
   const navSecondary = NAV.slice(3);
 
   const mobileLinkClass =
-    'block text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100';
+    'block touch-manipulation text-lg font-medium text-neutral-800 hover:text-black active:text-neutral-500 motion-ui motion-press transition-colors py-4 border-b border-neutral-100';
 
   const mobileMenu =
     typeof document !== 'undefined'
@@ -125,7 +125,7 @@ export default function Header() {
                 transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
               >
                 <motion.div
-                  className="absolute inset-0 bg-black/45"
+                  className="absolute inset-0 bg-black/45 cursor-pointer touch-none"
                   role="presentation"
                   onClick={closeMenu}
                   initial={{ opacity: 0 }}
@@ -138,6 +138,7 @@ export default function Header() {
                   aria-modal="true"
                   aria-label="Beyond the App menu"
                   className={MOBILE_NAV_PANEL_CLASS}
+                  data-lenis-prevent
                   initial={{ transform: 'translateX(100%)' }}
                   animate={{ transform: 'translateX(0)' }}
                   exit={{ transform: 'translateX(100%)' }}
@@ -154,7 +155,7 @@ export default function Header() {
                       />
                       <span className="font-serif text-2xl font-medium">Skillance</span>
                     </div>
-                    <button type="button" className="p-2 -mr-2" onClick={closeMenu} aria-label="Close menu">
+                    <button type="button" className="p-2 -mr-2 touch-manipulation" onClick={closeMenu} aria-label="Close menu">
                       <X className="w-8 h-8 text-black" aria-hidden="true" />
                     </button>
                   </div>

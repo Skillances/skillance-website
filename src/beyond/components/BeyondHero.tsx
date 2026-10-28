@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import EnquiryLink from '@/beyond/components/EnquiryLink';
 import InlineWordRotate from '@/components/motion/InlineWordRotate';
 import { HOME_HERO, HOME_HERO_ROTATE_WORDS } from '@/beyond/content';
+import { isTouchPrimary } from '@/lib/motion';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -20,7 +21,7 @@ export default function BeyondHero({ titleId }: BeyondHeroProps) {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      if (!reducedMotion && mediaRef.current) {
+      if (!reducedMotion && !isTouchPrimary() && mediaRef.current) {
         gsap.to(mediaRef.current, {
           yPercent: 12,
           ease: 'none',
@@ -46,9 +47,9 @@ export default function BeyondHero({ titleId }: BeyondHeroProps) {
     >
       <div ref={mediaRef} className="by-hero-cinematic-media" aria-hidden="true">
         <picture className="by-hero-cinematic-picture">
-          <source media="(max-width: 1023px)" srcSet="/beyond/new/hero-cinematic-portrait.jpg" />
+          <source media="(max-width: 1023px)" srcSet="/beyond/new/hero-cinematic-portrait.webp" />
           <img
-            src="/beyond/new/hero-cinematic.jpg"
+            src="/beyond/new/hero-cinematic.webp"
             alt=""
             width={1920}
             height={1080}

@@ -18,7 +18,7 @@ import CookieConsent from './components/layout/CookieConsent';
 import ExperienceSwitcherDock from './components/experience/ExperienceSwitcherDock';
 import { SITE_EXPERIENCE_PAPER, syncSiteChromeCss } from '@/lib/layout/siteChrome';
 import { getLenisFromWindow, syncSectionScrollMarginCss } from './lib/sectionScroll';
-import { getPrefersReducedMotion, LENIS_DURATION } from './lib/motion';
+import { getPrefersReducedMotion, isTouchPrimary, LENIS_DURATION } from './lib/motion';
 import RequireAuth from './components/marketplace/RequireAuth';
 import { isMarketplacePath, isMarketplaceShellPath } from './lib/marketplace/routes';
 import { isBeyondPath } from './lib/beyond/routes';
@@ -276,30 +276,33 @@ function MainContent() {
 
   useEffect(() => {
     if (useLenisScroll) {
-      // Initialize Lenis for smooth scrolling
-      const reducedMotion = getPrefersReducedMotion();
-      const lenis = new Lenis({
-        duration: reducedMotion ? 0 : LENIS_DURATION,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        autoRaf: false,
-        allowNestedScroll: true,
-      });
+      // Touch devices keep native scrolling: JS smooth scroll fights iOS momentum and rubber-banding.
+      const lenis = isTouchPrimary()
+        ? null
+        : new Lenis({
+            duration: getPrefersReducedMotion() ? 0 : LENIS_DURATION,
+            easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            autoRaf: false,
+            allowNestedScroll: true,
+          });
 
-      // Expose on window so Navigation can use lenis.scrollTo (avoids scrollIntoView conflict)
-      (window as LenisWindow).__lenis = lenis;
+      let rafId = 0;
+      if (lenis) {
+        // Expose on window so Navigation can use lenis.scrollTo (avoids scrollIntoView conflict)
+        (window as LenisWindow).__lenis = lenis;
 
-      // Keep ScrollTrigger in sync with Lenis scroll position
-      lenis.on('scroll', () => {
-        ScrollTrigger.update();
-      });
+        // Keep ScrollTrigger in sync with Lenis scroll position
+        lenis.on('scroll', () => {
+          ScrollTrigger.update();
+        });
 
-      // Drive Lenis from rAF so it receives proper ms timestamps
-      let rafId: number;
-      const raf = (time: number) => {
-        lenis.raf(time);
+        // Drive Lenis from rAF so it receives proper ms timestamps
+        const raf = (time: number) => {
+          lenis.raf(time);
+          rafId = requestAnimationFrame(raf);
+        };
         rafId = requestAnimationFrame(raf);
-      };
-      rafId = requestAnimationFrame(raf);
+      }
 
       const updateScrollMargin = () => syncSectionScrollMarginCss();
       updateScrollMargin();
@@ -315,8 +318,10 @@ function MainContent() {
         window.removeEventListener('resize', updateScrollMargin);
         clearTimeout(refreshTimeout);
         cancelAnimationFrame(rafId);
-        delete (window as LenisWindow).__lenis;
-        lenis.destroy();
+        if (lenis) {
+          delete (window as LenisWindow).__lenis;
+          lenis.destroy();
+        }
       };
     }
   }, [useLenisScroll]);
