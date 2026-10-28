@@ -49,7 +49,8 @@ export default function Header() {
   };
 
   useEffect(() => {
-    if (hash) scrollToBeyondHash(hash);
+    if (!hash) return;
+    return scrollToBeyondHash(hash);
   }, [pathname, hash]);
 
   useMobileMenuLock(mobileOpen);

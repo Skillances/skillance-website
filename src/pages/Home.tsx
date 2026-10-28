@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getLenisFromWindow, scrollToPageSection } from '@/lib/sectionScroll';
+import { scrollToSectionId } from '@/lib/sectionScroll';
 import Hero from '../components/sections/Hero';
 import Mission from '../components/sections/Mission';
 import Services from '../components/sections/Services';
@@ -42,32 +42,7 @@ const Home = () => {
 
     if (storedTarget) sessionStorage.removeItem('skillance_scroll_to');
 
-    let attempts = 0;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-    const scrollToTarget = () => {
-      attempts += 1;
-      const element = document.getElementById(target);
-      const lenis = getLenisFromWindow();
-
-      if (!element) {
-        if (attempts < 30) timeoutId = setTimeout(scrollToTarget, 80);
-        return;
-      }
-
-      if (!lenis && attempts < 30) {
-        timeoutId = setTimeout(scrollToTarget, 80);
-        return;
-      }
-
-      scrollToPageSection(element, lenis, { immediate: Boolean(hashTarget) });
-    };
-
-    timeoutId = setTimeout(scrollToTarget, 380);
-
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
+    return scrollToSectionId(target, { immediate: Boolean(hashTarget), delayMs: 380 });
   }, [location.hash]);
 
   return (
