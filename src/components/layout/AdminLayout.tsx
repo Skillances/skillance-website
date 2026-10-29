@@ -348,7 +348,7 @@ function AdminSidebarContent({
       </div>
 
       {/* Navigation groups */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
+      <nav className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain px-3 py-4 space-y-2">
         {adminMenuGroups.map((group) => {
           const isGroupCollapsed = !!collapsedGroups[group.label];
           const hasActiveItem = group.items.some((item) => isActive(item.path));
@@ -562,7 +562,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className={cn('min-h-screen flex', isDark ? 'dark bg-neutral-950 text-white' : 'bg-white text-black')}>
+    <div
+      className={cn(
+        'h-screen flex overflow-hidden',
+        isDark ? 'dark bg-neutral-950 text-white' : 'bg-white text-black',
+      )}
+    >
       <AdminQueryMonitor />
       {/* Mobile Overlay */}
       <AnimatePresence>
@@ -580,7 +585,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       {/* Sidebar — Desktop */}
       <motion.aside
         className={cn(
-          'hidden lg:flex shrink-0 h-screen sticky top-0 flex-col bg-white dark:bg-neutral-950 border-r border-neutral-100 dark:border-neutral-800/80',
+          'hidden lg:flex shrink-0 h-full min-h-0 flex-col bg-white dark:bg-neutral-950 border-r border-neutral-100 dark:border-neutral-800/80',
           isSidebarCollapsed ? 'overflow-visible' : 'overflow-hidden',
         )}
         animate={{ width: isSidebarCollapsed ? 56 : 220 }}
@@ -588,7 +593,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       >
         {isSidebarCollapsed ? (
           /* Collapsed — icon-only strip */
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full min-h-0">
             {/* Collapse toggle at top */}
             <div className="shrink-0 h-14 flex items-center justify-center border-b border-neutral-100 dark:border-neutral-800">
               <button
@@ -601,7 +606,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               </button>
             </div>
             {/* Icon-only nav */}
-            <nav className="flex-1 overflow-y-auto overflow-x-visible flex flex-col items-center py-3 px-1.5">
+            <nav className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain overflow-x-visible flex flex-col items-center py-3 px-1.5">
               {adminMenuGroups.map((group, groupIndex) => {
                 const styles = PLATFORM_STYLES[group.platform];
                 return (
@@ -666,7 +671,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
         ) : (
           /* Expanded — full sidebar */
-          <div className="flex flex-col h-full">
+          <div className="relative flex flex-col h-full min-h-0">
             <AdminSidebarContent {...sidebarContentProps} />
             {/* Collapse button pinned to top-right of sidebar */}
             <button
@@ -689,7 +694,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-y-0 left-0 z-50 w-[260px] bg-white dark:bg-neutral-950 border-r border-neutral-100 dark:border-neutral-800 flex flex-col lg:hidden shadow-2xl"
+            className="fixed inset-y-0 left-0 z-50 w-[260px] bg-white dark:bg-neutral-950 border-r border-neutral-100 dark:border-neutral-800 flex flex-col min-h-0 overflow-hidden lg:hidden shadow-2xl"
           >
             <div className="absolute top-4 right-4 z-10">
               <button
@@ -706,7 +711,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       </AnimatePresence>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
         {/* Mobile top bar — only visible on small screens */}
         <div className="lg:hidden shrink-0 min-h-12 flex items-center justify-between gap-2 px-3 sm:px-4 border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-950 sticky top-0 z-30">
           <button
@@ -777,7 +782,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </div>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 bg-neutral-50/50 dark:bg-neutral-900 min-h-screen">
+        <main className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain p-4 sm:p-6 lg:p-8 xl:p-10 bg-neutral-50/50 dark:bg-neutral-900">
           <motion.div
             key={`${location.pathname}-${refreshNonce}`}
             initial={{ opacity: 0.85, y: 4 }}
