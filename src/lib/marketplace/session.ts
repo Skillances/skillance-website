@@ -22,6 +22,8 @@ export type MarketplaceUser = {
   idVerificationStatus?: string;
   /** API `roleInfo.showToggle`: the account may switch between customer and freelancer views. */
   canSwitchView?: boolean;
+  /** True when the account has a personal.customers row (from ids or capabilities). */
+  hasCustomerProfile?: boolean;
   /** Unacknowledged platform warnings from `GET /users/me` `policy.activeWarnings`. */
   policyWarnings?: PolicyWarning[];
 };
@@ -81,9 +83,16 @@ export function toMarketplaceUser(data: unknown): MarketplaceUser | null {
   if (!root || !u || typeof u.id !== 'string') return null;
 
   const isAdmin = u.isAdmin === true || String(u.primaryRole).toLowerCase() === 'admin';
-  const customerId = str(u.customerId) ?? idOf(root.customer);
-  const freelancerId = str(u.freelancerId) ?? idOf(root.freelancer);
+  const customerId =
+    str(u.customerId) ?? idOf(root.customer) ?? idOf(u.customer);
+  const freelancerId =
+    str(u.freelancerId) ?? idOf(root.freelancer) ?? idOf(u.freelancer);
   const roleInfo = asObj(root.roleInfo);
+  const capabilities = asObj(root.capabilities);
+  const hasCustomerProfile =
+    Boolean(customerId) ||
+    capabilities?.personalCustomer === true ||
+    roleInfo?.canBeCustomer === true;
   const policy = asObj(root.policy);
   const warnings = Array.isArray(policy?.activeWarnings)
     ? (policy.activeWarnings as unknown[])
@@ -106,7 +115,10 @@ export function toMarketplaceUser(data: unknown): MarketplaceUser | null {
     phoneNumber: str(u.phoneNumber),
     profilePhotoUrl: str(u.profilePhotoUrl) ?? null,
     idVerificationStatus: str(u.idVerificationStatus),
-    canSwitchView: roleInfo?.showToggle === true || Boolean(customerId && freelancerId),
+    hasCustomerProfile,
+    canSwitchView: Boolean(
+      freelancerId && (customerId || hasCustomerProfile),
+    ),
     policyWarnings: warnings,
   };
 }

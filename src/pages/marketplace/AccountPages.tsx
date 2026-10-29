@@ -219,7 +219,7 @@ export function AccountPage() {
         </div>
       </div>
       <PolicyWarnings />
-      {!user?.customerId && <CustomerRoleApply />}
+      {!user?.customerId && !user?.hasCustomerProfile && <CustomerRoleApply />}
       <Menu items={items} />
       <MkButton variant="secondary" block onClick={() => void logout()}>
         <LogOut className="h-4 w-4" aria-hidden="true" /> Sign out

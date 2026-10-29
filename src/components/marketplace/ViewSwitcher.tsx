@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Repeat } from 'lucide-react';
 import { toast } from 'sonner';
-import { put } from '@/lib/api';
+import { post, put } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -45,9 +45,23 @@ export default function ViewSwitcher({ compact, surface = 'marketplace' }: ViewS
   const current = currentAppView(user, location.pathname);
 
   const switchMarketplaceView = async (target: 'customer' | 'freelancer') => {
-    if (target === 'customer' && !user.customerId) {
-      toast.error('No customer profile on this account.');
-      return;
+    let customerId = user.customerId;
+    if (target === 'customer' && !customerId) {
+      setPending(true);
+      try {
+        await post(ApiPaths.marketplace.syncCustomerProfile, {});
+        const fresh = await refreshUser();
+        customerId = fresh?.customerId ?? null;
+      } catch (err) {
+        toast.error(apiErrorMessage(err, 'Could not load your customer profile.'));
+        return;
+      } finally {
+        setPending(false);
+      }
+      if (!customerId) {
+        toast.error('No customer profile on this account.');
+        return;
+      }
     }
     if (target === 'freelancer' && !user.freelancerId) {
       toast.error('No freelancer profile on this account.');
