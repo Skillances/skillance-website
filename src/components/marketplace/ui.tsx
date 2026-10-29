@@ -21,7 +21,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import * as SwitchPrimitive from '@radix-ui/react-switch';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertCircle, ArrowLeft, Check, ChevronDown, Loader2, RotateCw, Star, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, BadgeCheck, Check, ChevronDown, Loader2, RotateCw, Star, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { marketplaceCssVars, mkMotion } from '@/lib/marketplace/theme';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -546,6 +546,34 @@ export function MkRating({ value, count, size = 14 }: { value?: number | null; c
       <Star className="text-mk-rating" style={{ width: size, height: size }} fill="currentColor" aria-hidden="true" />
       <span className="font-semibold text-mk-text-primary">{v > 0 ? v.toFixed(1) : 'New'}</span>
       {count != null && count > 0 && <span>({count})</span>}
+    </span>
+  );
+}
+
+/**
+ * Rating, review count and a "Verified bookings" label. Reviews are only created from completed
+ * bookings, so a non-zero API count is verified. Renders nothing when there are no reviews.
+ */
+export function MkVerifiedRating({
+  value,
+  count,
+  size = 14,
+  className,
+}: {
+  value?: number | null;
+  count?: number | null;
+  size?: number;
+  className?: string;
+}) {
+  const n = typeof count === 'number' && Number.isFinite(count) ? count : 0;
+  const v = typeof value === 'number' && Number.isFinite(value) ? value : 0;
+  if (n <= 0 || v <= 0) return null;
+  return (
+    <span className={cn('inline-flex flex-wrap items-center gap-x-2 gap-y-0.5', className)}>
+      <MkRating value={v} count={n} size={size} />
+      <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-mk-success">
+        <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" /> Verified bookings
+      </span>
     </span>
   );
 }

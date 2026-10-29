@@ -19,9 +19,15 @@ export type ChatMessage = {
   bookingId?: string | null;
   senderId: string;
   content: string;
-  type?: 'text' | 'image' | 'voice' | 'system' | string;
+  type?: 'text' | 'image' | 'voice' | 'file' | 'system' | string;
   imageUrl?: string | null;
+  /** Signed, short-lived URL for chat attachments (image or file). */
+  attachmentUrl?: string | null;
+  attachmentName?: string | null;
+  attachmentMime?: string | null;
+  attachmentSize?: number | null;
   isRead?: boolean;
+  readAt?: string | null;
   createdAt: string;
   /** Client-only: optimistic send state. */
   pending?: boolean;
@@ -54,16 +60,16 @@ export async function fetchMessages(chatId: string, limit = 30, cursor?: string 
 
 /**
  * Live chat events on `private-chat:${chatId}` (same channel and event names as the app):
- * `new_message` carries `{ message }`, `messages_read` carries `{ readByUserId }`.
+ * `new_message` carries `{ message }`, `messages_read` carries `{ readByUserId, readAt }`.
  * Unsubscribes when the thread unmounts.
  */
 export function useChatRealtime(
   chatId: string | null,
-  handlers: { onMessage: (m: ChatMessage) => void; onRead: (readByUserId: string) => void },
+  handlers: { onMessage: (m: ChatMessage) => void; onRead: (readByUserId: string, readAt?: string) => void },
 ): void {
   useAblyChannel(chatId ? `private-chat:${chatId}` : null, (msg) => {
-    const data = parseAblyData<{ message?: ChatMessage; readByUserId?: string }>(msg.data);
+    const data = parseAblyData<{ message?: ChatMessage; readByUserId?: string; readAt?: string }>(msg.data);
     if (msg.name === 'new_message' && data?.message?.id) handlers.onMessage(data.message);
-    else if (msg.name === 'messages_read' && data?.readByUserId) handlers.onRead(data.readByUserId);
+    else if (msg.name === 'messages_read' && data?.readByUserId) handlers.onRead(data.readByUserId, data.readAt);
   });
 }

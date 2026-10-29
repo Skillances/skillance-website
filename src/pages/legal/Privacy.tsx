@@ -204,13 +204,15 @@ const Privacy = () => {
               end of the relevant financial year).
             </li>
             <li>Chat messages and moderation records: retained for safety, dispute, and compliance purposes (e.g. 90 days for routine moderation, longer for active investigations).</li>
-            <li>Identity verification documents: retained for the period required to evidence verification, then deleted or anonymised.</li>
+            <li>ID photos, selfie and police clearance documents: deleted automatically 30 days after we make a decision. We keep only the outcome (for example &quot;verified&quot; or &quot;not verified&quot;), the date and, for police clearance, the expiry date.</li>
+            <li>If you withdraw your consent for the ID and selfie check or for police clearance, the documents covered by that consent are deleted at once.</li>
             <li>Security logs and audit logs (including cookie consent records): retained for a limited period (e.g. approximately 90 days for security, longer for consent records that serve as proof of lawful processing).</li>
             <li>Performance metrics and diagnostics: retained for a limited period (e.g. approximately 30 days).</li>
           </ul>
           <p className="leading-relaxed">
-            On account deletion we delete or anonymise personal information, except where retention is required (for example,
-            financial records, dispute evidence, audit logs, or legal hold). See Terms section 16 and section 11 below.
+            When you ask us to erase your account, we erase your personal information immediately, except where retention is
+            required. Booking, invoice and fee records are kept for 5 years with your identity removed, as the Tax
+            Administration Act requires. See Terms section 16 and section 11 below.
           </p>
         </section>
 
@@ -263,8 +265,19 @@ const Privacy = () => {
             <a href="mailto:services@skillance.co.za" className="text-black underline underline-offset-4 hover:no-underline">
               services@skillance.co.za
             </a>
-            . Upon deletion, profile data and non-essential personal information are removed or anonymised. Certain records
-            may be retained in line with section 8 (legal, tax, audit, dispute).
+            . When you delete your account we erase your personal information at once: your name and contact details, ID,
+            selfie, police clearance and certificate files, profile and portfolio photos, chat messages, and your login.
+            Booking, invoice and fee records are kept for 5 years with your identity removed, as tax law requires (see
+            section 8). We cannot delete an account while you have unfinished bookings or open disputes. Finish or close
+            them first. Deletion cannot be undone.
+          </p>
+          <p className="leading-relaxed">
+            <strong className="text-black">Special personal information.</strong> Your face photo for the ID check is
+            biometric information, and a police clearance certificate is information about criminal behaviour. POPIA treats
+            both as special personal information. We process them only with your separate, explicit consent, which you give
+            before you upload, and only for the purposes stated when you give it. You can withdraw either consent at any
+            time in your account (My consents). Withdrawing deletes the documents it covers at once and removes the related
+            verified status or badge. Withdrawal does not undo processing already done.
           </p>
         </section>
 

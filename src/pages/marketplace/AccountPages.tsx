@@ -18,10 +18,11 @@ import {
   UserPlus,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { get, post, put } from '@/lib/api';
+import { del, get, post, put } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { useAuth } from '@/context/AuthContext';
 import ApplicationStatusCard, { type ApplicationStatus } from '@/components/marketplace/ApplicationStatusCard';
+import { blocksKey } from '@/lib/marketplace/safety';
 import MyConsents from '@/components/marketplace/MyConsents';
 import PlaceAddressField, { type PlacePick } from '@/components/marketplace/PlaceAddressField';
 import { MkCategoryRatePicker, MkPhotoPicker } from '@/components/marketplace/forms';
@@ -41,7 +42,7 @@ import {
   MkSwitch,
   MkTextarea,
 } from '@/components/marketplace/ui';
-import { apiErrorMessage, apiFieldErrors, downloadBlob, unwrap } from '@/lib/marketplace/apiHelpers';
+import { apiErrorCode, apiErrorMessage, apiFieldErrors, downloadBlob, unwrap } from '@/lib/marketplace/apiHelpers';
 import { flattenLeaves, useCategories } from '@/lib/marketplace/categories';
 import { activeView } from '@/lib/marketplace/session';
 import { ageFromDob, validateHourlyRate, validateName, validatePhone } from '@/lib/marketplace/validation';
@@ -294,6 +295,52 @@ export function EditAccountPage() {
 
 /* ------------------------------------------------------------- Settings */
 
+type BlockedUser = { userId: string; fullName?: string; profilePhotoUrl?: string | null; blockedAt?: string };
+
+function BlockedUsers() {
+  const qc = useQueryClient();
+  const blocks = useQuery({
+    queryKey: blocksKey,
+    queryFn: async () => unwrap<{ blocks?: BlockedUser[] }>(await get(ApiPaths.marketplace.myBlocks)).blocks ?? [],
+  });
+  const unblock = useMutation({
+    mutationFn: async (userId: string) => del(ApiPaths.marketplace.userBlock(userId)),
+    onSuccess: () => {
+      toast.success('User unblocked');
+      void qc.invalidateQueries({ queryKey: blocksKey });
+    },
+    onError: (err) => toast.error(apiErrorMessage(err, 'Could not unblock this user.')),
+  });
+  return (
+    <MkCard className="space-y-3">
+      <MkSectionTitle>Blocked users</MkSectionTitle>
+      <p className="text-[14px] text-mk-text-secondary">Blocked people cannot message or book you, and you cannot message or book them.</p>
+      {blocks.isPending ? (
+        <MkSkeleton className="h-12 w-full" />
+      ) : blocks.isError ? (
+        <MkErrorState message={apiErrorMessage(blocks.error)} onRetry={() => void blocks.refetch()} retrying={blocks.isRefetching} />
+      ) : blocks.data.length === 0 ? (
+        <p className="text-[14px] text-mk-text-tertiary">You have not blocked anyone.</p>
+      ) : (
+        <ul className="divide-y divide-mk-divider">
+          {blocks.data.map((b) => (
+            <li key={b.userId} className="flex items-center gap-3 py-2.5">
+              <MkAvatar src={b.profilePhotoUrl} name={b.fullName} size={40} />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[15px] font-semibold">{b.fullName || 'Skillance user'}</p>
+                {b.blockedAt && <p className="text-[12px] text-mk-text-tertiary">Blocked {formatDateTime(b.blockedAt)}</p>}
+              </div>
+              <MkButton variant="secondary" size="sm" loading={unblock.isPending && unblock.variables === b.userId} onClick={() => unblock.mutate(b.userId)}>
+                Unblock
+              </MkButton>
+            </li>
+          ))}
+        </ul>
+      )}
+    </MkCard>
+  );
+}
+
 type UserSettings = { emailNotificationsEnabled?: boolean; pushNotificationsEnabled?: boolean };
 
 export function SettingsPage() {
@@ -317,15 +364,18 @@ export function SettingsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [typed, setTyped] = useState('');
   const remove = useMutation({
-    mutationFn: async () => post(ApiPaths.marketplace.deleteAccount, {}),
-    onSuccess: () => void logout(),
+    mutationFn: async () => unwrap<{ message?: string }>(await post(ApiPaths.marketplace.deleteAccount, {})),
+    onSuccess: (data) => {
+      toast.success(data?.message || 'Your personal data has been erased.');
+      void logout();
+    },
   });
 
   const exportData = async () => {
     setExporting(true);
     try {
       const data = unwrap<unknown>(await get(ApiPaths.marketplace.exportAccount));
-      downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'skillance-account.json');
+      downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), `skillance-data-export-${new Date().toISOString().slice(0, 10)}.json`);
     } catch (err) {
       toast.error(apiErrorMessage(err, 'Could not export your data.'));
     } finally {
@@ -376,6 +426,8 @@ export function SettingsPage() {
         </ul>
       </MkCard>
 
+      <BlockedUsers />
+
       <MyConsents />
 
       <MkCard className="space-y-3">
@@ -388,7 +440,9 @@ export function SettingsPage() {
 
       <MkCard className="space-y-3">
         <MkSectionTitle>Delete account</MkSectionTitle>
-        <p className="text-[14px] text-mk-text-secondary">Your account will be deleted and you will be signed out. This cannot be undone.</p>
+        <p className="text-[14px] text-mk-text-secondary">
+          Your personal data will be erased and you will be signed out. This cannot be undone. De-identified booking, invoice and fee records are kept for 5 years as tax law requires.
+        </p>
         <MkButton variant="danger-outline" onClick={() => setDeleteOpen(true)}>
           Delete my account
         </MkButton>
@@ -402,14 +456,37 @@ export function SettingsPage() {
           remove.reset();
         }}
         title="Delete your account?"
-        description="Type your email address to confirm."
+        description="This cannot be undone."
         confirmLabel="Delete account"
         destructive
         loading={remove.isPending}
-        error={remove.isError ? apiErrorMessage(remove.error, 'Could not delete your account.') : null}
+        error={
+          remove.isError
+            ? ['ACTIVE_BOOKINGS', 'OPEN_DISPUTES'].includes(apiErrorCode(remove.error) ?? '')
+              ? apiErrorMessage(remove.error, 'You have unfinished bookings or open disputes. Finish or close them first.')
+              : apiErrorMessage(remove.error, 'Could not delete your account.')
+            : null
+        }
         confirmDisabled={!emailMatches}
         onConfirm={() => remove.mutate()}
       >
+        <div className="space-y-2 text-[13px] leading-relaxed text-mk-text-secondary">
+          <p>
+            <span className="font-semibold text-mk-text-primary">Deleted now:</span> your name and contact details, profile and portfolio photos, ID and selfie images, police clearance and certificate files, chat messages, and your login.
+          </p>
+          <p>
+            <span className="font-semibold text-mk-text-primary">Kept:</span> booking, invoice and fee records, with your identity removed, for 5 years. Tax law requires this.
+          </p>
+          <p>
+            <span className="font-semibold text-mk-text-primary">Cannot be undone.</span> We cannot delete your account while you have unfinished bookings or open disputes.
+          </p>
+          <p>
+            Questions or complaints: our{' '}
+            <Link to="/privacy" className="underline underline-offset-4">Information Officer</Link>
+            {' '}or the{' '}
+            <a href="https://inforegulator.org.za/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Information Regulator</a>.
+          </p>
+        </div>
         <MkInput label="Email address" type="email" autoComplete="off" value={typed} onChange={(e) => setTyped(e.target.value)} placeholder={user?.email} />
       </MkConfirmDialog>
     </div>

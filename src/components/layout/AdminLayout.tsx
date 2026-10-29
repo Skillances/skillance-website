@@ -40,6 +40,8 @@ import {
   BookOpen,
   ClipboardList,
   AppWindow,
+  Flag,
+  Scale,
 } from 'lucide-react';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -148,6 +150,8 @@ const adminMenuGroups: {
       { name: 'Categories', path: '/admin/categories', icon: Tag },
       { name: 'Chat Logs', path: '/admin/chat-logs', icon: MessageCircle },
       { name: 'Booking reviews', path: '/admin/booking-reviews', icon: ListChecks },
+      { name: 'User reports', path: '/admin/user-reports', icon: Flag },
+      { name: 'Disputes', path: '/admin/disputes', icon: Scale },
     ],
   },
   {

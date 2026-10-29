@@ -18,6 +18,9 @@ function asBody(err: unknown): ApiErrorBody | null {
 /** The user-facing message from an API error, falling back to [fallback]. */
 export function apiErrorMessage(err: unknown, fallback = 'Something went wrong. Please try again.'): string {
   const body = asBody(err);
+  if (body && body.code === 'USER_BLOCKED') {
+    return 'You cannot message or book this person because one of you has blocked the other. You can manage blocked users in Settings.';
+  }
   if (body) {
     const first = Array.isArray(body.errors) ? body.errors[0] : undefined;
     if (first && typeof first.message === 'string' && first.message.trim()) return first.message;

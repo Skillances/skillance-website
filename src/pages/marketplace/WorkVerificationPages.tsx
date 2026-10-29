@@ -26,9 +26,11 @@ import {
   type MkTone,
 } from '@/components/marketplace/ui';
 import IdBiometricConsent from '@/components/marketplace/IdBiometricConsent';
+import PoliceClearanceConsent from '@/components/marketplace/PoliceClearanceConsent';
 import { CONSENT_API_ENABLED, POLICE_CLEARANCE_ENABLED } from '@/lib/featureFlags';
 import { isFeaturePaused } from '@/lib/featurePaused';
 import { idBiometricConsentBody } from '@/lib/idBiometricConsent';
+import { policeClearanceConsentBody } from '@/lib/policeClearanceConsent';
 import { apiErrorMessage, apiFieldErrors, fileToDataUrl, unwrap } from '@/lib/marketplace/apiHelpers';
 import { compressImage } from '@/lib/marketplace/image';
 import { myFreelancerKey, useMyFreelancerProfile } from '@/lib/marketplace/freelancerSelf';
@@ -327,10 +329,8 @@ function IdVerification({ freelancerId }: { freelancerId: string }) {
 
   const submit = useMutation({
     mutationFn: async () =>
-      // Same body as the live upload. The consent tick stays in this page while
-      // CONSENT_API_ENABLED is false; it is not added here because the live
-      // freelancer update rejects the request before we can tell whether an
-      // extra field would be stripped.
+      // The consent event is recorded separately via POST /users/me/consents
+      // when the box is ticked, so the upload body carries no consent field.
       put(ApiPaths.marketplace.freelancer(freelancerId), {
         idNumber: idNumber.trim(),
         idFrontPhoto: photos.front,
@@ -476,13 +476,42 @@ function PoliceClearance({ freelancerId }: { freelancerId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [pausedByApi, setPausedByApi] = useState(false);
+  const [policeGranted, setPoliceGranted] = useState(false);
+  const [grantingConsent, setGrantingConsent] = useState(false);
+  const [consentError, setConsentError] = useState<string | null>(null);
+
+  // Record the grant BEFORE any upload is possible. If recording fails the box stays unticked.
+  const onPoliceConsentChange = async (next: boolean) => {
+    setConsentError(null);
+    if (!next) {
+      setPoliceGranted(false);
+      return;
+    }
+    if (!CONSENT_API_ENABLED) {
+      setPoliceGranted(true);
+      return;
+    }
+    setGrantingConsent(true);
+    try {
+      await post(ApiPaths.users.consents, await policeClearanceConsentBody('granted'));
+      setPoliceGranted(true);
+    } catch (err) {
+      setPoliceGranted(false);
+      setConsentError(apiErrorMessage(err, 'Could not record your consent. Please try again.'));
+    } finally {
+      setGrantingConsent(false);
+    }
+  };
 
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: key });
     void qc.invalidateQueries({ queryKey: myFreelancerKey(user?.id ?? '') });
   };
   const upload = useMutation({
-    mutationFn: async () => post(ApiPaths.marketplace.freelancerPoliceClearanceUpload(freelancerId), { photo }),
+    mutationFn: async () => {
+      if (!policeGranted) throw new Error('Please tick the consent box first.');
+      return post(ApiPaths.marketplace.freelancerPoliceClearanceUpload(freelancerId), { photo });
+    },
     onSuccess: () => {
       toast.success('Police clearance sent for review');
       setPhoto(null);
@@ -530,12 +559,19 @@ function PoliceClearance({ freelancerId }: { freelancerId: string }) {
 
       {canUpload ? (
         <MkCard className="space-y-3">
+          <PoliceClearanceConsent
+            checked={policeGranted}
+            disabled={grantingConsent || upload.isPending}
+            error={consentError}
+            onCheckedChange={(next) => void onPoliceConsentChange(next)}
+          />
           <FilePick
             label={photo ? 'Certificate photo ready' : 'Photo of your certificate'}
             accept="image/*"
             capture="environment"
             done={!!photo}
             busy={busy}
+            disabled={!policeGranted}
             onFile={async (f) => {
               setBusy(true);
               setError(null);
@@ -550,7 +586,7 @@ function PoliceClearance({ freelancerId }: { freelancerId: string }) {
             }}
           />
           <MkFormError message={error} />
-          <MkButton block disabled={!photo || busy} loading={upload.isPending} onClick={() => upload.mutate()}>
+          <MkButton block disabled={!policeGranted || !photo || busy} loading={upload.isPending} onClick={() => upload.mutate()}>
             Upload for review
           </MkButton>
         </MkCard>

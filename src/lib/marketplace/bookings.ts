@@ -92,6 +92,12 @@ export function otherParty(b: Booking, role: 'customer' | 'freelancer' | null): 
   return { name: f?.fullName || 'Freelancer', photo: f?.profilePhotoUrl ?? null };
 }
 
+/** User id of the other side of a booking (for block and report), or null when unknown. */
+export function otherPartyUserId(b: Booking, role: 'customer' | 'freelancer' | null): string | null {
+  if (role === 'freelancer') return b.customer?.userId ?? b.customer?.user?.id ?? null;
+  return b.freelancer?.userId ?? b.freelancer?.user?.id ?? null;
+}
+
 export const bookingKeys = {
   all: ['marketplace', 'bookings'] as const,
   customer: ['marketplace', 'bookings', 'customer'] as const,

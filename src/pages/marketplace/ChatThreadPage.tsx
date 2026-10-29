@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ArrowUp, Check, CheckCheck, RotateCw } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Check, CheckCheck, FileText, Loader2, Paperclip, RotateCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { patch, post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { useAuth } from '@/context/AuthContext';
 import { MkAvatar, MkButton, MkErrorState, MkSkeleton } from '@/components/marketplace/ui';
-import { apiErrorMessage, unwrap } from '@/lib/marketplace/apiHelpers';
-import { bookingKeys, fetchBooking, otherParty, roleInBooking } from '@/lib/marketplace/bookings';
+import UserSafetyActions from '@/components/marketplace/UserSafetyActions';
+import { apiErrorMessage, fileToDataUrl, unwrap } from '@/lib/marketplace/apiHelpers';
+import { bookingKeys, fetchBooking, otherParty, otherPartyUserId, roleInBooking } from '@/lib/marketplace/bookings';
 import { chatKeys, fetchChats, fetchMessages, useChatRealtime, type ChatMessage } from '@/lib/marketplace/chatRealtime';
 import { formatClock, formatDate } from '@/lib/marketplace/time';
 import { mkMotion } from '@/lib/marketplace/theme';
@@ -17,11 +18,41 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/utils';
 
 const PAGE = 30;
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const MAX_PDF_BYTES = 30 * 1024 * 1024;
+const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+function formatBytes(n?: number | null): string {
+  if (!n || n <= 0) return '';
+  if (n < 1024 * 1024) return `${Math.max(1, Math.round(n / 1024))} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 function mergeById(a: ChatMessage[], b: ChatMessage[]): ChatMessage[] {
   const map = new Map<string, ChatMessage>();
   for (const m of [...a, ...b]) map.set(m.id, { ...map.get(m.id), ...m });
   return [...map.values()].sort((x, y) => x.createdAt.localeCompare(y.createdAt));
+}
+
+function FileChip({ m, mine }: { m: ChatMessage; mine: boolean }) {
+  const name = m.attachmentName || m.content || 'Attachment';
+  const size = formatBytes(m.attachmentSize);
+  const body = (
+    <>
+      {m.pending ? <Loader2 className="h-5 w-5 shrink-0 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <FileText className="h-5 w-5 shrink-0" aria-hidden="true" />}
+      <span className="min-w-0">
+        <span className="block max-w-[200px] truncate font-semibold">{name}</span>
+        <span className="block text-[12px] opacity-70">{m.pending ? 'Uploading' : [size, 'Download'].filter(Boolean).join(' · ')}</span>
+      </span>
+    </>
+  );
+  const cls = cn('flex items-center gap-2.5 rounded-xl border px-3 py-2', mine ? 'border-white/30' : 'border-mk-border');
+  if (!m.attachmentUrl || m.pending) return <div className={cls}>{body}</div>;
+  return (
+    <a href={m.attachmentUrl} target="_blank" rel="noopener noreferrer" download={name} className={cls}>
+      {body}
+    </a>
+  );
 }
 
 export default function ChatThreadPage() {
@@ -39,6 +70,9 @@ export default function ChatThreadPage() {
   });
   const role = booking.data ? roleInBooking(booking.data, user) : null;
   const who = booking.data ? otherParty(booking.data, role) : { name: 'Conversation', photo: null };
+  const whoUserId = booking.data ? otherPartyUserId(booking.data, role) : null;
+  const navigate = useNavigate();
+  const fileInput = useRef<HTMLInputElement>(null);
 
   const first = useQuery({ queryKey: chatKeys.messages(chatId), queryFn: () => fetchMessages(chatId, PAGE), refetchOnWindowFocus: false });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -75,8 +109,10 @@ export default function ChatThreadPage() {
       setMessages((cur) => mergeById(cur.filter((x) => !(x.pending && x.senderId === m.senderId && x.content === m.content)), [m]));
       if (m.senderId !== user?.id) markRead();
     },
-    onRead: (readBy) => {
-      if (readBy !== user?.id) setMessages((cur) => cur.map((m) => (m.senderId === user?.id ? { ...m, isRead: true } : m)));
+    onRead: (readBy, readAt) => {
+      if (readBy === user?.id) return;
+      const at = readAt ?? new Date().toISOString();
+      setMessages((cur) => cur.map((m) => (m.senderId === user?.id && !m.isRead && !m.pending ? { ...m, isRead: true, readAt: m.readAt ?? at } : m)));
     },
   });
 
@@ -129,6 +165,53 @@ export default function ChatThreadPage() {
     }
   };
 
+  const sendAttachment = async (file: File) => {
+    const isPdf = file.type === 'application/pdf';
+    const isImage = IMAGE_TYPES.includes(file.type);
+    if (!isPdf && !isImage) {
+      toast.error('Attach an image (JPG, PNG, WebP, GIF) or a PDF.');
+      return;
+    }
+    if (isImage && file.size > MAX_IMAGE_BYTES) {
+      toast.error('Images must be 10 MB or smaller.');
+      return;
+    }
+    if (isPdf && file.size > MAX_PDF_BYTES) {
+      toast.error('PDFs must be 30 MB or smaller.');
+      return;
+    }
+    const tempId = `temp-${crypto.randomUUID()}`;
+    const temp: ChatMessage = {
+      id: tempId,
+      senderId: user?.id ?? '',
+      content: file.name,
+      type: isImage ? 'image' : 'file',
+      attachmentName: file.name,
+      attachmentMime: file.type,
+      attachmentSize: file.size,
+      createdAt: new Date().toISOString(),
+      pending: true,
+    };
+    stickToBottom.current = true;
+    setMessages((cur) => mergeById(cur, [temp]));
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      const res = await post(ApiPaths.marketplace.chatAttachments(chatId), {
+        file: dataUrl,
+        fileName: file.name,
+        ...(chat?.bookingId ? { bookingId: chat.bookingId } : {}),
+      });
+      const saved = unwrap<ChatMessage>(res);
+      setMessages((cur) => mergeById(cur.filter((m) => m.id !== tempId), saved?.id ? [saved] : []));
+      void qc.invalidateQueries({ queryKey: chatKeys.preview(chatId) });
+    } catch (err) {
+      setMessages((cur) => cur.filter((m) => m.id !== tempId));
+      toast.error(apiErrorMessage(err, 'Attachment not sent.'));
+    }
+  };
+
+  const uploading = messages.some((m) => m.pending && (m.type === 'image' || m.type === 'file'));
+
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const content = text.trim();
@@ -151,6 +234,9 @@ export default function ChatThreadPage() {
               View booking
             </Link>
           )}
+        </div>
+        <div className="flex shrink-0 items-center">
+          <UserSafetyActions userId={whoUserId} name={who.name} bookingId={chat?.bookingId} iconOnly onBlocked={() => navigate('/chats')} />
         </div>
       </header>
 
@@ -210,14 +296,29 @@ export default function ChatThreadPage() {
                               m.pending && 'opacity-60',
                             )}
                           >
-                            {m.type === 'image' && m.imageUrl ? (
-                              <img src={m.imageUrl} alt="Shared photo" className="max-h-64 rounded-xl" loading="lazy" />
+                            {m.type === 'image' && (m.imageUrl ?? m.attachmentUrl) ? (
+                              <img src={(m.imageUrl ?? m.attachmentUrl)!} alt={m.attachmentName || 'Shared photo'} className="max-h-64 rounded-xl" loading="lazy" />
+                            ) : m.type === 'image' && m.pending ? (
+                              <p className="flex items-center gap-2">
+                                <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> Uploading {m.attachmentName}
+                              </p>
+                            ) : m.type === 'file' ? (
+                              <FileChip m={m} mine={mine} />
                             ) : (
                               <p className="whitespace-pre-wrap break-words">{m.content}</p>
                             )}
                             <p className={cn('mt-0.5 flex items-center justify-end gap-1 text-[11px]', mine ? 'opacity-70' : 'text-mk-text-tertiary')}>
                               {m.failed ? 'Not sent' : m.pending ? 'Sending' : formatClock(m.createdAt)}
-                              {mine && !m.pending && !m.failed && (m.isRead ? <CheckCheck className="h-3 w-3" aria-label="Read" /> : <Check className="h-3 w-3" aria-label="Sent" />)}
+                              {mine && !m.pending && !m.failed &&
+                                (m.isRead || m.readAt ? (
+                                  <span title={m.readAt ? `Read ${formatDate(m.readAt.slice(0, 10))} ${formatClock(m.readAt)}` : 'Read'}>
+                                    <CheckCheck className="h-3 w-3" aria-label={m.readAt ? `Read at ${formatClock(m.readAt)}` : 'Read'} />
+                                  </span>
+                                ) : (
+                                  <span title="Sent">
+                                    <Check className="h-3 w-3" aria-label="Sent" />
+                                  </span>
+                                ))}
                             </p>
                           </div>
                         </div>
@@ -243,6 +344,28 @@ export default function ChatThreadPage() {
       </div>
 
       <form onSubmit={onSubmit} className="flex items-end gap-2 border-t border-mk-divider py-3">
+        <input
+          ref={fileInput}
+          type="file"
+          className="sr-only"
+          tabIndex={-1}
+          accept="image/jpeg,image/png,image/webp,image/gif,application/pdf"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            e.target.value = '';
+            if (f) void sendAttachment(f);
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => fileInput.current?.click()}
+          disabled={uploading}
+          aria-label="Attach an image or PDF"
+          title="Attach an image (up to 10 MB) or PDF (up to 30 MB)"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-mk-text-secondary transition-[background-color,transform] duration-150 hover:bg-mk-muted active:scale-[0.94] disabled:opacity-40 motion-reduce:active:scale-100"
+        >
+          {uploading ? <Loader2 className="h-5 w-5 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Paperclip className="h-5 w-5" aria-hidden="true" />}
+        </button>
         <label htmlFor="chat-input" className="sr-only">
           Message
         </label>

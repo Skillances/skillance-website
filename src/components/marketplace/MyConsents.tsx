@@ -5,6 +5,9 @@ import { get, post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
 import { CONSENT_API_ENABLED } from '@/lib/featureFlags';
 import { idBiometricConsentBody } from '@/lib/idBiometricConsent';
+import { policeClearanceConsentBody } from '@/lib/policeClearanceConsent';
+import { useAuth } from '@/context/AuthContext';
+import { myFreelancerKey } from '@/lib/marketplace/freelancerSelf';
 import { isFeaturePaused } from '@/lib/featurePaused';
 import { apiErrorMessage, listFrom } from '@/lib/marketplace/apiHelpers';
 import { MkButton, MkCard, MkConfirmDialog, MkErrorState, MkSectionTitle, MkSkeleton } from '@/components/marketplace/ui';
@@ -14,6 +17,7 @@ type ConsentRow = {
   consentType?: string;
   action?: string;
   status?: string;
+  createdAt?: string;
 };
 
 function rowType(row: ConsentRow) {
@@ -36,9 +40,41 @@ export default function MyConsents() {
   return <MyConsentsPanel />;
 }
 
+type ConsentKind = 'id_biometric' | 'police_clearance';
+
+const CONSENT_ITEMS: {
+  type: ConsentKind;
+  label: string;
+  blurb: string;
+  dialogTitle: string;
+  dialogBody: string;
+  toast: string;
+  body: typeof idBiometricConsentBody | typeof policeClearanceConsentBody;
+}[] = [
+  {
+    type: 'id_biometric',
+    label: 'ID and selfie check',
+    blurb: 'A Skillance staff member compares your face with your ID photo.',
+    dialogTitle: 'Withdraw ID check consent?',
+    dialogBody: 'We will delete your ID images and ID number now and remove your verified status. You will not be able to take bookings.',
+    toast: 'ID check consent withdrawn',
+    body: idBiometricConsentBody,
+  },
+  {
+    type: 'police_clearance',
+    label: 'Police clearance',
+    blurb: 'Criminal behaviour information. Used only for your "police cleared" badge.',
+    dialogTitle: 'Withdraw police clearance consent?',
+    dialogBody: 'We will delete your police clearance document now and remove your badge. You can upload a certificate again later.',
+    toast: 'Police clearance consent withdrawn',
+    body: policeClearanceConsentBody,
+  },
+];
+
 function MyConsentsPanel() {
   const qc = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const { user, refreshUser } = useAuth();
+  const [openType, setOpenType] = useState<ConsentKind | null>(null);
   const key = ['marketplace', 'consents'];
   const consents = useQuery({
     queryKey: key,
@@ -51,45 +87,63 @@ function MyConsentsPanel() {
       }
     },
   });
+  const active = CONSENT_ITEMS.find((i) => i.type === openType);
   const withdraw = useMutation({
-    mutationFn: async () => post(ApiPaths.users.consents, await idBiometricConsentBody('withdrawn')),
-    onSuccess: () => {
-      setOpen(false);
-      toast.success('ID check consent withdrawn');
+    mutationFn: async (item: (typeof CONSENT_ITEMS)[number]) => post(ApiPaths.users.consents, await item.body('withdrawn')),
+    onSuccess: (_d, item) => {
+      setOpenType(null);
+      toast.success(item.toast);
       void qc.invalidateQueries({ queryKey: key });
+      void qc.invalidateQueries({ queryKey: myFreelancerKey(user?.id ?? '') });
+      void qc.invalidateQueries({ queryKey: ['marketplace', 'id-verification'] });
+      void qc.invalidateQueries({ queryKey: ['marketplace', 'police'] });
+      void refreshUser();
     },
   });
 
   const rows = consents.data ?? [];
-  const biometric = rows.find((row) => rowType(row) === 'id_biometric');
-  const state = biometric ? rowState(biometric) : null;
+  // The API returns an event log; the newest event per type is the current state.
+  const stateOf = (type: ConsentKind) => {
+    const latest = rows
+      .filter((row) => rowType(row) === type)
+      .sort((a, b) => Date.parse(b.createdAt ?? '') - Date.parse(a.createdAt ?? '') || 0)[0];
+    return latest ? rowState(latest) : null;
+  };
 
   return (
-    <MkCard className="space-y-3">
+    <MkCard className="space-y-4">
       <MkSectionTitle>My consents</MkSectionTitle>
-      <p className="text-[14px] text-mk-text-secondary">
-        ID and selfie check. A Skillance staff member compares your face with your ID photo.
-      </p>
       {consents.isPending ? (
         <MkSkeleton className="h-10 w-full" />
       ) : consents.isError ? (
         <MkErrorState message={apiErrorMessage(consents.error)} onRetry={() => void consents.refetch()} retrying={consents.isRefetching} />
       ) : (
-        <p className="text-[13px] text-mk-text-tertiary">
-          {state === 'granted' ? 'Status: granted.' : state === 'withdrawn' ? 'Status: withdrawn.' : 'Status: not recorded on this account yet.'}
-        </p>
+        CONSENT_ITEMS.map((item) => {
+          const state = stateOf(item.type);
+          return (
+            <div key={item.type} className="space-y-1">
+              <p className="text-[14px] font-medium text-mk-text-primary">{item.label}</p>
+              <p className="text-[14px] text-mk-text-secondary">{item.blurb}</p>
+              <p className="text-[13px] text-mk-text-tertiary">
+                {state === 'granted' ? 'Status: granted.' : state === 'withdrawn' ? 'Status: withdrawn.' : 'Status: not recorded on this account yet.'}
+              </p>
+              {state === 'granted' && (
+                <MkButton variant="danger-outline" onClick={() => setOpenType(item.type)}>
+                  Withdraw
+                </MkButton>
+              )}
+            </div>
+          );
+        })
       )}
-      <MkButton variant="danger-outline" onClick={() => setOpen(true)}>
-        Withdraw
-      </MkButton>
       <MkConfirmDialog
-        open={open}
+        open={!!active}
         onOpenChange={(v) => {
-          setOpen(v);
+          if (!v) setOpenType(null);
           withdraw.reset();
         }}
-        title="Withdraw ID check consent?"
-        description="We will delete ID images we still have and remove your verified status. You will not be able to take bookings."
+        title={active?.dialogTitle ?? ''}
+        description={active?.dialogBody}
         confirmLabel="Withdraw"
         destructive
         loading={withdraw.isPending}
@@ -100,7 +154,7 @@ function MyConsentsPanel() {
               : apiErrorMessage(withdraw.error, 'Could not withdraw this consent.')
             : null
         }
-        onConfirm={() => withdraw.mutate()}
+        onConfirm={() => active && withdraw.mutate(active)}
       />
     </MkCard>
   );

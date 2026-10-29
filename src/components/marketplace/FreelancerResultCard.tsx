@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { BadgeCheck, MapPin, ShieldCheck } from 'lucide-react';
-import { MkAvatar, MkRating } from '@/components/marketplace/ui';
+import { MkAvatar, MkVerifiedRating } from '@/components/marketplace/ui';
 import { categoryLabel, type CategoryNode } from '@/lib/marketplace/categories';
 import { listingPriceLabel } from '@/lib/marketplace/pricing';
 import { POLICE_CLEARANCE_ENABLED, SHOW_PUBLIC_POLICE_CLEARANCE_BADGE } from '@/lib/featureFlags';
@@ -39,7 +39,7 @@ export default function FreelancerResultCard({
           </div>
           {primaryCategory && <p className="truncate text-[13px] text-mk-text-secondary">{primaryCategory}</p>}
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <MkRating value={f.rating} count={f.totalReviews} />
+            <MkVerifiedRating value={f.rating} count={f.totalReviews} />
             {typeof f.distance === 'number' && Number.isFinite(f.distance) ? (
               <span className="inline-flex items-center gap-1 text-[13px] text-mk-text-secondary">
                 <MapPin className="h-3.5 w-3.5" aria-hidden="true" />

@@ -13,12 +13,13 @@ import {
   MkErrorState,
   MkIconButton,
   MkLinkButton,
-  MkRating,
   MkSectionTitle,
   MkSkeleton,
   MkSwap,
+  MkVerifiedRating,
 } from '@/components/marketplace/ui';
 import { apiErrorMessage, unwrap } from '@/lib/marketplace/apiHelpers';
+import UserSafetyActions from '@/components/marketplace/UserSafetyActions';
 import { PAYMENTS_COMING_SOON } from '@/lib/paymentsPaused';
 import { categoryLabel, useCategories } from '@/lib/marketplace/categories';
 import { listingPriceLabel, money, rateLabel } from '@/lib/marketplace/pricing';
@@ -370,6 +371,8 @@ function ProfileBody({
   products: { data?: Product[]; isPending: boolean; isError: boolean; error: unknown; refetch: () => unknown };
   bookAction: ReactNode;
 }) {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const name = p.fullName || 'Skillance freelancer';
   const coverUrl = publicAssetUrl(p.coverPhotoUrl);
   const verified = isIdVerified(p);
@@ -422,9 +425,14 @@ function ProfileBody({
         </div>
         {p.tag && <p className="mt-0.5 text-[14px] text-mk-text-tertiary">@{p.tag}</p>}
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-          <MkRating value={p.rating} count={p.totalReviews} size={16} />
+          <MkVerifiedRating value={p.rating} count={p.totalReviews} size={16} />
           <span className="font-mk-display text-[15px] font-semibold">{listingPriceLabel(p)}</span>
         </div>
+        {isAuthenticated && p.userId && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <UserSafetyActions userId={p.userId} name={name} onBlocked={() => navigate('/search')} />
+          </div>
+        )}
       </div>
 
       <div className="mt-6 hidden lg:block lg:max-w-xs">{bookAction}</div>

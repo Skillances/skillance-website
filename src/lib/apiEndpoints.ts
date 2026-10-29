@@ -163,6 +163,10 @@ export const ApiPaths = {
     beyondWork: '/admin/beyond-work',
     beyondWorkItem: (id: string) => `/admin/beyond-work/${id}`,
 
+    userReports: '/admin/user-reports',
+    userReport: (reportId: string) => `/admin/user-reports/${reportId}`,
+    disputes: '/admin/disputes',
+
     bookingReviews: '/admin/booking-reviews',
     bookingReviewHide: (id: string) => `/admin/booking-reviews/${id}/hide`,
     bookingReviewRestore: (id: string) => `/admin/booking-reviews/${id}/restore`,
@@ -181,6 +185,9 @@ export const ApiPaths = {
     syncCustomerProfile: '/users/me/sync-customer-profile',
     deleteAccount: '/users/me/delete-account',
     exportAccount: '/users/me/export',
+    myBlocks: '/users/me/blocks',
+    userBlock: (userId: string) => `/users/${userId}/block`,
+    reportUser: '/reports/users',
     user: (userId: string) => `/users/${userId}`,
     userSettings: (userId: string) => `/users/${userId}/settings`,
     acknowledgePolicyWarning: (warningId: string) =>
@@ -258,6 +265,7 @@ export const ApiPaths = {
 
     disputes: '/disputes',
     disputeByBooking: (bookingId: string) => `/disputes/booking/${bookingId}`,
+    disputeResolve: (disputeId: string) => `/disputes/${disputeId}/resolve`,
 
     favorites: '/favorites',
     favoriteStatus: (freelancerId: string) => `/favorites/${freelancerId}/status`,
@@ -268,6 +276,7 @@ export const ApiPaths = {
     chatByBooking: (bookingId: string) => `/chats/booking/${bookingId}`,
     chatMessages: (chatId: string) => `/chats/${chatId}/messages`,
     chatRead: (chatId: string) => `/chats/${chatId}/read`,
+    chatAttachments: (chatId: string) => `/chats/${chatId}/attachments`,
 
     recurringRequests: '/recurring-bookings/requests',
     recurringRequestAccept: (id: string) => `/recurring-bookings/requests/${id}/accept`,
