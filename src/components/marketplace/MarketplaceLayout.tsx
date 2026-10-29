@@ -1,5 +1,5 @@
-import { Suspense, useState, type ComponentType } from 'react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Suspense, type ComponentType } from 'react';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Briefcase,
@@ -16,12 +16,9 @@ import {
   User,
   Wallet,
 } from 'lucide-react';
-import { toast } from 'sonner';
-import { put } from '@/lib/api';
-import { ApiPaths } from '@/lib/apiEndpoints';
 import { useAuth } from '@/context/AuthContext';
 import { activeView, landingPath } from '@/lib/marketplace/session';
-import { apiErrorMessage } from '@/lib/marketplace/apiHelpers';
+import ViewSwitcher from '@/components/marketplace/ViewSwitcher';
 import { mkMotion } from '@/lib/marketplace/theme';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/utils';
@@ -59,45 +56,6 @@ const GUEST_NAV: NavItem[] = [
 /** The five items that fit the phone tab bar; the rest stay reachable from Account. */
 const CUSTOMER_TABS = ['/home', '/search', '/bookings', '/chats', '/account'];
 const FREELANCER_TABS = ['/work', '/work/jobs', '/work/earnings', '/chats', '/account'];
-
-function ViewSwitch({ compact }: { compact?: boolean }) {
-  const { user, refreshUser } = useAuth();
-  const navigate = useNavigate();
-  const [pending, setPending] = useState(false);
-  if (!user?.canSwitchView) return null;
-  const current = activeView(user);
-  const target = current === 'freelancer' ? 'customer' : 'freelancer';
-
-  const onSwitch = async () => {
-    setPending(true);
-    try {
-      await put(ApiPaths.marketplace.preferredView, { view: target });
-      const fresh = await refreshUser();
-      navigate(fresh ? landingPath(fresh) : target === 'freelancer' ? '/work' : '/home', { replace: true });
-    } catch (err) {
-      toast.error(apiErrorMessage(err, 'Could not switch view.'));
-    } finally {
-      setPending(false);
-    }
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={onSwitch}
-      disabled={pending}
-      aria-busy={pending || undefined}
-      className={cn(
-        'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-mk-border bg-mk-surface font-mk-display text-[13px] font-semibold text-mk-text-primary',
-        'transition-[background-color,transform,opacity] duration-150 ease-out hover:bg-mk-muted active:scale-[0.97] motion-reduce:active:scale-100 disabled:opacity-60',
-        compact ? 'px-3' : 'w-full px-4',
-      )}
-    >
-      <Repeat className="h-4 w-4" aria-hidden="true" />
-      {target === 'freelancer' ? 'Switch to freelancer' : 'Switch to customer'}
-    </button>
-  );
-}
 
 function OutletFallback() {
   return (
@@ -155,7 +113,7 @@ export default function MarketplaceLayout() {
         <div className="space-y-2 border-t border-mk-divider pt-4">
           {signedIn ? (
             <>
-              <ViewSwitch />
+              <ViewSwitcher />
               <div className="flex items-center gap-3 px-1 py-2">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-mk-display text-[14px] font-semibold">{user.fullName || 'Your account'}</p>
@@ -192,7 +150,7 @@ export default function MarketplaceLayout() {
           Skillance
         </Link>
         {signedIn ? (
-          <ViewSwitch compact />
+          <ViewSwitcher compact />
         ) : (
           !isLoading && (
             <Link

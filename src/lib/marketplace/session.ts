@@ -33,9 +33,12 @@ export function isStaff(user: MarketplaceUser | null): boolean {
 
 export function landingPath(user: MarketplaceUser): string {
   if (isStaff(user)) return '/admin/dashboard';
-  const view = user.preferredView ?? user.primaryRole;
-  if (String(view).toLowerCase() === 'freelancer') return '/work';
-  return '/home';
+  return marketplacePathForView(activeView(user));
+}
+
+/** Marketplace home for a customer or freelancer view (not admin). */
+export function marketplacePathForView(view: 'customer' | 'freelancer'): string {
+  return view === 'freelancer' ? '/work' : '/home';
 }
 
 /** Active view for nav and guards, with the same fallback as {@link landingPath}. */

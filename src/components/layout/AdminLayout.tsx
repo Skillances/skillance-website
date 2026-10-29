@@ -55,6 +55,7 @@ import { useAdminAblyQueue } from '@/hooks/useAdminAblyQueue';
 import { ADMIN_QUEUE_HINT_EVENT } from '@/lib/adminQueueEvents';
 import { prefetchAdminRouteChunks } from '@/lib/prefetchAdminRoutes';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import ViewSwitcher from '@/components/marketplace/ViewSwitcher';
 
 /** Romans 8:18 (ESV wording) shown in admin top bar tooltip */
 const ROMANS_8_18_FULL_VERSE =
@@ -461,6 +462,9 @@ function AdminSidebarContent({
       </nav>
 
       <div className="shrink-0 px-3 pb-4 pt-2 border-t border-neutral-100 dark:border-neutral-800">
+        <div className="px-3 pb-2">
+          <ViewSwitcher surface="admin" />
+        </div>
         <div className="flex items-center gap-2.5 px-3 py-2 mb-1">
           <div className="w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-xs font-semibold text-black dark:text-white shrink-0">
             {user?.fullName?.charAt(0) || 'A'}
