@@ -34,6 +34,9 @@ export type Booking = {
   pinVerifiedAt?: string | null;
   disputeRequired?: boolean;
   disputeWindowEndsAt?: string | null;
+  /** Test bookings cannot be reviewed. The API may send either flag. */
+  isTest?: boolean | null;
+  test?: boolean | null;
   customer?: {
     id?: string;
     userId?: string;

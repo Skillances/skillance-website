@@ -6,71 +6,9 @@ import { ApiPaths } from '@/lib/apiEndpoints';
 import { SHOW_PUBLIC_STATS } from '@/lib/featureFlags';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { revealFromTo } from '@/lib/motion';
+import { formatPublicStat, statsFromPayload, type PublicStat } from '@/lib/publicStats';
 
 gsap.registerPlugin(ScrollTrigger);
-
-interface Stat {
-  value: number;
-  suffix: string;
-  label: string;
-}
-
-function parseFiniteNumber(raw: unknown): number | null {
-  if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
-  if (typeof raw === 'string' && raw.trim() !== '') {
-    const n = Number(raw);
-    if (Number.isFinite(n)) return n;
-  }
-  return null;
-}
-
-function parseUsersCount(data: Record<string, unknown>): number | null {
-  const n = parseFiniteNumber(data.usersCount);
-  if (n === null) return null;
-  return Math.max(0, Math.floor(n));
-}
-
-function formatStat(stat: Stat, animated: number): string {
-  if (stat.suffix === '%') return `${animated}${stat.suffix}`;
-  if (!Number.isInteger(stat.value)) return animated.toFixed(1);
-  return Math.round(animated).toLocaleString('en-ZA');
-}
-
-function statsFromPayload(data: unknown): Stat[] {
-  if (!data || typeof data !== 'object') return [];
-  const record = data as Record<string, unknown>;
-  const next: Stat[] = [];
-
-  const users = parseUsersCount(record);
-  if (users !== null) {
-    next.push({ value: users, suffix: '', label: 'people on Skillance' });
-  }
-
-  const verified = parseFiniteNumber(record.verifiedPercent);
-  if (verified !== null) {
-    next.push({
-      value: verified,
-      suffix: '%',
-      label: 'of providers verified',
-    });
-  }
-
-  const bookings = parseFiniteNumber(record.bookingsCount);
-  if (bookings !== null) {
-    next.push({
-      value: Math.max(0, Math.floor(bookings)),
-      suffix: '',
-      label: 'bookings',
-    });
-  }
-
-  const rating = parseFiniteNumber(record.avgRating);
-  if (rating !== null) {
-    next.push({ value: rating, suffix: '', label: 'average rating' });
-  }
-
-  return next;
-}
 
 const Stats = () => {
   if (!SHOW_PUBLIC_STATS) return null;
@@ -88,7 +26,7 @@ const Stats = () => {
  */
 function LiveStats() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [stats, setStats] = useState<Stat[] | null>(null);
+  const [stats, setStats] = useState<PublicStat[] | null>(null);
   const [animatedValues, setAnimatedValues] = useState<number[]>([]);
   const hasAnimated = useRef(false);
   const reducedMotion = usePrefersReducedMotion();
@@ -174,7 +112,7 @@ function LiveStats() {
             {stats.map((stat, index) => (
               <div key={stat.label} className="flex items-baseline gap-4">
                 <span className="font-serif text-5xl sm:text-7xl lg:text-8xl text-black tabular-nums">
-                  {formatStat(stat, animatedValues[index] ?? 0)}
+                  {formatPublicStat(stat, animatedValues[index] ?? 0)}
                 </span>
                 <span className="text-neutral-500 text-lg max-w-[220px]">
                   {stat.label}

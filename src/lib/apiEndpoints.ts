@@ -170,6 +170,13 @@ export const ApiPaths = {
     bookingReviews: '/admin/booking-reviews',
     bookingReviewHide: (id: string) => `/admin/booking-reviews/${id}/hide`,
     bookingReviewRestore: (id: string) => `/admin/booking-reviews/${id}/restore`,
+    /** Publish a pending booking review. Body `{}`. Writes a moderation log row. */
+    bookingReviewApprove: (id: string) => `/admin/booking-reviews/${id}/approve`,
+    /**
+     * `{ entries: { id, reviewId, bookingId, actor, action, createdAt }[] }`.
+     * Actions: approve, hide, restore, redact. No ID images.
+     */
+    bookingReviewModerationLog: (id: string) => `/admin/booking-reviews/${id}/moderation-log`,
 
     aiConfig: '/admin/ai/config',
     aiChat: '/admin/ai/chat',
@@ -234,6 +241,15 @@ export const ApiPaths = {
     freelancerDashboardActivity: (id: string) =>
       `/freelancers/${id}/dashboard/activity`,
     freelancerReviews: (id: string) => `/freelancers/${id}/reviews`,
+    /**
+     * One public reply to a published booking review. Body `{ comment }`.
+     * Stored pending. A second reply is rejected. See reviewLock.ts.
+     */
+    freelancerReviewReply: (freelancerId: string, reviewId: string) =>
+      `/freelancers/${freelancerId}/reviews/${reviewId}/reply`,
+    /** Provider report. Body `{ reason, evidence? }`. Not an appeal, and not a delete. */
+    freelancerReviewReport: (freelancerId: string, reviewId: string) =>
+      `/freelancers/${freelancerId}/reviews/${reviewId}/report`,
     customerRating: (userId: string) => `/users/${userId}/customer-rating`,
 
     bookings: '/bookings',

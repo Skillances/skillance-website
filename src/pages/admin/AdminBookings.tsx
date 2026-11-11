@@ -239,7 +239,9 @@ const AdminBookings: React.FC = () => {
         const label = Number.isNaN(deadline.getTime())
           ? data.feedbackDeadlineIso
           : deadline.toLocaleString();
-        toast.success(`Feedback window reset. Submit feedback by ${label}.`);
+        toast.success(
+          `Dev reset cleared ratings and the written review. The public review window still follows the booking dispute window and the configured review window (default 14 days). API feedback deadline was ${label}, which is not the review policy.`,
+        );
         await fetchBookings();
       } catch (err: unknown) {
         const o = err && typeof err === 'object' ? (err as Record<string, unknown>) : {};
@@ -404,7 +406,7 @@ const AdminBookings: React.FC = () => {
             size="sm"
             className="h-8 text-xs"
             disabled={busy}
-            title="Reset completedAt, clear per-booking ratings/review, reopen 24h feedback window (dev only)"
+            title="Dev only: clear ratings and the written review. Does not set the public review window (disputeWindowEndsAt plus the configured review window, default 14 days)."
             onClick={(ev) => void handleAdvanceCompletedDev(ev, booking)}
           >
             {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Reset feedback'}

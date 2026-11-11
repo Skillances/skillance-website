@@ -39,7 +39,12 @@ export default function FreelancerResultCard({
           </div>
           {primaryCategory && <p className="truncate text-[13px] text-mk-text-secondary">{primaryCategory}</p>}
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <MkVerifiedRating value={f.rating} count={f.totalReviews} />
+            <MkVerifiedRating
+              value={f.rating}
+              count={f.totalReviews}
+              ratingBasis={f.ratingBasis}
+              verifiedReviewCount={f.verifiedReviewCount}
+            />
             {typeof f.distance === 'number' && Number.isFinite(f.distance) ? (
               <span className="inline-flex items-center gap-1 text-[13px] text-mk-text-secondary">
                 <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
