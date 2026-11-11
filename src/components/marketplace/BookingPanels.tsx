@@ -4,13 +4,27 @@ import { KeyRound, ShieldAlert, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { get, post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
+import { useAuth } from '@/context/AuthContext';
 import { MkButton, MkCard, MkConfirmDialog, MkFormError, MkPill, MkSectionTitle, MkSkeleton, MkTextarea } from '@/components/marketplace/ui';
-import { apiErrorMessage, unwrap } from '@/lib/marketplace/apiHelpers';
+import { apiErrorCode, apiErrorMessage, unwrap } from '@/lib/marketplace/apiHelpers';
 import { isNotAParty, paymentsPausedMessage } from '@/lib/paymentsPaused';
-import { bookingKeys, type Booking } from '@/lib/marketplace/bookings';
+import { bookingKeys, roleInBooking, type Booking } from '@/lib/marketplace/bookings';
 import { canCustomerCancel, canFreelancerAccept, isInProgress } from '@/lib/marketplace/bookingStatus';
 import { cancellationMessage } from '@/lib/marketplace/cancellationCopy';
+import { isStaff } from '@/lib/marketplace/session';
 import { formatDateTime } from '@/lib/marketplace/time';
+import {
+  PRIVATE_CUSTOMER_RATING_ACK,
+  RATING_PENDING_ACK,
+  REVIEW_APPEAL_NOTE,
+  REVIEW_PENDING_ACK,
+  customerRatingBody,
+  customerReviewTextBody,
+  evaluateBookingReviewEligibility,
+  ineligibleCopy,
+  mergeFeedbackEligibility,
+  normalizeToken,
+} from '@/lib/reviewLock';
 import { cn } from '@/lib/utils';
 
 function useRefreshBooking(id: string) {
@@ -163,7 +177,16 @@ type FeedbackStatus = {
   freelancerRatedCustomer?: boolean;
   eligible?: boolean;
   eligibleReason?: string;
+  eligibleCode?: string | null;
+  reviewEligibleAt?: string | null;
+  reviewWindowEndsAt?: string | null;
 };
+
+type BookingDispute = { id?: string; status?: string; resolvedAt?: string | null; resolution?: string | null; reason?: string; createdAt?: string };
+
+function feedbackError(err: unknown, fallback: string): string {
+  return ineligibleCopy(apiErrorCode(err)) ?? apiErrorMessage(err, fallback);
+}
 
 function StarPicker({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) {
   return (
@@ -185,46 +208,75 @@ function StarPicker({ value, onChange, label }: { value: number; onChange: (v: n
   );
 }
 
-/** Customer: stars, then a written review. Freelancer: stars for the customer. Gated by feedback-status. */
+/** Customer: stars, then a written review. Freelancer: private stars only. Gated by the booking party, dispute window, and review window. */
 export function FeedbackPanel({ booking, role }: { booking: Booking; role: 'customer' | 'freelancer' }) {
+  const { user } = useAuth();
   const qc = useQueryClient();
-  const completed = String(booking.status).toLowerCase() === 'completed';
+  const statusKey = normalizeToken(booking.status);
+  const completed = statusKey === 'completed';
+  const cancelledOrNoShow = statusKey === 'cancelled' || statusKey === 'canceled' || statusKey === 'no_show' || statusKey === 'noshow';
   const key = ['marketplace', 'feedback', booking.id];
   const status = useQuery({
     queryKey: key,
     enabled: completed,
     queryFn: async () => unwrap<FeedbackStatus>(await get(ApiPaths.marketplace.bookingFeedbackStatus(booking.id))),
   });
+  const dispute = useQuery({
+    queryKey: ['marketplace', 'dispute', booking.id],
+    enabled: completed,
+    queryFn: async () => unwrap<BookingDispute | null>(await get(ApiPaths.marketplace.disputeByBooking(booking.id))),
+  });
   const [stars, setStars] = useState(0);
   const [comment, setComment] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  const partyRole = roleInBooking(booking, user);
+  const isParty = partyRole === role;
 
   const submitStars = useMutation({
     mutationFn: async () =>
       post(
         role === 'customer' ? ApiPaths.marketplace.bookingRateFreelancer(booking.id) : ApiPaths.marketplace.bookingRateCustomer(booking.id),
-        { rating: stars },
+        customerRatingBody(stars),
       ),
     onSuccess: () => {
-      toast.success('Rating sent. Thank you.');
+      toast.success(role === 'customer' ? RATING_PENDING_ACK : PRIVATE_CUSTOMER_RATING_ACK);
       setError(null);
       void qc.invalidateQueries({ queryKey: key });
     },
-    onError: (err) => setError(apiErrorMessage(err, 'Could not send your rating.')),
+    onError: (err) => setError(feedbackError(err, 'Could not send your rating.')),
   });
   const submitText = useMutation({
-    mutationFn: async () => post(ApiPaths.marketplace.bookingReviewText(booking.id), { comment: comment.trim() }),
+    mutationFn: async () => post(ApiPaths.marketplace.bookingReviewText(booking.id), customerReviewTextBody(comment)),
     onSuccess: () => {
-      toast.success('Review posted.');
+      toast.success(REVIEW_PENDING_ACK);
       setError(null);
       setComment('');
       void qc.invalidateQueries({ queryKey: key });
     },
-    onError: (err) => setError(apiErrorMessage(err, 'Could not post your review.')),
+    onError: (err) => setError(feedbackError(err, 'Could not send your review.')),
   });
 
-  if (!completed) return null;
-  if (status.isPending) return <MkSkeleton className="h-28 w-full rounded-2xl" />;
+  if (!completed && !cancelledOrNoShow) return null;
+
+  const blocked = evaluateBookingReviewEligibility({
+    booking,
+    dispute: dispute.data ?? null,
+    isParty,
+    isStaffAccount: isStaff(user),
+    alreadyReviewed: false,
+  });
+
+  if (!completed) {
+    return (
+      <MkCard>
+        <MkSectionTitle>Feedback</MkSectionTitle>
+        <p className="text-[14px] text-mk-text-secondary">{blocked.message}</p>
+      </MkCard>
+    );
+  }
+
+  if (status.isPending || dispute.isPending) return <MkSkeleton className="h-28 w-full rounded-2xl" />;
   if (status.isError) {
     return (
       <MkCard>
@@ -236,24 +288,67 @@ export function FeedbackPanel({ booking, role }: { booking: Booking; role: 'cust
       </MkCard>
     );
   }
+  if (dispute.isError && !isNotAParty(dispute.error)) {
+    const statusCode = (dispute.error as { statusCode?: number } | null)?.statusCode;
+    if (statusCode !== 404) {
+      return (
+        <MkCard>
+          <MkSectionTitle>Feedback</MkSectionTitle>
+          <p className="text-[14px] text-mk-text-secondary">
+            A review stays closed until the dispute status for this booking can be confirmed.
+          </p>
+          <MkButton variant="secondary" size="sm" className="mt-2" onClick={() => void dispute.refetch()}>
+            Try again
+          </MkButton>
+        </MkCard>
+      );
+    }
+  }
+
   const s = status.data ?? {};
-  const starsDone = role === 'customer' ? s.customerStarRatingSubmitted : s.freelancerRatedCustomer;
-  const textDone = role === 'customer' ? s.customerTextReviewSubmitted : true;
+  const starsDone = role === 'customer' ? Boolean(s.customerStarRatingSubmitted) : Boolean(s.freelancerRatedCustomer);
+  const textDone = role === 'customer' ? Boolean(s.customerTextReviewSubmitted) : true;
+  const local = evaluateBookingReviewEligibility({
+    booking,
+    dispute: dispute.isError ? null : (dispute.data ?? null),
+    isParty,
+    isStaffAccount: isStaff(user),
+    alreadyReviewed: false,
+    reviewEligibleAt: s.reviewEligibleAt,
+  });
+  const merged = mergeFeedbackEligibility(local, s);
+  const textStillOpen =
+    role === 'customer' &&
+    starsDone &&
+    !textDone &&
+    local.eligible &&
+    (s.eligible === true || !s.eligibleCode || s.eligibleCode === 'already_reviewed');
+  const showForm = merged.eligible && !starsDone;
+  const showText = textStillOpen;
 
   return (
     <MkCard>
       <MkSectionTitle>{role === 'customer' ? 'Rate your freelancer' : 'Rate this customer'}</MkSectionTitle>
-      {!s.eligible && !starsDone ? (
-        <p className="text-[14px] text-mk-text-secondary">{s.eligibleReason || 'Feedback is not open for this booking yet.'}</p>
-      ) : !starsDone ? (
+      {role === 'freelancer' && (
+        <p className="mb-3 text-[14px] text-mk-text-secondary">This rating is private. It is not published as a written review.</p>
+      )}
+      {starsDone && textDone ? (
+        <div className="space-y-2">
+          <p className="text-[14px] text-mk-success">{role === 'customer' ? REVIEW_PENDING_ACK : PRIVATE_CUSTOMER_RATING_ACK}</p>
+          {role === 'customer' && <p className="text-[13px] text-mk-text-tertiary">{REVIEW_APPEAL_NOTE}</p>}
+        </div>
+      ) : showForm ? (
         <div className="space-y-3">
           <StarPicker value={stars} onChange={setStars} label="Rating" />
           <MkFormError message={error} />
           <MkButton disabled={stars === 0} loading={submitStars.isPending} onClick={() => submitStars.mutate()}>
             Submit rating
           </MkButton>
+          {role === 'customer' && (
+            <p className="text-[13px] text-mk-text-tertiary">Your rating is checked before it appears on the provider profile.</p>
+          )}
         </div>
-      ) : !textDone ? (
+      ) : showText ? (
         <form
           className="space-y-3"
           onSubmit={(e) => {
@@ -265,7 +360,7 @@ export function FeedbackPanel({ booking, role }: { booking: Booking; role: 'cust
             submitText.mutate();
           }}
         >
-          <p className="text-[14px] text-mk-success">Rating sent.</p>
+          <p className="text-[14px] text-mk-text-secondary">Rating received. It will appear once checked.</p>
           <MkTextarea
             label="Write a review"
             optional
@@ -275,15 +370,15 @@ export function FeedbackPanel({ booking, role }: { booking: Booking; role: 'cust
               setComment(e.target.value);
               setError(null);
             }}
-            hint={`${comment.length}/2000`}
+            hint={`${comment.length}/2000. Your name and suburb are not collected.`}
             error={error}
           />
           <MkButton type="submit" loading={submitText.isPending}>
-            Post review
+            Submit review
           </MkButton>
         </form>
       ) : (
-        <p className="text-[14px] text-mk-success">Thanks for your feedback.</p>
+        <p className="text-[14px] text-mk-text-secondary">{merged.message || 'Feedback is not open for this booking yet.'}</p>
       )}
     </MkCard>
   );

@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertTriangle, BadgeCheck, FileText, Heart, Images, Share2, ShieldCheck, Star } from 'lucide-react';
+import { AlertTriangle, BadgeCheck, FileText, Heart, Images, Share2, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { del, get, post } from '@/lib/api';
 import { ApiPaths } from '@/lib/apiEndpoints';
@@ -19,6 +19,7 @@ import {
   MkVerifiedRating,
 } from '@/components/marketplace/ui';
 import { apiErrorMessage, unwrap } from '@/lib/marketplace/apiHelpers';
+import FreelancerReviews from '@/components/marketplace/FreelancerReviews';
 import UserSafetyActions from '@/components/marketplace/UserSafetyActions';
 import { PAYMENTS_COMING_SOON } from '@/lib/paymentsPaused';
 import { categoryLabel, useCategories } from '@/lib/marketplace/categories';
@@ -45,20 +46,14 @@ type PublicProfile = {
   credentialProofVerifiedNames?: string[];
   rating?: number | null;
   totalReviews?: number | null;
+  ratingBasis?: string | null;
+  verifiedReviewCount?: number | null;
   isVerified?: boolean;
   idVerificationStatus?: string;
   policeClearanceStatus?: string;
   serviceRadius?: number | null;
   serviceLocations?: { id: string; label?: string | null; city?: string | null; serviceRadius?: number | null; isPrimary?: boolean }[];
   acceptsRecurringBookings?: boolean;
-};
-
-type Review = {
-  id: string;
-  rating: number;
-  comment?: string | null;
-  createdAt: string;
-  customer?: { fullName?: string; profilePhotoUrl?: string | null };
 };
 
 type Project = { id: string; title: string; description?: string | null; imageUrls?: string[] };
@@ -212,76 +207,6 @@ function FavoriteButton({ freelancerId }: { freelancerId: string }) {
   );
 }
 
-function Reviews({ freelancerId }: { freelancerId: string }) {
-  const { isAuthenticated } = useAuth();
-  const location = useLocation();
-  const reviews = useQuery({
-    queryKey: ['marketplace', 'reviews', freelancerId],
-    enabled: isAuthenticated,
-    queryFn: async () => {
-      const res = await get(`${ApiPaths.marketplace.freelancerReviews(freelancerId)}?page=1&limit=20`);
-      return (unwrap<{ reviews?: Review[] }>(res).reviews ?? []) as Review[];
-    },
-  });
-
-  if (!isAuthenticated) {
-    return (
-      <p className="text-[14px] text-mk-text-secondary">
-        <Link to="/login" state={{ from: location }} className="font-semibold text-mk-text-primary underline underline-offset-2">
-          Sign in
-        </Link>{' '}
-        to read reviews from customers.
-      </p>
-    );
-  }
-  if (reviews.isPending) {
-    return (
-      <div className="space-y-3">
-        <MkSkeleton className="h-16 w-full" />
-        <MkSkeleton className="h-16 w-full" />
-      </div>
-    );
-  }
-  if (reviews.isError) {
-    return (
-      <MkErrorState
-        message={apiErrorMessage(reviews.error, 'Reviews are unavailable.')}
-        onRetry={() => void reviews.refetch()}
-        retrying={reviews.isRefetching}
-      />
-    );
-  }
-  if ((reviews.data ?? []).length === 0) {
-    return <p className="text-[14px] text-mk-text-secondary">No reviews yet. Book a session and be the first to leave one.</p>;
-  }
-  return (
-    <ul className="space-y-4">
-      {reviews.data.map((r) => (
-        <li key={r.id} className="flex gap-3">
-          <MkAvatar src={r.customer?.profilePhotoUrl} name={r.customer?.fullName} size={40} />
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-x-2">
-              <p className="font-mk-display text-[14px] font-semibold">{r.customer?.fullName || 'Customer'}</p>
-              <span className="inline-flex" aria-label={`${r.rating} out of 5 stars`}>
-                {Array.from({ length: 5 }, (_, i) => (
-                  <Star
-                    key={i}
-                    className={cn('h-3.5 w-3.5', i < r.rating ? 'text-mk-rating' : 'text-mk-border')}
-                    fill="currentColor"
-                    aria-hidden="true"
-                  />
-                ))}
-              </span>
-              <span className="text-[12px] text-mk-text-tertiary">{new Date(r.createdAt).toLocaleDateString('en-ZA')}</span>
-            </div>
-            {r.comment && <p className="mt-1 text-[14px] leading-relaxed text-mk-text-secondary">{r.comment}</p>}
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 export default function FreelancerProfilePage() {
   const { freelancerId = '' } = useParams();
   const { isAuthenticated } = useAuth();
@@ -425,7 +350,13 @@ function ProfileBody({
         </div>
         {p.tag && <p className="mt-0.5 text-[14px] text-mk-text-tertiary">@{p.tag}</p>}
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-          <MkVerifiedRating value={p.rating} count={p.totalReviews} size={16} />
+          <MkVerifiedRating
+            value={p.rating}
+            count={p.totalReviews}
+            ratingBasis={p.ratingBasis}
+            verifiedReviewCount={p.verifiedReviewCount}
+            size={16}
+          />
           <span className="font-mk-display text-[15px] font-semibold">{listingPriceLabel(p)}</span>
         </div>
         {isAuthenticated && p.userId && (
@@ -558,9 +489,7 @@ function ProfileBody({
           </Section>
         )}
 
-        <Section title="Reviews">
-          <Reviews freelancerId={p.id} />
-        </Section>
+        <FreelancerReviews freelancerId={p.id} providerUserId={p.userId} />
       </div>
 
       {/* Primary action stays visible on phones */}

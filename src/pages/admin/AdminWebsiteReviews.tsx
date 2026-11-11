@@ -9,7 +9,15 @@ import DataTable, { type Column } from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 import StatsCard from '@/components/admin/dashboard/StatsCard';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import { toast } from 'sonner';
+import {
+  PRE_LAUNCH_WEBSITE_REVIEW_IDS,
+  isPreLaunchWebsiteReview,
+  websiteReviewFeatureToggleAllowed,
+  websiteReviewHardDeleteAllowed,
+} from '@/lib/reviewLock';
 
 interface WebsiteReview {
   id: string;
@@ -32,6 +40,9 @@ const AdminWebsiteReviews: React.FC = () => {
   const searchDebounced = useDebouncedValue(search, 300);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [deleteTarget, setDeleteTarget] = useState<WebsiteReview | null>(null);
+  const [deleteReason, setDeleteReason] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const pageSize = 20;
 
   const fetchReviews = useCallback(async () => {
@@ -78,20 +89,45 @@ const AdminWebsiteReviews: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    if (!websiteReviewHardDeleteAllowed(deleteTarget.id)) {
+      toast.error('These pre-launch reviews stay in the database until Markus decides. They are not deleted from this screen.');
+      setDeleteTarget(null);
+      return;
+    }
+    const reason = deleteReason.trim();
+    if (reason.length < 8) {
+      toast.error('Enter a short reason. Hard delete is logged.');
+      return;
+    }
     try {
-      await del(ApiPaths.admin.websiteReview(id));
+      setDeleteLoading(true);
+      await put(ApiPaths.admin.websiteReview(deleteTarget.id), { deletionReason: reason, isFeatured: false });
+      await del(ApiPaths.admin.websiteReview(deleteTarget.id));
       toast.success('Review deleted');
+      setDeleteTarget(null);
+      setDeleteReason('');
       fetchReviews();
     } catch {
       toast.error('Failed to delete');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
   const handleToggleFeatured = async (id: string, currentlyFeatured: boolean) => {
+    if (!websiteReviewFeatureToggleAllowed(id, currentlyFeatured)) {
+      toast.error('Pre-launch feedback cannot be featured as a testimonial. It is not a verified booking review.');
+      return;
+    }
     try {
       await put(ApiPaths.admin.websiteReview(id), { isFeatured: !currentlyFeatured });
-      toast.success(currentlyFeatured ? 'Removed from testimonials' : 'Added to testimonials');
+      toast.success(
+        currentlyFeatured
+          ? 'Removed from testimonials'
+          : 'Marked featured on this website-review record. It is not a verified booking review and it does not change ratings.',
+      );
       fetchReviews();
     } catch {
       toast.error('Failed to update');
@@ -135,6 +171,9 @@ const AdminWebsiteReviews: React.FC = () => {
             <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-600 dark:text-amber-400">
               <Quote className="h-2.5 w-2.5" /> Testimonial
             </span>
+          )}
+          {isPreLaunchWebsiteReview(r.id) && (
+            <span className="text-[10px] font-medium text-neutral-500">Pre-launch feedback. Not a verified booking review.</span>
           )}
         </div>
       ),
@@ -220,9 +259,15 @@ const AdminWebsiteReviews: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0 text-neutral-400 hover:text-red-500"
-            onClick={(e) => { e.stopPropagation(); handleDelete(r.id); }}
-            title="Delete"
+            className="h-7 w-7 p-0 text-neutral-400 hover:text-red-500 disabled:opacity-40"
+            disabled={!websiteReviewHardDeleteAllowed(r.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!websiteReviewHardDeleteAllowed(r.id)) return;
+              setDeleteReason('');
+              setDeleteTarget(r);
+            }}
+            title={websiteReviewHardDeleteAllowed(r.id) ? 'Delete' : 'Pre-launch reviews are not hard-deleted'}
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
@@ -239,8 +284,20 @@ const AdminWebsiteReviews: React.FC = () => {
     <div>
       <PageHeader
         title="Website reviews"
-        description="Manage reviews submitted through the public website. Feature approved reviews to show them in the testimonials section."
+        description="Legacy website submissions. They are not verified booking reviews, they are not on the homepage, and they are not counted in ratings. Featuring one does not publish it as a booking review."
       />
+
+      <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+        <p className="font-medium">Pre-launch reviews (decision D2, still open)</p>
+        <p className="mt-1">
+          Until Markus decides, these three rows stay in the database and in this list. They are not shown as customer reviews and they are not hard-deleted:
+        </p>
+        <ul className="mt-2 list-disc pl-5 font-mono text-xs">
+          {PRE_LAUNCH_WEBSITE_REVIEW_IDS.map((id) => (
+            <li key={id}>{id}</li>
+          ))}
+        </ul>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
         <StatsCard title="Total Reviews" value={total} icon={Star} />
@@ -271,6 +328,29 @@ const AdminWebsiteReviews: React.FC = () => {
         total={total}
         onPageChange={setPage}
       />
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteTarget(null);
+            setDeleteReason('');
+          }
+        }}
+        title="Delete this website review?"
+        description="This removes the row. It is not available for the three pre-launch reviews. Enter a reason so the deletion is not silent."
+        confirmLabel="Delete"
+        variant="destructive"
+        isLoading={deleteLoading}
+        onConfirm={() => void handleDelete()}
+      >
+        <Textarea
+          value={deleteReason}
+          onChange={(event) => setDeleteReason(event.target.value)}
+          placeholder="Reason for deleting this row"
+          className="min-h-24"
+        />
+      </ConfirmDialog>
     </div>
   );
 };

@@ -170,7 +170,9 @@ const AdminBookingDetail: React.FC = () => {
       const label = Number.isNaN(deadline.getTime())
         ? data.feedbackDeadlineIso
         : deadline.toLocaleString();
-      toast.success(`Feedback window reset. Submit feedback by ${label}.`);
+      toast.success(
+        `Dev reset cleared ratings and the written review. The public review window still follows the booking dispute window and the configured review window (default 14 days). API feedback deadline was ${label}, which is not the review policy.`,
+      );
       await loadBooking();
     } catch (err: unknown) {
       const o = err && typeof err === 'object' ? (err as Record<string, unknown>) : {};
@@ -316,7 +318,7 @@ const AdminBookingDetail: React.FC = () => {
                 size="sm"
                 className="shrink-0 h-9"
                 disabled={advancing}
-                title="Dev only: reset completedAt, clear ratings/review for this booking, reopen 24h feedback window"
+                title="Dev only: clear ratings and the written review. Does not set the public review window (disputeWindowEndsAt plus the configured review window, default 14 days)."
                 onClick={() => void handleAdvanceCompletedDev()}
               >
                 {advancing ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" /> : null}

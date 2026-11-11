@@ -15,6 +15,9 @@ export type FreelancerSummary = {
   categoryRates?: { categoryId: string; hourlyRate: number | string; bookingPricingMode?: string }[];
   rating?: number | null;
   totalReviews?: number | null;
+  /** `published_verified_booking_reviews` when avg is safe to show. See reviewLock.ts. */
+  ratingBasis?: string | null;
+  verifiedReviewCount?: number | null;
   isVerified?: boolean;
   idVerificationStatus?: string;
   policeClearanceStatus?: string;

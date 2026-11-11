@@ -23,6 +23,7 @@ import * as SwitchPrimitive from '@radix-ui/react-switch';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, ArrowLeft, BadgeCheck, Check, ChevronDown, Loader2, RotateCw, Star, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { canShowPublicAverage } from '@/lib/reviewLock';
 import { marketplaceCssVars, mkMotion } from '@/lib/marketplace/theme';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
@@ -551,26 +552,39 @@ export function MkRating({ value, count, size = 14 }: { value?: number | null; c
 }
 
 /**
- * Rating, review count and a "Verified bookings" label. Reviews are only created from completed
- * bookings, so a non-zero API count is verified. Renders nothing when there are no reviews.
+ * Public average from published verified booking reviews only.
+ * Renders nothing until the API marks `ratingBasis` and D5's minimum is met.
+ * A non-zero `totalReviews` on its own is not treated as verified.
  */
 export function MkVerifiedRating({
   value,
   count,
+  ratingBasis,
+  verifiedReviewCount,
   size = 14,
   className,
 }: {
   value?: number | null;
   count?: number | null;
+  ratingBasis?: string | null;
+  verifiedReviewCount?: number | null;
   size?: number;
   className?: string;
 }) {
-  const n = typeof count === 'number' && Number.isFinite(count) ? count : 0;
-  const v = typeof value === 'number' && Number.isFinite(value) ? value : 0;
-  if (n <= 0 || v <= 0) return null;
+  const verified = typeof verifiedReviewCount === 'number' && Number.isFinite(verifiedReviewCount) ? verifiedReviewCount : null;
+  if (
+    !canShowPublicAverage({
+      rating: value,
+      count: verified ?? count,
+      ratingBasis,
+      verifiedReviewCount: verified,
+    })
+  ) {
+    return null;
+  }
   return (
     <span className={cn('inline-flex flex-wrap items-center gap-x-2 gap-y-0.5', className)}>
-      <MkRating value={v} count={n} size={size} />
+      <MkRating value={value} count={verified} size={size} />
       <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-mk-success">
         <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" /> Verified bookings
       </span>

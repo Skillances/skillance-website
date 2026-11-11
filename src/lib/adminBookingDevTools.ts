@@ -65,7 +65,9 @@ export function bookingDevAdvanceAllowedForStatus(status: string | undefined): b
 }
 
 /**
- * Dev-only: reset feedback window and remove per-booking ratings / written review for testing.
+ * Dev-only: clear per-booking ratings and the written review so they can be submitted again in a test.
+ * This does not set the public review window. Eligibility follows disputeWindowEndsAt and
+ * REVIEW_WINDOW_DAYS (proposed 14). Do not describe the result as a 24-hour feedback window.
  */
 export function bookingDevAdvanceCompletedAllowedForStatus(status: string | undefined): boolean {
   return normalizeBookingStatusKey(status) === 'completed';

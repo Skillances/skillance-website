@@ -4,7 +4,6 @@ import { MenuToggleIcon } from '../ui/menu-toggle-icon';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getLenisFromWindow, getSectionScrollTopReservePx, scrollToSectionId } from '@/lib/sectionScroll';
-import { SHOW_PUBLIC_WEBSITE_REVIEWS } from '@/lib/featureFlags';
 import { useAuth } from '@/context/AuthContext';
 import { landingPath } from '@/lib/marketplace/session';
 import ExperienceSwitcher from '@/components/experience/ExperienceSwitcher';
@@ -158,7 +157,6 @@ const Navigation = () => {
     { name: 'Mission', href: '/#mission' },
     { name: 'How It Works', href: '/#how-it-works' },
     { name: 'Services', href: '/#services' },
-    ...(SHOW_PUBLIC_WEBSITE_REVIEWS ? [{ name: 'Reviews', href: '/#reviews' }] : []),
     { name: 'Contact', href: '/contact' },
     { name: 'Trust', href: '/#trust-safety' },
   ];

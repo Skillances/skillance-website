@@ -4,11 +4,14 @@
  * Homepage counters (`SHOW_PUBLIC_STATS`): set this to `true` when the live
  * `/public/stats` figures are sourced and approved to publish. There are no
  * hardcoded fallbacks. With the flag on, `Stats` reads `usersCount`,
- * `verifiedPercent`, `bookingsCount`, and `avgRating` from that response.
+ * `verifiedPercent`, and `bookingsCount` from that response. `avgRating` is
+ * shown only when the payload marks it as published verified booking reviews
+ * and Markus has set a minimum count (D5). A failed request hides the section.
  *
- * Homepage website reviews (`SHOW_PUBLIC_WEBSITE_REVIEWS`): the anonymous
- * review form and the pre-launch testimonials. Leave off until reviews come
- * from completed bookings.
+ * Homepage website reviews (`SHOW_PUBLIC_WEBSITE_REVIEWS`): retired. The
+ * anonymous review form and the pre-launch testimonials are not rendered,
+ * and this flag must not turn them back on. Verified booking reviews are
+ * shown on the provider profile after moderation.
  *
  * Police-clearance badge (`SHOW_PUBLIC_POLICE_CLEARANCE_BADGE`): the badge on
  * public provider profiles and search cards. On. It also needs
